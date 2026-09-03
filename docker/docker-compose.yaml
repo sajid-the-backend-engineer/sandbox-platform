@@ -257,6 +257,19 @@ services:
       - daytona-network
     ports:
       - 1080:1080
+    # Override the image's own healthcheck, which is broken upstream in maildev 3.0.0-rc.1: it probes
+    # "http://localhost:${MAILDEV_WEB_PORT}/api/healthz", but `localhost` resolves to IPv6 ::1 first
+    # while MailDev's web server binds IPv4 only — so every probe got "connection refused" and the
+    # container sat unhealthy forever despite the service working fine. Verified inside the container:
+    # ::1 refuses, 127.0.0.1 returns "true". Only the host is changed; the endpoint is identical.
+    healthcheck:
+      test: [ "CMD-SHELL", "wget -q -O - http://127.0.0.1:1080/api/healthz || exit 1" ]
+      interval: 10s
+      timeout: 5s
+      retries: 3
+      # MailDev needs ~20s to bind :1080. Without this grace period the first three probes fail during
+      # boot and the container is marked unhealthy before it has ever had a chance to answer.
+      start_period: 45s
 
   minio:
     image: minio/minio:latest
