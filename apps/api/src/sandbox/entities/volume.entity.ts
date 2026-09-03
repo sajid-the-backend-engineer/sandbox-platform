@@ -45,6 +45,6 @@ export class Volume {
   lastUsedAt?: Date
 
   public getBucketName(): string {
-    return `daytona-volume-${this.id}`
+    return `northrays-volume-${this.id}`
   }
 }

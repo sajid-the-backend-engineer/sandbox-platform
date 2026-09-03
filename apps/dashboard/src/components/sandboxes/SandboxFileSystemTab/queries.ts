@@ -56,7 +56,7 @@ export function useSandboxInstanceQuery({
     queryKey: fileSystemQueryKeys.sandbox(sandboxId),
     queryFn: () => {
       if (!client) {
-        throw new Error('Unable to initialize Daytona client')
+        throw new Error('Unable to initialize Northrays client')
       }
 
       return client.get(sandboxId)

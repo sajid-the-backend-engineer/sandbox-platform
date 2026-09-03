@@ -3,17 +3,17 @@ import json
 import os
 from datetime import datetime
 
-from daytona import CreateSandboxFromSnapshotParams, Daytona, FileDownloadRequest, FileUpload
+from northrays import CreateSandboxFromSnapshotParams, Northrays, FileDownloadRequest, FileUpload
 
 
 def main():
-    daytona = Daytona()
+    northrays = Northrays()
     params = CreateSandboxFromSnapshotParams(
         language="python",
     )
 
     # First, create a sandbox
-    sandbox = daytona.create(params)
+    sandbox = northrays.create(params)
     print(f"Created sandbox with ID: {sandbox.id}")
 
     # List files in the sandbox
@@ -132,7 +132,7 @@ def main():
         os.remove("local-script.sh")
 
     # Delete the sandbox
-    daytona.delete(sandbox)
+    northrays.delete(sandbox)
 
 
 if __name__ == "__main__":

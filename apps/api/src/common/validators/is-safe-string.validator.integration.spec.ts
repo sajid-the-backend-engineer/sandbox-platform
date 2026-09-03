@@ -414,7 +414,7 @@ describe('DTO @IsSafeDisplayString() integration tests — display name fields o
   describe('legitimate display names that should NOT break', () => {
     it('should accept names with special characters', async () => {
       const testCases = [
-        'Daytona Platforms Inc.',
+        'Northrays',
         "O'Reilly Media",
         'Smith & Associates',
         'Dept. of Engineering',

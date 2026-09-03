@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: AGPL-3.0
  */
 
-import { GpuType } from '@daytona/api-client'
+import { GpuType } from '@northrays/api-client'
 
 export const GPU_TYPE_LABELS: Record<GpuType, string> = {
   [GpuType.H100]: 'NVIDIA H100',

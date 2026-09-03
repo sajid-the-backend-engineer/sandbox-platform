@@ -11,7 +11,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/daytonaio/daemon/pkg/common"
+	"github.com/northrays/daemon/pkg/common"
 	"github.com/gorilla/websocket"
 )
 

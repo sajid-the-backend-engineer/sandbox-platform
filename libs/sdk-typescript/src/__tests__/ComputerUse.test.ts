@@ -6,7 +6,7 @@ import { ComputerUse } from '../ComputerUse'
 
 const mockDynamicImport = jest.fn()
 
-jest.mock('@daytona/toolbox-api-client', () => ({}), { virtual: true })
+jest.mock('@northrays/toolbox-api-client', () => ({}), { virtual: true })
 jest.mock('../utils/Import', () => ({
   dynamicImport: (...args: unknown[]) => mockDynamicImport(...args),
 }))

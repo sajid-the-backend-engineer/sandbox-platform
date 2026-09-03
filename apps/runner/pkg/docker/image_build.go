@@ -12,10 +12,10 @@ import (
 	"os"
 	"strings"
 
-	"github.com/daytonaio/common-go/pkg/log"
-	"github.com/daytonaio/runner/cmd/runner/config"
-	"github.com/daytonaio/runner/pkg/api/dto"
-	"github.com/daytonaio/runner/pkg/storage"
+	"github.com/northrays/common-go/pkg/log"
+	"github.com/northrays/runner/cmd/runner/config"
+	"github.com/northrays/runner/pkg/api/dto"
+	"github.com/northrays/runner/pkg/storage"
 
 	"github.com/docker/docker/api/types/build"
 	docker_registry "github.com/docker/docker/api/types/registry"

@@ -4,16 +4,16 @@
  */
 
 /**
- * pi-daytona — run Pi's tools inside a remote, ephemeral Daytona sandbox.
+ * pi-northrays — run Pi's tools inside a remote, ephemeral Northrays sandbox.
  *
  * The agent runs locally; only tool execution
- * (bash + file I/O) is redirected into a Daytona container. Activation is
- * launch-scoped via the `--daytona` flag; the sandbox is torn down on exit.
+ * (bash + file I/O) is redirected into a Northrays container. Activation is
+ * launch-scoped via the `--northrays` flag; the sandbox is torn down on exit.
  *
  * Blueprint: examples/extensions/ssh.ts from @earendil-works/pi-coding-agent.
  */
 
-import { Daytona, type Sandbox } from '@daytona/sdk'
+import { Northrays, type Sandbox } from '@northrays/sdk'
 import type { ExtensionAPI, ExtensionContext } from '@earendil-works/pi-coding-agent'
 import { SessionManager } from '@earendil-works/pi-coding-agent'
 import { resolveApiKey } from './src/auth.ts'
@@ -38,7 +38,7 @@ import {
 import { pushChanges } from './src/sync.ts'
 
 /** Session custom-entry type recording the sandbox bound to this session. */
-const SESSION_ENTRY = 'daytona-session'
+const SESSION_ENTRY = 'northrays-session'
 
 /** GitHub sync target for a session (set only when pushing is enabled). */
 interface GitTarget {
@@ -64,17 +64,17 @@ interface ActiveSandbox {
 }
 
 export default function (pi: ExtensionAPI) {
-  pi.registerFlag('daytona', { description: 'Run tools inside a Daytona sandbox', type: 'boolean' })
+  pi.registerFlag('northrays', { description: 'Run tools inside a Northrays sandbox', type: 'boolean' })
   pi.registerFlag('repo', { description: 'Git repo to clone into the sandbox', type: 'string' })
   pi.registerFlag('branch', { description: 'Branch to clone (with --repo)', type: 'string' })
-  pi.registerFlag('snapshot', { description: 'Daytona snapshot/base image to use', type: 'string' })
+  pi.registerFlag('snapshot', { description: 'Northrays snapshot/base image to use', type: 'string' })
   pi.registerFlag('public', { description: 'Create a public sandbox (preview URLs need no token)', type: 'boolean' })
   pi.registerFlag('idle-stop', { description: 'Minutes idle before the sandbox pauses (default 15)', type: 'string' })
 
   // Resolved lazily on session_start (CLI flags are not available at load time).
   let active: ActiveSandbox | null = null
-  // Daytona client for the session; reused for reaping at shutdown.
-  let daytona: Daytona | null = null
+  // Northrays client for the session; reused for reaping at shutdown.
+  let northrays: Northrays | null = null
 
   // Register all tools (each runs in the sandbox when one is active).
   registerTools(pi, () => active)
@@ -83,10 +83,10 @@ export default function (pi: ExtensionAPI) {
 
   // Status for the active sandbox: state, working dir, branch, sync status, PR link.
   pi.registerCommand('sandbox', {
-    description: "Show the active Daytona sandbox's status",
+    description: "Show the active Northrays sandbox's status",
     handler: async (_args, ctx) => {
       if (!active) {
-        ctx.ui.notify('No Daytona sandbox is active. Launch Pi with --daytona.', 'warning')
+        ctx.ui.notify('No Northrays sandbox is active. Launch Pi with --northrays.', 'warning')
         return
       }
       const { sandbox, cwd, git } = active
@@ -209,17 +209,17 @@ export default function (pi: ExtensionAPI) {
   // --- Lifecycle ---
 
   pi.on('session_start', async (event, ctx) => {
-    if (pi.getFlag('daytona') !== true) return
+    if (pi.getFlag('northrays') !== true) return
     if (active) return // already running (e.g. after reload)
 
     const apiKey = await resolveApiKey(ctx)
     if (!apiKey) {
-      ctx.ui.notify('Daytona: no API key found — staying local. Set DAYTONA_API_KEY.', 'error')
+      ctx.ui.notify('Northrays: no API key found — staying local. Set NORTHRAYS_API_KEY.', 'error')
       return
     }
 
-    const dt = new Daytona({ apiKey })
-    daytona = dt
+    const dt = new Northrays({ apiKey })
+    northrays = dt
     const persisted = ctx.sessionManager.getSessionFile() !== undefined
     const sessionId = ctx.sessionManager.getSessionId()
 
@@ -227,7 +227,7 @@ export default function (pi: ExtensionAPI) {
     // the background so it never slows startup.
     if (persisted) void reapOrphans(dt)
 
-    setStatus(ctx, '☁ daytona · spinning up sandbox…')
+    setStatus(ctx, '☁ northrays · spinning up sandbox…')
     const startedAt = Date.now()
 
     // Tracked outside the try so the catch can clean up a sandbox that was
@@ -243,7 +243,7 @@ export default function (pi: ExtensionAPI) {
         const prev = latestSessionEntry(ctx)
         if (prev) {
           try {
-            setStatus(ctx, '☁ daytona · resuming sandbox…')
+            setStatus(ctx, '☁ northrays · resuming sandbox…')
             const sandbox = await dt.get(prev.sandboxId)
             await ensureStarted(sandbox)
             active = { sandbox, cwd: prev.cwd, git: prev.git }
@@ -270,18 +270,18 @@ export default function (pi: ExtensionAPI) {
         // Idle PAUSES the sandbox (filesystem preserved); the next tool call
         // transparently restarts it (see withRecovery). Auto-delete is disabled —
         // the sandbox is reaped only when its session is deleted (see reapOrphans).
-        // Default 15 min (matches Daytona's own default); overridable via --idle-stop.
+        // Default 15 min (matches Northrays's own default); overridable via --idle-stop.
         autoStopInterval: numberFlag(pi.getFlag('idle-stop')) ?? 15,
         autoDeleteInterval: -1, // never auto-delete
-        labels: { 'created-by': 'pi-daytona', 'session-id': sessionId },
+        labels: { 'created-by': 'pi-northrays', 'session-id': sessionId },
       })
       created = sandbox
 
-      const home = (await sandbox.getUserHomeDir()) ?? '/home/daytona'
+      const home = (await sandbox.getUserHomeDir()) ?? '/home/northrays'
       // Temporary git identity so the agent's commits (and our init commit) just work.
       await execCommand(
         sandbox,
-        `git config --global user.name "pi-agent" && git config --global user.email "agent@pi.daytona"`,
+        `git config --global user.name "pi-agent" && git config --global user.email "agent@pi.northrays"`,
         home,
       )
       let cwd = home
@@ -324,14 +324,14 @@ export default function (pi: ExtensionAPI) {
           // Clone over HTTPS with the token regardless of the origin's format
           // (a detected origin may be SSH, which the token can't authenticate).
           const cloneUrl = `https://github.com/${slug.owner}/${slug.repo}.git`
-          setStatus(ctx, `☁ daytona · cloning ${slug.owner}/${slug.repo}…`)
+          setStatus(ctx, `☁ northrays · cloning ${slug.owner}/${slug.repo}…`)
           await sandbox.git.clone(cloneUrl, cwd, branch, undefined, 'x-access-token', token)
           git = { slug, base, branch }
         } else {
           // Not a github.com repo, or no gh token: clone read-only, no push.
-          setStatus(ctx, `☁ daytona · cloning ${repoName(repo)}…`)
+          setStatus(ctx, `☁ northrays · cloning ${repoName(repo)}…`)
           await sandbox.git.clone(normalizeRepoUrl(repo), cwd, stringFlag(pi.getFlag('branch')) ?? detectedBranch)
-          ctx.ui.notify('Daytona: GitHub sync disabled (needs `gh auth login` and a github.com repo).', 'warning')
+          ctx.ui.notify('Northrays: GitHub sync disabled (needs `gh auth login` and a github.com repo).', 'warning')
         }
       } else {
         // Not in a git repo: throwaway local repo so the agent can still commit
@@ -361,7 +361,7 @@ export default function (pi: ExtensionAPI) {
       // Delete the half-created sandbox so it doesn't leak (best-effort).
       if (created) await created.delete().catch(() => undefined)
       setStatus(ctx, undefined)
-      ctx.ui.notify(`Daytona: failed to start sandbox — ${errorMessage(err)}`, 'error')
+      ctx.ui.notify(`Northrays: failed to start sandbox — ${errorMessage(err)}`, 'error')
     }
   })
 
@@ -373,10 +373,10 @@ export default function (pi: ExtensionAPI) {
   // Pi's default loading from the local files.
   pi.on('before_agent_start', (event) => {
     if (!active) return
-    const cwdLine = `Current working directory: ${active.cwd} (Daytona sandbox ${shortId(active.sandbox.id)})`
+    const cwdLine = `Current working directory: ${active.cwd} (Northrays sandbox ${shortId(active.sandbox.id)})`
     let systemPrompt = event.systemPrompt.replace(/Current working directory: .*/g, cwdLine)
     systemPrompt +=
-      '\n\nThis project is a git repository inside a Daytona sandbox. After you finish a unit of work, ' +
+      '\n\nThis project is a git repository inside a Northrays sandbox. After you finish a unit of work, ' +
       'commit it with git (e.g. `git add -A && git commit -m "..."`). Do not push — pushing is handled automatically.'
     return { systemPrompt }
   })
@@ -396,7 +396,7 @@ export default function (pi: ExtensionAPI) {
         )
       }
     } catch (err) {
-      ctx.ui.notify(`Daytona: push failed — ${errorMessage(err)}`, 'warning')
+      ctx.ui.notify(`Northrays: push failed — ${errorMessage(err)}`, 'warning')
     }
   })
 
@@ -420,7 +420,7 @@ export default function (pi: ExtensionAPI) {
     if (persisted) {
       // Reap sandboxes whose session no longer exists; this session's own
       // sandbox stays (its session file still exists) and is paused by autoStop.
-      if (daytona) await reapOrphans(daytona)
+      if (northrays) await reapOrphans(northrays)
     } else {
       // In-memory session: nothing to resume, so tidy up GitHub and delete the
       // sandbox now. Push any commits made after the last agent_end (e.g. a
@@ -449,7 +449,7 @@ export default function (pi: ExtensionAPI) {
   })
 }
 
-/** Most recent Daytona sandbox record in this session (for reattach / fork base). */
+/** Most recent Northrays sandbox record in this session (for reattach / fork base). */
 function latestSessionEntry(ctx: ExtensionContext): SessionEntryData | undefined {
   const entries = ctx.sessionManager.getEntries()
   for (let i = entries.length - 1; i >= 0; i--) {
@@ -474,16 +474,16 @@ async function ensureStarted(sandbox: Sandbox): Promise<void> {
 }
 
 /**
- * Delete pi-daytona sandboxes whose session no longer exists. This is how a
+ * Delete pi-northrays sandboxes whose session no longer exists. This is how a
  * sandbox gets cleaned up when its session is deleted from the resume menu —
  * Pi has no session-deleted hook, so we reconcile against SessionManager.listAll().
  * Best-effort: never throws.
  */
-async function reapOrphans(daytona: Daytona): Promise<void> {
+async function reapOrphans(northrays: Northrays): Promise<void> {
   try {
     const live = new Set((await SessionManager.listAll()).map((s) => s.id))
     const orphans: Sandbox[] = []
-    for await (const sandbox of daytona.list({ labels: { 'created-by': 'pi-daytona' } })) {
+    for await (const sandbox of northrays.list({ labels: { 'created-by': 'pi-northrays' } })) {
       let labels = sandbox.labels
       if (!labels || Object.keys(labels).length === 0) {
         try {
@@ -506,11 +506,11 @@ async function reapOrphans(daytona: Daytona): Promise<void> {
 // --- helpers ---
 
 function setStatus(ctx: ExtensionContext, text: string | undefined): void {
-  ctx.ui.setStatus('daytona', text === undefined ? undefined : ctx.ui.theme.fg('accent', text))
+  ctx.ui.setStatus('northrays', text === undefined ? undefined : ctx.ui.theme.fg('accent', text))
 }
 
 function setRunningStatus(ctx: ExtensionContext, id: string, cwd: string): void {
-  setStatus(ctx, `☁ daytona · ${shortId(id)} · running · ${cwd}`)
+  setStatus(ctx, `☁ northrays · ${shortId(id)} · running · ${cwd}`)
 }
 
 function stringFlag(value: boolean | string | undefined): string | undefined {

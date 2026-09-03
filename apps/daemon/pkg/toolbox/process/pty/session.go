@@ -12,8 +12,8 @@ import (
 	"syscall"
 
 	"github.com/creack/pty"
-	"github.com/daytonaio/daemon/pkg/childreap"
-	"github.com/daytonaio/daemon/pkg/common"
+	"github.com/northrays/daemon/pkg/childreap"
+	"github.com/northrays/daemon/pkg/common"
 	"github.com/shirou/gopsutil/v4/process"
 )
 

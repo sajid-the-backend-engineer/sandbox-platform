@@ -10,15 +10,15 @@ import (
 	"os"
 	"time"
 
-	"github.com/daytonaio/daytona/libs/sdk-go/pkg/daytona"
-	"github.com/daytonaio/daytona/libs/sdk-go/pkg/options"
-	"github.com/daytonaio/daytona/libs/sdk-go/pkg/types"
+	"github.com/northrays/sandbox-platform/libs/sdk-go/pkg/northrays"
+	"github.com/northrays/sandbox-platform/libs/sdk-go/pkg/options"
+	"github.com/northrays/sandbox-platform/libs/sdk-go/pkg/types"
 )
 
 func main() {
-	// Create a new Daytona client using environment variables
-	// Set DAYTONA_API_KEY before running
-	client, err := daytona.NewClient()
+	// Create a new Northrays client using environment variables
+	// Set NORTHRAYS_API_KEY before running
+	client, err := northrays.NewClient()
 	if err != nil {
 		log.Fatalf("Failed to create client: %v", err)
 	}
@@ -126,10 +126,10 @@ func main() {
 	log.Println("\n=== Keyboard Operations ===")
 
 	// Type text
-	if err := sandbox.ComputerUse.Keyboard().Type(ctx, "Hello, Daytona!", nil); err != nil {
+	if err := sandbox.ComputerUse.Keyboard().Type(ctx, "Hello, Northrays!", nil); err != nil {
 		log.Fatalf("Failed to type text: %v", err)
 	}
-	log.Println("✓ Typed: 'Hello, Daytona!'")
+	log.Println("✓ Typed: 'Hello, Northrays!'")
 
 	// Type with delay between characters
 	delay := 50 // milliseconds

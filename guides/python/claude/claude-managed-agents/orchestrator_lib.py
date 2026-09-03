@@ -17,7 +17,7 @@ import anthropic
 import dotenv
 import host_lib
 
-from daytona import Daytona, DaytonaNotFoundError
+from northrays import Northrays, NorthraysNotFoundError
 
 dotenv.load_dotenv(override=True)
 
@@ -27,7 +27,7 @@ JANITOR_SECONDS = int(os.environ.get("JANITOR_SECONDS", "60"))
 MAX_IDLE_DAYS = float(os.environ.get("MAX_IDLE_DAYS", "30"))
 
 CLIENT = anthropic.Anthropic(auth_token=ANTHROPIC_ENVIRONMENT_KEY)
-DAYT = Daytona()
+DAYT = Northrays()
 
 DRAIN_LOCK = threading.RLock()
 SESSION_LOCKS_LOCK = threading.Lock()
@@ -320,7 +320,7 @@ def drain_work(
 
 
 def janitor_once(*, recover_crashed_runners: bool = True) -> None:
-    """One pass over labeled Daytona sandboxes."""
+    """One pass over labeled Northrays sandboxes."""
     page_number = 1
     deleted = 0
     archived = 0
@@ -337,7 +337,7 @@ def janitor_once(*, recover_crashed_runners: bool = True) -> None:
                 limit=100,
             )
         except Exception as e:
-            print(f"[janitor] daytona list failed: {type(e).__name__}: {e}", flush=True)
+            print(f"[janitor] northrays list failed: {type(e).__name__}: {e}", flush=True)
             return
 
         for sb in page.items:
@@ -406,7 +406,7 @@ def janitor_once(*, recover_crashed_runners: bool = True) -> None:
         with session_lock(sid):
             try:
                 sb = DAYT.get(sandbox_id)
-            except DaytonaNotFoundError:
+            except NorthraysNotFoundError:
                 print(f"[janitor] recovery sandbox {sandbox_id} no longer exists", flush=True)
                 continue
             except Exception as e:

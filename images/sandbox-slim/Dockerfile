@@ -19,16 +19,16 @@ SHELL ["/bin/bash", "-c"]
 # Install pipx and uv
 RUN python3 -m pip install --no-cache-dir pipx==1.8.0 && pipx ensurepath && pipx install uv==0.9.26
 
-# Install Python LSP, daytona and essential pip packages
+# Install Python LSP, northrays and essential pip packages
 RUN python3 -m pip install --no-cache-dir \
     python-lsp-server==1.14.0 \
-    daytona==0.22.0 \
+    northrays==0.22.0 \
     matplotlib==3.10.8 \
     pandas==2.2.3 \
     numpy==2.2.6
 
-# Create the Daytona user and configure sudo access
-RUN useradd -m daytona && echo "daytona ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/91-daytona
+# Create the Northrays user and configure sudo access
+RUN useradd -m northrays && echo "northrays ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/91-northrays
 
 ENV NVM_DIR=/usr/local/nvm
 ENV NODE_VERSION=22.14.0
@@ -49,11 +49,11 @@ ENV PATH=$NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
 
 RUN npm install -g ts-node@10.9.2 typescript@5.9.3 typescript-language-server@5.1.3
 
-# Switch to Daytona user
-USER daytona
+# Switch to Northrays user
+USER northrays
 
 # Create directory for computer use plugin
-RUN mkdir -p /usr/local/lib && sudo chown daytona:daytona /usr/local/lib
+RUN mkdir -p /usr/local/lib && sudo chown northrays:northrays /usr/local/lib
 
 # Keep the container running indefinitely
 ENTRYPOINT [ "sleep", "infinity" ]

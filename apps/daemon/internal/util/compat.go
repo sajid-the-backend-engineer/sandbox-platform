@@ -10,7 +10,7 @@ import (
 )
 
 const (
-	sourceHeader = "X-Daytona-Source"
+	sourceHeader = "X-Northrays-Source"
 	goSDKSource  = "sdk-go"
 
 	// First Go SDK release whose generated client tolerates unknown response

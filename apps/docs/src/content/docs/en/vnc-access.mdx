@@ -5,7 +5,7 @@ description: Interact with your sandbox's graphical desktop environment directly
 
 import { TabItem, Tabs } from '@astrojs/starlight/components'
 
-VNC (Virtual Network Computing) access provides a graphical desktop environment for your Daytona Sandbox directly in the browser. This allows you to interact with GUI applications, desktop tools, and visual interfaces running inside your sandbox.
+VNC (Virtual Network Computing) access provides a graphical desktop environment for your Northrays Sandbox directly in the browser. This allows you to interact with GUI applications, desktop tools, and visual interfaces running inside your sandbox.
 
 VNC and [Computer Use](/docs/en/computer-use) work together to enable both manual and automated desktop interactions. VNC provides the visual interface for users to manually interact with the desktop, while Computer Use provides the programmatic API for AI agents to automate mouse, keyboard, and screenshot operations. Through VNC, you can observe AI agents performing automated tasks via Computer Use in real-time.
 
@@ -21,9 +21,9 @@ VNC and Computer Use require a sandbox with the default image. Sandboxes created
 
 ## Access VNC from Dashboard
 
-Access the VNC desktop environment directly from the [Daytona Dashboard ↗](https://app.daytona.io/dashboard/sandboxes).
+Access the VNC desktop environment directly from the [Northrays Dashboard ↗](https://app.northrays.com/dashboard/sandboxes).
 
-1. Navigate to [Daytona Sandboxes ↗](https://app.daytona.io/dashboard/sandboxes)
+1. Navigate to [Northrays Sandboxes ↗](https://app.northrays.com/dashboard/sandboxes)
 2. Locate the sandbox you want to access via VNC
 3. Click the options menu (**⋮**) next to the sandbox
 4. Select **VNC** from the dropdown menu
@@ -40,7 +40,7 @@ VNC sessions remain active as long as the sandbox is running. If the sandbox aut
 
 ## Programmatic VNC management
 
-Daytona provides methods to [start](#start-vnc), [stop](#stop-vnc), and [monitor](#get-vnc-status) VNC sessions and processes programmatically using the [Computer Use](/docs/en/computer-use) references as part of automated workflows.
+Northrays provides methods to [start](#start-vnc), [stop](#stop-vnc), and [monitor](#get-vnc-status) VNC sessions and processes programmatically using the [Computer Use](/docs/en/computer-use) references as part of automated workflows.
 
 ### Start VNC
 
@@ -95,7 +95,7 @@ System.out.println("VNC processes started: " + result.getMessage());
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://proxy.app.daytona.io/toolbox/{sandboxId}/computeruse/start' \
+curl 'https://proxy.app.northrays.com/toolbox/{sandboxId}/computeruse/start' \
   --request POST
 ```
 
@@ -154,7 +154,7 @@ System.out.println("VNC processes stopped: " + result.getMessage());
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://proxy.app.daytona.io/toolbox/{sandboxId}/computeruse/stop' \
+curl 'https://proxy.app.northrays.com/toolbox/{sandboxId}/computeruse/stop' \
   --request POST
 ```
 
@@ -213,7 +213,7 @@ System.out.println("VNC status: " + response.getStatus());
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://proxy.app.daytona.io/toolbox/{sandboxId}/computeruse/status'
+curl 'https://proxy.app.northrays.com/toolbox/{sandboxId}/computeruse/status'
 ```
 
 </TabItem>
@@ -247,7 +247,7 @@ sandbox.computer_use.start()
 sandbox.computer_use.mouse.click(50, 50)
 
 # Type a URL
-sandbox.computer_use.keyboard.type("https://www.daytona.io/docs/")
+sandbox.computer_use.keyboard.type("https://www.northrays.com/docs/")
 sandbox.computer_use.keyboard.press("enter")
 
 # Take a screenshot
@@ -265,7 +265,7 @@ await sandbox.computerUse.start();
 await sandbox.computerUse.mouse.click(50, 50);
 
 // Type a URL
-await sandbox.computerUse.keyboard.type('https://www.daytona.io/docs/');
+await sandbox.computerUse.keyboard.type('https://www.northrays.com/docs/');
 await sandbox.computerUse.keyboard.press('enter');
 
 // Take a screenshot
@@ -283,7 +283,7 @@ sandbox.computerUse.start();
 sandbox.computerUse.click(50, 50);
 
 // Type a URL
-sandbox.computerUse.typeText("https://www.daytona.io/docs/");
+sandbox.computerUse.typeText("https://www.northrays.com/docs/");
 sandbox.computerUse.pressKey("enter");
 
 // Take a screenshot

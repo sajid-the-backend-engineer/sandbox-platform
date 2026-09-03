@@ -14,13 +14,13 @@ import (
 	"sync"
 	"time"
 
-	"github.com/daytonaio/common-go/pkg/log"
-	"github.com/daytonaio/runner/cmd/runner/config"
-	"github.com/daytonaio/runner/pkg/api/dto"
+	"github.com/northrays/common-go/pkg/log"
+	"github.com/northrays/runner/cmd/runner/config"
+	"github.com/northrays/runner/pkg/api/dto"
 	"github.com/google/uuid"
 )
 
-const volumeMountPrefix = "daytona-volume-"
+const volumeMountPrefix = "northrays-volume-"
 
 // volumeId becomes part of the host mount path and the S3 bucket name, so require
 // the canonical lowercase UUID form (rejects braced/URN/dashless/uppercase variants,

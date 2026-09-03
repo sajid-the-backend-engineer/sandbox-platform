@@ -3,34 +3,34 @@
 
 import { randomUUID } from 'node:crypto'
 
-import { Daytona } from '../Daytona'
-import { DaytonaError } from '../errors/DaytonaError'
+import { Northrays } from '../Northrays'
+import { NorthraysError } from '../errors/NorthraysError'
 import { Image } from '../Image'
 import { Sandbox } from '../Sandbox'
 import { PtyHandle } from '../PtyHandle'
 
 jest.setTimeout(120000)
 
-if (!process.env.DAYTONA_API_KEY) {
-  throw new Error('DAYTONA_API_KEY environment variable is required for E2E tests')
+if (!process.env.NORTHRAYS_API_KEY) {
+  throw new Error('NORTHRAYS_API_KEY environment variable is required for E2E tests')
 }
 
 function getErrorMessage(error: unknown): string {
   return error instanceof Error ? error.message : String(error)
 }
 
-describe('TypeScript SDK E2E (real Daytona API)', () => {
-  let daytona: Daytona
+describe('TypeScript SDK E2E (real Northrays API)', () => {
+  let northrays: Northrays
   let sandbox: Sandbox
   let lspServer: Awaited<ReturnType<Sandbox['createLspServer']>> | undefined
   let ptySessionId = ''
 
   beforeAll(async () => {
-    daytona = new Daytona()
+    northrays = new Northrays()
 
     const sandboxName = `sdk-ts-e2e-${Date.now()}`
     console.log(`[E2E] Creating shared sandbox: ${sandboxName}`)
-    sandbox = await daytona.create({
+    sandbox = await northrays.create({
       name: sandboxName,
       language: 'python',
       labels: { purpose: 'e2e-test' },
@@ -52,7 +52,7 @@ describe('TypeScript SDK E2E (real Daytona API)', () => {
 
     console.log(`[E2E] Cleaning up sandbox: ${sandbox.id}`)
     try {
-      await daytona.delete(sandbox)
+      await northrays.delete(sandbox)
       console.log('[E2E] Sandbox deleted successfully')
     } catch (error) {
       console.error('[E2E] Sandbox cleanup failed:', error)
@@ -255,18 +255,18 @@ describe('TypeScript SDK E2E (real Daytona API)', () => {
       expect(bytesReceivedValues).toEqual([...bytesReceivedValues].sort((a, b) => a - b))
     })
 
-    test('stream download with aborted signal rejects with DaytonaError', async () => {
+    test('stream download with aborted signal rejects with NorthraysError', async () => {
       const controller = new AbortController()
       controller.abort()
       const error = await sandbox.fs
         .downloadFileStream('fs-test/stream-test.txt', { signal: controller.signal })
         .catch((err) => err)
 
-      expect(error).toBeInstanceOf(DaytonaError)
+      expect(error).toBeInstanceOf(NorthraysError)
       expect((error as Error).message).toMatch(/cancel/i)
     })
 
-    test('download abort surfaces DaytonaError', async () => {
+    test('download abort surfaces NorthraysError', async () => {
       const remotePath = `fs-test/download-abort-${randomUUID()}.bin`
       await sandbox.fs.uploadFile(Buffer.from('download-abort-' + randomUUID()), remotePath)
 
@@ -275,7 +275,7 @@ describe('TypeScript SDK E2E (real Daytona API)', () => {
 
       // The SDK returns the file stream paused. Aborting BEFORE attaching
       // listeners and resuming lets the SDK's abort forwarder destroy the
-      // returned stream with DaytonaError before any bytes flow, so this is
+      // returned stream with NorthraysError before any bytes flow, so this is
       // independent of network/CI speed and never races on small payloads.
       controller.abort()
 
@@ -287,7 +287,7 @@ describe('TypeScript SDK E2E (real Daytona API)', () => {
       })
 
       const error = await outcome
-      expect(error).toBeInstanceOf(DaytonaError)
+      expect(error).toBeInstanceOf(NorthraysError)
       expect((error as Error).message).toMatch(/cancel/i)
     })
 
@@ -369,8 +369,8 @@ describe('TypeScript SDK E2E (real Daytona API)', () => {
       await sandbox.fs.uploadFile(Buffer.from('script'), 'fs-test/perm-test.txt')
       await sandbox.fs.setFilePermissions('fs-test/perm-test.txt', {
         mode: '644',
-        owner: 'daytona',
-        group: 'daytona',
+        owner: 'northrays',
+        group: 'northrays',
       })
       // Verify by checking the file still exists (permission change succeeds without error)
       const details = await sandbox.fs.getFileDetails('fs-test/perm-test.txt')
@@ -940,19 +940,19 @@ describe('TypeScript SDK E2E (real Daytona API)', () => {
     async function waitForVolumeReady(name: string, maxWaitMs = 15000): Promise<void> {
       const start = Date.now()
       while (Date.now() - start < maxWaitMs) {
-        const vol = await daytona.volume.get(name)
+        const vol = await northrays.volume.get(name)
         if (vol.state === 'ready' || vol.state === 'error') return
         await new Promise((r) => setTimeout(r, 500))
       }
     }
 
     async function cleanupOldE2eVolumes(): Promise<void> {
-      const volumes = await daytona.volume.list()
+      const volumes = await northrays.volume.list()
       for (const vol of volumes) {
         if (vol.name.startsWith('e2e-vol-') || vol.name.startsWith('e2e-auto-vol-')) {
           if (vol.state === 'ready' || vol.state === 'error') {
             try {
-              await daytona.volume.delete(vol)
+              await northrays.volume.delete(vol)
             } catch {
               /* ignore cleanup errors */
             }
@@ -967,7 +967,7 @@ describe('TypeScript SDK E2E (real Daytona API)', () => {
 
     test('volume.create creates a new volume', async () => {
       console.log(`[E2E][Volume] Creating volume: ${volumeName}...`)
-      const volume = await daytona.volume.create(volumeName)
+      const volume = await northrays.volume.create(volumeName)
       expect(volume).toBeDefined()
       expect(volume.id).toBeDefined()
       expect(volume.name).toBe(volumeName)
@@ -976,14 +976,14 @@ describe('TypeScript SDK E2E (real Daytona API)', () => {
 
     test('volume.list includes the created volume', async () => {
       console.log('[E2E][Volume] Listing volumes...')
-      const volumes = await daytona.volume.list()
+      const volumes = await northrays.volume.list()
       expect(Array.isArray(volumes)).toBe(true)
       expect(volumes.some((v) => v.id === createdVolumeId)).toBe(true)
     })
 
     test('volume.get retrieves volume by name', async () => {
       console.log('[E2E][Volume] Getting volume by name...')
-      const volume = await daytona.volume.get(volumeName)
+      const volume = await northrays.volume.get(volumeName)
       expect(volume).toBeDefined()
       expect(volume.name).toBe(volumeName)
       expect(volume.id).toBe(createdVolumeId)
@@ -992,20 +992,20 @@ describe('TypeScript SDK E2E (real Daytona API)', () => {
     test('volume.delete removes the volume', async () => {
       console.log('[E2E][Volume] Deleting volume...')
       await waitForVolumeReady(volumeName)
-      const volume = await daytona.volume.get(volumeName)
-      await daytona.volume.delete(volume)
+      const volume = await northrays.volume.get(volumeName)
+      await northrays.volume.delete(volume)
     })
 
     test('volume.get with create=true creates if not found', async () => {
       console.log('[E2E][Volume] Getting volume with create=true...')
       const autoVolumeName = `e2e-auto-vol-${Date.now()}`
-      const volume = await daytona.volume.get(autoVolumeName, true)
+      const volume = await northrays.volume.get(autoVolumeName, true)
       expect(volume).toBeDefined()
       expect(volume.name).toBe(autoVolumeName)
 
       await waitForVolumeReady(autoVolumeName)
-      const readyVolume = await daytona.volume.get(autoVolumeName)
-      await daytona.volume.delete(readyVolume)
+      const readyVolume = await northrays.volume.get(autoVolumeName)
+      await northrays.volume.delete(readyVolume)
     })
   })
 
@@ -1015,7 +1015,7 @@ describe('TypeScript SDK E2E (real Daytona API)', () => {
   describe('Snapshot Operations', () => {
     test('snapshot.list returns paginated results', async () => {
       console.log('[E2E][Snapshot] Listing snapshots...')
-      const result = await daytona.snapshot.list()
+      const result = await northrays.snapshot.list()
       expect(result).toBeDefined()
       expect(result.items).toBeDefined()
       expect(Array.isArray(result.items)).toBe(true)
@@ -1024,31 +1024,31 @@ describe('TypeScript SDK E2E (real Daytona API)', () => {
 
     test('snapshot.list with pagination params', async () => {
       console.log('[E2E][Snapshot] Listing snapshots with pagination...')
-      const result = await daytona.snapshot.list(1, 5)
+      const result = await northrays.snapshot.list(1, 5)
       expect(result).toBeDefined()
       expect(result.items).toBeDefined()
       expect(result.items.length).toBeLessThanOrEqual(5)
     })
 
     test('snapshot.get retrieves snapshot by name', async () => {
-      const listResult = await daytona.snapshot.list(1, 1)
+      const listResult = await northrays.snapshot.list(1, 1)
       expect(listResult.items.length).toBeGreaterThan(0)
 
       const snapshotName = listResult.items[0].name
-      const snapshot = await daytona.snapshot.get(snapshotName)
+      const snapshot = await northrays.snapshot.get(snapshotName)
       expect(snapshot).toBeDefined()
       expect(snapshot.name).toBe(snapshotName)
     })
   })
 
   // ──────────────────────────────────────────────
-  // Daytona Client Operations
+  // Northrays Client Operations
   // ──────────────────────────────────────────────
-  describe('Daytona Client Operations', () => {
+  describe('Northrays Client Operations', () => {
     test('list iterates over sandboxes', async () => {
       console.log('[E2E][Client] Listing sandboxes...')
       const collected: { id: string }[] = []
-      for await (const sb of daytona.list()) {
+      for await (const sb of northrays.list()) {
         collected.push({ id: sb.id })
       }
       expect(collected.length).toBeGreaterThan(0)
@@ -1059,7 +1059,7 @@ describe('TypeScript SDK E2E (real Daytona API)', () => {
       // limit is a per-page fetch size, not a total cap. We just verify
       // iteration succeeds and yields at least one item.
       let yielded = 0
-      for await (const _ of daytona.list({ limit: 2 })) {
+      for await (const _ of northrays.list({ limit: 2 })) {
         yielded++
         if (yielded >= 2) break // exercise early-termination
       }
@@ -1068,7 +1068,7 @@ describe('TypeScript SDK E2E (real Daytona API)', () => {
 
     test('get by id returns correct sandbox', async () => {
       console.log('[E2E][Client] Getting sandbox by id...')
-      const fetched = await daytona.get(sandbox.id)
+      const fetched = await northrays.get(sandbox.id)
       expect(fetched).toBeDefined()
       expect(fetched.id).toBe(sandbox.id)
       expect(fetched.name).toBe(sandbox.name)
@@ -1078,7 +1078,7 @@ describe('TypeScript SDK E2E (real Daytona API)', () => {
       console.log('[E2E][Client] Listing sandboxes with label filter...')
       // We set labels earlier: { test: 'e2e', env: 'ci' }
       const collected: { id: string }[] = []
-      for await (const sb of daytona.list({ labels: { test: 'e2e' } })) {
+      for await (const sb of northrays.list({ labels: { test: 'e2e' } })) {
         collected.push({ id: sb.id })
       }
       expect(collected.length).toBeGreaterThan(0)
@@ -1099,7 +1099,7 @@ describe('TypeScript SDK E2E (real Daytona API)', () => {
       let imageSandbox: Sandbox | undefined
 
       try {
-        imageSandbox = await daytona.create(
+        imageSandbox = await northrays.create(
           {
             image,
             language: 'python',
@@ -1124,7 +1124,7 @@ describe('TypeScript SDK E2E (real Daytona API)', () => {
         expect(result.result.trim()).toMatch(/\d+\.\d+/)
       } finally {
         if (imageSandbox) {
-          await daytona.delete(imageSandbox).catch(() => {
+          await northrays.delete(imageSandbox).catch(() => {
             return
           })
         }

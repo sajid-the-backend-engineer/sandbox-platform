@@ -9,9 +9,9 @@ import (
 	"strings"
 
 	"github.com/charmbracelet/lipgloss"
-	"github.com/daytonaio/daytona/cli/views/common"
-	"github.com/daytonaio/daytona/cli/views/util"
-	apiclient "github.com/daytonaio/daytona/libs/api-client-go"
+	"github.com/northrays/sandbox-platform/cli/views/common"
+	"github.com/northrays/sandbox-platform/cli/views/util"
+	apiclient "github.com/northrays/sandbox-platform/libs/api-client-go"
 	"golang.org/x/term"
 )
 

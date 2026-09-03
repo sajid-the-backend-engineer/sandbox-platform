@@ -1,6 +1,6 @@
 ---
 title: API
-description: Daytona APIで利用可能な操作のリファレンス。
+description: Northrays APIで利用可能な操作のリファレンス。
 ---
 
 import Label from '@components/Label.astro'
@@ -10,7 +10,7 @@ import Label from '@components/Label.astro'
 ### Parameters
 | Name | Location | Required | Type | Description |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定します |
 
 ### Responses
 | Status Code | Description |
@@ -22,7 +22,7 @@ import Label from '@components/Label.astro'
 ### Parameters
 | Name | Location | Required | Type | Description |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定します |
 
 ### Responses
 | Status Code | Description |
@@ -36,7 +36,7 @@ import Label from '@components/Label.astro'
 ### Parameters
 | Name | Location | Required | Type | Description |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して 組織（Organization）の ID を指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して 組織（Organization）の ID を指定します |
 
 ### Responses
 | Status Code | Description |
@@ -49,7 +49,7 @@ import Label from '@components/Label.astro'
 ### パラメータ
 | 名前 | 位置 | 必須 | 型 | 説明 |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | いいえ | undefined | JWT と併用して 組織（Organization）の ID を指定します |
+| **`X-Northrays-Organization-ID`** | header | いいえ | undefined | JWT と併用して 組織（Organization）の ID を指定します |
 | **`name`** | path | はい | undefined | undefined |
 
 ### レスポンス
@@ -62,7 +62,7 @@ import Label from '@components/Label.astro'
 ### パラメータ
 | 名前 | 位置 | 必須 | 型 | 説明 |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定します |
 | **`name`** | path | true | undefined | undefined |
 
 ### レスポンス
@@ -302,7 +302,7 @@ import Label from '@components/Label.astro'
 ### Parameters
 | Name | Location | Required | Type | Description |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`organizationId`** | path | true | undefined | 組織ID（Daytona内のリソースとユーザーのグループ化、ロールや請求など） |
+| **`organizationId`** | path | true | undefined | 組織ID（Northrays内のリソースとユーザーのグループ化、ロールや請求など） |
 | **`userId`** | path | true | undefined | ユーザーID |
 
 ### Responses
@@ -462,7 +462,7 @@ import Label from '@components/Label.astro'
 ### パラメータ
 | Name | Location | Required | Type | Description |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して 組織（Organization）ID を指定する |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して 組織（Organization）ID を指定する |
 | **`verbose`** | query | false | undefined | 詳細出力を含める |
 | **`labels`** | query | false | undefined | フィルタ用の JSON エンコード済みラベル |
 
@@ -476,7 +476,7 @@ import Label from '@components/Label.astro'
 ### パラメータ
 | 名前 | 位置 | 必須 | 型 | 説明 |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して 組織（Organization）ID を指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して 組織（Organization）ID を指定します |
 
 ### レスポンス
 | ステータスコード | 説明 |
@@ -489,7 +489,7 @@ import Label from '@components/Label.astro'
 ### パラメータ
 | Name | Location | Required | Type | Description |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して 組織（Organization）ID を指定 |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して 組織（Organization）ID を指定 |
 | **`verbose`** | query | false | undefined | 詳細出力を含める |
 | **`sandboxId`** | path | true | undefined | サンドボックス（Sandbox）の ID |
 
@@ -503,7 +503,7 @@ import Label from '@components/Label.astro'
 ### パラメータ
 | 名前 | 位置 | 必須 | 型 | 説明 |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定します |
 | **`sandboxId`** | path | true | undefined | サンドボックス（Sandbox）の ID |
 | **`force`** | query | true | undefined | 強制削除を行うかどうか |
 
@@ -518,7 +518,7 @@ import Label from '@components/Label.astro'
 ### Parameters
 | Name | Location | Required | Type | Description |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して 組織（Organization）ID を指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して 組織（Organization）ID を指定します |
 | **`sandboxId`** | path | true | undefined | サンドボックス（Sandbox）の ID |
 
 ### Responses
@@ -532,7 +532,7 @@ import Label from '@components/Label.astro'
 ### パラメータ
 | 名前 | 位置 | 必須 | 型 | 説明 |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定します |
 | **`sandboxId`** | path | true | undefined | サンドボックス（Sandbox）の ID |
 
 ### レスポンス
@@ -546,7 +546,7 @@ import Label from '@components/Label.astro'
 ### Parameters
 | Name | Location | Required | Type | Description |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）の ID を指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）の ID を指定します |
 | **`sandboxId`** | path | true | undefined | サンドボックス（Sandbox）の ID |
 
 ### Responses
@@ -560,7 +560,7 @@ import Label from '@components/Label.astro'
 ### パラメータ
 | 名前 | ロケーション | 必須 | 型 | 説明 |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して 組織（Daytona内のリソースとユーザーのグループ化、ロールや請求など）の ID を指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して 組織（Northrays内のリソースとユーザーのグループ化、ロールや請求など）の ID を指定します |
 | **`sandboxId`** | path | true | undefined | サンドボックス（隔離された一時的な実行環境）の ID |
 
 ### レスポンス
@@ -574,7 +574,7 @@ import Label from '@components/Label.astro'
 ### パラメータ
 | 名前 | 位置 | 必須 | 型 | 説明 |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定します |
 | **`sandboxId`** | path | true | undefined | サンドボックス（Sandbox）の ID |
 | **`isPublic`** | path | true | undefined | 設定する公開状態 |
 
@@ -589,7 +589,7 @@ import Label from '@components/Label.astro'
 ### パラメータ
 | 名前 | 位置 | 必須 | 型 | 説明 |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定 |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定 |
 | **`sandboxId`** | path | true | undefined | サンドボックス（Sandbox）の ID |
 | **`interval`** | path | true | undefined | 自動停止（Auto-stop）の間隔（分）。0 で無効化 |
 
@@ -604,7 +604,7 @@ import Label from '@components/Label.astro'
 ### パラメータ
 | 名前 | 位置 | 必須 | 型 | 説明 |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | いいえ | undefined | JWT と併用して組織（Organization）ID を指定します |
+| **`X-Northrays-Organization-ID`** | header | いいえ | undefined | JWT と併用して組織（Organization）ID を指定します |
 | **`sandboxId`** | path | はい | undefined | サンドボックス（Sandbox）の ID |
 | **`interval`** | path | はい | undefined | 自動アーカイブ（Auto-archive）の間隔（分）。0 の場合は最大間隔が適用されます |
 
@@ -619,7 +619,7 @@ import Label from '@components/Label.astro'
 ### パラメータ
 | 名前 | 位置 | 必須 | 型 | 説明 |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して 組織（Organization）ID を指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して 組織（Organization）ID を指定します |
 | **`sandboxId`** | path | true | undefined | undefined |
 
 ### レスポンス
@@ -633,7 +633,7 @@ import Label from '@components/Label.astro'
 ### Parameters
 | Name | Location | Required | Type | Description |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定します |
 | **`sandboxId`** | path | true | undefined | サンドボックス（Sandbox）の ID |
 | **`port`** | path | true | undefined | プレビューリンクの URL を取得するポート番号 |
 
@@ -648,7 +648,7 @@ import Label from '@components/Label.astro'
 ### パラメータ
 | 名前 | 位置 | 必須 | 型 | 説明 |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | ヘッダー | いいえ | 未定義 | JWT と併用して 組織（Daytona内のリソースとユーザーのグループ化、ロールや請求など）の ID を指定 |
+| **`X-Northrays-Organization-ID`** | ヘッダー | いいえ | 未定義 | JWT と併用して 組織（Northrays内のリソースとユーザーのグループ化、ロールや請求など）の ID を指定 |
 | **`sandboxId`** | パス | はい | 未定義 | サンドボックス（隔離された一時的な実行環境）の ID |
 | **`follow`** | クエリ | いいえ | 未定義 | ログストリームをフォローするかどうか |
 
@@ -717,7 +717,7 @@ import Label from '@components/Label.astro'
 ### Parameters
 | Name | Location | Required | Type | Description |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWTと併用して、組織（Organization）IDを指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWTと併用して、組織（Organization）IDを指定します |
 | **`sandboxId`** | path | true | undefined | undefined |
 
 ### Responses
@@ -731,7 +731,7 @@ import Label from '@components/Label.astro'
 ### パラメータ
 | 名前 | 位置 | 必須 | 型 | 説明 |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | いいえ | undefined | JWT と併用して組織（Organization）ID を指定します |
+| **`X-Northrays-Organization-ID`** | header | いいえ | undefined | JWT と併用して組織（Organization）ID を指定します |
 | **`sandboxId`** | path | はい | undefined | なし |
 | **`path`** | query | いいえ | undefined | なし |
 
@@ -746,7 +746,7 @@ import Label from '@components/Label.astro'
 ### Parameters
 | 名前 | 位置 | 必須 | 型 | 説明 |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定します |
 | **`sandboxId`** | path | true | undefined | なし |
 | **`path`** | query | true | undefined | なし |
 
@@ -762,7 +762,7 @@ import Label from '@components/Label.astro'
 ### Parameters
 | 名前 | 位置 | 必須 | 型 | 説明 |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWTと併用して組織（Organization）IDを指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWTと併用して組織（Organization）IDを指定します |
 | **`sandboxId`** | path | true | undefined | undefined |
 | **`path`** | query | true | undefined | undefined |
 
@@ -778,7 +778,7 @@ import Label from '@components/Label.astro'
 ### Parameters
 | Name | Location | Required | Type | Description |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWTと併用して組織（Organization）IDを指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWTと併用して組織（Organization）IDを指定します |
 | **`sandboxId`** | path | true | undefined | undefined |
 | **`path`** | query | true | undefined | undefined |
 | **`pattern`** | query | true | undefined | undefined |
@@ -795,7 +795,7 @@ import Label from '@components/Label.astro'
 ### Parameters
 | 名前 | 位置 | 必須 | 型 | 説明 |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定します |
 | **`sandboxId`** | path | true | undefined | 未定義 |
 | **`path`** | query | true | undefined | 未定義 |
 | **`mode`** | query | true | undefined | 未定義 |
@@ -812,7 +812,7 @@ import Label from '@components/Label.astro'
 ### Parameters
 | Name | Location | Required | Type | Description |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定します |
 | **`sandboxId`** | path | true | undefined | undefined |
 | **`path`** | query | true | undefined | undefined |
 
@@ -828,7 +828,7 @@ import Label from '@components/Label.astro'
 ### Parameters
 | Name | Location | Required | Type | Description |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して 組織（Daytona内のリソースとユーザーのグループ化、ロールや請求など）ID を指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して 組織（Northrays内のリソースとユーザーのグループ化、ロールや請求など）ID を指定します |
 | **`sandboxId`** | path | true | undefined | undefined |
 | **`source`** | query | true | undefined | undefined |
 | **`destination`** | query | true | undefined | undefined |
@@ -845,7 +845,7 @@ import Label from '@components/Label.astro'
 ### Parameters
 | Name | Location | Required | Type | Description |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定します |
 | **`sandboxId`** | path | true | undefined | undefined |
 | **`path`** | query | true | undefined | undefined |
 | **`owner`** | query | false | undefined | undefined |
@@ -864,7 +864,7 @@ import Label from '@components/Label.astro'
 ### Parameters
 | Name | Location | Required | Type | Description |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定する |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定する |
 | **`sandboxId`** | path | true | undefined | undefined |
 
 ### Responses
@@ -879,7 +879,7 @@ import Label from '@components/Label.astro'
 ### Parameters
 | Name | Location | Required | Type | Description |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWTと併用して組織（組織）IDを指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWTと併用して組織（組織）IDを指定します |
 | **`sandboxId`** | path | true | undefined | undefined |
 | **`path`** | query | true | undefined | undefined |
 | **`pattern`** | query | true | undefined | undefined |
@@ -896,7 +896,7 @@ import Label from '@components/Label.astro'
 ### Parameters
 | Name | Location | Required | Type | Description |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して 組織（Daytona内のリソースとユーザーのグループ化、ロールや請求など）ID を指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して 組織（Northrays内のリソースとユーザーのグループ化、ロールや請求など）ID を指定します |
 | **`sandboxId`** | path | true | undefined | undefined |
 | **`path`** | query | true | undefined | undefined |
 
@@ -912,7 +912,7 @@ import Label from '@components/Label.astro'
 ### Parameters
 | Name | Location | Required | Type | Description |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して組織 ID を指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して組織 ID を指定します |
 | **`sandboxId`** | path | true | undefined | undefined |
 
 ### Responses
@@ -927,7 +927,7 @@ import Label from '@components/Label.astro'
 ### Parameters
 | Name | Location | Required | Type | Description |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して、組織（Organization）ID を指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して、組織（Organization）ID を指定します |
 | **`sandboxId`** | path | true | undefined | undefined |
 
 ### Responses
@@ -942,7 +942,7 @@ Git リポジトリからブランチ一覧を取得
 ### Parameters
 | Name | Location | Required | Type | Description |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して 組織（Daytona内のリソースとユーザーのグループ化、ロールや請求など）ID を指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して 組織（Northrays内のリソースとユーザーのグループ化、ロールや請求など）ID を指定します |
 | **`sandboxId`** | path | true | undefined | undefined |
 | **`path`** | query | true | undefined | undefined |
 
@@ -957,7 +957,7 @@ Git リポジトリにブランチを作成
 ### Parameters
 | Name | Location | Required | Type | Description |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定 |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定 |
 | **`sandboxId`** | path | true | undefined | undefined |
 
 ### Responses
@@ -971,7 +971,7 @@ Git リポジトリのブランチを削除
 ### Parameters
 | Name | Location | Required | Type | Description |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定します |
 | **`sandboxId`** | path | true | undefined | undefined |
 
 ### Responses
@@ -986,7 +986,7 @@ Gitリポジトリをクローンする
 ### Parameters
 | Name | Location | Required | Type | Description |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWTと併用して組織（Organization）IDを指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWTと併用して組織（Organization）IDを指定します |
 | **`sandboxId`** | path | true | undefined | undefined |
 
 ### Responses
@@ -1001,7 +1001,7 @@ Git リポジトリに変更をコミットします
 ### Parameters
 | Name | Location | Required | Type | Description |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して 組織 ID を指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して 組織 ID を指定します |
 | **`sandboxId`** | path | true | undefined | undefined |
 
 ### Responses
@@ -1016,7 +1016,7 @@ Git リポジトリのコミット履歴を取得
 ### Parameters
 | 名前 | 位置 | 必須 | 型 | 説明 |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して 組織（Daytona内のリソースとユーザーのグループ化、ロールや請求など）ID を指定する |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して 組織（Northrays内のリソースとユーザーのグループ化、ロールや請求など）ID を指定する |
 | **`sandboxId`** | path | true | undefined | undefined |
 | **`path`** | query | true | undefined | undefined |
 
@@ -1032,7 +1032,7 @@ Git リポジトリのコミット履歴を取得
 ### Parameters
 | 名称 | 位置 | 必須 | 型 | 説明 |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して 組織（Organization）ID を指定する |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して 組織（Organization）ID を指定する |
 | **`sandboxId`** | path | true | undefined | undefined |
 
 ### Responses
@@ -1047,7 +1047,7 @@ Git リポジトリのコミット履歴を取得
 ### Parameters
 | 名前 | 位置 | 必須 | 型 | 説明 |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）IDを指定する |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）IDを指定する |
 | **`sandboxId`** | path | true | undefined | undefined |
 
 ### Responses
@@ -1062,7 +1062,7 @@ git リポジトリでブランチまたはコミットをチェックアウト�
 ### Parameters
 | Name | Location | Required | Type | Description |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定する |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定する |
 | **`sandboxId`** | path | true | undefined | undefined |
 
 ### Responses
@@ -1077,7 +1077,7 @@ Git リポジトリのステータスを取得
 ### Parameters
 | Name | Location | Required | Type | Description |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定します |
 | **`sandboxId`** | path | true | undefined | undefined |
 | **`path`** | query | true | undefined | undefined |
 
@@ -1093,7 +1093,7 @@ Git リポジトリのステータスを取得
 ### Parameters
 | Name | Location | Required | Type | Description |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して 組織（Daytona内のリソースとユーザーのグループ化、ロールや請求など）の ID を指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して 組織（Northrays内のリソースとユーザーのグループ化、ロールや請求など）の ID を指定します |
 | **`sandboxId`** | path | true | undefined | undefined |
 
 ### Responses
@@ -1108,7 +1108,7 @@ Git リポジトリのステータスを取得
 ### Parameters
 | Name | Location | Required | Type | Description |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWTと併用して組織（Organization）IDを指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWTと併用して組織（Organization）IDを指定します |
 | **`sandboxId`** | path | true | undefined | undefined |
 
 ### Responses
@@ -1122,7 +1122,7 @@ Git リポジトリのステータスを取得
 ### Parameters
 | Name | Location | Required | Type | Description |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWTと併用して組織（Organization）IDを指定する |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWTと併用して組織（Organization）IDを指定する |
 | **`sandboxId`** | path | true | undefined | undefined |
 
 ### Responses
@@ -1137,7 +1137,7 @@ IDでセッションを取得する
 ### Parameters
 | 名前 | 位置 | 必須 | 型 | 説明 |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | いいえ | undefined | JWTと併用して組織（Organization）IDを指定します |
+| **`X-Northrays-Organization-ID`** | header | いいえ | undefined | JWTと併用して組織（Organization）IDを指定します |
 | **`sandboxId`** | path | はい | undefined | undefined |
 | **`sessionId`** | path | はい | undefined | undefined |
 
@@ -1152,7 +1152,7 @@ IDでセッションを取得する
 ### Parameters
 | 名前 | 位置 | 必須 | 型 | 説明 |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定します |
 | **`sandboxId`** | path | true | undefined | undefined |
 | **`sessionId`** | path | true | undefined | undefined |
 
@@ -1168,7 +1168,7 @@ IDでセッションを取得する
 ### Parameters
 | Name | Location | Required | Type | Description |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWTと併用して組織（Organization）IDを指定する |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWTと併用して組織（Organization）IDを指定する |
 | **`sandboxId`** | path | true | undefined | undefined |
 | **`sessionId`** | path | true | undefined | undefined |
 
@@ -1185,7 +1185,7 @@ IDでセッションコマンドを取得
 ### Parameters
 | Name | Location | Required | Type | Description |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWTと併用して組織IDを指定 |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWTと併用して組織IDを指定 |
 | **`sandboxId`** | path | true | undefined | undefined |
 | **`sessionId`** | path | true | undefined | undefined |
 | **`commandId`** | path | true | undefined | undefined |
@@ -1202,7 +1202,7 @@ IDでセッションコマンドを取得
 ### Parameters
 | Name | Location | Required | Type | Description |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定します |
 | **`sandboxId`** | path | true | undefined | undefined |
 | **`sessionId`** | path | true | undefined | undefined |
 | **`commandId`** | path | true | undefined | undefined |
@@ -1220,7 +1220,7 @@ Completion リクエストは、指定したカーソル位置の補完候補を
 ### Parameters
 | Name | Location | Required | Type | Description |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して組織 ID を指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して組織 ID を指定します |
 | **`sandboxId`** | path | true | undefined | undefined |
 
 ### Responses
@@ -1235,7 +1235,7 @@ Completion リクエストは、指定したカーソル位置の補完候補を
 ### Parameters
 | Name | Location | Required | Type | Description |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定します |
 | **`sandboxId`** | path | true | undefined | undefined |
 
 ### Responses
@@ -1250,7 +1250,7 @@ Completion リクエストは、指定したカーソル位置の補完候補を
 ### Parameters
 | Name | Location | Required | Type | Description |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定します |
 | **`sandboxId`** | path | true | undefined | undefined |
 
 ### Responses
@@ -1265,7 +1265,7 @@ Completion リクエストは、指定したカーソル位置の補完候補を
 ### Parameters
 | Name | Location | Required | Type | Description |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して 組織（Organization）ID を指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して 組織（Organization）ID を指定します |
 | **`sandboxId`** | path | true | undefined | undefined |
 | **`languageId`** | query | true | undefined | undefined |
 | **`pathToProject`** | query | true | undefined | undefined |
@@ -1283,7 +1283,7 @@ Completion リクエストは、指定したカーソル位置の補完候補を
 ### Parameters
 | Name | Location | Required | Type | Description |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して 組織（Organization）ID を指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して 組織（Organization）ID を指定します |
 | **`sandboxId`** | path | true | undefined | undefined |
 
 ### Responses
@@ -1298,7 +1298,7 @@ Completion リクエストは、指定したカーソル位置の補完候補を
 ### Parameters
 | 名前 | 位置 | 必須 | 型 | 説明 |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定します |
 | **`sandboxId`** | path | true | undefined | undefined |
 
 ### Responses
@@ -1313,7 +1313,7 @@ Completion リクエストは、指定したカーソル位置の補完候補を
 ### Parameters
 | Name | Location | Required | Type | Description |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWTと併用して組織（Organization）IDを指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWTと併用して組織（Organization）IDを指定します |
 | **`sandboxId`** | path | true | undefined | undefined |
 | **`languageId`** | query | true | undefined | undefined |
 | **`pathToProject`** | query | true | undefined | undefined |
@@ -1330,7 +1330,7 @@ Completion リクエストは、指定したカーソル位置の補完候補を
 ### Parameters
 | 名前 | 位置 | 必須 | 型 | 説明 |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | いいえ | undefined | JWT と併用して 組織（Organization）ID を指定します |
+| **`X-Northrays-Organization-ID`** | header | いいえ | undefined | JWT と併用して 組織（Organization）ID を指定します |
 
 ### Responses
 | ステータスコード | 説明 |
@@ -1343,7 +1343,7 @@ Completion リクエストは、指定したカーソル位置の補完候補を
 ### パラメータ
 | 名前 | 位置 | 必須 | 型 | 説明 |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）のIDを指定 |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）のIDを指定 |
 | **`limit`** | query | false | undefined | 1ページあたりの件数 |
 | **`page`** | query | false | undefined | ページ番号 |
 
@@ -1358,7 +1358,7 @@ Completion リクエストは、指定したカーソル位置の補完候補を
 ### パラメータ
 | 名前 | 位置 | 必須 | 型 | 説明 |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWTと併用して組織（Organization）IDを指定 |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWTと併用して組織（Organization）IDを指定 |
 | **`id`** | path | true | undefined | スナップショット（Snapshot）のIDまたは名前 |
 
 ### レスポンス
@@ -1372,7 +1372,7 @@ Completion リクエストは、指定したカーソル位置の補完候補を
 ### Parameters
 | Name | Location | Required | Type | Description |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定します |
 | **`id`** | path | true | undefined | スナップショット（Snapshot）ID |
 
 ### Responses
@@ -1386,7 +1386,7 @@ Completion リクエストは、指定したカーソル位置の補完候補を
 ### Parameters
 | Name | Location | Required | Type | Description |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）のIDを指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）のIDを指定します |
 | **`id`** | path | true | undefined | スナップショット（Snapshot）のID |
 
 ### Responses
@@ -1400,7 +1400,7 @@ Completion リクエストは、指定したカーソル位置の補完候補を
 ### パラメータ
 | 名前 | 位置 | 必須 | 型 | 説明 |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定します |
 | **`id`** | path | true | undefined | スナップショット（Snapshot）ID |
 
 ### レスポンス
@@ -1414,7 +1414,7 @@ Completion リクエストは、指定したカーソル位置の補完候補を
 ### パラメータ
 | 名前 | 位置 | 必須 | 型 | 説明 |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定 |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定 |
 | **`id`** | path | true | undefined | スナップショット（Snapshot）ID |
 | **`follow`** | query | false | undefined | ログストリームをフォローするかどうか |
 
@@ -1429,7 +1429,7 @@ Completion リクエストは、指定したカーソル位置の補完候補を
 ### Parameters
 | Name | Location | Required | Type | Description |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して 組織（Organization）ID を指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して 組織（Organization）ID を指定します |
 | **`id`** | path | true | undefined | スナップショット（Snapshot）ID |
 
 ### Responses
@@ -1445,7 +1445,7 @@ Completion リクエストは、指定したカーソル位置の補完候補を
 ### パラメータ
 | 名前 | 位置 | 必須 | 型 | 説明 |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定する |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定する |
 | **`verbose`** | query | false | undefined | 詳細出力を含める |
 | **`labels`** | query | false | undefined | フィルタに使用する JSON エンコード済みラベル |
 
@@ -1459,7 +1459,7 @@ Completion リクエストは、指定したカーソル位置の補完候補を
 ### Parameters
 | Name | Location | Required | Type | Description |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して組織IDを指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して組織IDを指定します |
 
 ### Responses
 | Status Code | Description |
@@ -1472,7 +1472,7 @@ Completion リクエストは、指定したカーソル位置の補完候補を
 ### Parameters
 | Name | Location | Required | Type | Description |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して 組織（Organization）の ID を指定 |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して 組織（Organization）の ID を指定 |
 | **`verbose`** | query | false | undefined | 冗長な出力を含める |
 | **`workspaceId`** | path | true | undefined | ワークスペースの ID |
 
@@ -1486,7 +1486,7 @@ Completion リクエストは、指定したカーソル位置の補完候補を
 ### パラメータ
 | 名前 | 位置 | 必須 | 型 | 説明 |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定 |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定 |
 | **`workspaceId`** | path | true | undefined | ワークスペースの ID |
 | **`force`** | query | true | undefined | 未定義 |
 
@@ -1501,7 +1501,7 @@ Completion リクエストは、指定したカーソル位置の補完候補を
 ### Parameters
 | Name | Location | Required | Type | Description |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定します |
 | **`workspaceId`** | path | true | undefined | ワークスペースの ID |
 
 ### Responses
@@ -1515,7 +1515,7 @@ Completion リクエストは、指定したカーソル位置の補完候補を
 ### Parameters
 | Name | Location | Required | Type | Description |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定します |
 | **`workspaceId`** | path | true | undefined | ワークスペースのID |
 
 ### Responses
@@ -1529,7 +1529,7 @@ Completion リクエストは、指定したカーソル位置の補完候補を
 ### Parameters
 | Name | Location | Required | Type | Description |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定します |
 | **`workspaceId`** | path | true | undefined | ワークスペース ID |
 
 ### Responses
@@ -1543,7 +1543,7 @@ Completion リクエストは、指定したカーソル位置の補完候補を
 ### Parameters
 | Name | Location | Required | Type | Description |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）のIDを指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）のIDを指定します |
 | **`workspaceId`** | path | true | undefined | ワークスペースのID |
 
 ### Responses
@@ -1557,7 +1557,7 @@ Completion リクエストは、指定したカーソル位置の補完候補を
 ### パラメータ
 | 名前 | 位置 | 必須 | 型 | 説明 |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）の ID を指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）の ID を指定します |
 | **`workspaceId`** | path | true | undefined | ワークスペースの ID |
 | **`isPublic`** | path | true | undefined | 設定する公開ステータス |
 
@@ -1572,7 +1572,7 @@ Completion リクエストは、指定したカーソル位置の補完候補を
 ### パラメータ
 | 名前 | ロケーション | 必須 | 型 | 説明 |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して 組織（Daytona内のリソースとユーザーのグループ化、ロールや請求など）ID を指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して 組織（Northrays内のリソースとユーザーのグループ化、ロールや請求など）ID を指定します |
 | **`workspaceId`** | path | true | undefined | ワークスペースのID |
 | **`interval`** | path | true | undefined | 自動停止（サンドボックスのライフサイクルを制御する自動タイマー）の間隔（分）。0 で無効化 |
 
@@ -1587,7 +1587,7 @@ Completion リクエストは、指定したカーソル位置の補完候補を
 ### パラメータ
 | 名前 | 位置 | 必須 | 型 | 説明 |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して組織（Daytona内のリソースとユーザーのグループ化、ロールや請求など）のIDを指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して組織（Northrays内のリソースとユーザーのグループ化、ロールや請求など）のIDを指定します |
 | **`workspaceId`** | path | true | undefined | ワークスペースのID |
 | **`interval`** | path | true | undefined | 自動アーカイブ間隔（分）。0 を指定すると最大間隔が使用されます |
 
@@ -1602,7 +1602,7 @@ Completion リクエストは、指定したカーソル位置の補完候補を
 ### パラメータ
 | 名前 | 位置 | 必須 | 型 | 説明 |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して 組織（Organization）ID を指定 |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して 組織（Organization）ID を指定 |
 | **`sandboxId`** | path | true | undefined | サンドボックス（Sandbox）の ID |
 | **`interval`** | path | true | undefined | 自動削除の間隔（分）。負の値で無効、0 で停止時に即時削除 |
 
@@ -1617,7 +1617,7 @@ Completion リクエストは、指定したカーソル位置の補完候補を
 ### パラメータ
 | 名前 | 位置 | 必須 | 型 | 説明 |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | ヘッダー | いいえ | 未定義 | JWT と併用して組織（Organization）IDを指定します |
+| **`X-Northrays-Organization-ID`** | ヘッダー | いいえ | 未定義 | JWT と併用して組織（Organization）IDを指定します |
 | **`workspaceId`** | パス | はい | 未定義 | 未定義 |
 
 ### レスポンス
@@ -1631,7 +1631,7 @@ Completion リクエストは、指定したカーソル位置の補完候補を
 ### Parameters
 | Name | Location | Required | Type | Description |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定 |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定 |
 | **`workspaceId`** | path | true | undefined | ワークスペース ID |
 | **`port`** | path | true | undefined | プレビューリンクを取得するポート番号 |
 
@@ -1646,7 +1646,7 @@ Completion リクエストは、指定したカーソル位置の補完候補を
 ### Parameters
 | Name | Location | Required | Type | Description |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWTと併用して組織（Organization）のIDを指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWTと併用して組織（Organization）のIDを指定します |
 | **`workspaceId`** | path | true | undefined | ワークスペースID |
 | **`follow`** | query | false | undefined | ログストリームをフォローするかどうか |
 
@@ -1701,7 +1701,7 @@ Completion リクエストは、指定したカーソル位置の補完候補を
 ### Parameters
 | Name | Location | Required | Type | Description |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して 組織（Organization）ID を指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して 組織（Organization）ID を指定します |
 | **`includeDeleted`** | query | false | undefined | レスポンスに削除済みのボリューム（Volume）を含めます |
 
 ### Responses
@@ -1714,7 +1714,7 @@ Completion リクエストは、指定したカーソル位置の補完候補を
 ### Parameters
 | Name | Location | Required | Type | Description |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して組織（Daytona内のリソースとユーザーのグループ化、ロールや請求など）の ID を指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して組織（Northrays内のリソースとユーザーのグループ化、ロールや請求など）の ID を指定します |
 
 ### Responses
 | Status Code | Description |
@@ -1727,7 +1727,7 @@ Completion リクエストは、指定したカーソル位置の補完候補を
 ### パラメータ
 | 名前 | 位置 | 必須 | 型 | 説明 |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）のIDを指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）のIDを指定します |
 | **`volumeId`** | path | true | undefined | ボリューム（Volume）のID |
 
 ### レスポンス
@@ -1740,7 +1740,7 @@ Completion リクエストは、指定したカーソル位置の補完候補を
 ### パラメータ
 | 名前 | 位置 | 必須 | 型 | 説明 |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して組織（Daytona 内のリソースとユーザーのグループ化、ロールや請求など）の ID を指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して組織（Northrays 内のリソースとユーザーのグループ化、ロールや請求など）の ID を指定します |
 | **`volumeId`** | path | true | undefined | ボリューム（S3互換オブジェクトストレージをバックエンドに持つFUSEベースの共有ストレージ）の ID |
 
 ### レスポンス
@@ -1754,7 +1754,7 @@ Completion リクエストは、指定したカーソル位置の補完候補を
 ### パラメータ
 | 名前 | 位置 | 必須 | 型 | 説明 |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定します |
 | **`name`** | path | true | undefined | ボリューム（S3互換オブジェクトストレージをバックエンドに持つFUSEベースの共有ストレージ）の名前 |
 
 ### レスポンス
@@ -1768,7 +1768,7 @@ Completion リクエストは、指定したカーソル位置の補完候補を
 ### Parameters
 | Name | Location | Required | Type | Description |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して、組織（Organization）のIDを指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して、組織（Organization）のIDを指定します |
 
 ### Responses
 | Status Code | Description |
@@ -1780,7 +1780,7 @@ Completion リクエストは、指定したカーソル位置の補完候補を
 ### パラメータ
 | 名前 | 位置 | 必須 | 型 | 説明 |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | いいえ | undefined | JWT と併用して組織（Organization）ID を指定する |
+| **`X-Northrays-Organization-ID`** | header | いいえ | undefined | JWT と併用して組織（Organization）ID を指定する |
 
 ### レスポンス
 | ステータスコード | 説明 |
@@ -1793,7 +1793,7 @@ Completion リクエストは、指定したカーソル位置の補完候補を
 ### Parameters
 | Name | Location | Required | Type | Description |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して、組織（Organization）ID を指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して、組織（Organization）ID を指定します |
 
 ### Responses
 | Status Code | Description |
@@ -1806,7 +1806,7 @@ Completion リクエストは、指定したカーソル位置の補完候補を
 ### Parameters
 | Name | Location | Required | Type | Description |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）の ID を指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）の ID を指定します |
 | **`id`** | path | true | undefined | Docker レジストリの ID |
 
 ### Responses
@@ -1819,7 +1819,7 @@ Completion リクエストは、指定したカーソル位置の補完候補を
 ### パラメータ
 | 名前 | 位置 | 必須 | 型 | 説明 |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して組織 ID を指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して組織 ID を指定します |
 | **`id`** | path | true | undefined | Docker レジストリの ID |
 
 ### レスポンス
@@ -1832,7 +1832,7 @@ Completion リクエストは、指定したカーソル位置の補完候補を
 ### パラメータ
 | 名前 | 位置 | 必須 | 型 | 説明 |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定します |
 | **`id`** | path | true | undefined | Docker レジストリの ID |
 
 ### レスポンス
@@ -1846,7 +1846,7 @@ Completion リクエストは、指定したカーソル位置の補完候補を
 ### Parameters
 | Name | Location | Required | Type | Description |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定します |
 | **`id`** | path | true | undefined | Docker レジストリの ID |
 
 ### Responses
@@ -1860,7 +1860,7 @@ Completion リクエストは、指定したカーソル位置の補完候補を
 ### Parameters
 | Name | Location | Required | Type | Description |
 | :--- | :------- | :------- | :--- | :---------- |
-| **`X-Daytona-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定します |
+| **`X-Northrays-Organization-ID`** | header | false | undefined | JWT と併用して組織（Organization）ID を指定します |
 
 ### Responses
 | Status Code | Description |

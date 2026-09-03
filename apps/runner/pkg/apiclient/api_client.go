@@ -6,14 +6,14 @@ package apiclient
 import (
 	"net/http"
 
-	apiclient "github.com/daytonaio/daytona/libs/api-client-go"
-	"github.com/daytonaio/runner/cmd/runner/config"
+	apiclient "github.com/northrays/sandbox-platform/libs/api-client-go"
+	"github.com/northrays/runner/cmd/runner/config"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
 
 var apiClient *apiclient.APIClient
 
-const DaytonaSourceHeader = "X-Daytona-Source"
+const NorthraysSourceHeader = "X-Northrays-Source"
 
 func GetApiClient() (*apiclient.APIClient, error) {
 	c, err := config.GetConfig()
@@ -23,7 +23,7 @@ func GetApiClient() (*apiclient.APIClient, error) {
 
 	var newApiClient *apiclient.APIClient
 
-	serverUrl := c.DaytonaApiUrl
+	serverUrl := c.NorthraysApiUrl
 
 	clientConfig := apiclient.NewConfiguration()
 	clientConfig.Servers = apiclient.ServerConfigurations{
@@ -34,7 +34,7 @@ func GetApiClient() (*apiclient.APIClient, error) {
 
 	clientConfig.AddDefaultHeader("Authorization", "Bearer "+c.ApiToken)
 
-	clientConfig.AddDefaultHeader(DaytonaSourceHeader, "runner")
+	clientConfig.AddDefaultHeader(NorthraysSourceHeader, "runner")
 
 	newApiClient = apiclient.NewAPIClient(clientConfig)
 

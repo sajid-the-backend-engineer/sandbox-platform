@@ -11,7 +11,7 @@ from pathlib import Path
 import dspy
 import matplotlib.pyplot as plt
 import numpy as np
-from daytona_interpreter import DaytonaInterpreter
+from northrays_interpreter import NorthraysInterpreter
 from dotenv import load_dotenv
 
 load_dotenv(override=True)
@@ -64,7 +64,7 @@ dspy.configure(lm=lm)
 
 # ── Run RLM analysis ────────────────────────────────────────────────────────
 
-interpreter = DaytonaInterpreter()
+interpreter = NorthraysInterpreter()
 
 rlm = dspy.RLM(
     signature="chapters: list[str], task: str -> wealth_data: list[dict]",

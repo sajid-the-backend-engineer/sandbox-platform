@@ -1,22 +1,22 @@
 import asyncio
 
-from daytona import AsyncDaytona, CreateSandboxFromSnapshotParams
+from northrays import AsyncNorthrays, CreateSandboxFromSnapshotParams
 
 
 async def main():
-    async with AsyncDaytona() as daytona:
+    async with AsyncNorthrays() as northrays:
         # Default settings
-        sandbox1 = await daytona.create()
+        sandbox1 = await northrays.create()
         print("network_block_all:", sandbox1.network_block_all)
         print("network_allow_list:", sandbox1.network_allow_list)
 
         # Block all network access
-        sandbox2 = await daytona.create(params=CreateSandboxFromSnapshotParams(network_block_all=True))
+        sandbox2 = await northrays.create(params=CreateSandboxFromSnapshotParams(network_block_all=True))
         print("network_block_all:", sandbox2.network_block_all)
         print("network_allow_list:", sandbox2.network_allow_list)
 
         # Explicitly allow list of network addresses
-        sandbox3 = await daytona.create(
+        sandbox3 = await northrays.create(
             params=CreateSandboxFromSnapshotParams(network_allow_list="192.168.1.0/16,10.0.0.0/24")
         )
         print("network_block_all:", sandbox3.network_block_all)

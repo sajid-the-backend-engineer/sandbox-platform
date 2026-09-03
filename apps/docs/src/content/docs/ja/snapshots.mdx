@@ -5,17 +5,17 @@ title: スナップショット
 import { TabItem, Tabs } from '@astrojs/starlight/components'
 import Label from '@components/Label.astro'
 
-スナップショット（サンドボックス作成に使う再利用可能な事前設定イメージ／テンプレート）は、Daytona のサンドボックス（Daytona が管理する隔離された一時的な計算環境）に必要な依存関係、ツール、環境設定、リソース要件をすべて含む事前構成済みテンプレートです。Daytona は、標準的な [Docker](https://www.docker.com/) または [OCI](https://opencontainers.org/) 互換イメージからのスナップショット作成をサポートします。
+スナップショット（サンドボックス作成に使う再利用可能な事前設定イメージ／テンプレート）は、Northrays のサンドボックス（Northrays が管理する隔離された一時的な計算環境）に必要な依存関係、ツール、環境設定、リソース要件をすべて含む事前構成済みテンプレートです。Northrays は、標準的な [Docker](https://www.docker.com/) または [OCI](https://opencontainers.org/) 互換イメージからのスナップショット作成をサポートします。
 
 ## スナップショットの作成
 
-サンドボックスを起動する際、Daytona は `python`、`node`、`pip` ならびに一般的な pip パッケージなどの有用なユーティリティがプリインストールされたシンプルなイメージに基づくスナップショットを使用します。詳細は[以下](#default-snapshot)を参照してください。
+サンドボックスを起動する際、Northrays は `python`、`node`、`pip` ならびに一般的な pip パッケージなどの有用なユーティリティがプリインストールされたシンプルなイメージに基づくスナップショットを使用します。詳細は[以下](#default-snapshot)を参照してください。
 
-この挙動は上書き可能です。ダッシュボードにアクセスし、[Snapshots](https://app.daytona.io/dashboard/snapshots) をクリックしてから `Create Snapshot` を選択すると、カスタムスナップショットを作成できます。
+この挙動は上書き可能です。ダッシュボードにアクセスし、[Snapshots](https://app.northrays.com/dashboard/snapshots) をクリックしてから `Create Snapshot` を選択すると、カスタムスナップショットを作成できます。
 
 スナップショットのイメージには、Docker Hub の `alpine:3.21.3` や `debian:12.10` のような公開イメージの名前とタグ、または別の公開コンテナレジストリ（例: `my-public-registry.com/custom-alpine:3.21`）のイメージを指定できます。
 
-entrypoint フィールドは任意です。イメージに長時間稼働する entrypoint がない場合、Daytona は自動的に `sleep infinity` を実行して、作成直後にコンテナが即時終了しないようにします。
+entrypoint フィールドは任意です。イメージに長時間稼働する entrypoint がない場合、Northrays は自動的に `sleep infinity` を実行して、作成直後にコンテナが即時終了しないようにします。
 
 :::note
 `latest` タグのイメージは頻繁に更新されるため、特定のタグ（例: `0.1.0`）のみがサポートされます。同様に、`lts` や `stable` といったタグも避けることを推奨します。
@@ -26,7 +26,7 @@ entrypoint フィールドは任意です。イメージに長時間稼働する
 <Tabs syncKey="language">
   <TabItem label="Python" icon="seti:python">
     ```python
-    sandbox = daytona.create(CreateSandboxFromSnapshotParams(
+    sandbox = northrays.create(CreateSandboxFromSnapshotParams(
         snapshot="my-snapshot-name",
     ))
     ```
@@ -34,7 +34,7 @@ entrypoint フィールドは任意です。イメージに長時間稼働する
 
   <TabItem label="TypeScript" icon="seti:typescript">
     ```typescript
-    const sandbox = await daytona.create({
+    const sandbox = await northrays.create({
       snapshot: "my-snapshot-name",
     })
     ```
@@ -46,11 +46,11 @@ entrypoint フィールドは任意です。イメージに長時間稼働する
 <Tabs syncKey="language">
   <TabItem label="Python" icon="seti:python">
     ```python
-    from daytona import Daytona, CreateSandboxFromSnapshotParams
+    from northrays import Northrays, CreateSandboxFromSnapshotParams
 
-    daytona = Daytona()
+    northrays = Northrays()
 
-    sandbox = daytona.create(CreateSandboxFromSnapshotParams(
+    sandbox = northrays.create(CreateSandboxFromSnapshotParams(
         snapshot="my-snapshot-name",
     ))
 
@@ -67,15 +67,15 @@ entrypoint フィールドは任意です。イメージに長時間稼働する
 
   <TabItem label="TypeScript" icon="seti:typescript">
     ```typescript
-    import { Daytona } from '@daytona/sdk'
+    import { Northrays } from '@northrays/sdk'
 
     async function main() {
-      // Initialize the Daytona client
-      const daytona = new Daytona()
+      // Initialize the Northrays client
+      const northrays = new Northrays()
 
       try {
         // Create the Sandbox instance
-        const sandbox = await daytona.create({
+        const sandbox = await northrays.create({
           snapshot: "my-snapshot-name",
         })
         // Run the code securely inside the Sandbox
@@ -102,28 +102,28 @@ entrypoint フィールドは任意です。イメージに長時間稼働する
 
 ### スナップショットのリソース
 
-スナップショットには Daytona サンドボックスのリソース要件が含まれます。デフォルトでは、Daytona サンドボックスは **1 vCPU**、**1GB RAM**、**3GiB ディスク**を備えています。
+スナップショットには Northrays サンドボックスのリソース要件が含まれます。デフォルトでは、Northrays サンドボックスは **1 vCPU**、**1GB RAM**、**3GiB ディスク**を備えています。
 
 より高いパフォーマンスが必要ですか？`Resources` クラスを使用して、必要な CPU、メモリ、ディスク容量を正確に指定できます。
 
-利用可能なリソースと上限は[ダッシュボード](https://app.daytona.io/dashboard/limits)で確認してください。
+利用可能なリソースと上限は[ダッシュボード](https://app.northrays.com/dashboard/limits)で確認してください。
 
 <Tabs syncKey="language">
   <TabItem label="Python" icon="seti:python">
     ```python
-    from daytona import (
-        Daytona,
+    from northrays import (
+        Northrays,
         CreateSnapshotParams,
         Image,
         Resources,
         CreateSandboxFromSnapshotParams,
     )
 
-    daytona = Daytona()
+    northrays = Northrays()
 
     # カスタムリソースを指定してスナップショットを作成
 
-    daytona.snapshot.create(
+    northrays.snapshot.create(
         CreateSnapshotParams(
             name="my-snapshot",
             image=Image.debian_slim("3.12"),
@@ -138,7 +138,7 @@ entrypoint フィールドは任意です。イメージに長時間稼働する
 
     # カスタムスナップショットからサンドボックスを作成
 
-    sandbox = daytona.create(
+    sandbox = northrays.create(
         CreateSandboxFromSnapshotParams(
             snapshot="my-snapshot",
         )
@@ -149,13 +149,13 @@ entrypoint フィールドは任意です。イメージに長時間稼働する
 
   <TabItem label="TypeScript" icon="seti:typescript">
     ```typescript
-    import { Daytona, Image } from "@daytona/sdk";
+    import { Northrays, Image } from "@northrays/sdk";
 
     async function main() {
-      const daytona = new Daytona();
+      const northrays = new Northrays();
 
       // カスタムリソースを指定してスナップショットを作成
-      await daytona.snapshot.create(
+      await northrays.snapshot.create(
         {
           name: "my-snapshot",
           image: Image.debianSlim("3.13"),
@@ -169,7 +169,7 @@ entrypoint フィールドは任意です。イメージに長時間稼働する
       );
 
       // カスタムスナップショットからサンドボックスを作成
-      const sandbox = await daytona.create({
+      const sandbox = await northrays.create({
         snapshot: "my-snapshot",
       });
     }
@@ -180,17 +180,17 @@ entrypoint フィールドは任意です。イメージに長時間稼働する
 </Tabs>
 
 :::note
-すべてのリソースパラメータは任意です。指定しない場合、Daytonaはデフォルト値を使用します。
+すべてのリソースパラメータは任意です。指定しない場合、Northraysはデフォルト値を使用します。
 :::
 
 ### プライベートレジストリのイメージ
 
 一般公開されていないイメージからスナップショットを作成するには、まずそのイメージのプライベートコンテナレジストリを追加します。
 
-1. ダッシュボードの[Registries](https://app.daytona.io/dashboard/registries)ページに移動
+1. ダッシュボードの[Registries](https://app.northrays.com/dashboard/registries)ページに移動
 2. `Add Registry`ボタンをクリック
 3. 適切なカスタム名、URL、ユーザー名、パスワード、プロジェクト（該当する場合）を入力
-4. コンテナレジストリを作成したら、[Snapshots](https://app.daytona.io/dashboard/snapshots)ページに戻る
+4. コンテナレジストリを作成したら、[Snapshots](https://app.northrays.com/dashboard/snapshots)ページに戻る
 5. スナップショット作成時は、レジストリURLとプロジェクト名（該当する場合）を含むプライベートイメージ名全体を入力すること（例: `my-private-registry.com/<my-project>/custom-alpine:3.21`）
 
 この先の手順は同じです。`CreateSandboxFromSnapshotParams`のフィールドにそのカスタムスナップショットを指定すれば、追加の認証は不要です。
@@ -206,32 +206,32 @@ entrypoint フィールドは任意です。イメージに長時間稼働する
 
 ### ローカルイメージの使用
 
-プライベートコンテナレジストリを手動で用意してイメージをプッシュする手間を避けるために、[Daytona CLI](/docs/ja/getting-started#cli)を使ってローカルイメージやローカルの Dockerfile からスナップショットを作成し、サンドボックスで使用できます。
+プライベートコンテナレジストリを手動で用意してイメージをプッシュする手間を避けるために、[Northrays CLI](/docs/ja/getting-started#cli)を使ってローカルイメージやローカルの Dockerfile からスナップショットを作成し、サンドボックスで使用できます。
 
-`docker images` を実行して使用したいイメージとタグが存在することを確認したら、`daytona snapshot push <your_local_docker_image>` コマンドでスナップショットを作成して Daytona にプッシュします。例:
+`docker images` を実行して使用したいイメージとタグが存在することを確認したら、`northrays snapshot push <your_local_docker_image>` コマンドでスナップショットを作成して Northrays にプッシュします。例:
 
 ```bash
-daytona snapshot push custom-alpine:3.21 --name alpine-minimal
+northrays snapshot push custom-alpine:3.21 --name alpine-minimal
 ```
 
 :::tip
 `--cpu`、`--memory`、`--disk` フラグを使って、基盤となるサンドボックス（Sandbox）に割り当てるリソースを指定します。
 
-たとえば `daytona snapshot push custom-alpine:3.21 --name alpine-minimal --cpu 2 --memory 4 --disk 8` は、2 vCPU、4GiB メモリ、8GiB ディスク容量の Alpine サンドボックスを作成します。
+たとえば `northrays snapshot push custom-alpine:3.21 --name alpine-minimal --cpu 2 --memory 4 --disk 8` は、2 vCPU、4GiB メモリ、8GiB ディスク容量の Alpine サンドボックスを作成します。
 :::
 
 :::note
-Daytona はローカルイメージが AMD64 アーキテクチャ向けにビルドされていることを前提としています。したがって、お使いのマシンが別のアーキテクチャの場合は、Docker イメージをビルドする際に `--platform=linux/amd64` フラグが必要です。
+Northrays はローカルイメージが AMD64 アーキテクチャ向けにビルドされていることを前提としています。したがって、お使いのマシンが別のアーキテクチャの場合は、Docker イメージをビルドする際に `--platform=linux/amd64` フラグが必要です。
 
-詳しくは [CLI ドキュメント](/docs/ja/tools/cli#daytona-snapshot-push) を参照してください。
+詳しくは [CLI ドキュメント](/docs/ja/tools/cli#northrays-snapshot-push) を参照してください。
 :::
 
 まだ目的のイメージをビルドしておらず、Dockerfile が用意できている場合は、SDK の宣言的ビルダー（Declarative Builder）を利用できます。詳しくは[こちら](/docs/ja/getting-started#declarative-builder)をご覧ください。
 
-また、CLI で実行する場合は、`create` で `--dockerfile` フラグに使用したい Dockerfile のパスを渡すと、Daytona がスナップショット（Snapshot）をビルドします:
+また、CLI で実行する場合は、`create` で `--dockerfile` フラグに使用したい Dockerfile のパスを渡すと、Northrays がスナップショット（Snapshot）をビルドします:
 
 ```bash
-daytona snapshot create data-analysis01 --dockerfile ./Dockerfile --context ./requirements.txt
+northrays snapshot create data-analysis01 --dockerfile ./Dockerfile --context ./requirements.txt
 ```
 
 ```text
@@ -244,13 +244,13 @@ Step 1/5 : FROM alpine:latest
 
  ...
 
- ✓  Use 'harbor-transient.internal.daytona.app/daytona/trying-daytona:0.0.1' to create a new sandbox using this Snapshot
+ ✓  Use 'harbor-transient.internal.northrays.app/northrays/trying-northrays:0.0.1' to create a new sandbox using this Snapshot
 
 ```
 
 ## スナップショットの削除
 
-作成したカスタムスナップショットの削除は簡単です。[Snapshots](https://app.daytona.io/dashboard/snapshots) ページに移動し、削除したいスナップショットの行末にある三点アイコンをクリックして表示される `Delete` ボタンを選択してください。
+作成したカスタムスナップショットの削除は簡単です。[Snapshots](https://app.northrays.com/dashboard/snapshots) ページに移動し、削除したいスナップショットの行末にある三点アイコンをクリックして表示される `Delete` ボタンを選択してください。
 
 :::tip
 
@@ -260,7 +260,7 @@ Step 1/5 : FROM alpine:latest
 
 ## サンドボックスでDockerを実行する
 
-Daytonaのサンドボックスは内部でDockerコンテナを実行できます（Docker-in-Docker）。これにより、コンテナ化されたアプリケーションのビルド、テスト、デプロイが可能になります。特に、データベース、メッセージキュー、その他のマイクロサービスなど外部サービスに依存するプロジェクトで有用です。
+Northraysのサンドボックスは内部でDockerコンテナを実行できます（Docker-in-Docker）。これにより、コンテナ化されたアプリケーションのビルド、テスト、デプロイが可能になります。特に、データベース、メッセージキュー、その他のマイクロサービスなど外部サービスに依存するプロジェクトで有用です。
 
 これらのサービスは同一のサンドボックス環境内で稼働するため、エージェントはシームレスに連携でき、外部サービス依存と比べて優れた分離性とセキュリティを提供します。
 
@@ -299,7 +299,7 @@ Docker-in-Dockerのサンドボックスは、Dockerデーモンのオーバー�
 
 ## デフォルトのスナップショット
 
-Daytona が使用するデフォルトのスナップショットは、`python` と `node`、それぞれの LSP に加えて、以下の `pip` 事前インストール済みパッケージを含むイメージをベースにしています:
+Northrays が使用するデフォルトのスナップショットは、`python` と `node`、それぞれの LSP に加えて、以下の `pip` 事前インストール済みパッケージを含むイメージをベースにしています:
 
 - `beautifulsoup4` (v4.13.3)
 - `django` (v5.1.7)
@@ -319,7 +319,7 @@ Daytona が使用するデフォルトのスナップショットは、`python` 
 - `SQLAlchemy` (v2.0.38)
 - `transformers` (v4.49.0)
 - `anthropic` (v0.49.0)
-- `daytona_sdk` (v0.11.1)
+- `northrays_sdk` (v0.11.1)
 - `huggingface` (v0.0.1)
 - `instructor` (v1.7.3)
 - `langchain` (v0.3.20)

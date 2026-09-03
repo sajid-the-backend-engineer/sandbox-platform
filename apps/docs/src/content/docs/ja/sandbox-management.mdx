@@ -6,12 +6,12 @@ import sandboxDiagram from '@assets/docs/sandbox-states.svg?raw'
 import { TabItem, Tabs } from '@astrojs/starlight/components'
 import Image from 'astro/components/Image.astro'
 
-サンドボックス（Daytonaが管理する隔離された一時的な実行環境）は、Daytonaによって管理される開発用の隔離環境です。本ガイドでは、TS SDK／Python SDKを用いてサンドボックスを作成・管理・削除する方法を解説します。
+サンドボックス（Northraysが管理する隔離された一時的な実行環境）は、Northraysによって管理される開発用の隔離環境です。本ガイドでは、TS SDK／Python SDKを用いてサンドボックスを作成・管理・削除する方法を解説します。
 デフォルトでは、サンドボックスは非アクティブ状態が15分続くと自動停止し、**vCPU 1**、**RAM 1GB**、**ディスク 3GiB**を使用します。
 
 ## サンドボックスのライフサイクル
 
-ライフサイクル全体を通じて、Daytonaのサンドボックス（Daytonaが管理する隔離された一時的な実行環境）は複数の状態を取り得ます。以下の図は、それぞれの状態と遷移の可能性を示します。
+ライフサイクル全体を通じて、Northraysのサンドボックス（Northraysが管理する隔離された一時的な実行環境）は複数の状態を取り得ます。以下の図は、それぞれの状態と遷移の可能性を示します。
 
 <Fragment set:html={sandboxDiagram} />
 
@@ -19,7 +19,7 @@ import Image from 'astro/components/Image.astro'
 
 ## サンドボックスの作成
 
-Daytona SDK は、デフォルトまたはカスタム構成でサンドボックスを作成する機能を提供します。サンドボックスに対して、言語、[スナップショット](/docs/ja/snapshots)、リソース、環境変数、ボリュームを指定できます。
+Northrays SDK は、デフォルトまたはカスタム構成でサンドボックスを作成する機能を提供します。サンドボックスに対して、言語、[スナップショット](/docs/ja/snapshots)、リソース、環境変数、ボリュームを指定できます。
 稼働中のサンドボックスは CPU、メモリ、ディスクストレージを消費します。各リソースは使用秒単位で課金されます。
 
 :::tip
@@ -28,46 +28,46 @@ Daytona SDK は、デフォルトまたはカスタム構成でサンドボッ�
 
 ### 基本的なサンドボックスの作成
 
-Daytona SDK には、Python と TypeScript により、デフォルト構成、特定の言語、またはカスタムラベルでサンドボックスを作成するメソッドが用意されています。
+Northrays SDK には、Python と TypeScript により、デフォルト構成、特定の言語、またはカスタムラベルでサンドボックスを作成するメソッドが用意されています。
 
 <Tabs syncKey="language">
   <TabItem label="Python" icon="seti:python">
     ```python
-    from daytona import Daytona, CreateSandboxFromSnapshotParams
+    from northrays import Northrays, CreateSandboxFromSnapshotParams
 
-    daytona = Daytona()
+    northrays = Northrays()
 
     # Create a basic Sandbox
 
-    sandbox = daytona.create()
+    sandbox = northrays.create()
 
     # Create a Sandbox with specific language
 
     params = CreateSandboxFromSnapshotParams(language="python")
-    sandbox = daytona.create(params)
+    sandbox = northrays.create(params)
 
     # Create a Sandbox with custom labels
 
     params = CreateSandboxFromSnapshotParams(labels={"SOME_LABEL": "my-label"})
-    sandbox = daytona.create(params)
+    sandbox = northrays.create(params)
 
     ```
   </TabItem>
 
   <TabItem label="TypeScript" icon="seti:typescript">
     ```typescript
-    import { Daytona } from '@daytona/sdk';
+    import { Northrays } from '@northrays/sdk';
 
-    const daytona = new Daytona();
+    const northrays = new Northrays();
 
     // Create a basic Sandbox
-    const sandbox = await daytona.create();
+    const sandbox = await northrays.create();
 
     // Create a Sandbox with specific language
-    const sandbox = await daytona.create({ language: 'typescript' });
+    const sandbox = await northrays.create({ language: 'typescript' });
 
     // Create a Sandbox with custom labels
-    const sandbox = await daytona.create({ labels: { SOME_LABEL: 'my-label' } });
+    const sandbox = await northrays.create({ labels: { SOME_LABEL: 'my-label' } });
     ```
   </TabItem>
 </Tabs>
@@ -75,24 +75,24 @@ Daytona SDK には、Python と TypeScript により、デフォルト構成、�
 サンドボックスが積極的に使用されていない場合は、停止することを推奨します。これは、[stop コマンドの使用](/docs/ja/sandboxes#stop-and-start-sandbox)による手動操作、または[自動停止間隔の設定](/docs/ja/sandboxes#auto-stop-and-auto-archive)による自動化で行えます。
 
 :::note
-Daytona はデフォルトのスナップショットを用いたウォーム状態のサンドボックスプールを維持しています。\
+Northrays はデフォルトのスナップショットを用いたウォーム状態のサンドボックスプールを維持しています。\
 利用可能な場合はコールドブートせず、ミリ秒単位でサンドボックスが起動します。
 :::
 
 ### サンドボックスのリソース
 
-Daytona のサンドボックスは、デフォルトで **1 vCPU**、**1GB RAM**、**3GiB ディスク**を備えています。
+Northrays のサンドボックスは、デフォルトで **1 vCPU**、**1GB RAM**、**3GiB ディスク**を備えています。
 
 より高い性能が必要ですか？`Resources` クラスを使用して、必要な構成を正確に指定できます。CPU、メモリ、ディスク容量はすべてカスタマイズ可能です。
 
-[ダッシュボード](https://app.daytona.io/dashboard/limits)で利用可能なリソースと上限を確認してください。
+[ダッシュボード](https://app.northrays.com/dashboard/limits)で利用可能なリソースと上限を確認してください。
 
 <Tabs syncKey="language">
   <TabItem label="Python" icon="seti:python">
     ```python
-    from daytona import Daytona, Resources, CreateSandboxFromImageParams, Image
+    from northrays import Northrays, Resources, CreateSandboxFromImageParams, Image
 
-    daytona = Daytona()
+    northrays = Northrays()
 
     # Create a Sandbox with custom resources
 
@@ -107,20 +107,20 @@ Daytona のサンドボックスは、デフォルトで **1 vCPU**、**1GB RAM*
         resources=resources
     )
 
-    sandbox = daytona.create(params)
+    sandbox = northrays.create(params)
 
     ```
   </TabItem>
 
   <TabItem label="TypeScript" icon="seti:typescript">
     ```typescript
-    import { Daytona, Image } from "@daytona/sdk";
+    import { Northrays, Image } from "@northrays/sdk";
 
     async function main() {
-      const daytona = new Daytona();
+      const northrays = new Northrays();
 
       // Create a Sandbox with custom resources
-      const sandbox = await daytona.create({
+      const sandbox = await northrays.create({
         image: Image.debianSlim("3.13"),
         resources: {
           cpu: 2, // 2 CPU cores
@@ -136,12 +136,12 @@ Daytona のサンドボックスは、デフォルトで **1 vCPU**、**1GB RAM*
 </Tabs>
 
 :::note
-すべてのリソースパラメータは任意です。指定しない場合、Daytona は選択した言語やユースケースに適したデフォルト値を使用します。
+すべてのリソースパラメータは任意です。指定しない場合、Northrays は選択した言語やユースケースに適したデフォルト値を使用します。
 :::
 
 ### ネットワーク設定
 
-Daytona のサンドボックスは、セキュリティ強化と接続性管理のため、ネットワークアクセス制御を構成可能に提供します。デフォルトでは標準的なセキュリティポリシーに従いますが、サンドボックス作成時にネットワーク設定をカスタマイズできます。
+Northrays のサンドボックスは、セキュリティ強化と接続性管理のため、ネットワークアクセス制御を構成可能に提供します。デフォルトでは標準的なセキュリティポリシーに従いますが、サンドボックス作成時にネットワーク設定をカスタマイズできます。
 
 - すべてのネットワークアクセスをブロックするには、`networkBlockAll` を `True` に設定します
 - 特定のアドレスにアクセスを制限するには、`networkAllowList` に最大 5 つの CIDR ブロックをカンマ区切りで設定します
@@ -149,40 +149,40 @@ Daytona のサンドボックスは、セキュリティ強化と接続性管理
 <Tabs syncKey="language">
   <TabItem label="Python" icon="seti:python">
     ```python
-    from daytona import Daytona, CreateSandboxFromSnapshotParams
+    from northrays import Northrays, CreateSandboxFromSnapshotParams
 
-    daytona = Daytona()
+    northrays = Northrays()
 
     # すべてのネットワークアクセスをブロック
 
     params = CreateSandboxFromSnapshotParams(
       network_block_all=True
     )
-    sandbox = daytona.create(params)
+    sandbox = northrays.create(params)
 
     # 許可するネットワークアドレスを明示的に指定
 
     params = CreateSandboxFromSnapshotParams(
       network_allow_list="192.168.1.0/16,10.0.0.0/24"
     )
-    sandbox = daytona.create(params)
+    sandbox = northrays.create(params)
 
     ```
   </TabItem>
 
   <TabItem label="TypeScript" icon="seti:typescript">
     ```typescript
-    import { Daytona } from '@daytona/sdk';
+    import { Northrays } from '@northrays/sdk';
 
-    const daytona = new Daytona();
+    const northrays = new Northrays();
 
     // すべてのネットワークアクセスをブロック
-    const sandbox = await daytona.create({
+    const sandbox = await northrays.create({
       networkBlockAll: true
     });
 
     // 許可するネットワークアドレスを明示的に指定
-    const sandbox = await daytona.create({
+    const sandbox = await northrays.create({
       networkAllowList: '192.168.1.0/16,10.0.0.0/24'
     });
     ```
@@ -196,7 +196,7 @@ Daytona のサンドボックスは、セキュリティ強化と接続性管理
 
 ## サンドボックス情報
 
-Daytona SDK は、Python と TypeScript で、ID、ルートディレクトリ、状態などサンドボックスに関する情報を取得するためのメソッドを提供します。
+Northrays SDK は、Python と TypeScript で、ID、ルートディレクトリ、状態などサンドボックスに関する情報を取得するためのメソッドを提供します。
 
 <Tabs syncKey="language">
   <TabItem label="Python" icon="seti:python">
@@ -235,14 +235,14 @@ Daytona SDK は、Python と TypeScript で、ID、ルートディレクトリ�
 
 ## サンドボックスの停止と起動
 
-Daytona SDK は、Python と TypeScript でサンドボックスを停止・起動するためのメソッドを提供します。
+Northrays SDK は、Python と TypeScript でサンドボックスを停止・起動するためのメソッドを提供します。
 
 停止したサンドボックスは、メモリ状態がクリアされますが、ファイルシステムは保持されます。ディスク使用量のコストのみが発生し、必要に応じて再度起動できます。
 
 <Tabs syncKey="language">
   <TabItem label="Python" icon="seti:python">
     ```python
-    sandbox = daytona.create(CreateSandboxParams(language="python"))
+    sandbox = northrays.create(CreateSandboxParams(language="python"))
 
     # Stop Sandbox
 
@@ -252,7 +252,7 @@ Daytona SDK は、Python と TypeScript でサンドボックスを停止・起�
 
     # The sandbox ID can later be used to get the sandbox and start it
 
-    sandbox = daytona.get("7cd11133-96c1-4cc8-9baa-c757b8f8c916")
+    sandbox = northrays.get("7cd11133-96c1-4cc8-9baa-c757b8f8c916")
 
     # Start Sandbox
 
@@ -263,7 +263,7 @@ Daytona SDK は、Python と TypeScript でサンドボックスを停止・起�
 
   <TabItem label="TypeScript" icon="seti:typescript">
     ```typescript
-    const sandbox = await daytona.create({ language: 'typescript' });
+    const sandbox = await northrays.create({ language: 'typescript' });
 
     // Stop Sandbox
     await sandbox.stop();
@@ -272,7 +272,7 @@ Daytona SDK は、Python と TypeScript でサンドボックスを停止・起�
 
     // The sandbox ID can later be used to get the sandbox and start it
 
-    const sandbox = await daytona.get("7cd11133-96c1-4cc8-9baa-c757b8f8c916");
+    const sandbox = await northrays.get("7cd11133-96c1-4cc8-9baa-c757b8f8c916");
 
     // Start Sandbox
     await sandbox.start();
@@ -284,7 +284,7 @@ Daytona SDK は、Python と TypeScript でサンドボックスを停止・起�
 
 ## サンドボックスのアーカイブ
 
-Daytona SDK は、Python と TypeScript からサンドボックスをアーカイブするためのメソッドを提供します。
+Northrays SDK は、Python と TypeScript からサンドボックスをアーカイブするためのメソッドを提供します。
 
 サンドボックスをアーカイブすると、ファイルシステム全体の状態がコスト効率の高いオブジェクトストレージに移され、サンドボックスを長期間利用可能な状態で保持できます。
 アーカイブされたサンドボックスの起動には、サイズに応じて、停止中のサンドボックスよりも時間がかかります。
@@ -309,7 +309,7 @@ Daytona SDK は、Python と TypeScript からサンドボックスをアーカ�
 
 ## サンドボックスの削除
 
-Daytona SDK には、Python と TypeScript でサンドボックスを削除するためのメソッドが用意されています。
+Northrays SDK には、Python と TypeScript でサンドボックスを削除するためのメソッドが用意されています。
 
 <Tabs syncKey="language">
   <TabItem label="Python" icon="seti:python">
@@ -328,10 +328,10 @@ Daytona SDK には、Python と TypeScript でサンドボックスを削除す�
 </Tabs>
 
 :::tip
-ターミナルからサンドボックスを管理したい場合は、[Daytona CLI](/docs/ja/getting-started#cli)をご確認ください:
+ターミナルからサンドボックスを管理したい場合は、[Northrays CLI](/docs/ja/getting-started#cli)をご確認ください:
 
 ```bash
-daytona sandbox list
+northrays sandbox list
 ```
 
 ```text
@@ -347,7 +347,7 @@ daytona sandbox list
 ```
 
 ```bash
-daytona sandbox start|stop|remove --all
+northrays sandbox start|stop|remove --all
 ```
 
 ```text
@@ -358,7 +358,7 @@ daytona sandbox start|stop|remove --all
 
 ## 自動ライフサイクル管理
 
-Daytona のサンドボックスは、ユーザーが指定した間隔に基づいて自動で停止、アーカイブ、削除できます。
+Northrays のサンドボックスは、ユーザーが指定した間隔に基づいて自動で停止、アーカイブ、削除できます。
 
 ### 自動停止の間隔
 
@@ -376,7 +376,7 @@ Daytona のサンドボックスは、ユーザーが指定した間隔に基づ
 <Tabs syncKey="language">
   <TabItem label="Python" icon="seti:python">
     ```python
-    sandbox = daytona.create(CreateSandboxFromSnapshotParams(
+    sandbox = northrays.create(CreateSandboxFromSnapshotParams(
         snapshot="my-snapshot-name",
         auto_stop_interval=0,  # 自動停止を無効化 - デフォルトは 15 分
     ))
@@ -385,7 +385,7 @@ Daytona のサンドボックスは、ユーザーが指定した間隔に基づ
 
   <TabItem label="TypeScript" icon="seti:typescript">
     ```typescript
-    const sandbox = await daytona.create({
+    const sandbox = await northrays.create({
         snapshot: "my-snapshot-name",
         autoStopInterval: 0, // 自動停止を無効化 - デフォルトは 15 分
     });
@@ -407,7 +407,7 @@ Daytona のサンドボックスは、ユーザーが指定した間隔に基づ
 <Tabs syncKey="language">
   <TabItem label="Python" icon="seti:python">
     ```python
-    sandbox = daytona.create(CreateSandboxFromSnapshotParams(
+    sandbox = northrays.create(CreateSandboxFromSnapshotParams(
         snapshot="my-snapshot-name",
         auto_archive_interval=60 # 停止後 1 時間で自動アーカイブ
     ))
@@ -416,7 +416,7 @@ Daytona のサンドボックスは、ユーザーが指定した間隔に基づ
 
   <TabItem label="TypeScript" icon="seti:typescript">
     ```typescript
-    const sandbox = await daytona.create({
+    const sandbox = await northrays.create({
         snapshot: "my-snapshot-name",
         autoArchiveInterval: 60 // 停止後 1 時間で自動アーカイブ
     });
@@ -439,7 +439,7 @@ Daytona のサンドボックスは、ユーザーが指定した間隔に基づ
 <Tabs syncKey="language">
   <TabItem label="Python" icon="seti:python">
     ```python
-    sandbox = daytona.create(CreateSandboxFromSnapshotParams(
+    sandbox = northrays.create(CreateSandboxFromSnapshotParams(
         snapshot="my-snapshot-name",
         auto_delete_interval=60,  # 停止後 1 時間で自動削除
     ))
@@ -455,7 +455,7 @@ Daytona のサンドボックスは、ユーザーが指定した間隔に基づ
 
   <TabItem label="TypeScript" icon="seti:typescript">
     ```typescript
-    const sandbox = await daytona.create({
+    const sandbox = await northrays.create({
         snapshot: "my-snapshot-name",
         autoDeleteInterval: 60, // 停止後 1 時間で自動削除
     });
@@ -476,7 +476,7 @@ Daytona のサンドボックスは、ユーザーが指定した間隔に基づ
 <Tabs syncKey="language">
   <TabItem label="Python" icon="seti:python">
     ```python
-    sandbox = daytona.create(CreateSandboxFromSnapshotParams(
+    sandbox = northrays.create(CreateSandboxFromSnapshotParams(
         snapshot="my-snapshot-name",
         auto_stop_interval=0,  # 自動停止を無効化（デフォルトは15分）
     ))
@@ -485,7 +485,7 @@ Daytona のサンドボックスは、ユーザーが指定した間隔に基づ
 
   <TabItem label="TypeScript" icon="seti:typescript">
     ```typescript
-    const sandbox = await daytona.create({
+    const sandbox = await northrays.create({
         snapshot: "my-snapshot-name",
         autoStopInterval: 0, // 自動停止を無効化（デフォルトは15分）
     });

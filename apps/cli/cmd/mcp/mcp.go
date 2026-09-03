@@ -9,8 +9,8 @@ import (
 
 var MCPCmd = &cobra.Command{
 	Use:   "mcp",
-	Short: "Manage Daytona MCP Server",
-	Long:  "Commands for managing Daytona MCP Server",
+	Short: "Manage Northrays MCP Server",
+	Long:  "Commands for managing Northrays MCP Server",
 }
 
 func init() {

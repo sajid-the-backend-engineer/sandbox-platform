@@ -110,13 +110,13 @@ export class SandboxListItemDto {
 
   @ApiPropertyOptional({
     description: 'The snapshot used for the sandbox',
-    example: 'daytonaio/sandbox:latest',
+    example: 'northrays/sandbox:latest',
   })
   snapshot?: string
 
   @ApiProperty({
     description: 'The user associated with the project',
-    example: 'daytona',
+    example: 'northrays',
   })
   user: string
 
@@ -180,7 +180,7 @@ export class SandboxListItemDto {
     description: 'Labels for the sandbox',
     type: 'object',
     additionalProperties: { type: 'string' },
-    example: { 'daytona.io/public': 'true' },
+    example: { 'northrays.com/public': 'true' },
   })
   labels: { [key: string]: string }
 
@@ -253,7 +253,7 @@ export class SandboxListItemDto {
 
   @ApiProperty({
     description: 'The toolbox proxy URL for the sandbox',
-    example: 'https://proxy.app.daytona.io/toolbox',
+    example: 'https://proxy.app.northrays.com/toolbox',
   })
   toolboxProxyUrl: string
 

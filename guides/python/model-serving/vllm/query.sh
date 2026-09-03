@@ -7,7 +7,7 @@
 : "${TOKEN:?set TOKEN to the preview token}"
 
 curl -sS --connect-timeout 30 --max-time 120 "$ENDPOINT/v1/chat/completions" \
-  -H "x-daytona-preview-token: $TOKEN" \
+  -H "x-northrays-preview-token: $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
     "model": "gemma-4-moe",

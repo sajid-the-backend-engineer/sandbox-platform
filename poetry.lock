@@ -1087,9 +1087,9 @@ files = [
 databind = ">=4.5.2,<5.0.0"
 
 [[package]]
-name = "daytona"
+name = "northrays"
 version = "0.0.0-dev"
-description = "Python SDK for Daytona"
+description = "Python SDK for Northrays"
 optional = false
 python-versions = ">=3.9,<4.0"
 groups = ["main"]
@@ -1120,9 +1120,9 @@ type = "directory"
 url = "libs/sdk-python"
 
 [[package]]
-name = "daytona-api-client"
+name = "northrays-api-client"
 version = "0.0.0-dev"
-description = "Daytona"
+description = "Northrays"
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
@@ -1140,9 +1140,9 @@ type = "directory"
 url = "libs/api-client-python"
 
 [[package]]
-name = "daytona-api-client-async"
+name = "northrays-api-client-async"
 version = "0.0.0-dev"
-description = "Daytona"
+description = "Northrays"
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
@@ -1161,9 +1161,9 @@ type = "directory"
 url = "libs/api-client-python-async"
 
 [[package]]
-name = "daytona-toolbox-api-client"
+name = "northrays-toolbox-api-client"
 version = "0.0.0-dev"
-description = "Daytona Toolbox API"
+description = "Northrays Toolbox API"
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]
@@ -1181,9 +1181,9 @@ type = "directory"
 url = "libs/toolbox-api-client-python"
 
 [[package]]
-name = "daytona-toolbox-api-client-async"
+name = "northrays-toolbox-api-client-async"
 version = "0.0.0-dev"
-description = "Daytona Toolbox API"
+description = "Northrays Toolbox API"
 optional = false
 python-versions = ">=3.9"
 groups = ["main"]

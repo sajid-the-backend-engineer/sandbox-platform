@@ -9,7 +9,7 @@ import { ApiProperty, ApiSchema } from '@nestjs/swagger'
 export class ToolboxProxyUrlDto {
   @ApiProperty({
     description: 'The toolbox proxy URL for the sandbox',
-    example: 'https://proxy.app.daytona.io/toolbox',
+    example: 'https://proxy.app.northrays.com/toolbox',
   })
   url: string
 

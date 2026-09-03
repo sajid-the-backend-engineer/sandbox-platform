@@ -8,8 +8,8 @@ import tempfile
 
 import pytest
 
-from daytona.common.errors import DaytonaError
-from daytona.common.image import SUPPORTED_PYTHON_SERIES, Image
+from northrays.common.errors import NorthraysError
+from northrays.common.image import SUPPORTED_PYTHON_SERIES, Image
 
 
 class TestImageBase:
@@ -39,11 +39,11 @@ class TestImageDebianSlim:
         assert "slim-bookworm" in df
 
     def test_unsupported_version(self):
-        with pytest.raises(DaytonaError, match="Invalid Python version"):
+        with pytest.raises(NorthraysError, match="Invalid Python version"):
             Image.debian_slim("2.7")
 
     def test_invalid_version_format(self):
-        with pytest.raises(DaytonaError, match="Invalid Python version"):
+        with pytest.raises(NorthraysError, match="Invalid Python version"):
             Image.debian_slim("abc")
 
     def test_all_supported_versions(self):
@@ -110,7 +110,7 @@ class TestImagePipInstallFromRequirements:
                 os.unlink(f.name)
 
     def test_nonexistent_requirements(self):
-        with pytest.raises(DaytonaError, match="does not exist"):
+        with pytest.raises(NorthraysError, match="does not exist"):
             Image.base("python:3.12").pip_install_from_requirements("/nonexistent/requirements.txt")
 
 
@@ -145,9 +145,9 @@ class TestImageEnv:
 
 class TestImageWorkdir:
     def test_set_workdir(self):
-        img = Image.base("python:3.12").workdir("/home/daytona")
+        img = Image.base("python:3.12").workdir("/home/northrays")
         assert "WORKDIR" in img.dockerfile()
-        assert "/home/daytona" in img.dockerfile()
+        assert "/home/northrays" in img.dockerfile()
 
 
 class TestImageEntrypoint:
@@ -189,7 +189,7 @@ class TestImageFromDockerfile:
                 os.unlink(f.name)
 
     def test_missing_dockerfile_raises(self):
-        with pytest.raises(DaytonaError, match="does not exist"):
+        with pytest.raises(NorthraysError, match="does not exist"):
             Image.from_dockerfile("/nonexistent/Dockerfile")
 
 

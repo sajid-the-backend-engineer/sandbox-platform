@@ -1,21 +1,21 @@
 {
-  "name": "@daytona/pi",
+  "name": "@northrays/pi",
   "version": "0.0.0-dev",
-  "description": "Pi coding agent extension that runs all tool calls inside a remote, ephemeral Daytona sandbox while the agent runs locally",
+  "description": "Pi coding agent extension that runs all tool calls inside a remote, ephemeral Northrays sandbox while the agent runs locally",
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/daytonaio/daytona.git"
+    "url": "git+https://github.com/northrays/sandbox-platform.git"
   },
-  "author": "Daytona Platforms Inc.",
+  "author": "Northrays",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/daytonaio/daytona/issues"
+    "url": "https://github.com/northrays/sandbox-platform/issues"
   },
   "keywords": [
     "pi-package",
     "pi-extension",
-    "daytona",
+    "northrays",
     "sandbox"
   ],
   "pi": {
@@ -37,7 +37,7 @@
     "test:live": "npm run test:bash-bg && npm run test:recovery"
   },
   "dependencies": {
-    "@daytona/sdk": "^0.184.0"
+    "@northrays/sdk": "^0.184.0"
   },
   "peerDependencies": {
     "@earendil-works/pi-coding-agent": "*",

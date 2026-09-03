@@ -1,15 +1,15 @@
 # frozen_string_literal: true
 
-require 'daytona'
+require 'northrays'
 
-daytona = Daytona::Daytona.new
+northrays = Northrays::Northrays.new
 
-daytona.list(Daytona::ListSandboxesQuery.new(
+northrays.list(Northrays::ListSandboxesQuery.new(
                limit: 10,
                labels: { 'env' => 'dev' },
-               states: [Daytona::SandboxState::STARTED],
-               sort: Daytona::SandboxListSortField::CREATED_AT,
-               order: Daytona::SandboxListSortDirection::DESC
+               states: [Northrays::SandboxState::STARTED],
+               sort: Northrays::SandboxListSortField::CREATED_AT,
+               order: Northrays::SandboxListSortDirection::DESC
              )).each do |sandbox|
   puts sandbox.id
 end

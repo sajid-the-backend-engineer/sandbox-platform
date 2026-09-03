@@ -5,7 +5,7 @@
 
 package executor
 
-import "github.com/daytonaio/runner/pkg/api/dto"
+import "github.com/northrays/runner/pkg/api/dto"
 
 type StartSandboxPayload struct {
 	AuthToken *string           `json:"authToken,omitempty"`

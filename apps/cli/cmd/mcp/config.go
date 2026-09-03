@@ -14,7 +14,7 @@ import (
 
 var ConfigCmd = &cobra.Command{
 	Use:   "config [AGENT_NAME]",
-	Short: "Outputs JSON configuration for Daytona MCP Server",
+	Short: "Outputs JSON configuration for Northrays MCP Server",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		homeDir, err := os.UserHomeDir()
@@ -26,22 +26,22 @@ var ConfigCmd = &cobra.Command{
 
 		switch runtime.GOOS {
 		case "darwin":
-			mcpLogFilePath = homeDir + "/.daytona/daytona-mcp.log"
+			mcpLogFilePath = homeDir + "/.northrays/northrays-mcp.log"
 		case "windows":
-			mcpLogFilePath = os.Getenv("APPDATA") + "\\.daytona\\daytona-mcp.log"
+			mcpLogFilePath = os.Getenv("APPDATA") + "\\.northrays\\northrays-mcp.log"
 		case "linux":
-			mcpLogFilePath = homeDir + "/.daytona/daytona-mcp.log"
+			mcpLogFilePath = homeDir + "/.northrays/northrays-mcp.log"
 		default:
 			return fmt.Errorf("unsupported OS: %s", runtime.GOOS)
 		}
 
-		daytonaMcpConfig, err := getDayonaMcpConfig(mcpLogFilePath)
+		northraysMcpConfig, err := getDayonaMcpConfig(mcpLogFilePath)
 		if err != nil {
 			return err
 		}
 
 		mcpConfig := map[string]interface{}{
-			"daytona-mcp": daytonaMcpConfig,
+			"northrays-mcp": northraysMcpConfig,
 		}
 
 		jsonBytes, err := json.MarshalIndent(mcpConfig, "", "  ")
@@ -61,9 +61,9 @@ func getDayonaMcpConfig(mcpLogFilePath string) (map[string]interface{}, error) {
 		return nil, err
 	}
 
-	// Create daytona-mcp config
-	daytonaMcpConfig := map[string]interface{}{
-		"command": "daytona",
+	// Create northrays-mcp config
+	northraysMcpConfig := map[string]interface{}{
+		"command": "northrays",
 		"args":    []string{"mcp", "start"},
 		"env": map[string]string{
 			"PATH": homeDir + ":/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/homebrew/bin",
@@ -73,8 +73,8 @@ func getDayonaMcpConfig(mcpLogFilePath string) (map[string]interface{}, error) {
 	}
 
 	if runtime.GOOS == "windows" {
-		daytonaMcpConfig["env"].(map[string]string)["APPDATA"] = os.Getenv("APPDATA")
+		northraysMcpConfig["env"].(map[string]string)["APPDATA"] = os.Getenv("APPDATA")
 	}
 
-	return daytonaMcpConfig, nil
+	return northraysMcpConfig, nil
 }

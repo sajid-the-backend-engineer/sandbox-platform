@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Daytona, CodeLanguage, Sandbox } from '@daytona/sdk'
+import { Northrays, CodeLanguage, Sandbox } from '@northrays/sdk'
 import OpenAI from 'openai'
 import * as fs from 'fs'
 
@@ -16,8 +16,8 @@ function extractPython(text: string): string {
   return m ? m[1].trim() : ''
 }
 
-// Make sure you have the DAYTONA_API_KEY and OPENAI_API_KEY environment variables set
-const dt = new Daytona()
+// Make sure you have the NORTHRAYS_API_KEY and OPENAI_API_KEY environment variables set
+const dt = new Northrays()
 const openai = new OpenAI()
 
 async function run() {

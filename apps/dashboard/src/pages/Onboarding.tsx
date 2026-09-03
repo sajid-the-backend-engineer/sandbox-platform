@@ -9,14 +9,14 @@ import CodeBlock from '@/components/CodeBlock'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs'
-import { DAYTONA_DOCS_URL } from '@/constants/ExternalLinks'
+import { NORTHRAYS_DOCS_URL } from '@/constants/ExternalLinks'
 import { RoutePath } from '@/enums/RoutePath'
 import { useApi } from '@/hooks/useApi'
 import { useOrganizations } from '@/hooks/useOrganizations'
 import { useSelectedOrganization } from '@/hooks/useSelectedOrganization'
 import { handleApiError } from '@/lib/error-handling'
 import { cn, getMaskedToken } from '@/lib/utils'
-import { ApiKeyResponse, CreateApiKeyPermissionsEnum, OrganizationRolePermissionsEnum } from '@daytona/api-client'
+import { ApiKeyResponse, CreateApiKeyPermissionsEnum, OrganizationRolePermissionsEnum } from '@northrays/api-client'
 import { Check, ClipboardIcon, Eye, EyeOff, Loader2, Plus } from 'lucide-react'
 import { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router'
@@ -155,7 +155,7 @@ const Onboarding: React.FC = () => {
                 </div>
                 <div>
                   <h2 className="text-xl font-semibold mb-4">Install the SDK</h2>
-                  <p className="mb-4">Run the following command in your terminal to install the Daytona SDK:</p>
+                  <p className="mb-4">Run the following command in your terminal to install the Northrays SDK:</p>
                   <div className="transition-all duration-500">
                     <CodeBlock code={codeExamples[language].install} language="bash" showCopy />
                   </div>
@@ -317,7 +317,7 @@ const Onboarding: React.FC = () => {
                   <h2 className="text-xl font-semibold mb-4">That's It</h2>
                   <p className="text-muted-foreground">
                     It's as easy as that. For more examples check out the{' '}
-                    <a href={DAYTONA_DOCS_URL} target="_blank" rel="noopener noreferrer" className="text-primary">
+                    <a href={NORTHRAYS_DOCS_URL} target="_blank" rel="noopener noreferrer" className="text-primary">
                       Docs
                     </a>
                     .
@@ -334,15 +334,15 @@ const Onboarding: React.FC = () => {
 
 const codeExamples = {
   typescript: {
-    install: `npm install @daytona/sdk`,
+    install: `npm install @northrays/sdk`,
     run: `npx tsx index.mts`,
-    example: `import { Daytona } from '@daytona/sdk'
+    example: `import { Northrays } from '@northrays/sdk'
 
-// Initialize the Daytona client
-const daytona = new Daytona({ apiKey: 'your-api-key' });
+// Initialize the Northrays client
+const northrays = new Northrays({ apiKey: 'your-api-key' });
 
 // Create the Sandbox instance
-const sandbox = await daytona.create({
+const sandbox = await northrays.create({
   language: 'typescript',
 });
 
@@ -352,18 +352,18 @@ console.log(response.result);
   `,
   },
   python: {
-    install: `pip install daytona`,
+    install: `pip install northrays`,
     run: `python main.py`,
-    example: `from daytona import Daytona, DaytonaConfig
+    example: `from northrays import Northrays, NorthraysConfig
 
 # Define the configuration
-config = DaytonaConfig(api_key="your-api-key")
+config = NorthraysConfig(api_key="your-api-key")
 
-# Initialize the Daytona client
-daytona = Daytona(config)
+# Initialize the Northrays client
+northrays = Northrays(config)
 
 # Create the Sandbox instance
-sandbox = daytona.create()
+sandbox = northrays.create()
 
 # Run the code securely inside the Sandbox
 response = sandbox.process.code_run('print("Hello World from code!")')

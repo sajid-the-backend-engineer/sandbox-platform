@@ -1,13 +1,14 @@
 header:
   license:
     spdx-id: Apache-2.0
-    copyright-owner: Daytona Platforms Inc.
+    copyright-owner: Northrays
     content: |
-      Copyright Daytona Platforms Inc.
+      Copyright 2025 Daytona Platforms Inc.
+      Copyright 2026 Northrays
       SPDX-License-Identifier: Apache-2.0
     pattern: |
       Copyright (\d{4} )?Daytona Platforms Inc\.
-      SPDX-License-Identifier: Apache-2\.0
+      (Copyright (\d{4} )?Northrays\s+)?SPDX-License-Identifier: Apache-2\.0
   paths:
     - 'libs/**/*.go'
     - 'libs/**/*.sh'

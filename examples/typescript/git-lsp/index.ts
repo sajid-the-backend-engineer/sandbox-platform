@@ -1,10 +1,10 @@
-import { Daytona, Image } from '@daytona/sdk'
+import { Northrays, Image } from '@northrays/sdk'
 
 async function main() {
-  const daytona = new Daytona()
+  const northrays = new Northrays()
 
   //  first, create a sandbox
-  const sandbox = await daytona.create(
+  const sandbox = await northrays.create(
     {
       image: Image.base('ubuntu:25.10').runCommands(
         'apt-get update && apt-get install -y --no-install-recommends nodejs npm coreutils',
@@ -57,7 +57,7 @@ async function main() {
     console.error('Error creating sandbox:', error)
   } finally {
     //  cleanup
-    await daytona.delete(sandbox)
+    await northrays.delete(sandbox)
   }
 }
 

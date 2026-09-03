@@ -1,11 +1,11 @@
 import asyncio
 
-from daytona import Daytona, SessionExecuteRequest
+from northrays import Northrays, SessionExecuteRequest
 
 
 async def main():
-    daytona = Daytona()
-    sandbox = daytona.create()
+    northrays = Northrays()
+    sandbox = northrays.create()
 
     try:
         session_id = "exec-session-1"
@@ -45,7 +45,7 @@ async def main():
         print(f"Error: {e}")
     finally:
         print("Cleaning up sandbox...")
-        daytona.delete(sandbox)
+        northrays.delete(sandbox)
 
 
 if __name__ == "__main__":

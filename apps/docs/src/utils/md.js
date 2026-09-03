@@ -26,7 +26,7 @@ const DOCS_STATIC_FILE_EXT_RE =
 export const toMarkdownUrl = (href, docsBaseUrl) => {
   if (!href) return href
 
-  const base = ensureTrailingSlash(docsBaseUrl || 'https://daytona.io/docs')
+  const base = ensureTrailingSlash(docsBaseUrl || 'https://northrays.com/docs')
   let baseUrl
   let targetUrl
 

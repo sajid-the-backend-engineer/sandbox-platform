@@ -10,7 +10,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/daytonaio/common-go/pkg/timer"
+	"github.com/northrays/common-go/pkg/timer"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"
 	"go.opentelemetry.io/otel/codes"

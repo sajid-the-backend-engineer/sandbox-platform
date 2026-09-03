@@ -8,7 +8,7 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/daytonaio/daemon/pkg/recording"
+	"github.com/northrays/daemon/pkg/recording"
 	"github.com/gin-gonic/gin"
 )
 

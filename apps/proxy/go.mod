@@ -1,10 +1,10 @@
-module github.com/daytonaio/proxy
+module github.com/northrays/proxy
 
 go 1.25.4
 
 require (
 	github.com/coreos/go-oidc/v3 v3.12.0
-	github.com/daytonaio/daytona/libs/api-client-go v0.164.0
+	github.com/northrays/sandbox-platform/libs/api-client-go v0.164.0
 	github.com/gin-contrib/cors v1.7.5
 	github.com/gin-gonic/gin v1.10.1
 	github.com/go-playground/validator/v10 v10.27.0

@@ -1,24 +1,24 @@
 ---
 title: Go SDK Reference
-description: Interact with Daytona Sandboxes using the Go SDK
-next: /docs/go-sdk/daytona
+description: Interact with Northrays Sandboxes using the Go SDK
+next: /docs/go-sdk/northrays
 ---
 
-The Daytona Go SDK provides a powerful interface for programmatically interacting with Daytona Sandboxes. It requires Go 1.25 or later.
+The Northrays Go SDK provides a powerful interface for programmatically interacting with Northrays Sandboxes. It requires Go 1.25 or later.
 
 ## Installation
 
-Install the Daytona Go SDK using go get:
+Install the Northrays Go SDK using go get:
 
 ```bash
-go get github.com/daytonaio/daytona/libs/sdk-go
+go get github.com/northrays/sandbox-platform/libs/sdk-go
 ```
 
 ## Getting Started
 
 ### Create a Sandbox
 
-Create a Daytona Sandbox to run your code securely in an isolated environment. The following snippet is an example "Hello World" program that runs securely inside a Daytona Sandbox.
+Create a Northrays Sandbox to run your code securely in an isolated environment. The following snippet is an example "Hello World" program that runs securely inside a Northrays Sandbox.
 
 ```go
 package main
@@ -28,12 +28,12 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/daytonaio/daytona/libs/sdk-go/pkg/daytona"
+	"github.com/northrays/sandbox-platform/libs/sdk-go/pkg/northrays"
 )
 
 func main() {
 	// Initialize the SDK (uses environment variables by default)
-	client, err := daytona.NewClient()
+	client, err := northrays.NewClient()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -55,28 +55,28 @@ func main() {
 
 ## Configuration
 
-The Daytona SDK can be configured using environment variables or by passing options to the constructor:
+The Northrays SDK can be configured using environment variables or by passing options to the constructor:
 
 ```go
 package main
 
 import (
-	"github.com/daytonaio/daytona/libs/sdk-go/pkg/daytona"
-	"github.com/daytonaio/daytona/libs/sdk-go/pkg/types"
+	"github.com/northrays/sandbox-platform/libs/sdk-go/pkg/northrays"
+	"github.com/northrays/sandbox-platform/libs/sdk-go/pkg/types"
 )
 
 func main() {
-	// Using environment variables (DAYTONA_API_KEY, DAYTONA_API_URL, DAYTONA_TARGET)
-	client, _ := daytona.NewClient()
+	// Using environment variables (NORTHRAYS_API_KEY, NORTHRAYS_API_URL, NORTHRAYS_TARGET)
+	client, _ := northrays.NewClient()
 
 	// Using explicit configuration
-	config := &types.DaytonaConfig{
+	config := &types.NorthraysConfig{
 		APIKey: "YOUR_API_KEY",
-		APIUrl: "https://app.daytona.io/api",
+		APIUrl: "https://app.northrays.com/api",
 		Target: "us",
 	}
-	client, _ = daytona.NewClientWithConfig(config)
+	client, _ = northrays.NewClientWithConfig(config)
 }
 ```
 
-For more information on configuring the Daytona SDK, see [configuration](/docs/en/configuration).
+For more information on configuring the Northrays SDK, see [configuration](/docs/en/configuration).

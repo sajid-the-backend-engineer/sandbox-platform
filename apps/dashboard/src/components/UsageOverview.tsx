@@ -4,7 +4,7 @@
  */
 
 import { cn } from '@/lib/utils'
-import { SandboxClass, type RegionUsageOverview } from '@daytona/api-client'
+import { SandboxClass, type RegionUsageOverview } from '@northrays/api-client'
 import type { ReactNode } from 'react'
 import QuotaLine from './QuotaLine'
 import { Skeleton } from './ui/skeleton'
@@ -115,7 +115,7 @@ function GpuZeroQuotaValue({
 
   return (
     <a
-      href="mailto:sales@daytona.io?subject=GPU%20quota%20request"
+      href="mailto:sales@northrays.com?subject=GPU%20quota%20request"
       className="text-xs font-medium text-foreground underline underline-offset-2 hover:text-muted-foreground text-nowrap"
     >
       Contact Sales

@@ -1,10 +1,10 @@
-name: daytona
+name: northrays
 services:
   api:
     build:
       context: ../
       dockerfile: apps/api/Dockerfile
-      target: daytona
+      target: northrays
   
   proxy:
     build:

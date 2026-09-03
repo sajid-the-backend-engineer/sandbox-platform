@@ -1,11 +1,11 @@
 import asyncio
 
-from daytona import AsyncDaytona, ListSandboxesQuery, SandboxListSortDirection, SandboxListSortField, SandboxState
+from northrays import AsyncNorthrays, ListSandboxesQuery, SandboxListSortDirection, SandboxListSortField, SandboxState
 
 
 async def main():
-    async with AsyncDaytona() as daytona:
-        async for sandbox in daytona.list(
+    async with AsyncNorthrays() as northrays:
+        async for sandbox in northrays.list(
             ListSandboxesQuery(
                 limit=10,
                 labels={"env": "dev"},

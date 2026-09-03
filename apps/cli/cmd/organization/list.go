@@ -6,10 +6,10 @@ package organization
 import (
 	"context"
 
-	"github.com/daytonaio/daytona/cli/apiclient"
-	"github.com/daytonaio/daytona/cli/cmd/common"
-	"github.com/daytonaio/daytona/cli/config"
-	"github.com/daytonaio/daytona/cli/views/organization"
+	"github.com/northrays/sandbox-platform/cli/apiclient"
+	"github.com/northrays/sandbox-platform/cli/cmd/common"
+	"github.com/northrays/sandbox-platform/cli/config"
+	"github.com/northrays/sandbox-platform/cli/views/organization"
 	"github.com/spf13/cobra"
 )
 

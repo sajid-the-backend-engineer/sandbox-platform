@@ -25,7 +25,7 @@ func (d *DockerClient) runDockerImageBuildWithBuildKitSession(
 	buildOpts build.ImageBuildOptions,
 	writer io.Writer,
 ) error {
-	sess, err := session.NewSession(ctx, "daytona-runner-image-build")
+	sess, err := session.NewSession(ctx, "northrays-runner-image-build")
 	if err != nil {
 		return fmt.Errorf("buildkit session: %w", err)
 	}

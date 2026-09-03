@@ -1,0 +1,13 @@
+name: northrays info
+synopsis: Get sandbox info
+usage: northrays info [SANDBOX_ID] | [SANDBOX_NAME] [flags]
+options:
+  - name: format
+    shorthand: f
+    usage: Output format. Must be one of (yaml, json)
+inherited_options:
+  - name: help
+    default_value: 'false'
+    usage: help for northrays
+see_also:
+  - northrays - Northrays CLI

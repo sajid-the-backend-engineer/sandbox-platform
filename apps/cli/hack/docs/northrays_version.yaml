@@ -1,0 +1,9 @@
+name: northrays version
+synopsis: Print the version number
+usage: northrays version [flags]
+inherited_options:
+  - name: help
+    default_value: 'false'
+    usage: help for northrays
+see_also:
+  - northrays - Northrays CLI

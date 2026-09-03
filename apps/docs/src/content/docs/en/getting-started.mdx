@@ -1,42 +1,42 @@
 ---
 title: Getting Started
-description: Get started with Daytona and learn how to create your first sandbox.
+description: Get started with Northrays and learn how to create your first sandbox.
 ---
 
 import { TabItem, Tabs } from '@astrojs/starlight/components'
 
-This section introduces core concepts, common workflows, and next steps for using Daytona.
+This section introduces core concepts, common workflows, and next steps for using Northrays.
 
 ## Dashboard
 
-[Daytona Dashboard ↗](https://app.daytona.io/) is a visual user interface where you can manage sandboxes, access API keys, view usage, and more.
-It serves as the primary point of control for managing your Daytona resources.
+[Northrays Dashboard ↗](https://app.northrays.com/) is a visual user interface where you can manage sandboxes, access API keys, view usage, and more.
+It serves as the primary point of control for managing your Northrays resources.
 
 ## SDKs
 
-Daytona provides [Python](/docs/en/python-sdk), [TypeScript](/docs/en/typescript-sdk), [Ruby](/docs/en/ruby-sdk), [Go](/docs/en/go-sdk), and [Java](/docs/en/java-sdk) SDKs to programmatically interact with sandboxes. They support sandbox lifecycle management, code execution, resource access, and more.
+Northrays provides [Python](/docs/en/python-sdk), [TypeScript](/docs/en/typescript-sdk), [Ruby](/docs/en/ruby-sdk), [Go](/docs/en/go-sdk), and [Java](/docs/en/java-sdk) SDKs to programmatically interact with sandboxes. They support sandbox lifecycle management, code execution, resource access, and more.
 
 ## CLI
 
-Daytona provides command-line access to core features for interacting with Daytona Sandboxes, including managing their lifecycle, snapshots, and more. To interact with Daytona Sandboxes from the command line, install the Daytona CLI:
+Northrays provides command-line access to core features for interacting with Northrays Sandboxes, including managing their lifecycle, snapshots, and more. To interact with Northrays Sandboxes from the command line, install the Northrays CLI:
 
 <Tabs syncKey="language">
 <TabItem label="Mac">
 
 ```bash
-brew install daytonaio/cli/daytona
+brew install northrays/cli/northrays
 ```
 
-Trust the tap once so routine `brew upgrade` keeps the Daytona CLI up to date. Recent Homebrew versions require third-party taps to be explicitly trusted; without it, a bare `brew upgrade` skips the Daytona tap and the CLI goes stale:
+Trust the tap once so routine `brew upgrade` keeps the Northrays CLI up to date. Recent Homebrew versions require third-party taps to be explicitly trusted; without it, a bare `brew upgrade` skips the Northrays tap and the CLI goes stale:
 
 ```bash
-brew trust daytonaio/cli
+brew trust northrays/cli
 ```
 
-To upgrade the Daytona CLI to the latest version:
+To upgrade the Northrays CLI to the latest version:
 
 ```bash
-brew upgrade daytonaio/cli/daytona
+brew upgrade northrays/cli/northrays
 ```
 
 Alternatively, install directly without Homebrew:
@@ -44,13 +44,13 @@ Alternatively, install directly without Homebrew:
 For Apple Silicon (`arm64`):
 
   ```bash
-  sudo curl -fL https://github.com/daytonaio/daytona/releases/latest/download/daytona-darwin-arm64 -o /usr/local/bin/daytona && sudo chmod +x /usr/local/bin/daytona
+  sudo curl -fL https://github.com/northrays/sandbox-platform/releases/latest/download/northrays-darwin-arm64 -o /usr/local/bin/northrays && sudo chmod +x /usr/local/bin/northrays
   ```
 
 For Intel (`amd64`):
 
   ```bash
-  sudo curl -fL https://github.com/daytonaio/daytona/releases/latest/download/daytona-darwin-amd64 -o /usr/local/bin/daytona && sudo chmod +x /usr/local/bin/daytona
+  sudo curl -fL https://github.com/northrays/sandbox-platform/releases/latest/download/northrays-darwin-amd64 -o /usr/local/bin/northrays && sudo chmod +x /usr/local/bin/northrays
   ```
 
 </TabItem>
@@ -61,44 +61,44 @@ Choose the command for your Linux architecture. Both commands download the lates
 For `amd64` (`x86_64`):
 
   ```bash
-  sudo curl -fL https://github.com/daytonaio/daytona/releases/latest/download/daytona-linux-amd64 -o /usr/local/bin/daytona && sudo chmod +x /usr/local/bin/daytona
+  sudo curl -fL https://github.com/northrays/sandbox-platform/releases/latest/download/northrays-linux-amd64 -o /usr/local/bin/northrays && sudo chmod +x /usr/local/bin/northrays
   ```
 
 For `arm64` (`aarch64`):
 
   ```bash
-  sudo curl -fL https://github.com/daytonaio/daytona/releases/latest/download/daytona-linux-arm64 -o /usr/local/bin/daytona && sudo chmod +x /usr/local/bin/daytona
+  sudo curl -fL https://github.com/northrays/sandbox-platform/releases/latest/download/northrays-linux-arm64 -o /usr/local/bin/northrays && sudo chmod +x /usr/local/bin/northrays
   ```
 
 </TabItem>
 <TabItem label="Windows">
 
 ```bash
-powershell -Command "irm https://get.daytona.io/windows | iex"
+powershell -Command "irm https://get.northrays.com/windows | iex"
 ```
 
 </TabItem>
 </Tabs>
 
-After installing the Daytona CLI, use the `daytona` command to interact with Daytona sandboxes from the command line.
+After installing the Northrays CLI, use the `northrays` command to interact with Northrays sandboxes from the command line.
 
 To view all available commands and flags, see the [CLI reference](/docs/en/tools/cli).
 
 ## API
 
-Daytona provides a RESTful API for interacting with Daytona Sandboxes, including managing their lifecycle, snapshots, and more. 
-It serves as a flexible and powerful way to interact with Daytona from your own applications.
+Northrays provides a RESTful API for interacting with Northrays Sandboxes, including managing their lifecycle, snapshots, and more. 
+It serves as a flexible and powerful way to interact with Northrays from your own applications.
 
-To interact with Daytona Sandboxes from the API, see the [API reference](/docs/en/tools/api).
+To interact with Northrays Sandboxes from the API, see the [API reference](/docs/en/tools/api).
 
 ## MCP server
 
-Daytona provides a Model Context Protocol (MCP) server that enables AI agents to interact with Daytona Sandboxes programmatically. The MCP server integrates with popular AI agents including Claude, Cursor, and Windsurf.
+Northrays provides a Model Context Protocol (MCP) server that enables AI agents to interact with Northrays Sandboxes programmatically. The MCP server integrates with popular AI agents including Claude, Cursor, and Windsurf.
 
 To set up the MCP server with your AI agent:
 
 ```bash
-daytona mcp init [claude/cursor/windsurf]
+northrays mcp init [claude/cursor/windsurf]
 ```
 
 For more information, see the [MCP server documentation](/docs/en/mcp).
@@ -113,10 +113,10 @@ For **Cloudflare Workers**, set the Node.js compatibility flag in your `wrangler
 compatibility_flags = ["nodejs_compat"]
 ```
 
-For **Deno**, install with `deno add npm:@daytona/sdk` or import directly with the `npm:` specifier:
+For **Deno**, install with `deno add npm:@northrays/sdk` or import directly with the `npm:` specifier:
 
 ```typescript
-import { Daytona, Image } from 'npm:@daytona/sdk'
+import { Northrays, Image } from 'npm:@northrays/sdk'
 ```
 
 For **browser apps with Vite** (or any browser bundler), install [`vite-plugin-node-polyfills`](https://www.npmjs.com/package/vite-plugin-node-polyfills) and add it to your `vite.config.ts`:
@@ -130,18 +130,18 @@ export default defineConfig({
 })
 ```
 
-The SDK uses Node's `Buffer` for binary data (downloaded files, multipart bodies). Browsers don't ship `Buffer`, so the polyfill provides it. Without it, basic operations like `Image.base()` and `daytona.list()` still work, but methods that handle binary payloads (`fs.downloadFile`, `fs.downloadFiles`) will throw.
+The SDK uses Node's `Buffer` for binary data (downloaded files, multipart bodies). Browsers don't ship `Buffer`, so the polyfill provides it. Without it, basic operations like `Image.base()` and `northrays.list()` still work, but methods that handle binary payloads (`fs.downloadFile`, `fs.downloadFiles`) will throw.
 
 Some runtimes don't expose the full set of Node.js APIs (browsers and edge runtimes have no filesystem, no `crypto`, etc.). Methods that depend on those APIs throw a clear runtime error instead of silently producing wrong results.
 
 ## Guides
 
-Daytona provides a comprehensive set of [guides](/docs/en/guides) to help you get started. The guides cover a wide range of topics, from basic usage to advanced topics, and showcase various types of integrations between Daytona and other tools.
+Northrays provides a comprehensive set of [guides](/docs/en/guides) to help you get started. The guides cover a wide range of topics, from basic usage to advanced topics, and showcase various types of integrations between Northrays and other tools.
 
 ## Examples
 
-Daytona provides quick examples for common sandbox operations and best practices. <br />
-The examples are based on the Daytona [Python](/docs/en/python-sdk/), [TypeScript](/docs/en/typescript-sdk/), [Go](/docs/en/go-sdk/), [Ruby](/docs/en/ruby-sdk/), [Java](/docs/en/java-sdk/) **SDKs**, [CLI](/docs/en/tools/cli), and [API](/docs/en/tools/api) references. More examples are available in our [GitHub repository](https://github.com/daytonaio/daytona/tree/main/examples).
+Northrays provides quick examples for common sandbox operations and best practices. <br />
+The examples are based on the Northrays [Python](/docs/en/python-sdk/), [TypeScript](/docs/en/typescript-sdk/), [Go](/docs/en/go-sdk/), [Ruby](/docs/en/ruby-sdk/), [Java](/docs/en/java-sdk/) **SDKs**, [CLI](/docs/en/tools/cli), and [API](/docs/en/tools/api) references. More examples are available in our [GitHub repository](https://github.com/northrays/sandbox-platform/tree/main/examples).
 
 ### Create a sandbox
 
@@ -151,10 +151,10 @@ Create a [sandbox](/docs/en/sandboxes) with default settings.
 <TabItem label="Python" icon="seti:python">
 
 ```python
-from daytona import Daytona
+from northrays import Northrays
 
-daytona = Daytona()
-sandbox = daytona.create()
+northrays = Northrays()
+sandbox = northrays.create()
 print(f"Sandbox ID: {sandbox.id}")
 ```
 
@@ -162,10 +162,10 @@ print(f"Sandbox ID: {sandbox.id}")
 <TabItem label="TypeScript" icon="seti:typescript">
 
 ```typescript
-import { Daytona } from '@daytona/sdk';
+import { Northrays } from '@northrays/sdk';
 
-const daytona = new Daytona();
-const sandbox = await daytona.create();
+const northrays = new Northrays();
+const sandbox = await northrays.create();
 console.log(`Sandbox ID: ${sandbox.id}`);
 ```
 
@@ -180,11 +180,11 @@ import (
     "fmt"
     "log"
 
-    "github.com/daytonaio/daytona/libs/sdk-go/pkg/daytona"
+    "github.com/northrays/sandbox-platform/libs/sdk-go/pkg/northrays"
 )
 
 func main() {
-    client, err := daytona.NewClient()
+    client, err := northrays.NewClient()
     if err != nil {
         log.Fatal(err)
     }
@@ -201,10 +201,10 @@ func main() {
 <TabItem label="Ruby" icon="seti:ruby">
 
 ```ruby
-require 'daytona'
+require 'northrays'
 
-daytona = Daytona::Daytona.new
-sandbox = daytona.create
+northrays = Northrays::Northrays.new
+sandbox = northrays.create
 puts "Sandbox ID: #{sandbox.id}"
 ```
 
@@ -212,13 +212,13 @@ puts "Sandbox ID: #{sandbox.id}"
 <TabItem label="Java" icon="seti:java">
 
 ```java
-import io.daytona.sdk.Daytona;
-import io.daytona.sdk.Sandbox;
+import io.northrays.sdk.Northrays;
+import io.northrays.sdk.Sandbox;
 
 public class App {
     public static void main(String[] args) {
-        try (Daytona daytona = new Daytona()) {
-            Sandbox sandbox = daytona.create();
+        try (Northrays northrays = new Northrays()) {
+            Sandbox sandbox = northrays.create();
             System.out.println("Sandbox ID: " + sandbox.getId());
         }
     }
@@ -229,14 +229,14 @@ public class App {
 <TabItem label="CLI" icon="seti:shell">
 
 ```shell
-daytona create
+northrays create
 ```
 
 </TabItem>
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://app.daytona.io/api/sandbox' \
+curl 'https://app.northrays.com/api/sandbox' \
   --request POST \
   --header 'Authorization: Bearer <API_KEY>' \
   --header 'Content-Type: application/json' \
@@ -254,10 +254,10 @@ Create a [sandbox](/docs/en/sandboxes) and run code securely in it.
 <TabItem label="Python" icon="seti:python">
 
 ```python
-from daytona import Daytona
+from northrays import Northrays
 
-daytona = Daytona()
-sandbox = daytona.create()
+northrays = Northrays()
+sandbox = northrays.create()
 response = sandbox.process.exec("echo 'Hello, World!'")
 print(response.result)
 sandbox.delete()
@@ -266,10 +266,10 @@ sandbox.delete()
 </TabItem>
 <TabItem label="TypeScript" icon="seti:typescript">
 ```typescript
-import { Daytona } from '@daytona/sdk';
+import { Northrays } from '@northrays/sdk';
 
-const daytona = new Daytona();
-const sandbox = await daytona.create();
+const northrays = new Northrays();
+const sandbox = await northrays.create();
 const response = await sandbox.process.executeCommand('echo "Hello, World!"');
 console.log(response.result);
 await sandbox.delete();
@@ -286,11 +286,11 @@ import (
     "fmt"
     "log"
 
-    "github.com/daytonaio/daytona/libs/sdk-go/pkg/daytona"
+    "github.com/northrays/sandbox-platform/libs/sdk-go/pkg/northrays"
 )
 
 func main() {
-    client, err := daytona.NewClient()
+    client, err := northrays.NewClient()
     if err != nil {
         log.Fatal(err)
     }
@@ -313,27 +313,27 @@ func main() {
 <TabItem label="Ruby" icon="seti:ruby">
 
 ```ruby
-require 'daytona'
+require 'northrays'
 
-daytona = Daytona::Daytona.new
-sandbox = daytona.create
+northrays = Northrays::Northrays.new
+sandbox = northrays.create
 response = sandbox.process.exec(command: "echo 'Hello, World!'")
 puts response.result
-daytona.delete(sandbox)
+northrays.delete(sandbox)
 ```
 
 </TabItem>
 <TabItem label="Java" icon="seti:java">
 
 ```java
-import io.daytona.sdk.Daytona;
-import io.daytona.sdk.Sandbox;
-import io.daytona.sdk.model.ExecuteResponse;
+import io.northrays.sdk.Northrays;
+import io.northrays.sdk.Sandbox;
+import io.northrays.sdk.model.ExecuteResponse;
 
 public class App {
     public static void main(String[] args) {
-        try (Daytona daytona = new Daytona()) {
-            Sandbox sandbox = daytona.create();
+        try (Northrays northrays = new Northrays()) {
+            Sandbox sandbox = northrays.create();
             ExecuteResponse response = sandbox.process.executeCommand("echo 'Hello, World!'");
             System.out.println(response.getResult());
             sandbox.delete();
@@ -346,9 +346,9 @@ public class App {
 <TabItem label="CLI" icon="seti:shell">
 
 ```shell
-daytona create --name my-sandbox
-daytona exec my-sandbox -- echo 'Hello, World!'
-daytona delete my-sandbox
+northrays create --name my-sandbox
+northrays exec my-sandbox -- echo 'Hello, World!'
+northrays delete my-sandbox
 ```
 
 </TabItem>
@@ -356,14 +356,14 @@ daytona delete my-sandbox
 
 ```bash
 # Create a sandbox
-curl 'https://app.daytona.io/api/sandbox' \
+curl 'https://app.northrays.com/api/sandbox' \
   --request POST \
   --header 'Authorization: Bearer <API_KEY>' \
   --header 'Content-Type: application/json' \
   --data '{}'
 
 # Execute a command in the sandbox
-curl 'https://proxy.app.daytona.io/toolbox/{sandboxId}/process/execute' \
+curl 'https://proxy.app.northrays.com/toolbox/{sandboxId}/process/execute' \
   --request POST \
   --header 'Authorization: Bearer <API_KEY>' \
   --header 'Content-Type: application/json' \
@@ -372,7 +372,7 @@ curl 'https://proxy.app.daytona.io/toolbox/{sandboxId}/process/execute' \
 }'
 
 # Delete the sandbox
-curl 'https://app.daytona.io/api/sandbox/{sandboxId}' \
+curl 'https://app.northrays.com/api/sandbox/{sandboxId}' \
   --request DELETE \
   --header 'Authorization: Bearer <API_KEY>'
 ```
@@ -388,10 +388,10 @@ Create a sandbox with [custom resources](/docs/en/sandboxes#resources) (CPU, mem
 <TabItem label="Python" icon="seti:python">
 
 ```python
-from daytona import Daytona, CreateSandboxFromImageParams, Image, Resources
+from northrays import Northrays, CreateSandboxFromImageParams, Image, Resources
 
-daytona = Daytona()
-sandbox = daytona.create(
+northrays = Northrays()
+sandbox = northrays.create(
     CreateSandboxFromImageParams(
         image=Image.debian_slim("3.12"),
         resources=Resources(cpu=2, memory=4, disk=8)
@@ -403,10 +403,10 @@ sandbox = daytona.create(
 <TabItem label="TypeScript" icon="seti:typescript">
 
 ```typescript
-import { Daytona, Image } from '@daytona/sdk';
+import { Northrays, Image } from '@northrays/sdk';
 
-const daytona = new Daytona();
-const sandbox = await daytona.create({
+const northrays = new Northrays();
+const sandbox = await northrays.create({
     image: Image.debianSlim('3.12'),
     resources: { cpu: 2, memory: 4, disk: 8 }
 });
@@ -422,18 +422,18 @@ import (
     "context"
     "log"
 
-    "github.com/daytonaio/daytona/libs/sdk-go/pkg/daytona"
-    "github.com/daytonaio/daytona/libs/sdk-go/pkg/types"
+    "github.com/northrays/sandbox-platform/libs/sdk-go/pkg/northrays"
+    "github.com/northrays/sandbox-platform/libs/sdk-go/pkg/types"
 )
 
 func main() {
-    client, err := daytona.NewClient()
+    client, err := northrays.NewClient()
     if err != nil {
         log.Fatal(err)
     }
 
     sandbox, err := client.Create(context.Background(), types.ImageParams{
-        Image: daytona.DebianSlim(nil),
+        Image: northrays.DebianSlim(nil),
         Resources: &types.Resources{
             CPU:    2,
             Memory: 4,
@@ -450,13 +450,13 @@ func main() {
 <TabItem label="Ruby" icon="seti:ruby">
 
 ```ruby
-require 'daytona'
+require 'northrays'
 
-daytona = Daytona::Daytona.new
-sandbox = daytona.create(
-    Daytona::CreateSandboxFromImageParams.new(
-        image: Daytona::Image.debian_slim('3.12'),
-        resources: Daytona::Resources.new(cpu: 2, memory: 4, disk: 8)
+northrays = Northrays::Northrays.new
+sandbox = northrays.create(
+    Northrays::CreateSandboxFromImageParams.new(
+        image: Northrays::Image.debian_slim('3.12'),
+        resources: Northrays::Resources.new(cpu: 2, memory: 4, disk: 8)
     )
 )
 ```
@@ -465,15 +465,15 @@ sandbox = daytona.create(
 <TabItem label="Java" icon="seti:java">
 
 ```java
-import io.daytona.sdk.Daytona;
-import io.daytona.sdk.Image;
-import io.daytona.sdk.Sandbox;
-import io.daytona.sdk.model.CreateSandboxFromImageParams;
-import io.daytona.sdk.model.Resources;
+import io.northrays.sdk.Northrays;
+import io.northrays.sdk.Image;
+import io.northrays.sdk.Sandbox;
+import io.northrays.sdk.model.CreateSandboxFromImageParams;
+import io.northrays.sdk.model.Resources;
 
 public class App {
     public static void main(String[] args) {
-        try (Daytona daytona = new Daytona()) {
+        try (Northrays northrays = new Northrays()) {
             CreateSandboxFromImageParams params = new CreateSandboxFromImageParams();
             params.setImage(Image.debianSlim("3.12"));
             Resources resources = new Resources();
@@ -481,7 +481,7 @@ public class App {
             resources.setMemory(4);
             resources.setDisk(8);
             params.setResources(resources);
-            Sandbox sandbox = daytona.create(params);
+            Sandbox sandbox = northrays.create(params);
         }
     }
 }
@@ -491,14 +491,14 @@ public class App {
 <TabItem label="CLI" icon="seti:shell">
 
 ```shell
-daytona create --class small
+northrays create --class small
 ```
 
 </TabItem>
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://app.daytona.io/api/sandbox' \
+curl 'https://app.northrays.com/api/sandbox' \
   --request POST \
   --header 'Authorization: Bearer <API_KEY>' \
   --header 'Content-Type: application/json' \
@@ -520,10 +520,10 @@ Create an [ephemeral sandbox](/docs/en/sandboxes#ephemeral-sandboxes) that is au
 <TabItem label="Python" icon="seti:python">
 
 ```python
-from daytona import Daytona, CreateSandboxFromSnapshotParams
+from northrays import Northrays, CreateSandboxFromSnapshotParams
 
-daytona = Daytona()
-sandbox = daytona.create(
+northrays = Northrays()
+sandbox = northrays.create(
     CreateSandboxFromSnapshotParams(ephemeral=True, auto_stop_interval=5)
 )
 ```
@@ -532,10 +532,10 @@ sandbox = daytona.create(
 <TabItem label="TypeScript" icon="seti:typescript">
 
 ```typescript
-import { Daytona } from '@daytona/sdk';
+import { Northrays } from '@northrays/sdk';
 
-const daytona = new Daytona();
-const sandbox = await daytona.create({
+const northrays = new Northrays();
+const sandbox = await northrays.create({
     ephemeral: true,
     autoStopInterval: 5
 });
@@ -551,12 +551,12 @@ import (
     "context"
     "log"
 
-    "github.com/daytonaio/daytona/libs/sdk-go/pkg/daytona"
-    "github.com/daytonaio/daytona/libs/sdk-go/pkg/types"
+    "github.com/northrays/sandbox-platform/libs/sdk-go/pkg/northrays"
+    "github.com/northrays/sandbox-platform/libs/sdk-go/pkg/types"
 )
 
 func main() {
-    client, err := daytona.NewClient()
+    client, err := northrays.NewClient()
     if err != nil {
         log.Fatal(err)
     }
@@ -578,11 +578,11 @@ func main() {
 <TabItem label="Ruby" icon="seti:ruby">
 
 ```ruby
-require 'daytona'
+require 'northrays'
 
-daytona = Daytona::Daytona.new
-sandbox = daytona.create(
-    Daytona::CreateSandboxFromSnapshotParams.new(ephemeral: true, auto_stop_interval: 5)
+northrays = Northrays::Northrays.new
+sandbox = northrays.create(
+    Northrays::CreateSandboxFromSnapshotParams.new(ephemeral: true, auto_stop_interval: 5)
 )
 ```
 
@@ -590,17 +590,17 @@ sandbox = daytona.create(
 <TabItem label="Java" icon="seti:java">
 
 ```java
-import io.daytona.sdk.Daytona;
-import io.daytona.sdk.Sandbox;
-import io.daytona.sdk.model.CreateSandboxFromSnapshotParams;
+import io.northrays.sdk.Northrays;
+import io.northrays.sdk.Sandbox;
+import io.northrays.sdk.model.CreateSandboxFromSnapshotParams;
 
 public class App {
     public static void main(String[] args) {
-        try (Daytona daytona = new Daytona()) {
+        try (Northrays northrays = new Northrays()) {
             CreateSandboxFromSnapshotParams params = new CreateSandboxFromSnapshotParams();
             params.setAutoDeleteInterval(0); // same effect as ephemeral: true
             params.setAutoStopInterval(5);
-            Sandbox sandbox = daytona.create(params);
+            Sandbox sandbox = northrays.create(params);
         }
     }
 }
@@ -611,14 +611,14 @@ public class App {
 <TabItem label="CLI" icon="seti:shell">
 
 ```shell
-daytona create --auto-stop 5 --auto-delete 0
+northrays create --auto-stop 5 --auto-delete 0
 ```
 
 </TabItem>
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://app.daytona.io/api/sandbox' \
+curl 'https://app.northrays.com/api/sandbox' \
   --request POST \
   --header 'Authorization: Bearer <API_KEY>' \
   --header 'Content-Type: application/json' \
@@ -638,10 +638,10 @@ Create a sandbox from a pre-built [snapshot](/docs/en/snapshots) for faster sand
 <Tabs syncKey="language">
 <TabItem label="Python" icon="seti:python">
 ```python
-from daytona import Daytona, CreateSandboxFromSnapshotParams
+from northrays import Northrays, CreateSandboxFromSnapshotParams
 
-daytona = Daytona()
-sandbox = daytona.create(
+northrays = Northrays()
+sandbox = northrays.create(
     CreateSandboxFromSnapshotParams(
         snapshot="my-snapshot-name",
         language="python"
@@ -653,10 +653,10 @@ sandbox = daytona.create(
 
 <TabItem label="TypeScript" icon="seti:typescript">
 ```typescript
-import { Daytona } from '@daytona/sdk';
+import { Northrays } from '@northrays/sdk';
 
-const daytona = new Daytona();
-const sandbox = await daytona.create({
+const northrays = new Northrays();
+const sandbox = await northrays.create({
     snapshot: 'my-snapshot-name',
     language: 'typescript'
 });
@@ -672,12 +672,12 @@ import (
     "context"
     "log"
 
-    "github.com/daytonaio/daytona/libs/sdk-go/pkg/daytona"
-    "github.com/daytonaio/daytona/libs/sdk-go/pkg/types"
+    "github.com/northrays/sandbox-platform/libs/sdk-go/pkg/northrays"
+    "github.com/northrays/sandbox-platform/libs/sdk-go/pkg/types"
 )
 
 func main() {
-    client, err := daytona.NewClient()
+    client, err := northrays.NewClient()
     if err != nil {
         log.Fatal(err)
     }
@@ -698,13 +698,13 @@ func main() {
 
 <TabItem label="Ruby" icon="seti:ruby">
 ```ruby
-require 'daytona'
+require 'northrays'
 
-daytona = Daytona::Daytona.new
-sandbox = daytona.create(
-    Daytona::CreateSandboxFromSnapshotParams.new(
+northrays = Northrays::Northrays.new
+sandbox = northrays.create(
+    Northrays::CreateSandboxFromSnapshotParams.new(
         snapshot: 'my-snapshot-name',
-        language: Daytona::CodeLanguage::PYTHON
+        language: Northrays::CodeLanguage::PYTHON
     )
 )
 ```
@@ -713,17 +713,17 @@ sandbox = daytona.create(
 <TabItem label="Java" icon="seti:java">
 
 ```java
-import io.daytona.sdk.Daytona;
-import io.daytona.sdk.Sandbox;
-import io.daytona.sdk.model.CreateSandboxFromSnapshotParams;
+import io.northrays.sdk.Northrays;
+import io.northrays.sdk.Sandbox;
+import io.northrays.sdk.model.CreateSandboxFromSnapshotParams;
 
 public class App {
     public static void main(String[] args) {
-        try (Daytona daytona = new Daytona()) {
+        try (Northrays northrays = new Northrays()) {
             CreateSandboxFromSnapshotParams params = new CreateSandboxFromSnapshotParams();
             params.setSnapshot("my-snapshot-name");
             params.setLanguage("python");
-            Sandbox sandbox = daytona.create(params);
+            Sandbox sandbox = northrays.create(params);
         }
     }
 }
@@ -733,14 +733,14 @@ public class App {
 
 <TabItem label="CLI" icon="seti:shell">
 ```shell
-daytona create --snapshot my-snapshot-name
+northrays create --snapshot my-snapshot-name
 ```
 
 </TabItem>
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://app.daytona.io/api/sandbox' \
+curl 'https://app.northrays.com/api/sandbox' \
   --request POST \
   --header 'Authorization: Bearer <API_KEY>' \
   --header 'Content-Type: application/json' \
@@ -760,15 +760,15 @@ Create a sandbox with a [declarative image](/docs/en/declarative-builder) that d
 <TabItem label="Python" icon="seti:python">
 
 ```python
-from daytona import Daytona, CreateSandboxFromImageParams, Image
+from northrays import Northrays, CreateSandboxFromImageParams, Image
 
-daytona = Daytona()
+northrays = Northrays()
 image = (
     Image.debian_slim("3.12")
     .pip_install(["requests", "pandas", "numpy"])
-    .workdir("/home/daytona")
+    .workdir("/home/northrays")
 )
-sandbox = daytona.create(
+sandbox = northrays.create(
     CreateSandboxFromImageParams(image=image),
     on_snapshot_create_logs=print
 )
@@ -778,13 +778,13 @@ sandbox = daytona.create(
 <TabItem label="TypeScript" icon="seti:typescript">
 
 ```typescript
-import { Daytona, Image } from '@daytona/sdk';
+import { Northrays, Image } from '@northrays/sdk';
 
-const daytona = new Daytona();
+const northrays = new Northrays();
 const image = Image.debianSlim('3.12')
     .pipInstall(['requests', 'pandas', 'numpy'])
-    .workdir('/home/daytona');
-const sandbox = await daytona.create(
+    .workdir('/home/northrays');
+const sandbox = await northrays.create(
     { image },
     { onSnapshotCreateLogs: console.log }
 );
@@ -800,19 +800,19 @@ import (
     "context"
     "log"
 
-    "github.com/daytonaio/daytona/libs/sdk-go/pkg/daytona"
-    "github.com/daytonaio/daytona/libs/sdk-go/pkg/types"
+    "github.com/northrays/sandbox-platform/libs/sdk-go/pkg/northrays"
+    "github.com/northrays/sandbox-platform/libs/sdk-go/pkg/types"
 )
 
 func main() {
-    client, err := daytona.NewClient()
+    client, err := northrays.NewClient()
     if err != nil {
         log.Fatal(err)
     }
 
-    image := daytona.DebianSlim(nil).
+    image := northrays.DebianSlim(nil).
         PipInstall([]string{"requests", "pandas", "numpy"}).
-        Workdir("/home/daytona")
+        Workdir("/home/northrays")
     sandbox, err := client.Create(context.Background(), types.ImageParams{
         Image: image,
     })
@@ -826,15 +826,15 @@ func main() {
 <TabItem label="Ruby" icon="seti:ruby">
 
 ```ruby
-require 'daytona'
+require 'northrays'
 
-daytona = Daytona::Daytona.new
-image = Daytona::Image
+northrays = Northrays::Northrays.new
+image = Northrays::Image
     .debian_slim('3.12')
     .pip_install(['requests', 'pandas', 'numpy'])
-    .workdir('/home/daytona')
-sandbox = daytona.create(
-    Daytona::CreateSandboxFromImageParams.new(image: image),
+    .workdir('/home/northrays')
+sandbox = northrays.create(
+    Northrays::CreateSandboxFromImageParams.new(image: image),
     on_snapshot_create_logs: proc { |chunk| puts chunk }
 )
 ```
@@ -843,20 +843,20 @@ sandbox = daytona.create(
 <TabItem label="Java" icon="seti:java">
 
 ```java
-import io.daytona.sdk.Daytona;
-import io.daytona.sdk.Image;
-import io.daytona.sdk.Sandbox;
-import io.daytona.sdk.model.CreateSandboxFromImageParams;
+import io.northrays.sdk.Northrays;
+import io.northrays.sdk.Image;
+import io.northrays.sdk.Sandbox;
+import io.northrays.sdk.model.CreateSandboxFromImageParams;
 
 public class App {
     public static void main(String[] args) {
-        try (Daytona daytona = new Daytona()) {
+        try (Northrays northrays = new Northrays()) {
             Image image = Image.debianSlim("3.12")
                     .pipInstall("requests", "pandas", "numpy")
-                    .workdir("/home/daytona");
+                    .workdir("/home/northrays");
             CreateSandboxFromImageParams params = new CreateSandboxFromImageParams();
             params.setImage(image);
-            Sandbox sandbox = daytona.create(params, 60, System.out::println);
+            Sandbox sandbox = northrays.create(params, 60, System.out::println);
         }
     }
 }
@@ -866,20 +866,20 @@ public class App {
 <TabItem label="CLI" icon="seti:shell">
 
 ```shell
-daytona create --dockerfile ./Dockerfile
+northrays create --dockerfile ./Dockerfile
 ```
 
 </TabItem>
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://app.daytona.io/api/sandbox' \
+curl 'https://app.northrays.com/api/sandbox' \
   --request POST \
   --header 'Authorization: Bearer <API_KEY>' \
   --header 'Content-Type: application/json' \
   --data '{
   "buildInfo": {
-    "dockerfileContent": "FROM python:3.12-slim\nRUN pip install requests pandas numpy\nWORKDIR /home/daytona"
+    "dockerfileContent": "FROM python:3.12-slim\nRUN pip install requests pandas numpy\nWORKDIR /home/northrays"
   }
 }'
 ```
@@ -895,13 +895,13 @@ Create a sandbox with a [volume](/docs/en/volumes) mounted to share data across 
 <TabItem label="Python" icon="seti:python">
 
 ```python
-from daytona import Daytona, CreateSandboxFromSnapshotParams, VolumeMount
+from northrays import Northrays, CreateSandboxFromSnapshotParams, VolumeMount
 
-daytona = Daytona()
-volume = daytona.volume.get("my-volume", create=True)
-sandbox = daytona.create(
+northrays = Northrays()
+volume = northrays.volume.get("my-volume", create=True)
+sandbox = northrays.create(
     CreateSandboxFromSnapshotParams(
-        volumes=[VolumeMount(volume_id=volume.id, mount_path="/home/daytona/data")]
+        volumes=[VolumeMount(volume_id=volume.id, mount_path="/home/northrays/data")]
     )
 )
 ```
@@ -910,12 +910,12 @@ sandbox = daytona.create(
 <TabItem label="TypeScript" icon="seti:typescript">
 
 ```typescript
-import { Daytona } from '@daytona/sdk';
+import { Northrays } from '@northrays/sdk';
 
-const daytona = new Daytona();
-const volume = await daytona.volume.get('my-volume', true);
-const sandbox = await daytona.create({
-    volumes: [{ volumeId: volume.id, mountPath: '/home/daytona/data' }]
+const northrays = new Northrays();
+const volume = await northrays.volume.get('my-volume', true);
+const sandbox = await northrays.create({
+    volumes: [{ volumeId: volume.id, mountPath: '/home/northrays/data' }]
 });
 ```
 
@@ -929,12 +929,12 @@ import (
     "context"
     "log"
 
-    "github.com/daytonaio/daytona/libs/sdk-go/pkg/daytona"
-    "github.com/daytonaio/daytona/libs/sdk-go/pkg/types"
+    "github.com/northrays/sandbox-platform/libs/sdk-go/pkg/northrays"
+    "github.com/northrays/sandbox-platform/libs/sdk-go/pkg/types"
 )
 
 func main() {
-    client, err := daytona.NewClient()
+    client, err := northrays.NewClient()
     if err != nil {
         log.Fatal(err)
     }
@@ -951,7 +951,7 @@ func main() {
         SandboxBaseParams: types.SandboxBaseParams{
             Volumes: []types.VolumeMount{{
                 VolumeID:  volume.ID,
-                MountPath: "/home/daytona/data",
+                MountPath: "/home/northrays/data",
             }},
         },
     })
@@ -964,15 +964,15 @@ func main() {
 </TabItem>
 <TabItem label="Ruby" icon="seti:ruby">
 ```ruby
-require 'daytona'
+require 'northrays'
 
-daytona = Daytona::Daytona.new
-volume = daytona.volume.get('my-volume', create: true)
-sandbox = daytona.create(
-    Daytona::CreateSandboxFromSnapshotParams.new(
-        volumes: [DaytonaApiClient::SandboxVolume.new(
+northrays = Northrays::Northrays.new
+volume = northrays.volume.get('my-volume', create: true)
+sandbox = northrays.create(
+    Northrays::CreateSandboxFromSnapshotParams.new(
+        volumes: [NorthraysApiClient::SandboxVolume.new(
             volume_id: volume.id,
-            mount_path: '/home/daytona/data'
+            mount_path: '/home/northrays/data'
         )]
     )
 )
@@ -982,33 +982,33 @@ sandbox = daytona.create(
 <TabItem label="Java" icon="seti:java">
 
 ```java
-import io.daytona.sdk.Daytona;
-import io.daytona.sdk.Sandbox;
-import io.daytona.sdk.exception.DaytonaNotFoundException;
-import io.daytona.sdk.model.CreateSandboxFromSnapshotParams;
-import io.daytona.sdk.model.Volume;
-import io.daytona.sdk.model.VolumeMount;
+import io.northrays.sdk.Northrays;
+import io.northrays.sdk.Sandbox;
+import io.northrays.sdk.exception.NorthraysNotFoundException;
+import io.northrays.sdk.model.CreateSandboxFromSnapshotParams;
+import io.northrays.sdk.model.Volume;
+import io.northrays.sdk.model.VolumeMount;
 
 import java.util.Collections;
 
 public class App {
     public static void main(String[] args) {
-        try (Daytona daytona = new Daytona()) {
+        try (Northrays northrays = new Northrays()) {
             Volume volume;
             try {
-                volume = daytona.volume().getByName("my-volume");
-            } catch (DaytonaNotFoundException e) {
-                volume = daytona.volume().create("my-volume");
+                volume = northrays.volume().getByName("my-volume");
+            } catch (NorthraysNotFoundException e) {
+                volume = northrays.volume().create("my-volume");
             }
 
             VolumeMount mount = new VolumeMount();
             mount.setVolumeId(volume.getId());
-            mount.setMountPath("/home/daytona/data");
+            mount.setMountPath("/home/northrays/data");
 
             CreateSandboxFromSnapshotParams params = new CreateSandboxFromSnapshotParams();
             params.setVolumes(Collections.singletonList(mount));
 
-            Sandbox sandbox = daytona.create(params);
+            Sandbox sandbox = northrays.create(params);
         }
     }
 }
@@ -1018,15 +1018,15 @@ public class App {
 <TabItem label="CLI" icon="seti:shell">
 
 ```shell
-daytona volume create my-volume
-daytona create --volume my-volume:/home/daytona/data
+northrays volume create my-volume
+northrays create --volume my-volume:/home/northrays/data
 ```
 
 </TabItem>
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://app.daytona.io/api/sandbox' \
+curl 'https://app.northrays.com/api/sandbox' \
   --request POST \
   --header 'Authorization: Bearer <API_KEY>' \
   --header 'Content-Type: application/json' \
@@ -1034,7 +1034,7 @@ curl 'https://app.daytona.io/api/sandbox' \
   "volumes": [
     {
       "volumeId": "<VOLUME_ID>",
-      "mountPath": "/home/daytona/data"
+      "mountPath": "/home/northrays/data"
     }
   ]
 }'
@@ -1051,13 +1051,13 @@ Create a sandbox with a [Git repository](/docs/en/typescript-sdk/git) cloned to 
 <TabItem label="Python" icon="seti:python">
 
 ```python
-from daytona import Daytona
+from northrays import Northrays
 
-daytona = Daytona()
-sandbox = daytona.create()
+northrays = Northrays()
+sandbox = northrays.create()
 
-sandbox.git.clone("https://github.com/daytonaio/daytona.git", "/home/daytona/daytona")
-status = sandbox.git.status("/home/daytona/daytona")
+sandbox.git.clone("https://github.com/northrays/sandbox-platform.git", "/home/northrays/northrays")
+status = sandbox.git.status("/home/northrays/northrays")
 print(f"Branch: {status.current_branch}")
 ```
 
@@ -1065,13 +1065,13 @@ print(f"Branch: {status.current_branch}")
 <TabItem label="TypeScript" icon="seti:typescript">
 
 ```typescript
-import { Daytona } from '@daytona/sdk';
+import { Northrays } from '@northrays/sdk';
 
-const daytona = new Daytona();
-const sandbox = await daytona.create();
+const northrays = new Northrays();
+const sandbox = await northrays.create();
 
-await sandbox.git.clone('https://github.com/daytonaio/daytona.git', '/home/daytona/daytona');
-const status = await sandbox.git.status('/home/daytona/daytona');
+await sandbox.git.clone('https://github.com/northrays/sandbox-platform.git', '/home/northrays/northrays');
+const status = await sandbox.git.status('/home/northrays/northrays');
 console.log(`Branch: ${status.currentBranch}`);
 ```
 
@@ -1086,11 +1086,11 @@ import (
     "fmt"
     "log"
 
-    "github.com/daytonaio/daytona/libs/sdk-go/pkg/daytona"
+    "github.com/northrays/sandbox-platform/libs/sdk-go/pkg/northrays"
 )
 
 func main() {
-    client, err := daytona.NewClient()
+    client, err := northrays.NewClient()
     if err != nil {
         log.Fatal(err)
     }
@@ -1100,8 +1100,8 @@ func main() {
         log.Fatal(err)
     }
 
-    sandbox.Git.Clone(context.Background(), "https://github.com/daytonaio/daytona.git", "/home/daytona/daytona")
-    status, err := sandbox.Git.Status(context.Background(), "/home/daytona/daytona")
+    sandbox.Git.Clone(context.Background(), "https://github.com/northrays/sandbox-platform.git", "/home/northrays/northrays")
+    status, err := sandbox.Git.Status(context.Background(), "/home/northrays/northrays")
     if err != nil {
         log.Fatal(err)
     }
@@ -1113,13 +1113,13 @@ func main() {
 <TabItem label="Ruby" icon="seti:ruby">
 
 ```ruby
-require 'daytona'
+require 'northrays'
 
-daytona = Daytona::Daytona.new
-sandbox = daytona.create
+northrays = Northrays::Northrays.new
+sandbox = northrays.create
 
-sandbox.git.clone(url: "https://github.com/daytonaio/daytona.git", path: "/home/daytona/daytona")
-status = sandbox.git.status("/home/daytona/daytona")
+sandbox.git.clone(url: "https://github.com/northrays/sandbox-platform.git", path: "/home/northrays/northrays")
+status = sandbox.git.status("/home/northrays/northrays")
 puts "Branch: #{status.current_branch}"
 ```
 
@@ -1127,16 +1127,16 @@ puts "Branch: #{status.current_branch}"
 <TabItem label="Java" icon="seti:java">
 
 ```java
-import io.daytona.sdk.Daytona;
-import io.daytona.sdk.Sandbox;
-import io.daytona.sdk.model.GitStatus;
+import io.northrays.sdk.Northrays;
+import io.northrays.sdk.Sandbox;
+import io.northrays.sdk.model.GitStatus;
 
 public class App {
     public static void main(String[] args) {
-        try (Daytona daytona = new Daytona()) {
-            Sandbox sandbox = daytona.create();
-            sandbox.git.clone("https://github.com/daytonaio/daytona.git", "/home/daytona/daytona");
-            GitStatus status = sandbox.git.status("/home/daytona/daytona");
+        try (Northrays northrays = new Northrays()) {
+            Sandbox sandbox = northrays.create();
+            sandbox.git.clone("https://github.com/northrays/sandbox-platform.git", "/home/northrays/northrays");
+            GitStatus status = sandbox.git.status("/home/northrays/northrays");
             System.out.println("Branch: " + status.getCurrentBranch());
         }
     }
@@ -1148,24 +1148,24 @@ public class App {
 
 ```bash
 # Create a sandbox
-curl 'https://app.daytona.io/api/sandbox' \
+curl 'https://app.northrays.com/api/sandbox' \
   --request POST \
   --header 'Authorization: Bearer <API_KEY>' \
   --header 'Content-Type: application/json' \
   --data '{}'
 
 # Clone a Git repository in the sandbox
-curl 'https://proxy.app.daytona.io/toolbox/{sandboxId}/git/clone' \
+curl 'https://proxy.app.northrays.com/toolbox/{sandboxId}/git/clone' \
   --request POST \
   --header 'Authorization: Bearer <API_KEY>' \
   --header 'Content-Type: application/json' \
   --data '{
-  "url": "https://github.com/daytonaio/daytona.git",
-  "path": "/home/daytona/daytona"
+  "url": "https://github.com/northrays/sandbox-platform.git",
+  "path": "/home/northrays/northrays"
 }'
 
 # Get repository status
-curl 'https://proxy.app.daytona.io/toolbox/{sandboxId}/git/status?path=/home/daytona/daytona' \
+curl 'https://proxy.app.northrays.com/toolbox/{sandboxId}/git/status?path=/home/northrays/northrays' \
   --header 'Authorization: Bearer <API_KEY>'
 ```
 

@@ -94,7 +94,7 @@ export class EcrCredentialsService {
       // When set, broker creds are used as the source identity for the customer AssumeRole below.
       const baseCredentials = this.brokerRoleArn
         ? fromTemporaryCredentials({
-            params: { RoleArn: this.brokerRoleArn, RoleSessionName: `daytona-${externalId}-broker` },
+            params: { RoleArn: this.brokerRoleArn, RoleSessionName: `northrays-${externalId}-broker` },
           })
         : undefined
 
@@ -105,7 +105,7 @@ export class EcrCredentialsService {
           : fromTemporaryCredentials({
               params: {
                 RoleArn: normalizedArn,
-                RoleSessionName: `daytona-${externalId}-pull`,
+                RoleSessionName: `northrays-${externalId}-pull`,
                 ExternalId: externalId,
               },
               masterCredentials: baseCredentials,

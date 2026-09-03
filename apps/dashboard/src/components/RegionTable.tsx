@@ -6,7 +6,7 @@
 import { DEFAULT_PAGE_SIZE } from '@/constants/Pagination'
 import { cn, getRelativeTimeString } from '@/lib/utils'
 import { DEFAULT_TABLE_COLUMN, getColumnSizeStyles, getTableSizeStyles } from '@/lib/utils/table'
-import { Region, RegionType } from '@daytona/api-client'
+import { Region, RegionType } from '@northrays/api-client'
 import {
   ColumnDef,
   flexRender,

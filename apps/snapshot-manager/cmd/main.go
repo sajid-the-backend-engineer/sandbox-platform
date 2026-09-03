@@ -12,9 +12,9 @@ import (
 	"os/signal"
 	"syscall"
 
-	"github.com/daytonaio/snapshot-manager/internal/config"
-	"github.com/daytonaio/snapshot-manager/internal/logger"
-	"github.com/daytonaio/snapshot-manager/internal/server"
+	"github.com/northrays/snapshot-manager/internal/config"
+	"github.com/northrays/snapshot-manager/internal/logger"
+	"github.com/northrays/snapshot-manager/internal/server"
 )
 
 func main() {
@@ -55,5 +55,5 @@ func main() {
 		os.Exit(1)
 	}
 
-	log.Info("Daytona Snapshot manager stopped")
+	log.Info("Northrays Snapshot manager stopped")
 }

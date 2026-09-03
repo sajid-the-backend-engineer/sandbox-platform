@@ -10,11 +10,11 @@ from unittest.mock import AsyncMock, MagicMock
 import aiohttp
 import pytest
 
-from daytona.common.errors import DaytonaConnectionError, DaytonaTimeoutError
+from northrays.common.errors import NorthraysConnectionError, NorthraysTimeoutError
 
 
 def _make_async_interpreter(http_session=None):
-    from daytona._async.code_interpreter import AsyncCodeInterpreter
+    from northrays._async.code_interpreter import AsyncCodeInterpreter
 
     api_client = MagicMock()
     api_client.create_interpreter_context = AsyncMock()
@@ -121,7 +121,7 @@ class TestAsyncCodeInterpreterRunCode:
 
         interpreter, _api_client = _make_async_interpreter(http_session=session)
 
-        with pytest.raises(DaytonaTimeoutError, match="Execution timed out"):
+        with pytest.raises(NorthraysTimeoutError, match="Execution timed out"):
             await interpreter.run_code("print('hi')")
 
     @pytest.mark.asyncio
@@ -132,19 +132,19 @@ class TestAsyncCodeInterpreterRunCode:
 
         interpreter, _api_client = _make_async_interpreter(http_session=session)
 
-        with pytest.raises(DaytonaConnectionError, match=r"closed unexpectedly \(close code 4999\)"):
+        with pytest.raises(NorthraysConnectionError, match=r"closed unexpectedly \(close code 4999\)"):
             await interpreter.run_code("print('hi')")
 
     def test_maybe_raise_from_ws_close_timeout(self):
         interpreter, _api_client = _make_async_interpreter()
 
-        with pytest.raises(DaytonaTimeoutError, match="Execution timed out"):
+        with pytest.raises(NorthraysTimeoutError, match="Execution timed out"):
             interpreter._maybe_raise_from_ws_close(4008, "timed out")
 
     def test_maybe_raise_from_ws_close_connection_error(self):
         interpreter, _api_client = _make_async_interpreter()
 
-        with pytest.raises(DaytonaConnectionError, match=r"closed unexpectedly \(close code 4999\)"):
+        with pytest.raises(NorthraysConnectionError, match=r"closed unexpectedly \(close code 4999\)"):
             interpreter._maybe_raise_from_ws_close(4999, "closed unexpectedly")
 
     def test_maybe_raise_from_ws_close_normal_close_does_not_raise(self):

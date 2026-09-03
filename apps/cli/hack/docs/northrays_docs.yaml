@@ -1,0 +1,9 @@
+name: northrays docs
+synopsis: Opens the Northrays documentation in your default browser.
+usage: northrays docs [flags]
+inherited_options:
+  - name: help
+    default_value: 'false'
+    usage: help for northrays
+see_also:
+  - northrays - Northrays CLI

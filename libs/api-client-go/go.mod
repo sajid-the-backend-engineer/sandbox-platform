@@ -1,4 +1,4 @@
-module github.com/daytonaio/daytona/libs/api-client-go
+module github.com/northrays/sandbox-platform/libs/api-client-go
 
 go 1.23
 

@@ -1,0 +1,13 @@
+name: northrays volume
+synopsis: Manage Northrays volumes
+description: Commands for managing Northrays volumes
+inherited_options:
+  - name: help
+    default_value: 'false'
+    usage: help for northrays
+see_also:
+  - northrays - Northrays CLI
+  - northrays volume create - Create a volume
+  - northrays volume delete - Delete a volume
+  - northrays volume get - Get volume details
+  - northrays volume list - List all volumes

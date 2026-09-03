@@ -162,7 +162,7 @@ export function WebhooksEndpointTable({
                     <p>Create an endpoint to start receiving webhook events.</p>
                     <p>
                       <a
-                        href="https://www.daytona.io/docs/en/tools/api/#daytona/webhook/undefined/"
+                        href="https://www.northrays.com/docs/en/tools/api/#northrays/webhook/undefined/"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-primary hover:underline font-medium"

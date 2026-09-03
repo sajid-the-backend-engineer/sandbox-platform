@@ -12,10 +12,10 @@ import (
 	"strings"
 	"time"
 
-	common_errors "github.com/daytonaio/common-go/pkg/errors"
-	proxy "github.com/daytonaio/common-go/pkg/proxy"
-	"github.com/daytonaio/common-go/pkg/utils"
-	"github.com/daytonaio/runner/pkg/runner"
+	common_errors "github.com/northrays/common-go/pkg/errors"
+	proxy "github.com/northrays/common-go/pkg/proxy"
+	"github.com/northrays/common-go/pkg/utils"
+	"github.com/northrays/runner/pkg/runner"
 	"github.com/gin-gonic/gin"
 )
 

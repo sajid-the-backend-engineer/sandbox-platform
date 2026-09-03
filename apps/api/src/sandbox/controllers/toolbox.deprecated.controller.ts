@@ -206,7 +206,7 @@ export class ToolboxController {
           const runnerApiKey = req._runnerApiKey
 
           try {
-            proxyReq.setHeader('X-Daytona-Authorization', `Bearer ${runnerApiKey}`)
+            proxyReq.setHeader('X-Northrays-Authorization', `Bearer ${runnerApiKey}`)
           } catch {
             // Ignore error - headers are already set
             return

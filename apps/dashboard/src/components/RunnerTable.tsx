@@ -11,7 +11,7 @@ import {
   getColumnSizeStyles,
   getTableSizeStyles,
 } from '@/lib/utils/table'
-import { Region, Runner, RunnerState } from '@daytona/api-client'
+import { Region, Runner, RunnerState } from '@northrays/api-client'
 import {
   ColumnDef,
   flexRender,

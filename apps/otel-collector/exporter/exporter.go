@@ -11,8 +11,8 @@ import (
 	"net/http"
 	"sync"
 
-	apiclient "github.com/daytonaio/daytona/libs/api-client-go"
-	"github.com/daytonaio/otel-collector/exporter/internal/config"
+	apiclient "github.com/northrays/sandbox-platform/libs/api-client-go"
+	"github.com/northrays/otel-collector/exporter/internal/config"
 	"go.opentelemetry.io/collector/client"
 	"go.opentelemetry.io/collector/consumer/consumererror"
 	"go.opentelemetry.io/collector/pdata/plog"

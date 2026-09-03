@@ -8,11 +8,11 @@ from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
-from daytona.common.computer_use import ScreenshotOptions, ScreenshotRegion
+from northrays.common.computer_use import ScreenshotOptions, ScreenshotRegion
 
 
 def _make_async_computer_use():
-    from daytona._async.computer_use import AsyncComputerUse
+    from northrays._async.computer_use import AsyncComputerUse
 
     api_client = AsyncMock()
     return AsyncComputerUse(api_client), api_client

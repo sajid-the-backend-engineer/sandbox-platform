@@ -7,13 +7,13 @@ from unittest.mock import AsyncMock, MagicMock
 
 import pytest
 
-from daytona.common.process import CodeRunParams
-from daytona_toolbox_api_client import Chart as GeneratedChart
+from northrays.common.process import CodeRunParams
+from northrays_toolbox_api_client import Chart as GeneratedChart
 
 
 class TestSyncProcessExec:
     def _make_process(self):
-        from daytona._sync.process import Process
+        from northrays._sync.process import Process
 
         mock_api = MagicMock()
         return Process("python", mock_api, http_client=MagicMock()), mock_api
@@ -73,7 +73,7 @@ class TestSyncProcessExec:
 
 class TestSyncProcessSessions:
     def _make_process(self):
-        from daytona._sync.process import Process
+        from northrays._sync.process import Process
 
         mock_api = MagicMock()
         return Process("python", mock_api, http_client=MagicMock()), mock_api
@@ -153,7 +153,7 @@ class TestSyncProcessSessions:
 
 class TestAsyncProcessExec:
     def _make_process(self):
-        from daytona._async.process import AsyncProcess
+        from northrays._async.process import AsyncProcess
 
         mock_api = AsyncMock()
         return AsyncProcess("python", mock_api), mock_api

@@ -1,4 +1,4 @@
-module github.com/daytonaio/computer-use
+module github.com/northrays/computer-use
 
 go 1.25.0
 

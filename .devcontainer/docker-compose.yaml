@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile
     privileged: true
     volumes:
-      - ..:/workspaces/daytona
+      - ..:/workspaces/northrays
 
   dex:
     image: dexidp/dex:v2.42.0
@@ -27,7 +27,7 @@ services:
     image: dpage/pgadmin4:9.2.0
     entrypoint: ['sh', '-c', 'chmod 600 /pgpass && exec /entrypoint.sh']
     environment:
-      PGADMIN_DEFAULT_EMAIL: dev@daytona.io
+      PGADMIN_DEFAULT_EMAIL: dev@northrays.com
       PGADMIN_DEFAULT_PASSWORD: pgadmin
       PGADMIN_CONFIG_SERVER_MODE: 'False'
       PGADMIN_CONFIG_MASTER_PASSWORD_REQUIRED: 'False'

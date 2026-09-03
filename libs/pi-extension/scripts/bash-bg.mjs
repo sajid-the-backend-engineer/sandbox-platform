@@ -8,7 +8,7 @@
  * Verifies a backgrounded server does NOT hang the call, the server stays up,
  * and normal commands keep correct output + exit codes.
  *
- * Requires DAYTONA_API_KEY.
+ * Requires NORTHRAYS_API_KEY.
  */
 import { createRequire } from 'node:module'
 import path from 'node:path'
@@ -26,7 +26,7 @@ const jiti = createJiti(import.meta.url, {
   moduleCache: false,
   alias: { '@earendil-works/pi-coding-agent': hostEntry },
 })
-const { Daytona } = await import('@daytona/sdk')
+const { Northrays } = await import('@northrays/sdk')
 
 let pass = 0,
   fail = 0
@@ -44,10 +44,10 @@ const check = (cond, msg, detail) => {
 
 const { createBashOps } = await jiti.import(path.join(root, 'src/ops.ts'))
 
-const daytona = new Daytona()
-const sandbox = await daytona.create({ ephemeral: true, labels: { 'created-by': 'pi-daytona-test' } })
+const northrays = new Northrays()
+const sandbox = await northrays.create({ ephemeral: true, labels: { 'created-by': 'pi-northrays-test' } })
 try {
-  const home = (await sandbox.getUserHomeDir()) ?? '/home/daytona'
+  const home = (await sandbox.getUserHomeDir()) ?? '/home/northrays'
   const ops = createBashOps(sandbox)
   // Bound every exec with a watchdog: the whole point of this test is that a
   // backgrounded command must NOT hang ops.exec. Without a timeout a regression

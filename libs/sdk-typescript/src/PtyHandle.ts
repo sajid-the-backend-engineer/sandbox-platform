@@ -5,8 +5,8 @@
 
 import WebSocket from 'isomorphic-ws'
 import type { PtyResult } from './types/Pty'
-import { DaytonaConnectionError, DaytonaError, DaytonaTimeoutError } from './errors/DaytonaError'
-import type { PtySessionInfo } from '@daytona/toolbox-api-client'
+import { NorthraysConnectionError, NorthraysError, NorthraysTimeoutError } from './errors/NorthraysError'
+import type { PtySessionInfo } from '@northrays/toolbox-api-client'
 import { WithInstrumentation } from './utils/otel.decorator'
 
 /**
@@ -94,7 +94,7 @@ export class PtyHandle {
 
     return new Promise((resolve, reject) => {
       const timeout = setTimeout(() => {
-        reject(new DaytonaTimeoutError('PTY connection timeout'))
+        reject(new NorthraysTimeoutError('PTY connection timeout'))
       }, 10000) // 10 second timeout
 
       const checkConnection = () => {
@@ -103,7 +103,7 @@ export class PtyHandle {
           resolve()
         } else if (this.ws.readyState === WebSocket.CLOSED || this._error) {
           clearTimeout(timeout)
-          reject(new DaytonaConnectionError(this._error || 'Connection failed'))
+          reject(new NorthraysConnectionError(this._error || 'Connection failed'))
         } else {
           setTimeout(checkConnection, 100)
         }
@@ -132,7 +132,7 @@ export class PtyHandle {
   @WithInstrumentation()
   async sendInput(data: string | Uint8Array): Promise<void> {
     if (!this.isConnected()) {
-      throw new DaytonaConnectionError('PTY is not connected')
+      throw new NorthraysConnectionError('PTY is not connected')
     }
 
     try {
@@ -143,7 +143,7 @@ export class PtyHandle {
       }
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : String(error)
-      throw new DaytonaConnectionError(`Failed to send input to PTY: ${errorMessage}`)
+      throw new NorthraysConnectionError(`Failed to send input to PTY: ${errorMessage}`)
     }
   }
 
@@ -229,7 +229,7 @@ export class PtyHandle {
             error: this._error,
           })
         } else if (this._error) {
-          reject(new DaytonaError(this._error))
+          reject(new NorthraysError(this._error))
         } else {
           setTimeout(checkExit, 100)
         }
@@ -310,7 +310,7 @@ export class PtyHandle {
             const buffer = await data.arrayBuffer()
             bytes = new Uint8Array(buffer)
           } else {
-            throw new DaytonaError(`Unsupported message data type: ${Object.prototype.toString.call(data)}`)
+            throw new NorthraysError(`Unsupported message data type: ${Object.prototype.toString.call(data)}`)
           }
 
           if (this.onPty) {
@@ -319,7 +319,7 @@ export class PtyHandle {
         }
       } catch (error) {
         const errorMessage = error instanceof Error ? error.message : String(error)
-        throw new DaytonaError(`Error handling PTY message: ${errorMessage}`)
+        throw new NorthraysError(`Error handling PTY message: ${errorMessage}`)
       }
     }
 
@@ -384,7 +384,7 @@ export class PtyHandle {
       this.ws.on('error', handleError)
       this.ws.on('close', handleClose)
     } else {
-      throw new DaytonaError('Unsupported WebSocket implementation')
+      throw new NorthraysError('Unsupported WebSocket implementation')
     }
   }
 }

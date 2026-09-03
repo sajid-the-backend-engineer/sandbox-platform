@@ -17,7 +17,7 @@ export class VersionHeaderMiddleware implements NestMiddleware {
 
   use(req: Request, res: Response, next: NextFunction) {
     if (this.version) {
-      res.setHeader('X-Daytona-Api-Version', `${this.version}`)
+      res.setHeader('X-Northrays-Api-Version', `${this.version}`)
     }
     next()
   }

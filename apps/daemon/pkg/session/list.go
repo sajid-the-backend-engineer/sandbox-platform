@@ -3,7 +3,7 @@
 
 package session
 
-import "github.com/daytonaio/daemon/internal/util"
+import "github.com/northrays/daemon/internal/util"
 
 func (s *SessionService) List() ([]Session, error) {
 	sessions := []Session{}

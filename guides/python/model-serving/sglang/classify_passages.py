@@ -13,7 +13,7 @@ from openai import AsyncOpenAI
 client = AsyncOpenAI(
     base_url=f"{os.environ['ENDPOINT']}/v1",
     api_key="EMPTY",  # SGLang doesn't check it; auth is the preview-token header
-    default_headers={"x-daytona-preview-token": os.environ["TOKEN"]},
+    default_headers={"x-northrays-preview-token": os.environ["TOKEN"]},
 )
 MODEL = "gpt-oss-20b"
 PASSAGES = 273

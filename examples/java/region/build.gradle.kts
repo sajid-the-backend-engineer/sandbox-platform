@@ -2,7 +2,7 @@ plugins {
     application
 }
 
-group = "io.daytona.examples"
+group = "io.northrays.examples"
 version = "0.1.0"
 
 java {
@@ -16,9 +16,9 @@ repositories {
 }
 
 dependencies {
-    implementation("io.daytona:sdk-java")
+    implementation("io.northrays:sdk-java")
 }
 
 application {
-    mainClass.set("io.daytona.examples.Region")
+    mainClass.set("io.northrays.examples.Region")
 }

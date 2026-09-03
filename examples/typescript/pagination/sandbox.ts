@@ -1,9 +1,9 @@
-import { Daytona, SandboxListSortDirection, SandboxListSortField, SandboxState } from '@daytona/sdk'
+import { Northrays, SandboxListSortDirection, SandboxListSortField, SandboxState } from '@northrays/sdk'
 
 async function main() {
-  const daytona = new Daytona()
+  const northrays = new Northrays()
 
-  for await (const sandbox of daytona.list({
+  for await (const sandbox of northrays.list({
     limit: 10,
     labels: { env: 'dev' },
     states: [SandboxState.STARTED],

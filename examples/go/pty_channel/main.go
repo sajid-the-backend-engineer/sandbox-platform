@@ -8,13 +8,13 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/daytonaio/daytona/libs/sdk-go/pkg/daytona"
-	"github.com/daytonaio/daytona/libs/sdk-go/pkg/types"
+	"github.com/northrays/sandbox-platform/libs/sdk-go/pkg/northrays"
+	"github.com/northrays/sandbox-platform/libs/sdk-go/pkg/types"
 )
 
 func main() {
-	// Create Daytona client
-	client, err := daytona.NewClient()
+	// Create Northrays client
+	client, err := northrays.NewClient()
 	if err != nil {
 		log.Fatalf("Failed to create client: %v", err)
 	}

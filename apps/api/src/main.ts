@@ -25,7 +25,7 @@ import { AuditInterceptor } from './audit/interceptors/audit.interceptor'
 import { join } from 'node:path'
 import { ApiKeyService } from './api-key/api-key.service'
 import { corsOptions } from './cors-options'
-import { DAYTONA_ADMIN_USER_ID } from './app.service'
+import { NORTHRAYS_ADMIN_USER_ID } from './app.service'
 import { OrganizationService } from './organization/services/organization.service'
 import { OrganizationResourcePermission } from './organization/enums/organization-resource-permission.enum'
 import { MicroserviceOptions, Transport } from '@nestjs/microservices'
@@ -115,7 +115,7 @@ async function bootstrap() {
     swaggerOptions: {
       initOAuth: {
         clientId: configService.get('oidc.clientId'),
-        appName: 'Daytona AI',
+        appName: 'Northrays AI',
         scopes: ['openid', 'profile', 'email'],
         additionalQueryStringParams: {
           audience: configService.get('oidc.audience'),
@@ -136,10 +136,10 @@ async function bootstrap() {
           }
           continue
         }
-        Logger.log(`Replacing %DAYTONA_BASE_API_URL% in ${filePath}`)
+        Logger.log(`Replacing %NORTHRAYS_BASE_API_URL% in ${filePath}`)
         const fileContent = readFileSync(filePath, 'utf8')
         const newFileContent = fileContent.replaceAll(
-          '%DAYTONA_BASE_API_URL%',
+          '%NORTHRAYS_BASE_API_URL%',
           configService.get('dashboardBaseApiUrl'),
         )
         writeFileSync(filePath, newFileContent)
@@ -156,7 +156,7 @@ async function bootstrap() {
 
   if (isApiEnabled()) {
     await app.listen(port, host)
-    Logger.log(`🚀 Daytona API is running on: http://${host}:${port}/${globalPrefix}`)
+    Logger.log(`🚀 Northrays API is running on: http://${host}:${port}/${globalPrefix}`)
   } else {
     await app.init()
     app.flushLogs()
@@ -174,7 +174,7 @@ async function bootstrap() {
         },
         consumer: {
           allowAutoTopicCreation: true,
-          groupId: 'daytona',
+          groupId: 'northrays',
         },
         run: {
           autoCommit: false,
@@ -197,10 +197,10 @@ async function createAdminApiKey(app: INestApplication, apiKeyName: string) {
   const apiKeyService = app.get(ApiKeyService)
   const organizationService = app.get(OrganizationService)
 
-  const personalOrg = await organizationService.findPersonal(DAYTONA_ADMIN_USER_ID)
+  const personalOrg = await organizationService.findPersonal(NORTHRAYS_ADMIN_USER_ID)
   const { value } = await apiKeyService.createApiKey(
     personalOrg.id,
-    DAYTONA_ADMIN_USER_ID,
+    NORTHRAYS_ADMIN_USER_ID,
     apiKeyName,
     Object.values(OrganizationResourcePermission),
   )

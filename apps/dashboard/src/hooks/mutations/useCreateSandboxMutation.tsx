@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: AGPL-3.0
  */
 
-import { CreateSandboxFromImageParams, CreateSandboxFromSnapshotParams, Daytona, Sandbox } from '@daytona/sdk'
+import { CreateSandboxFromImageParams, CreateSandboxFromSnapshotParams, Northrays, Sandbox } from '@northrays/sdk'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { useAuth } from 'react-oidc-context'
 import { useConfig } from '../useConfig'
@@ -27,7 +27,7 @@ export const useCreateSandboxMutation = () => {
       }
 
       const { target, ...createParams } = params
-      const client = new Daytona({
+      const client = new Northrays({
         jwtToken: user.access_token,
         apiUrl,
         organizationId: selectedOrganization.id,

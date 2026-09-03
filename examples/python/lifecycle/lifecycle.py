@@ -1,11 +1,11 @@
-from daytona import Daytona, ListSandboxesQuery, SandboxListSortDirection, SandboxListSortField, SandboxState
+from northrays import Northrays, ListSandboxesQuery, SandboxListSortDirection, SandboxListSortField, SandboxState
 
 
 def main():
-    daytona = Daytona()
+    northrays = Northrays()
 
     print("Creating sandbox")
-    sandbox = daytona.create()
+    sandbox = northrays.create()
     print("Sandbox created")
 
     _ = sandbox.set_labels(
@@ -15,24 +15,24 @@ def main():
     )
 
     print("Stopping sandbox")
-    daytona.stop(sandbox)
+    northrays.stop(sandbox)
     print("Sandbox stopped")
 
     print("Starting sandbox")
-    daytona.start(sandbox)
+    northrays.start(sandbox)
     print("Sandbox started")
 
     print("Getting existing sandbox")
-    existing_sandbox = daytona.get(sandbox.id)
+    existing_sandbox = northrays.get(sandbox.id)
     print("Get existing sandbox")
 
-    response = existing_sandbox.process.exec('echo "Hello World from exec!"', cwd="/home/daytona", timeout=10)
+    response = existing_sandbox.process.exec('echo "Hello World from exec!"', cwd="/home/northrays", timeout=10)
     if response.exit_code != 0:
         print(f"Error: {response.exit_code} {response.result}")
     else:
         print(response.result)
 
-    for sb in daytona.list(
+    for sb in northrays.list(
         ListSandboxesQuery(
             limit=10,
             labels={"env": "dev"},
@@ -44,7 +44,7 @@ def main():
         print(sb.id)
 
     print("Removing sandbox")
-    daytona.delete(sandbox)
+    northrays.delete(sandbox)
     print("Sandbox removed")
 
 

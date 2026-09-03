@@ -1,0 +1,9 @@
+name: northrays mcp config
+synopsis: Outputs JSON configuration for Northrays MCP Server
+usage: northrays mcp config [AGENT_NAME] [flags]
+inherited_options:
+  - name: help
+    default_value: 'false'
+    usage: help for northrays
+see_also:
+  - northrays mcp - Manage Northrays MCP Server

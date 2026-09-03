@@ -8,13 +8,13 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/daytonaio/daytona/cli/cmd/mcp/agents"
+	"github.com/northrays/sandbox-platform/cli/cmd/mcp/agents"
 	"github.com/spf13/cobra"
 )
 
 var InitCmd = &cobra.Command{
 	Use:   "init [AGENT_NAME]",
-	Short: "Initialize Daytona MCP Server with an agent (currently supported: claude, windsurf, cursor)",
+	Short: "Initialize Northrays MCP Server with an agent (currently supported: claude, windsurf, cursor)",
 	Args:  cobra.MaximumNArgs(1),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		if len(args) == 0 {
@@ -53,7 +53,7 @@ var InitCmd = &cobra.Command{
 }
 
 func injectConfig(agentConfigFilePath, mcpLogFilePath string) error {
-	daytonaMcpConfig, err := getDayonaMcpConfig(mcpLogFilePath)
+	northraysMcpConfig, err := getDayonaMcpConfig(mcpLogFilePath)
 	if err != nil {
 		return err
 	}
@@ -76,8 +76,8 @@ func injectConfig(agentConfigFilePath, mcpLogFilePath string) error {
 		mcpServers = make(map[string]interface{})
 	}
 
-	// Add or update daytona-mcp configuration
-	mcpServers["daytona-mcp"] = daytonaMcpConfig
+	// Add or update northrays-mcp configuration
+	mcpServers["northrays-mcp"] = northraysMcpConfig
 	agentConfig["mcpServers"] = mcpServers
 
 	// Write back the updated config with indentation

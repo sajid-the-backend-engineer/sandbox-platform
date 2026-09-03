@@ -4,7 +4,7 @@
  */
 
 import { FileSystem } from '../FileSystem'
-import { DaytonaNotFoundError } from '../errors/DaytonaError'
+import { NorthraysNotFoundError } from '../errors/NorthraysError'
 
 describe('FileSystem.downloadFile', () => {
   function newFileSystem() {
@@ -31,7 +31,7 @@ describe('FileSystem.downloadFile', () => {
     const fileSystem = newFileSystem()
 
     await expect(FileSystem.prototype.downloadFile.call(fileSystem, '/workspace/missing.txt')).rejects.toBeInstanceOf(
-      DaytonaNotFoundError,
+      NorthraysNotFoundError,
     )
 
     await expect(FileSystem.prototype.downloadFile.call(fileSystem, '/workspace/missing.txt')).rejects.toMatchObject({
@@ -45,7 +45,7 @@ describe('FileSystem.downloadFile', () => {
 
     await expect(
       FileSystem.prototype.downloadFile.call(fileSystem, '/workspace/missing.txt', '/tmp/out.txt'),
-    ).rejects.toBeInstanceOf(DaytonaNotFoundError)
+    ).rejects.toBeInstanceOf(NorthraysNotFoundError)
 
     await expect(
       FileSystem.prototype.downloadFile.call(fileSystem, '/workspace/missing.txt', '/tmp/out.txt'),

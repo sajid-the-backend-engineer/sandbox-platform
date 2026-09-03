@@ -159,7 +159,7 @@ func newChannelPair(t *testing.T) *channelPair {
 }
 
 // TestClientDisconnectTeardownPropagatesUpstream is the regression test for the stale
-// SSH keepalive bug (https://github.com/daytonaio/daytona/issues/4805).
+// SSH keepalive bug (https://github.com/northrays/sandbox-platform/issues/4805).
 //
 // Before the fix, killing the SSH client (SIGKILL / network drop) left the reverse
 // io.Copy (runner→client) blocked indefinitely: nothing closed runnerChannel, so the

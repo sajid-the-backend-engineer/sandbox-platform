@@ -1,10 +1,10 @@
-# Contributing to Daytona Documentation
+# Contributing to Northrays Documentation
 
-Thank you for your interest in contributing to Daytona Documentation! Whether you're fixing a typo, improving existing docs, or adding new content, your help is greatly appreciated.
+Thank you for your interest in contributing to Northrays Documentation! Whether you're fixing a typo, improving existing docs, or adding new content, your help is greatly appreciated.
 
 We are happy to provide guidance on PRs, technical writing, and turning any feature idea into a reality.
 
-This document provides a detailed guide for contributors, especially writers, to ensure that contributions are consistent and of high quality. If you need further assistance, don't hesitate to reach out in the [Daytona Slack Community][slack].
+This document provides a detailed guide for contributors, especially writers, to ensure that contributions are consistent and of high quality. If you need further assistance, don't hesitate to reach out in the [Northrays Slack Community][slack].
 
 ## Writing Overview
 
@@ -20,7 +20,7 @@ This document provides a detailed guide for contributors, especially writers, to
 
 ### Writing Process
 
-1. **Familiarize Yourself**: Begin by understanding Daytona and its features. Explore the existing documentation to get a sense of the writing style and structure.
+1. **Familiarize Yourself**: Begin by understanding Northrays and its features. Explore the existing documentation to get a sense of the writing style and structure.
 2. **Find a Topic**: Look for topics that need improvement, missing documentation, or new features that haven't been documented yet. You can check existing [issues][issues] for documentation requests or open a new issue if you identify a gap in the content.
 3. **Discuss Your Ideas**: If you're addressing an unreported problem or proposing new content, open an issue to discuss your ideas. Provide a clear and concise description of what you want to add or change.
 4. **Write**: Make your changes or add new content. Follow the existing documentation format and style guide. Save your files in the correct directories as per the project structure.
@@ -32,12 +32,12 @@ Remember to stay responsive to feedback during the review process and make any n
 
 ## Contributing to Docs 101
 
-### Contributing using Daytona
+### Contributing using Northrays
 
-To contribute using Daytona, follow these steps:
+To contribute using Northrays, follow these steps:
 
-1. **Fork the Docs repo**: Fork the [Daytona Docs repository][sl] to your GitHub account to create an isolated copy where you can work without affecting the original project.
-2. **Access Daytona**: Start a new workspace using the GitHub repositor link and Daytona URL of your Daytona instance, for example '<https://YOUR-DAYTONA.INSTANCE/#https://github.com/YOUR-USERNAME/docs>'. If you don't have access to Daytona you can easily [install](https://github.com/daytonaio/installer) it on your own server. Now, start a workspace through a Daytona dashboard. Optionally, you can install a preferred [Daytona extension](https://download.daytona.io/) in your IDE.
+1. **Fork the Docs repo**: Fork the [Northrays Docs repository][sl] to your GitHub account to create an isolated copy where you can work without affecting the original project.
+2. **Access Northrays**: Start a new workspace using the GitHub repositor link and Northrays URL of your Northrays instance, for example '<https://YOUR-NORTHRAYS.INSTANCE/#https://github.com/YOUR-USERNAME/docs>'. If you don't have access to Northrays you can easily [install](https://github.com/northrays/installer) it on your own server. Now, start a workspace through a Northrays dashboard. Optionally, you can install a preferred [Northrays extension](https://download.northrays.com/) in your IDE.
 3. **Sync Your Fork**: Before making changes, sync your fork with the main repository to ensure you're working with the latest version.
 4. **Branch Out**: Create a new branch for your work. Use a descriptive name that reflects the changes you're planning to make.
 5. **Make Changes and Test**: Use the preferred IDE to edit, preview, and validate your changes to the documentation.
@@ -48,19 +48,19 @@ To contribute using Daytona, follow these steps:
 
 To contribute using GitHub Codespaces, follow these steps:
 
-1. **Fork the Docs repo**: Fork the [Daytona Docs repository][sl] to your GitHub account to create an isolated copy where you can work without affecting the original project.
+1. **Fork the Docs repo**: Fork the [Northrays Docs repository][sl] to your GitHub account to create an isolated copy where you can work without affecting the original project.
 2. **Create a Codespace**: Go to your fork in GitHub to create a new Codespace.
 3. **Sync Your Fork**: Before making changes, sync your fork with the main repository to ensure you're working with the latest version.
 4. **Branch Out**: Create a new branch for your work. Use a descriptive name that reflects the changes you're planning to make.
 5. **Make Changes and Test**: Use the Codespaces to edit, preview, and validate your changes to the documentation.
 6. **Commit and Push**: After making changes, commit to your fork and push the updates.
-7. **Open a Pull Request**: Create a pull request from your fork to the main Daytona Docs repository for review.
+7. **Open a Pull Request**: Create a pull request from your fork to the main Northrays Docs repository for review.
 
 ### Contributing using the Local Environment
 
 To set up and contribute using your local environment, follow these steps:
 
-1. **Fork and Clone**: Fork the [Daytona Docs repository][sl] to your GitHub account and clone it to your local machine.
+1. **Fork and Clone**: Fork the [Northrays Docs repository][sl] to your GitHub account and clone it to your local machine.
 2. **Sync Your Fork**: Before making changes, sync your fork with the main repository to ensure you're working with the latest version.
 3. **Branch Out**: Create a new branch for your work. Use a descriptive name that reflects the changes you're planning to make.
 4. **Set Up Your Environment**: Ensure you have Node.js (v16 or higher) and pnpm (v8.2 or higher) installed, then install dependencies with `pnpm i`.
@@ -89,14 +89,14 @@ You should then be able to open a preview <http://localhost:4321> and see your c
 
 ## Git Workflow and Commands Cheat Sheet
 
-This cheat sheet provides the essential Git commands necessary for contributing to the Daytona Documentation as specified in the previous sections.
+This cheat sheet provides the essential Git commands necessary for contributing to the Northrays Documentation as specified in the previous sections.
 
 ### Fork and Clone Repository
 
 ```sh
 # Fork the repository on GitHub to your account using GitHub website
 
-# Clone your forked repository to your local machine, when using Daytona this is done automatically when creating workspace
+# Clone your forked repository to your local machine, when using Northrays this is done automatically when creating workspace
 git clone https://github.com/YOUR-USERNAME/docs.git
 cd docs
 ```
@@ -105,7 +105,7 @@ cd docs
 
 ```sh
 # Add the original repository as an upstream remote
-git remote add upstream https://github.com/daytonaio/docs.git
+git remote add upstream https://github.com/northrays/docs.git
 
 # Fetch the latest changes from upstream
 git fetch upstream
@@ -131,7 +131,7 @@ git checkout -b update-getting-started
 git add .
 
 # Commit your changes with a descriptive message
-git commit -m "Add a guide on integrating Daytona with VS Code"
+git commit -m "Add a guide on integrating Northrays with VS Code"
 ```
 
 ### Push Changes to Your Fork on GitHub
@@ -187,8 +187,8 @@ To add a language, you will need its BCP-47 tag and a label. See [“Adding a ne
 - Add your language’s subtag to the i18n label config in `.github/labeler.yml`
 - Add your language to the `pa11y` script’s `--sitemap-exclude` flag in `package.json`
 - Create the first translated page for your language.  
-   This must be the Daytona Docs landing page: `docs/src/content/docs/{language}/index.mdx`.
-- Open a pull request on GitHub to add your changes to Daytona Docs!
+   This must be the Northrays Docs landing page: `docs/src/content/docs/{language}/index.mdx`.
+- Open a pull request on GitHub to add your changes to Northrays Docs!
 
 ### Understanding Starlight
 
@@ -213,7 +213,7 @@ To add a language, you will need its BCP-47 tag and a label. See [“Adding a ne
 
   You can find a list of supported browsers and their versions using this [browserslist query](https://browsersl.ist/#q=%3E+0.5%25%2C+not+dead%2C+Chrome+%3E%3D+88%2C+Edge+%3E%3D+88%2C+Firefox+%3E%3D+98%2C+Safari+%3E%3D+15.4%2C+iOS+%3E%3D+15.4%2C+not+op_mini+all). To check whether or not a feature is supported, you can visit the [Can I use](https://caniuse.com) website and search for the feature.
 
-[slack]: https://go.daytona.io/slack
-[issues]: https://github.com/daytonaio/docs/issues
-[sl]: https://github.com/daytonaio/docs/pulls
+[slack]: https://go.northrays.com/slack
+[issues]: https://github.com/northrays/docs/issues
+[sl]: https://github.com/northrays/docs/pulls
 [api-docs]: https://docs.astro.build/en/reference/integrations-reference/

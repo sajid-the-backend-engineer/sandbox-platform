@@ -1,19 +1,19 @@
 # frozen_string_literal: true
 
-require 'daytona'
+require 'northrays'
 
-daytona = Daytona::Daytona.new
+northrays = Northrays::Northrays.new
 
 # Create a new volume or get an existing one
-volume = daytona.volume.get('my-volume', create: true)
+volume = northrays.volume.get('my-volume', create: true)
 
 # Mount the volume to the sandbox
-mount_dir = '/home/daytona/volume'
+mount_dir = '/home/northrays/volume'
 
-sandbox = daytona.create(
-  Daytona::CreateSandboxFromSnapshotParams.new(
-    language: Daytona::CodeLanguage::PYTHON,
-    volumes: [DaytonaApiClient::SandboxVolume.new(volume_id: volume.id, mount_path: mount_dir)]
+sandbox = northrays.create(
+  Northrays::CreateSandboxFromSnapshotParams.new(
+    language: Northrays::CodeLanguage::PYTHON,
+    volumes: [NorthraysApiClient::SandboxVolume.new(volume_id: volume.id, mount_path: mount_dir)]
   )
 )
 
@@ -31,11 +31,11 @@ puts "Files: #{files}"
 
 # Create a new sandbox with the same volume
 # and mount it to the different path
-other_dir = '/home/daytona/my-files'
-other_sandbox = daytona.create(
-  Daytona::CreateSandboxFromSnapshotParams.new(
-    language: Daytona::CodeLanguage::PYTHON,
-    volumes: [DaytonaApiClient::SandboxVolume.new(volume_id: volume.id, mount_path: other_dir)]
+other_dir = '/home/northrays/my-files'
+other_sandbox = northrays.create(
+  Northrays::CreateSandboxFromSnapshotParams.new(
+    language: Northrays::CodeLanguage::PYTHON,
+    volumes: [NorthraysApiClient::SandboxVolume.new(volume_id: volume.id, mount_path: other_dir)]
   )
 )
 
@@ -48,6 +48,6 @@ file = other_sandbox.fs.download_file(File.expand_path('new-file.txt', other_dir
 puts "File: #{file}"
 
 # Cleanup
-daytona.delete(sandbox)
-daytona.delete(other_sandbox)
-daytona.volume.delete(volume)
+northrays.delete(sandbox)
+northrays.delete(other_sandbox)
+northrays.volume.delete(volume)

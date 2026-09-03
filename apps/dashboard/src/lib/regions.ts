@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: AGPL-3.0
  */
 
-import { Region, RegionType } from '@daytona/api-client'
+import { Region, RegionType } from '@northrays/api-client'
 
 export const EMPTY_REGIONS: Region[] = []
 

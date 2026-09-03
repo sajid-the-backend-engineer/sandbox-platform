@@ -1,11 +1,11 @@
 import asyncio
 
-from daytona import AsyncDaytona, CreateSandboxFromImageParams, Image, LspCompletionPosition
+from northrays import AsyncNorthrays, CreateSandboxFromImageParams, Image, LspCompletionPosition
 
 
 async def main():
-    async with AsyncDaytona() as daytona:
-        sandbox = await daytona.create(
+    async with AsyncNorthrays() as northrays:
+        sandbox = await northrays.create(
             CreateSandboxFromImageParams(
                 image=(
                     Image.base("ubuntu:25.10").run_commands(
@@ -62,7 +62,7 @@ async def main():
             print("Error executing example:", error)
         finally:
             # Cleanup
-            await daytona.delete(sandbox)
+            await northrays.delete(sandbox)
 
 
 if __name__ == "__main__":

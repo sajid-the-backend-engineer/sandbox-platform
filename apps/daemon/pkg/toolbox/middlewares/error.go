@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/daytonaio/daemon/pkg/common"
+	"github.com/northrays/daemon/pkg/common"
 	"github.com/gin-gonic/gin"
 )
 

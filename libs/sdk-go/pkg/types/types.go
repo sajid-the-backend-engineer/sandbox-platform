@@ -6,8 +6,8 @@ package types
 import (
 	"time"
 
-	apiclient "github.com/daytonaio/daytona/libs/api-client-go"
-	toolbox "github.com/daytonaio/daytona/libs/toolbox-api-client-go"
+	apiclient "github.com/northrays/sandbox-platform/libs/api-client-go"
+	toolbox "github.com/northrays/sandbox-platform/libs/toolbox-api-client-go"
 )
 
 const CodeToolboxLanguageLabel = "code-toolbox-language"
@@ -42,15 +42,15 @@ const (
 	SandboxClassAndroid   SandboxClass = apiclient.SANDBOXCLASS_ANDROID
 )
 
-// ExperimentalConfig holds experimental feature flags for the Daytona client.
+// ExperimentalConfig holds experimental feature flags for the Northrays client.
 type ExperimentalConfig struct {
-	// Deprecated: use DaytonaConfig.OtelEnabled. Kept for backwards compatibility.
+	// Deprecated: use NorthraysConfig.OtelEnabled. Kept for backwards compatibility.
 	OtelEnabled bool
 }
 
-// DaytonaConfig represents the configuration for the Daytona client.
+// NorthraysConfig represents the configuration for the Northrays client.
 // When a field is nil, the client will fall back to environment variables or defaults.
-type DaytonaConfig struct {
+type NorthraysConfig struct {
 	APIKey         string
 	JWTToken       string
 	OrganizationID string
@@ -131,7 +131,7 @@ type PaginatedSnapshots struct {
 	TotalPages int
 }
 
-// Volume represents a Daytona volume
+// Volume represents a Northrays volume
 type Volume struct {
 	ID             string    `json:"id"`
 	Name           string    `json:"name"`
@@ -143,7 +143,7 @@ type Volume struct {
 	LastUsedAt     time.Time `json:"lastUsedAt,omitempty"`
 }
 
-// Snapshot represents a Daytona snapshot
+// Snapshot represents a Northrays snapshot
 type Snapshot struct {
 	ID             string     `json:"id"`
 	OrganizationID string     `json:"organizationId,omitempty"`

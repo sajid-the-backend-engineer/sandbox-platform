@@ -1,10 +1,10 @@
-from daytona import CreateSandboxFromImageParams, Daytona, Image, LspCompletionPosition
+from northrays import CreateSandboxFromImageParams, Northrays, Image, LspCompletionPosition
 
 
 def main():
-    daytona = Daytona()
+    northrays = Northrays()
 
-    sandbox = daytona.create(
+    sandbox = northrays.create(
         CreateSandboxFromImageParams(
             image=(
                 Image.base("ubuntu:25.10").run_commands(
@@ -61,7 +61,7 @@ def main():
         print("Error executing example:", error)
     finally:
         # Cleanup
-        daytona.delete(sandbox)
+        northrays.delete(sandbox)
 
 
 if __name__ == "__main__":

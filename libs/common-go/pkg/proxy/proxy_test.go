@@ -9,7 +9,7 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/daytonaio/common-go/pkg/proxy"
+	"github.com/northrays/common-go/pkg/proxy"
 	"github.com/gin-gonic/gin"
 )
 
@@ -91,7 +91,7 @@ func TestRawParam_PreservesPercentEncoding(t *testing.T) {
 // verifies the proxy Director propagates RawPath so that the backend receives
 // the original percent-encoding, not a re-encoded mutation.
 //
-// Regression for: https://github.com/daytonaio/daytona/issues/4448
+// Regression for: https://github.com/northrays/sandbox-platform/issues/4448
 // Mutation observed before fix:
 //
 //	(local)    → %28local%29   (parentheses incorrectly encoded)

@@ -6,9 +6,9 @@ package volume
 import (
 	"context"
 
-	apiclient_cli "github.com/daytonaio/daytona/cli/apiclient"
-	"github.com/daytonaio/daytona/cli/cmd/common"
-	"github.com/daytonaio/daytona/cli/views/volume"
+	apiclient_cli "github.com/northrays/sandbox-platform/cli/apiclient"
+	"github.com/northrays/sandbox-platform/cli/cmd/common"
+	"github.com/northrays/sandbox-platform/cli/views/volume"
 	"github.com/spf13/cobra"
 )
 

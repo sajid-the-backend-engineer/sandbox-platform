@@ -4,20 +4,20 @@
 package mcp
 
 import (
-	"github.com/daytonaio/daytona/cli/mcp/tools"
+	"github.com/northrays/sandbox-platform/cli/mcp/tools"
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
 )
 
-type DaytonaMCPServer struct {
+type NorthraysMCPServer struct {
 	server.MCPServer
 }
 
-func NewDaytonaMCPServer() *DaytonaMCPServer {
-	s := &DaytonaMCPServer{}
+func NewNorthraysMCPServer() *NorthraysMCPServer {
+	s := &NorthraysMCPServer{}
 
 	s.MCPServer = *server.NewMCPServer(
-		"Daytona MCP Server",
+		"Northrays MCP Server",
 		"0.0.0-dev",
 		server.WithRecovery(),
 		server.WithPromptCapabilities(false),
@@ -31,11 +31,11 @@ func NewDaytonaMCPServer() *DaytonaMCPServer {
 	return s
 }
 
-func (s *DaytonaMCPServer) Start() error {
+func (s *NorthraysMCPServer) Start() error {
 	return server.ServeStdio(&s.MCPServer)
 }
 
-func (s *DaytonaMCPServer) addTools() {
+func (s *NorthraysMCPServer) addTools() {
 	s.AddTool(tools.GetCreateSandboxTool(), mcp.NewTypedToolHandler(tools.CreateSandbox))
 	s.AddTool(tools.GetDestroySandboxTool(), mcp.NewTypedToolHandler(tools.DestroySandbox))
 

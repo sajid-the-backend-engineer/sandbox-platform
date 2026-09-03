@@ -6,7 +6,7 @@
 module.exports = {
   apps: [
     {
-      name: 'daytona',
+      name: 'northrays',
       script: './dist/apps/api/main.js',
       instances: 4,
       exec_mode: 'cluster',

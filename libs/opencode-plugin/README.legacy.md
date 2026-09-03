@@ -1,6 +1,6 @@
-# @daytonaio/opencode is now @daytona/opencode
+# @northrays/opencode is now @northrays/opencode
 
-> **This package has been renamed.** Please use [`@daytona/opencode`](https://www.npmjs.com/package/@daytona/opencode) instead.
+> **This package has been renamed.** Please use [`@northrays/opencode`](https://www.npmjs.com/package/@northrays/opencode) instead.
 
 ## Migration
 
@@ -9,15 +9,15 @@ Update your OpenCode configuration:
 ```diff
 {
   "$schema": "https://opencode.ai/config.json",
-- "plugin": ["@daytonaio/opencode"]
-+ "plugin": ["@daytona/opencode"]
+- "plugin": ["@northrays/opencode"]
++ "plugin": ["@northrays/opencode"]
 }
 ```
 
 The plugin is identical — only the package name has changed.
 
-## About @daytona/opencode
+## About @northrays/opencode
 
-An OpenCode plugin that automatically runs all sessions in Daytona sandboxes for isolated, reproducible development environments.
+An OpenCode plugin that automatically runs all sessions in Northrays sandboxes for isolated, reproducible development environments.
 
-For documentation and setup instructions, see the [@daytona/opencode README](https://www.npmjs.com/package/@daytona/opencode).
+For documentation and setup instructions, see the [@northrays/opencode README](https://www.npmjs.com/package/@northrays/opencode).

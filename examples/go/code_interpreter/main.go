@@ -8,15 +8,15 @@ import (
 	"log"
 	"time"
 
-	"github.com/daytonaio/daytona/libs/sdk-go/pkg/daytona"
-	"github.com/daytonaio/daytona/libs/sdk-go/pkg/options"
-	"github.com/daytonaio/daytona/libs/sdk-go/pkg/types"
+	"github.com/northrays/sandbox-platform/libs/sdk-go/pkg/northrays"
+	"github.com/northrays/sandbox-platform/libs/sdk-go/pkg/options"
+	"github.com/northrays/sandbox-platform/libs/sdk-go/pkg/types"
 )
 
 func main() {
-	// Create a new Daytona client using environment variables
-	// Set DAYTONA_API_KEY before running
-	client, err := daytona.NewClient()
+	// Create a new Northrays client using environment variables
+	// Set NORTHRAYS_API_KEY before running
+	client, err := northrays.NewClient()
 	if err != nil {
 		log.Fatalf("Failed to create client: %v", err)
 	}
@@ -45,7 +45,7 @@ func main() {
 	log.Println("=== Example 1: Simple Python execution ===")
 	channels, err := interpreter.RunCode(
 		ctx,
-		"print('Hello from Daytona!')\nprint('Python version:', __import__('sys').version)",
+		"print('Hello from Northrays!')\nprint('Python version:', __import__('sys').version)",
 	)
 	if err != nil {
 		log.Fatalf("Failed to run code: %v", err)

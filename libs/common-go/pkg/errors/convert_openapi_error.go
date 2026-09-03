@@ -7,7 +7,7 @@ import (
 	"encoding/json"
 	"errors"
 
-	apiclient "github.com/daytonaio/daytona/libs/api-client-go"
+	apiclient "github.com/northrays/sandbox-platform/libs/api-client-go"
 )
 
 func ConvertOpenAPIError(err error) error {
@@ -22,12 +22,12 @@ func ConvertOpenAPIError(err error) error {
 
 	bodyString := string(openapiErr.Body())
 
-	daytonaErr := &ErrorResponse{}
-	if parseErr := json.Unmarshal([]byte(bodyString), daytonaErr); parseErr != nil {
+	northraysErr := &ErrorResponse{}
+	if parseErr := json.Unmarshal([]byte(bodyString), northraysErr); parseErr != nil {
 		return err
 	}
 
-	return NewCustomError(daytonaErr.StatusCode, daytonaErr.Message, daytonaErr.Code)
+	return NewCustomError(northraysErr.StatusCode, northraysErr.Message, northraysErr.Code)
 }
 
 func IsRetryableOpenAPIError(err error) bool {

@@ -8,7 +8,7 @@ from pathlib import Path
 # pylint: disable=import-error
 from openai import OpenAI
 
-from daytona import CreateSandboxFromSnapshotParams, Daytona
+from northrays import CreateSandboxFromSnapshotParams, Northrays
 
 CODING_MODEL = "gpt-5.1"
 SUMMARY_MODEL = "gpt-4o"
@@ -20,14 +20,14 @@ def extract_python(text: str) -> str:
     return match.group(1).strip() if match else ""
 
 
-# Make sure you have the DAYTONA_API_KEY and OPENAI_API_KEY environment variables set
+# Make sure you have the NORTHRAYS_API_KEY and OPENAI_API_KEY environment variables set
 def main() -> None:
-    daytona = Daytona()
+    northrays = Northrays()
     sandbox = None
 
     try:
         # Create a Python sandbox
-        sandbox = daytona.create(CreateSandboxFromSnapshotParams(language="python"))
+        sandbox = northrays.create(CreateSandboxFromSnapshotParams(language="python"))
 
         csv_path = "cafe_sales_data.csv"
         sandbox_csv_path = csv_path
@@ -101,7 +101,7 @@ def main() -> None:
 
     finally:
         if sandbox is not None:
-            daytona.delete(sandbox)
+            northrays.delete(sandbox)
 
 
 if __name__ == "__main__":

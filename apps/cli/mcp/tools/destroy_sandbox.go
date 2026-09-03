@@ -8,7 +8,7 @@ import (
 	"fmt"
 	"time"
 
-	"github.com/daytonaio/daytona/cli/apiclient"
+	"github.com/northrays/sandbox-platform/cli/apiclient"
 	"github.com/mark3labs/mcp-go/mcp"
 
 	log "github.com/sirupsen/logrus"
@@ -20,13 +20,13 @@ type DestroySandboxArgs struct {
 
 func GetDestroySandboxTool() mcp.Tool {
 	return mcp.NewTool("destroy_sandbox",
-		mcp.WithDescription("Destroy a sandbox with Daytona"),
+		mcp.WithDescription("Destroy a sandbox with Northrays"),
 		mcp.WithString("id", mcp.Required(), mcp.Description("ID of the sandbox to destroy.")),
 	)
 }
 
 func DestroySandbox(ctx context.Context, request mcp.CallToolRequest, args DestroySandboxArgs) (*mcp.CallToolResult, error) {
-	apiClient, err := apiclient.GetApiClient(nil, daytonaMCPHeaders)
+	apiClient, err := apiclient.GetApiClient(nil, northraysMCPHeaders)
 	if err != nil {
 		return &mcp.CallToolResult{IsError: true}, err
 	}

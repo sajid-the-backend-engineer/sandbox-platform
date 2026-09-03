@@ -7,16 +7,16 @@ import (
 	"os"
 	"os/signal"
 
-	"github.com/daytonaio/daytona/cli/mcp"
+	"github.com/northrays/sandbox-platform/cli/mcp"
 	"github.com/spf13/cobra"
 )
 
 var StartCmd = &cobra.Command{
 	Use:   "start",
-	Short: "Start Daytona MCP Server",
+	Short: "Start Northrays MCP Server",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
-		server := mcp.NewDaytonaMCPServer()
+		server := mcp.NewNorthraysMCPServer()
 
 		interruptChan := make(chan os.Signal, 1)
 		signal.Notify(interruptChan, os.Interrupt)

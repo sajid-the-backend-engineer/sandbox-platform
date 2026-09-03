@@ -13,7 +13,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/daytonaio/daytona/cli/config"
+	"github.com/northrays/sandbox-platform/cli/config"
 	log "github.com/sirupsen/logrus"
 )
 
@@ -51,7 +51,7 @@ func ReadBuildLogs(ctx context.Context, params ReadLogParams) {
 		req.Header.Add("Authorization", fmt.Sprintf("Bearer %s", params.ServerApi.Token.AccessToken))
 
 		if params.ActiveOrganizationId != nil {
-			req.Header.Add("X-Daytona-Organization-ID", *params.ActiveOrganizationId)
+			req.Header.Add("X-Northrays-Organization-ID", *params.ActiveOrganizationId)
 		}
 	}
 

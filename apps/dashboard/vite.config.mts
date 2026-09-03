@@ -32,7 +32,7 @@ export default defineConfig((mode) => ({
   },
   plugins: [
     react(),
-    // Required for @daytona/sdk
+    // Required for @northrays/sdk
     nodePolyfills({
       globals: { global: true, process: true, Buffer: true },
       overrides: {
@@ -72,14 +72,14 @@ export default defineConfig((mode) => ({
   ],
   resolve: {
     alias: [
-      // Resolve @daytona/sdk to the built ESM entry so browsers never receive raw SDK TypeScript decorators.
+      // Resolve @northrays/sdk to the built ESM entry so browsers never receive raw SDK TypeScript decorators.
       {
-        find: '@daytona/sdk',
+        find: '@northrays/sdk',
         replacement: path.resolve(__dirname, '../../dist/libs/sdk-typescript'),
       },
-      // Target @ but not @daytona,
+      // Target @ but not @northrays,
       {
-        // find: /^@(?!daytona)/,
+        // find: /^@(?!northrays)/,
         find: '@',
         replacement: path.resolve(__dirname, './src'), // Make sure this points to dashboard's src
       },

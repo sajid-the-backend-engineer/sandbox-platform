@@ -4,7 +4,7 @@
  */
 
 import { DEFAULT_TABLE_COLUMN } from '@/lib/utils/table'
-import { Invoice } from '@daytona/billing-api-client'
+import { Invoice } from '@northrays/billing-api-client'
 import {
   ColumnFiltersState,
   getCoreRowModel,

@@ -15,16 +15,16 @@ import (
 
 	golog "log"
 
-	"github.com/daytonaio/common-go/pkg/log"
-	"github.com/daytonaio/daemon/cmd/daemon/config"
-	"github.com/daytonaio/daemon/internal/util"
-	"github.com/daytonaio/daemon/pkg/childreap"
-	"github.com/daytonaio/daemon/pkg/recording"
-	"github.com/daytonaio/daemon/pkg/recordingdashboard"
-	"github.com/daytonaio/daemon/pkg/session"
-	"github.com/daytonaio/daemon/pkg/ssh"
-	"github.com/daytonaio/daemon/pkg/terminal"
-	"github.com/daytonaio/daemon/pkg/toolbox"
+	"github.com/northrays/common-go/pkg/log"
+	"github.com/northrays/daemon/cmd/daemon/config"
+	"github.com/northrays/daemon/internal/util"
+	"github.com/northrays/daemon/pkg/childreap"
+	"github.com/northrays/daemon/pkg/recording"
+	"github.com/northrays/daemon/pkg/recordingdashboard"
+	"github.com/northrays/daemon/pkg/session"
+	"github.com/northrays/daemon/pkg/ssh"
+	"github.com/northrays/daemon/pkg/terminal"
+	"github.com/northrays/daemon/pkg/toolbox"
 	"github.com/lmittmann/tint"
 	"github.com/mattn/go-isatty"
 	"gopkg.in/natefinch/lumberjack.v2"
@@ -56,7 +56,7 @@ func run() int {
 		return 2
 	}
 
-	configDir := filepath.Join(homeDir, ".daytona")
+	configDir := filepath.Join(homeDir, ".northrays")
 	err = os.MkdirAll(configDir, 0755)
 	if err != nil {
 		logger.Error("Failed to create config directory", "path", configDir, "error", err)

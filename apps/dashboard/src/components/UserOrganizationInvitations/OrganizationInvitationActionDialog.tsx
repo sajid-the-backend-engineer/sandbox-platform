@@ -13,7 +13,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { OrganizationInvitation } from '@daytona/api-client'
+import { OrganizationInvitation } from '@northrays/api-client'
 
 interface OrganizationInvitationActionDialogProps {
   invitation: OrganizationInvitation

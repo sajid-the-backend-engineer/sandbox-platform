@@ -1,7 +1,7 @@
 {
-  "name": "@daytona/sdk",
+  "name": "@northrays/sdk",
   "version": "0.0.0-dev",
-  "description": "Daytona TypeScript SDK for sandbox management and code execution",
+  "description": "Northrays TypeScript SDK for sandbox management and code execution",
   "exports": {
     ".": {
       "import": {
@@ -48,14 +48,14 @@
   ],
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/daytonaio/daytona.git"
+    "url": "git+https://github.com/northrays/sandbox-platform.git"
   },
-  "author": "Daytona Platforms Inc.",
+  "author": "Northrays",
   "license": "Apache-2.0",
   "bugs": {
-    "url": "https://github.com/daytonaio/daytona/issues"
+    "url": "https://github.com/northrays/sandbox-platform/issues"
   },
-  "homepage": "https://www.daytona.io/docs",
+  "homepage": "https://www.northrays.com/docs",
   "config": {
     "docsDir": "../../apps/docs/src/content/docs/en/typescript-sdk"
   },
@@ -63,7 +63,7 @@
     "docs": "bash -O extglob -c 'rm -rf $npm_package_config_docsDir/!(index.mdx)' && typedoc && rm -f $npm_package_config_docsDir/readme.mdx"
   },
   "keywords": [
-    "daytona",
+    "northrays",
     "sandbox",
     "typescript",
     "sdk"

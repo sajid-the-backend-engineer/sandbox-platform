@@ -10,9 +10,9 @@ import (
 	"strings"
 	"time"
 
-	"github.com/daytonaio/daytona/libs/sdk-go/pkg/daytona"
-	"github.com/daytonaio/daytona/libs/sdk-go/pkg/options"
-	"github.com/daytonaio/daytona/libs/sdk-go/pkg/types"
+	"github.com/northrays/sandbox-platform/libs/sdk-go/pkg/northrays"
+	"github.com/northrays/sandbox-platform/libs/sdk-go/pkg/options"
+	"github.com/northrays/sandbox-platform/libs/sdk-go/pkg/types"
 )
 
 const code = `
@@ -51,14 +51,14 @@ plt.show()
 func main() {
 	ctx := context.Background()
 
-	client, err := daytona.NewClient()
+	client, err := northrays.NewClient()
 	if err != nil {
 		log.Fatalf("Failed to create client: %v", err)
 	}
 
 	pyVersion := "3.13"
 	sandbox, err := client.Create(ctx, types.ImageParams{
-		Image: daytona.DebianSlim(&pyVersion).PipInstall([]string{"matplotlib", "numpy"}),
+		Image: northrays.DebianSlim(&pyVersion).PipInstall([]string{"matplotlib", "numpy"}),
 		SandboxBaseParams: types.SandboxBaseParams{
 			Language: types.CodeLanguagePython,
 		},

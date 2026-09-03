@@ -30,7 +30,7 @@ const mainApiPath = join(workspaceRoot, 'apps/docs/public/openapi.json')
 const mainApiSpecRaw = JSON.parse(fs.readFileSync(mainApiPath, 'utf-8'))
 const mainApiSpec = {
   ...mainApiSpecRaw,
-  servers: [{ url: 'https://app.daytona.io/api' }],
+  servers: [{ url: 'https://app.northrays.com/api' }],
 }
 
 const toolboxApiPath = join(
@@ -40,10 +40,10 @@ const toolboxApiPath = join(
 const toolboxApiSpecRaw = JSON.parse(fs.readFileSync(toolboxApiPath, 'utf-8'))
 const toolboxApiSpec = {
   ...toolboxApiSpecRaw,
-  servers: [{ url: 'https://proxy.app.daytona.io/toolbox/{sandboxId}' }],
+  servers: [{ url: 'https://proxy.app.northrays.com/toolbox/{sandboxId}' }],
   info: {
     ...toolboxApiSpecRaw.info,
-    description: `${toolboxApiSpecRaw.info.description || 'Daytona Toolbox API'}
+    description: `${toolboxApiSpecRaw.info.description || 'Northrays Toolbox API'}
     `,
   },
 }
@@ -60,17 +60,17 @@ const toolboxApiSpec = {
     configuration={{
       sources: [
         {
-          title: 'Daytona API',
-          slug: 'daytona',
+          title: 'Northrays API',
+          slug: 'northrays',
           content: mainApiSpec,
           default: true,
-          url: 'https://app.daytona.io/api',
+          url: 'https://app.northrays.com/api',
         },
         {
-          title: 'Daytona Toolbox API',
-          slug: 'daytona-toolbox',
+          title: 'Northrays Toolbox API',
+          slug: 'northrays-toolbox',
           content: toolboxApiSpec,
-          url: 'https://proxy.daytona.io/api',
+          url: 'https://proxy.northrays.com/api',
         },
       ],
       hideClientButton: true,
@@ -93,17 +93,17 @@ const toolboxApiSpec = {
         }
       `,
       metaData: {
-        title: 'Daytona API Reference',
-        ogTitle: 'Daytona API Reference',
+        title: 'Northrays API Reference',
+        ogTitle: 'Northrays API Reference',
         description:
-          'A reference of supported operations using the Daytona API.',
+          'A reference of supported operations using the Northrays API.',
         ogDescription:
-          'A reference of supported operations using the Daytona API.',
-        image: 'https://daytona.io/docs/daytona.png',
-        ogImage: 'https://daytona.io/docs/daytona.png',
+          'A reference of supported operations using the Northrays API.',
+        image: 'https://northrays.com/docs/northrays.png',
+        ogImage: 'https://northrays.com/docs/northrays.png',
         ogImageWidth: 1248,
         ogImageHeight: 628,
-        ogImageAlt: 'Daytona API Reference',
+        ogImageAlt: 'Northrays API Reference',
         twitterCard: 'summary_large_image',
       },
     }}
@@ -366,7 +366,7 @@ const toolboxApiSpec = {
 
   function resyncScalarHashNavigation(): void {
     const targetHash = window.location.hash
-    if (!targetHash || !/^#(daytona|daytona-toolbox)(\/|$)/.test(targetHash)) {
+    if (!targetHash || !/^#(northrays|northrays-toolbox)(\/|$)/.test(targetHash)) {
       return
     }
 

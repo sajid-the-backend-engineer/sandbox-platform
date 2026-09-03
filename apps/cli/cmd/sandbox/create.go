@@ -10,12 +10,12 @@ import (
 	"time"
 
 	"github.com/charmbracelet/lipgloss"
-	apiclient_cli "github.com/daytonaio/daytona/cli/apiclient"
-	"github.com/daytonaio/daytona/cli/cmd/common"
-	"github.com/daytonaio/daytona/cli/config"
-	"github.com/daytonaio/daytona/cli/util"
-	views_common "github.com/daytonaio/daytona/cli/views/common"
-	apiclient "github.com/daytonaio/daytona/libs/api-client-go"
+	apiclient_cli "github.com/northrays/sandbox-platform/cli/apiclient"
+	"github.com/northrays/sandbox-platform/cli/cmd/common"
+	"github.com/northrays/sandbox-platform/cli/config"
+	"github.com/northrays/sandbox-platform/cli/util"
+	views_common "github.com/northrays/sandbox-platform/cli/views/common"
+	apiclient "github.com/northrays/sandbox-platform/libs/api-client-go"
 	"github.com/spf13/cobra"
 )
 
@@ -183,7 +183,7 @@ var CreateCmd = &cobra.Command{
 		boldStyle := lipgloss.NewStyle().Bold(true)
 
 		views_common.RenderInfoMessageBold(fmt.Sprintf("Sandbox '%s' created successfully", sandbox.Name))
-		views_common.RenderInfoMessage(fmt.Sprintf("Connect via SSH:         %s", boldStyle.Render(fmt.Sprintf("daytona ssh %s", sandbox.Name))))
+		views_common.RenderInfoMessage(fmt.Sprintf("Connect via SSH:         %s", boldStyle.Render(fmt.Sprintf("northrays ssh %s", sandbox.Name))))
 		views_common.RenderInfoMessage(fmt.Sprintf("Open the Web Terminal:   %s\n", views_common.LinkStyle.Render(previewUrl.Url)))
 		return nil
 	},

@@ -15,8 +15,8 @@ fi
 
 poetry build
 
-mv src/daytona src/daytona_sdk
-sed -i 's/^name = "[^"]*"/name = "daytona_sdk"/' pyproject.toml
+mv src/northrays src/northrays_sdk
+sed -i 's/^name = "[^"]*"/name = "northrays_sdk"/' pyproject.toml
 poetry build
-mv src/daytona_sdk src/daytona
-sed -i 's/^name = "[^"]*"/name = "daytona"/' pyproject.toml
+mv src/northrays_sdk src/northrays
+sed -i 's/^name = "[^"]*"/name = "northrays"/' pyproject.toml

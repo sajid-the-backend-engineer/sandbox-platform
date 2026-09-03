@@ -1,58 +1,58 @@
 ---
-title: Run Claude Code in a Daytona Sandbox via CLI
-description: Learn how to run Claude Code inside a Daytona sandbox using the Daytona CLI for secure and isolated task execution.
+title: Run Claude Code in a Northrays Sandbox via CLI
+description: Learn how to run Claude Code inside a Northrays sandbox using the Northrays CLI for secure and isolated task execution.
 ---
 
 import { TabItem, Tabs } from '@astrojs/starlight/components'
 
-This guide walks you through running Claude Code inside a Daytona sandbox using the Daytona CLI.
+This guide walks you through running Claude Code inside a Northrays sandbox using the Northrays CLI.
 
 ### Prerequisites
 
-- Daytona account and API key (Get it from [Daytona Dashboard](https://app.daytona.io/dashboard/keys))
+- Northrays account and API key (Get it from [Northrays Dashboard](https://app.northrays.com/dashboard/keys))
 - Local terminal (macOS, Linux, or Windows)
 
-### Install the Daytona CLI
+### Install the Northrays CLI
 
 <Tabs syncKey="os">
   <TabItem label="Mac/Linux">
     ```bash 
-    brew install daytonaio/cli/daytona
+    brew install northrays/cli/northrays
     ```
   </TabItem>
   <TabItem label="Windows">
     ```bash
-    powershell -Command "irm https://get.daytona.io/windows | iex" 
+    powershell -Command "irm https://get.northrays.com/windows | iex" 
     ```
   </TabItem>
 </Tabs>
 
 :::note
-Already have the CLI? Check your version with `daytona --version`. If it's below **0.135.0**, [upgrade to the latest version](https://www.daytona.io/docs/en/getting-started/#cli).
+Already have the CLI? Check your version with `northrays --version`. If it's below **0.135.0**, [upgrade to the latest version](https://www.northrays.com/docs/en/getting-started/#cli).
 :::
 
-### Authenticate with Daytona
+### Authenticate with Northrays
 
-Log in to your Daytona account using your API key:
+Log in to your Northrays account using your API key:
 
 ```bash
-daytona login --api-key=YOUR_API_KEY
+northrays login --api-key=YOUR_API_KEY
 ```
 
-Replace `YOUR_API_KEY` with your actual Daytona API key.
+Replace `YOUR_API_KEY` with your actual Northrays API key.
 
 ### Create a Sandbox
 
 Create a new sandbox for running Claude Code:
 
 ```bash
-daytona sandbox create --name claude-sandbox
+northrays sandbox create --name claude-sandbox
 ```
 
-This creates a sandbox named `claude-sandbox`, visible in your [Dashboard](https://app.daytona.io/dashboard/sandboxes). The default Daytona snapshot includes Claude Code, so the command above is all you need.
+This creates a sandbox named `claude-sandbox`, visible in your [Dashboard](https://app.northrays.com/dashboard/sandboxes). The default Northrays snapshot includes Claude Code, so the command above is all you need.
 
 :::tip
-Need more power? Pass `--snapshot daytona-large` or `--snapshot daytona-medium` flag to increase your sandbox resources. See [default snapshots](https://www.daytona.io/docs/en/snapshots/#default-snapshots) for resource details.
+Need more power? Pass `--snapshot northrays-large` or `--snapshot northrays-medium` flag to increase your sandbox resources. See [default snapshots](https://www.northrays.com/docs/en/snapshots/#default-snapshots) for resource details.
 :::
 
 ### Connect to the Sandbox
@@ -60,7 +60,7 @@ Need more power? Pass `--snapshot daytona-large` or `--snapshot daytona-medium` 
 SSH into your sandbox:
 
 ```bash
-daytona ssh claude-sandbox
+northrays ssh claude-sandbox
 ```
 
 You now have an interactive terminal session inside the sandbox.

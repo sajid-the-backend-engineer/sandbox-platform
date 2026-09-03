@@ -4,7 +4,7 @@
  */
 
 import { cn } from '@/lib/utils'
-import { SandboxClass, SandboxState } from '@daytona/api-client'
+import { SandboxClass, SandboxState } from '@northrays/api-client'
 import { Loader2, MoreHorizontal, Play, Square, Terminal, Wrench } from 'lucide-react'
 import { useMemo } from 'react'
 import TooltipButton from '../TooltipButton'

@@ -7,7 +7,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/daytonaio/daytona/cli/apiclient"
+	"github.com/northrays/sandbox-platform/cli/apiclient"
 	"github.com/mark3labs/mcp-go/mcp"
 
 	log "github.com/sirupsen/logrus"
@@ -21,7 +21,7 @@ type CreateFolderArgs struct {
 
 func GetCreateFolderTool() mcp.Tool {
 	return mcp.NewTool("create_folder",
-		mcp.WithDescription("Create a new folder in the Daytona sandbox."),
+		mcp.WithDescription("Create a new folder in the Northrays sandbox."),
 		mcp.WithString("folderPath", mcp.Required(), mcp.Description("Path to the folder to create.")),
 		mcp.WithString("mode", mcp.Description("Mode of the folder to create (defaults to 0755).")),
 		mcp.WithString("id", mcp.Required(), mcp.Description("ID of the sandbox to create the folder in.")),
@@ -29,7 +29,7 @@ func GetCreateFolderTool() mcp.Tool {
 }
 
 func CreateFolder(ctx context.Context, request mcp.CallToolRequest, args CreateFolderArgs) (*mcp.CallToolResult, error) {
-	apiClient, err := apiclient.GetApiClient(nil, daytonaMCPHeaders)
+	apiClient, err := apiclient.GetApiClient(nil, northraysMCPHeaders)
 	if err != nil {
 		return &mcp.CallToolResult{IsError: true}, err
 	}

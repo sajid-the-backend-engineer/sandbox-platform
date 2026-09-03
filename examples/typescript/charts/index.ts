@@ -4,20 +4,20 @@ import {
   Chart,
   ChartType,
   CompositeChart,
-  Daytona,
+  Northrays,
   LineChart,
   PieChart,
   ScatterChart,
   Image,
-} from '@daytona/sdk'
+} from '@northrays/sdk'
 import * as fs from 'fs'
 import * as path from 'path'
 
 async function main() {
-  const daytona = new Daytona()
+  const northrays = new Northrays()
 
   //  first, create a sandbox
-  const sandbox = await daytona.create(
+  const sandbox = await northrays.create(
     {
       image: Image.debianSlim('3.13').pipInstall('matplotlib'),
     },
@@ -41,7 +41,7 @@ async function main() {
     console.error('Execution error:', error)
   } finally {
     //  cleanup
-    await daytona.delete(sandbox)
+    await northrays.delete(sandbox)
   }
 }
 

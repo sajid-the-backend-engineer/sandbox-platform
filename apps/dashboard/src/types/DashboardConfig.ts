@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: AGPL-3.0
  */
 
-import { DaytonaConfiguration } from '@daytona/api-client'
+import { NorthraysConfiguration } from '@northrays/api-client'
 
-export type DashboardConfig = DaytonaConfiguration & {
+export type DashboardConfig = NorthraysConfiguration & {
   apiUrl: string
 }

@@ -6,7 +6,7 @@
 import TooltipButton from '@/components/TooltipButton'
 import { Button } from '@/components/ui/button'
 import { Spinner } from '@/components/ui/spinner'
-import { DAYTONA_DOCS_URL } from '@/constants/ExternalLinks'
+import { NORTHRAYS_DOCS_URL } from '@/constants/ExternalLinks'
 import { usePlayground } from '@/hooks/usePlayground'
 import { usePlaygroundSandbox } from '@/hooks/usePlaygroundSandbox'
 import { AnimatePresence, motion } from 'framer-motion'
@@ -35,7 +35,7 @@ const VNCErrorContent: React.FC<{ message: string }> = ({ message }) => {
         <div className="mt-3">Computer-use dependencies are missing in the runtime environment.</div>
         <div className="mt-2">
           <a
-            href={`${DAYTONA_DOCS_URL}/en/vnc-access/`}
+            href={`${NORTHRAYS_DOCS_URL}/en/vnc-access/`}
             target="_blank"
             rel="noopener noreferrer"
             className="text-primary hover:underline"

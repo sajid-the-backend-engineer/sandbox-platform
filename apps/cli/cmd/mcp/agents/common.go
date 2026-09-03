@@ -3,4 +3,4 @@
 
 package agents
 
-var mcpLogFileName string = "daytona-mcp-server.log"
+var mcpLogFileName string = "northrays-mcp-server.log"

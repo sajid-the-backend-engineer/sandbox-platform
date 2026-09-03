@@ -23,7 +23,7 @@ import { DeclineOrganizationInvitationDialog } from '@/components/UserOrganizati
 import { DEFAULT_PAGE_SIZE } from '@/constants/Pagination'
 import { cn, getRelativeTimeString } from '@/lib/utils'
 import { DEFAULT_TABLE_COLUMN, getColumnSizeStyles, getTableSizeStyles } from '@/lib/utils/table'
-import { OrganizationInvitation } from '@daytona/api-client'
+import { OrganizationInvitation } from '@northrays/api-client'
 import {
   ColumnDef,
   flexRender,

@@ -3,15 +3,15 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-export { CodeLanguage, Daytona } from './Daytona'
+export { CodeLanguage, Northrays } from './Northrays'
 export type {
   CreateSandboxBaseParams,
   CreateSandboxFromImageParams,
   CreateSandboxFromSnapshotParams,
-  DaytonaConfig,
+  NorthraysConfig,
   Resources,
   VolumeMount,
-} from './Daytona'
+} from './Northrays'
 export { FileSystem } from './FileSystem'
 export type {
   DownloadProgress,
@@ -32,16 +32,16 @@ export { Process } from './Process'
 // export { LspServer } from './LspServer'
 // export type { LspLanguageId, Position } from './LspServer'
 export {
-  DaytonaAuthenticationError,
-  DaytonaAuthorizationError,
-  DaytonaConflictError,
-  DaytonaConnectionError,
-  DaytonaError,
-  DaytonaNotFoundError,
-  DaytonaRateLimitError,
-  DaytonaTimeoutError,
-  DaytonaValidationError,
-} from './errors/DaytonaError'
+  NorthraysAuthenticationError,
+  NorthraysAuthorizationError,
+  NorthraysConflictError,
+  NorthraysConnectionError,
+  NorthraysError,
+  NorthraysNotFoundError,
+  NorthraysRateLimitError,
+  NorthraysTimeoutError,
+  NorthraysValidationError,
+} from './errors/NorthraysError'
 export { Image } from './Image'
 export { Sandbox } from './Sandbox'
 export type { ListSandboxesQuery } from './Sandbox'
@@ -72,7 +72,7 @@ export {
   SandboxListSortField,
   SandboxListSortDirection,
   SandboxClass,
-} from '@daytona/api-client'
+} from '@northrays/api-client'
 export type {
   FileInfo,
   GitStatus,
@@ -80,7 +80,7 @@ export type {
   Match,
   ReplaceResult,
   SearchFilesResponse,
-} from '@daytona/toolbox-api-client'
+} from '@northrays/toolbox-api-client'
 
 export type {
   ScreenshotRegion,

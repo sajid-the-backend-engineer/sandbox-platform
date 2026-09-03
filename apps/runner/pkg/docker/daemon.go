@@ -12,9 +12,9 @@ import (
 	"net/url"
 	"time"
 
-	common_errors "github.com/daytonaio/common-go/pkg/errors"
-	"github.com/daytonaio/common-go/pkg/timer"
-	"github.com/daytonaio/runner/pkg/common"
+	common_errors "github.com/northrays/common-go/pkg/errors"
+	"github.com/northrays/common-go/pkg/timer"
+	"github.com/northrays/runner/pkg/common"
 	"github.com/docker/docker/api/types/container"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel"
@@ -23,12 +23,12 @@ import (
 	"go.opentelemetry.io/otel/trace"
 )
 
-func (d *DockerClient) startDaytonaDaemon(ctx context.Context, containerId string, workDir string) error {
+func (d *DockerClient) startNorthraysDaemon(ctx context.Context, containerId string, workDir string) error {
 	defer timer.Timer()()
 
 	var envVars []string
 	if workDir == "" {
-		envVars = append(envVars, "DAYTONA_USER_HOME_AS_WORKDIR=true")
+		envVars = append(envVars, "NORTHRAYS_USER_HOME_AS_WORKDIR=true")
 	}
 
 	execOptions := container.ExecOptions{
@@ -50,7 +50,7 @@ func (d *DockerClient) startDaytonaDaemon(ctx context.Context, containerId strin
 	}
 
 	if result.ExitCode != 0 {
-		return fmt.Errorf("failed to start daytona daemon with exit code %d: %s", result.ExitCode, result.StdErr)
+		return fmt.Errorf("failed to start northrays daemon with exit code %d: %s", result.ExitCode, result.StdErr)
 	}
 
 	return nil

@@ -1,4 +1,4 @@
-import { Daytona, Sandbox } from '@daytona/sdk'
+import { Northrays, Sandbox } from '@northrays/sdk'
 
 async function interactivePtySession(sandbox: Sandbox) {
   console.log('=== First PTY Session: Interactive Command with Exit ===')
@@ -81,8 +81,8 @@ async function killPtySession(sandbox: Sandbox) {
 }
 
 async function main() {
-  const daytona = new Daytona()
-  const sandbox = await daytona.create()
+  const northrays = new Northrays()
+  const sandbox = await northrays.create()
 
   try {
     // Interactive PTY session with exit
@@ -93,7 +93,7 @@ async function main() {
     console.error('Error executing PTY commands:', error)
   } finally {
     console.log(`\nDeleting sandbox: ${sandbox.id}`)
-    await daytona.delete(sandbox)
+    await northrays.delete(sandbox)
   }
 }
 

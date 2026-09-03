@@ -1,8 +1,8 @@
 {
-  "name": "amp-daytona",
+  "name": "amp-northrays",
   "type": "module",
   "version": "1.0.0",
-  "description": "A coding agent powered by Amp Code CLI and Daytona sandboxes.",
+  "description": "A coding agent powered by Amp Code CLI and Northrays sandboxes.",
   "main": "dist/index.js",
   "scripts": {
     "build": "tsc",
@@ -14,12 +14,12 @@
     "ampcode",
     "sandbox",
     "typescript",
-    "daytona"
+    "northrays"
   ],
   "author": "",
   "license": "MIT",
   "dependencies": {
-    "@daytona/sdk": "^0.163.0",
+    "@northrays/sdk": "^0.163.0",
     "dotenv": "^16.3.1"
   },
   "devDependencies": {

@@ -1,11 +1,11 @@
-from daytona import CreateSandboxFromSnapshotParams, Daytona
+from northrays import CreateSandboxFromSnapshotParams, Northrays
 
 
 def main():
-    daytona = Daytona()
+    northrays = Northrays()
 
     # Auto-delete is disabled by default
-    sandbox1 = daytona.create()
+    sandbox1 = northrays.create()
     print(sandbox1.auto_delete_interval)
 
     # Auto-delete after the Sandbox has been stopped for 1 hour
@@ -21,7 +21,7 @@ def main():
     print(sandbox1.auto_delete_interval)
 
     # Auto-delete after the Sandbox has been stopped for 1 day
-    sandbox2 = daytona.create(params=CreateSandboxFromSnapshotParams(auto_delete_interval=1440))
+    sandbox2 = northrays.create(params=CreateSandboxFromSnapshotParams(auto_delete_interval=1440))
     print(sandbox2.auto_delete_interval)
 
 

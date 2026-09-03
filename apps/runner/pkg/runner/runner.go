@@ -9,13 +9,13 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/daytonaio/runner/internal/metrics"
-	"github.com/daytonaio/runner/pkg/cache"
-	"github.com/daytonaio/runner/pkg/docker"
-	"github.com/daytonaio/runner/pkg/models"
-	"github.com/daytonaio/runner/pkg/netrules"
-	"github.com/daytonaio/runner/pkg/services"
-	"github.com/daytonaio/runner/pkg/sshgateway"
+	"github.com/northrays/runner/internal/metrics"
+	"github.com/northrays/runner/pkg/cache"
+	"github.com/northrays/runner/pkg/docker"
+	"github.com/northrays/runner/pkg/models"
+	"github.com/northrays/runner/pkg/netrules"
+	"github.com/northrays/runner/pkg/services"
+	"github.com/northrays/runner/pkg/sshgateway"
 )
 
 type RunnerInstanceConfig struct {

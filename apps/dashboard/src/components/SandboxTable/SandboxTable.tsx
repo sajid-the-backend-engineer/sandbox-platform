@@ -17,7 +17,7 @@ import {
   isTransitioning,
 } from '@/lib/utils/sandbox'
 import { DEFAULT_TABLE_COLUMN, getColumnSizeStyles, getTableSizeStyles } from '@/lib/utils/table'
-import { OrganizationRolePermissionsEnum, SandboxListItem, SandboxState } from '@daytona/api-client'
+import { OrganizationRolePermissionsEnum, SandboxListItem, SandboxState } from '@northrays/api-client'
 import {
   type ColumnPinningState,
   flexRender,
@@ -305,7 +305,7 @@ export function SandboxTable({
                 hasFilters ? null : (
                   <div className="space-y-2">
                     <p>Spin up a Sandbox to run code in an isolated environment.</p>
-                    <p>Use the Daytona SDK or CLI to create one.</p>
+                    <p>Use the Northrays SDK or CLI to create one.</p>
                     <p>
                       <button
                         onClick={() => navigate(RoutePath.ONBOARDING)}

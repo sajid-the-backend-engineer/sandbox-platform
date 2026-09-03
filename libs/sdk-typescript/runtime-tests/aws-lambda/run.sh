@@ -15,7 +15,7 @@ lambdaLocal.execute({
   lambdaFunc: { handler },
   lambdaHandler: 'handler',
   event: {},
-  environment: { DAYTONA_API_KEY: process.env.DAYTONA_API_KEY, DAYTONA_API_URL: process.env.DAYTONA_API_URL },
+  environment: { NORTHRAYS_API_KEY: process.env.NORTHRAYS_API_KEY, NORTHRAYS_API_URL: process.env.NORTHRAYS_API_URL },
   timeoutMs: 30000,
   verboseLevel: 0,
 }).then(r => process.stdout.write(r.body)).catch(e => { console.error('LAMBDA ERROR:', e.message); process.exit(1) });

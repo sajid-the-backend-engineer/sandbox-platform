@@ -7,8 +7,8 @@ import (
 	"context"
 	"io"
 
-	"github.com/daytonaio/common-go/pkg/log"
-	"github.com/daytonaio/runner/pkg/api/dto"
+	"github.com/northrays/common-go/pkg/log"
+	"github.com/northrays/runner/pkg/api/dto"
 
 	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/pkg/jsonmessage"

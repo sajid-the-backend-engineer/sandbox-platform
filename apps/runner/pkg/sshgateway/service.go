@@ -12,7 +12,7 @@ import (
 	"net"
 	"time"
 
-	"github.com/daytonaio/runner/pkg/docker"
+	"github.com/northrays/runner/pkg/docker"
 	"golang.org/x/crypto/ssh"
 )
 
@@ -308,7 +308,7 @@ func (s *Service) getSandboxDetails(sandboxId string) (*SandboxDetails, error) {
 	}
 
 	return &SandboxDetails{
-		User:     "daytona",
+		User:     "northrays",
 		Hostname: containerIP,
 	}, nil
 }

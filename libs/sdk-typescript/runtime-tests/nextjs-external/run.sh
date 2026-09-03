@@ -25,8 +25,8 @@ SERVER_PID=""
 cleanup() {
   if [ -n "$SANDBOX_ID" ]; then
     node --input-type=module -e "
-      import { Daytona } from '@daytona/sdk';
-      const d = new Daytona();
+      import { Northrays } from '@northrays/sdk';
+      const d = new Northrays();
       try { const s = await d.get('${SANDBOX_ID}'); await d.delete(s); } catch {}
     " 2>/dev/null || true
   fi
@@ -37,8 +37,8 @@ cleanup() {
 trap cleanup EXIT
 
 SANDBOX_ID=$(node --input-type=module -e "
-import { Daytona } from '@daytona/sdk';
-const d = new Daytona();
+import { Northrays } from '@northrays/sdk';
+const d = new Northrays();
 const s = await d.create({ timeout: 120, labels: { purpose: 'runtime-test-nextjs-external' } });
 await s.fs.uploadFile(Buffer.from('${FILE_CONTENT}'), '${FILE_PATH}');
 process.stdout.write(s.id);

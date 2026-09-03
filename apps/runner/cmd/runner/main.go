@@ -11,23 +11,23 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/daytonaio/common-go/pkg/log"
-	"github.com/daytonaio/common-go/pkg/telemetry"
-	"github.com/daytonaio/runner/cmd/runner/config"
-	"github.com/daytonaio/runner/internal"
-	"github.com/daytonaio/runner/internal/metrics"
-	"github.com/daytonaio/runner/pkg/api"
-	"github.com/daytonaio/runner/pkg/cache"
-	"github.com/daytonaio/runner/pkg/daemon"
-	"github.com/daytonaio/runner/pkg/docker"
-	"github.com/daytonaio/runner/pkg/netrules"
-	"github.com/daytonaio/runner/pkg/runner"
-	"github.com/daytonaio/runner/pkg/runner/v2/executor"
-	"github.com/daytonaio/runner/pkg/runner/v2/healthcheck"
-	"github.com/daytonaio/runner/pkg/runner/v2/poller"
-	"github.com/daytonaio/runner/pkg/services"
-	"github.com/daytonaio/runner/pkg/sshgateway"
-	"github.com/daytonaio/runner/pkg/telemetry/filters"
+	"github.com/northrays/common-go/pkg/log"
+	"github.com/northrays/common-go/pkg/telemetry"
+	"github.com/northrays/runner/cmd/runner/config"
+	"github.com/northrays/runner/internal"
+	"github.com/northrays/runner/internal/metrics"
+	"github.com/northrays/runner/pkg/api"
+	"github.com/northrays/runner/pkg/cache"
+	"github.com/northrays/runner/pkg/daemon"
+	"github.com/northrays/runner/pkg/docker"
+	"github.com/northrays/runner/pkg/netrules"
+	"github.com/northrays/runner/pkg/runner"
+	"github.com/northrays/runner/pkg/runner/v2/executor"
+	"github.com/northrays/runner/pkg/runner/v2/healthcheck"
+	"github.com/northrays/runner/pkg/runner/v2/poller"
+	"github.com/northrays/runner/pkg/services"
+	"github.com/northrays/runner/pkg/sshgateway"
+	"github.com/northrays/runner/pkg/telemetry/filters"
 	"github.com/docker/docker/client"
 	"github.com/lmittmann/tint"
 	"github.com/mattn/go-isatty"
@@ -63,7 +63,7 @@ func run() int {
 		telemetryConfig := telemetry.Config{
 			Endpoint:       cfg.OtelEndpoint,
 			Headers:        cfg.GetOtelHeaders(),
-			ServiceName:    "daytona-runner",
+			ServiceName:    "northrays-runner",
 			ServiceVersion: internal.Version,
 			Environment:    cfg.Environment,
 		}
@@ -88,7 +88,7 @@ func run() int {
 		telemetryConfig := telemetry.Config{
 			Endpoint:       cfg.OtelEndpoint,
 			Headers:        cfg.GetOtelHeaders(),
-			ServiceName:    "daytona-runner",
+			ServiceName:    "northrays-runner",
 			ServiceVersion: internal.Version,
 			Environment:    cfg.Environment,
 		}
@@ -133,7 +133,7 @@ func run() int {
 		return 2
 	}
 
-	pluginPath, err := daemon.WriteStaticBinary("daytona-computer-use")
+	pluginPath, err := daemon.WriteStaticBinary("northrays-computer-use")
 	if err != nil {
 		logger.Error("Error writing plugin binary", "error", err)
 		return 2

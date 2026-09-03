@@ -71,7 +71,7 @@ export class CreateRegionResponseDto {
 
   @ApiProperty({
     description: 'Snapshot Manager username for the region',
-    example: 'daytona',
+    example: 'northrays',
     nullable: true,
     required: false,
   })

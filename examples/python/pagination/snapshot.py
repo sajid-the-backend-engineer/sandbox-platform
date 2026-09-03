@@ -1,10 +1,10 @@
-from daytona import Daytona
+from northrays import Northrays
 
 
 def main():
-    daytona = Daytona()
+    northrays = Northrays()
 
-    result = daytona.snapshot.list(page=2, limit=10)
+    result = northrays.snapshot.list(page=2, limit=10)
     for snapshot in result.items:
         print(f"{snapshot.name} ({snapshot.image_name})")
 

@@ -9,8 +9,8 @@ import (
 	"fmt"
 	"time"
 
-	common_errors "github.com/daytonaio/common-go/pkg/errors"
-	"github.com/daytonaio/runner/pkg/api/dto"
+	common_errors "github.com/northrays/common-go/pkg/errors"
+	"github.com/northrays/runner/pkg/api/dto"
 )
 
 func (d *DockerClient) BuildSnapshot(ctx context.Context, req dto.BuildSnapshotRequestDTO) error {

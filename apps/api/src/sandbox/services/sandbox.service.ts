@@ -394,7 +394,7 @@ export class SandboxService {
 
     sandbox.snapshot = warmPoolItem.snapshot
     //  TODO: default user should be configurable
-    sandbox.osUser = 'daytona'
+    sandbox.osUser = 'northrays'
     sandbox.env = warmPoolItem.env || {}
 
     sandbox.cpu = warmPoolItem.cpu
@@ -492,7 +492,7 @@ export class SandboxService {
 
       if (snapshots.length === 0) {
         throw new BadRequestError(
-          `Snapshot ${snapshotIdOrName} not found. Did you add it through the Daytona Dashboard?`,
+          `Snapshot ${snapshotIdOrName} not found. Did you add it through the Northrays Dashboard?`,
         )
       }
 
@@ -636,7 +636,7 @@ export class SandboxService {
       sandbox.sandboxClass = snapshot.sandboxClass
       sandbox.snapshot = snapshot.name
       //  TODO: default user should be configurable
-      sandbox.osUser = createSandboxDto.user || 'daytona'
+      sandbox.osUser = createSandboxDto.user || 'northrays'
       sandbox.env = createSandboxDto.env || {}
       sandbox.labels = createSandboxDto.labels || {}
 
@@ -909,7 +909,7 @@ export class SandboxService {
       sandbox.organizationId = organization.id
 
       sandbox.sandboxClass = SandboxClass.CONTAINER
-      sandbox.osUser = createSandboxDto.user || 'daytona'
+      sandbox.osUser = createSandboxDto.user || 'northrays'
       sandbox.env = createSandboxDto.env || {}
       sandbox.labels = createSandboxDto.labels || {}
 

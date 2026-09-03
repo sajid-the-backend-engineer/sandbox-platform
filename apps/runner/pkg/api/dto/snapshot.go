@@ -26,7 +26,7 @@ type InspectSnapshotInRegistryRequestDTO struct {
 // CreateSnapshotFromSandboxRequestDTO is the body sent by the API to ask the
 // runner to commit the given sandbox container, push the resulting image to
 // the supplied internal registry under the canonical
-// `daytona-{hash}:daytona` tag, and return the resulting image metadata.
+// `northrays-{hash}:northrays` tag, and return the resulting image metadata.
 type CreateSnapshotFromSandboxRequestDTO struct {
 	Name           string       `json:"name" validate:"required" example:"my-snapshot:latest"`
 	OrganizationId string       `json:"organizationId,omitempty"`

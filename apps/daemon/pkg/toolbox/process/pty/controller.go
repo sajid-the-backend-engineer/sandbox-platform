@@ -10,7 +10,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/daytonaio/daemon/internal/util"
+	"github.com/northrays/daemon/internal/util"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 	cmap "github.com/orcaman/concurrent-map/v2"

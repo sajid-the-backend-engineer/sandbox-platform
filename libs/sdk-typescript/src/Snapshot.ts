@@ -3,17 +3,17 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { ObjectStorageApi, SnapshotsApi, SnapshotState, SandboxClass, Configuration } from '@daytona/api-client'
-import type { SnapshotDto, CreateSnapshot, PaginatedSnapshots as PaginatedSnapshotsDto } from '@daytona/api-client'
-import { DaytonaError } from './errors/DaytonaError'
+import { ObjectStorageApi, SnapshotsApi, SnapshotState, SandboxClass, Configuration } from '@northrays/api-client'
+import type { SnapshotDto, CreateSnapshot, PaginatedSnapshots as PaginatedSnapshotsDto } from '@northrays/api-client'
+import { NorthraysError } from './errors/NorthraysError'
 import { Image } from './Image'
-import type { Resources } from './Daytona'
+import type { Resources } from './Northrays'
 import { processStreamingResponse } from './utils/Stream'
 import { dynamicImport } from './utils/Import'
 import { WithInstrumentation } from './utils/otel.decorator'
 
 /**
- * Represents a Daytona Snapshot which is a pre-configured sandbox.
+ * Represents a Northrays Snapshot which is a pre-configured sandbox.
  *
  * @property {string} id - Unique identifier for the Snapshot.
  * @property {string} organizationId - Organization ID that owns the Snapshot.
@@ -35,7 +35,7 @@ import { WithInstrumentation } from './utils/otel.decorator'
 export type Snapshot = SnapshotDto & { __brand: 'Snapshot' }
 
 /**
- * Represents a paginated list of Daytona Snapshots.
+ * Represents a paginated list of Northrays Snapshots.
  *
  * @property {Snapshot[]} items - List of Snapshot instances in the current page.
  * @property {number} total - Total number of Snapshots across all pages.
@@ -51,7 +51,7 @@ export interface PaginatedSnapshots extends Omit<PaginatedSnapshotsDto, 'items'>
  *
  * @property {string} name - Name of the snapshot.
  * @property {string | Image} image - Image of the snapshot. If a string is provided, it should be available on some registry.
- * If an Image instance is provided, it will be used to create a new image in Daytona.
+ * If an Image instance is provided, it will be used to create a new image in Northrays.
  * @property {Resources} resources - Resources of the snapshot.
  * @property {string[]} entrypoint - Entrypoint of the snapshot.
  * @property {string} regionId - ID of the region where the snapshot will be available. Defaults to organization default region if not specified.
@@ -67,7 +67,7 @@ export type CreateSnapshotParams = {
 }
 
 /**
- * Service for managing Daytona Snapshots. Can be used to list, get, create and delete Snapshots.
+ * Service for managing Northrays Snapshots. Can be used to list, get, create and delete Snapshots.
  *
  * @class
  */
@@ -87,8 +87,8 @@ export class SnapshotService {
    * @returns {Promise<PaginatedSnapshots>} Paginated list of Snapshots
    *
    * @example
-   * const daytona = new Daytona();
-   * const result = await daytona.snapshot.list(2, 10);
+   * const northrays = new Northrays();
+   * const result = await northrays.snapshot.list(2, 10);
    * console.log(`Found ${result.total} snapshots`);
    * result.items.forEach(snapshot => console.log(`${snapshot.name} (${snapshot.imageName})`));
    */
@@ -111,8 +111,8 @@ export class SnapshotService {
    * @throws {Error} If the Snapshot does not exist or cannot be accessed
    *
    * @example
-   * const daytona = new Daytona();
-   * const snapshot = await daytona.snapshot.get("snapshot-name");
+   * const northrays = new Northrays();
+   * const snapshot = await northrays.snapshot.get("snapshot-name");
    * console.log(`Snapshot ${snapshot.name} is in state ${snapshot.state}`);
    */
   @WithInstrumentation()
@@ -129,9 +129,9 @@ export class SnapshotService {
    * @throws {Error} If the Snapshot does not exist or cannot be deleted
    *
    * @example
-   * const daytona = new Daytona();
-   * const snapshot = await daytona.snapshot.get("snapshot-name");
-   * await daytona.snapshot.delete(snapshot);
+   * const northrays = new Northrays();
+   * const snapshot = await northrays.snapshot.get("snapshot-name");
+   * await northrays.snapshot.delete(snapshot);
    * console.log("Snapshot deleted successfully");
    */
   @WithInstrumentation()
@@ -150,7 +150,7 @@ export class SnapshotService {
    *
    * @example
    * const image = Image.debianSlim('3.12').pipInstall('numpy');
-   * await daytona.snapshot.create({ name: 'my-snapshot', image: image }, { onLogs: console.log });
+   * await northrays.snapshot.create({ name: 'my-snapshot', image: image }, { onLogs: console.log });
    */
   @WithInstrumentation()
   public async create(
@@ -196,7 +196,7 @@ export class SnapshotService {
     ).data
 
     if (!createdSnapshot) {
-      throw new DaytonaError("Failed to create snapshot. Didn't receive a snapshot from the server API.")
+      throw new NorthraysError("Failed to create snapshot. Didn't receive a snapshot from the server API.")
     }
 
     const terminalStates: SnapshotState[] = [SnapshotState.ACTIVE, SnapshotState.ERROR, SnapshotState.BUILD_FAILED]
@@ -254,7 +254,7 @@ export class SnapshotService {
 
     if (createdSnapshot.state === SnapshotState.ERROR || createdSnapshot.state === SnapshotState.BUILD_FAILED) {
       const errMsg = `Failed to create snapshot. Name: ${createdSnapshot.name} Reason: ${createdSnapshot.errorReason}`
-      throw new DaytonaError(errMsg)
+      throw new NorthraysError(errMsg)
     }
 
     return createdSnapshot as Snapshot

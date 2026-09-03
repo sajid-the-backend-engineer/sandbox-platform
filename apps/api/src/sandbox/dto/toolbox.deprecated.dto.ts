@@ -872,7 +872,7 @@ export class PtyCreateRequestDto {
   @ApiPropertyOptional({
     description: 'Environment variables for the PTY session',
     type: Object,
-    example: { TERM: 'xterm-256color', PS1: '\\u@daytona:\\w$ ' },
+    example: { TERM: 'xterm-256color', PS1: '\\u@northrays:\\w$ ' },
   })
   envs?: Record<string, string>
 
@@ -922,7 +922,7 @@ export class PtySessionInfoDto {
   @ApiProperty({
     description: 'Environment variables for the PTY session',
     type: Object,
-    example: { TERM: 'xterm-256color', PS1: '\\u@daytona:\\w$ ' },
+    example: { TERM: 'xterm-256color', PS1: '\\u@northrays:\\w$ ' },
   })
   envs: Record<string, string>
 

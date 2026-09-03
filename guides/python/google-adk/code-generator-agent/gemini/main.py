@@ -6,7 +6,7 @@
 import asyncio
 import logging
 
-from daytona_adk import DaytonaPlugin  # pylint: disable=import-error
+from northrays_adk import NorthraysPlugin  # pylint: disable=import-error
 from dotenv import load_dotenv
 from google.adk.agents import Agent  # pylint: disable=import-error
 from google.adk.apps import App  # pylint: disable=import-error
@@ -59,7 +59,7 @@ Only include tests in your response if the user explicitly asks for them.
 
 async def main() -> None:
     """Run the code generator agent example."""
-    plugin = DaytonaPlugin(
+    plugin = NorthraysPlugin(
         labels={"example": "code-generator"},
     )
 

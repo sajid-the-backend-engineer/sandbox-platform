@@ -156,21 +156,21 @@ export class RunnerHealthcheckDto {
 
   @ApiPropertyOptional({
     description: 'Runner domain',
-    example: 'runner-123.daytona.example.com',
+    example: 'runner-123.northrays.example.com',
   })
   @IsOptional()
   domain?: string
 
   @ApiPropertyOptional({
     description: 'Runner proxy URL',
-    example: 'http://proxy.daytona.example.com:8080',
+    example: 'http://proxy.northrays.example.com:8080',
   })
   @IsOptional()
   proxyUrl?: string
 
   @ApiPropertyOptional({
     description: 'Runner API URL',
-    example: 'http://api.daytona.example.com:8080',
+    example: 'http://api.northrays.example.com:8080',
   })
   @IsOptional()
   apiUrl?: string

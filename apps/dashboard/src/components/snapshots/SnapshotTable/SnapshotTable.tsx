@@ -17,7 +17,7 @@ import { useCommandPaletteAnalytics } from '@/hooks/useCommandPaletteAnalytics'
 import { useSelectedOrganization } from '@/hooks/useSelectedOrganization'
 import { cn } from '@/lib/utils'
 import { DEFAULT_TABLE_COLUMN, getColumnSizeStyles, getTableSizeStyles } from '@/lib/utils/table'
-import { OrganizationRolePermissionsEnum, SnapshotDto, SnapshotState } from '@daytona/api-client'
+import { OrganizationRolePermissionsEnum, SnapshotDto, SnapshotState } from '@northrays/api-client'
 import { flexRender, getCoreRowModel, useReactTable } from '@tanstack/react-table'
 import { Box } from 'lucide-react'
 import { AnimatePresence } from 'motion/react'
@@ -323,7 +323,7 @@ export function SnapshotTable({
                     <p>
                       Create one from the Dashboard, CLI, or SDK to get started. <br />
                       <a
-                        href="https://www.daytona.io/docs/snapshots"
+                        href="https://www.northrays.com/docs/snapshots"
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-primary hover:underline font-medium"

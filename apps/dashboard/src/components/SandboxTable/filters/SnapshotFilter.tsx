@@ -14,7 +14,7 @@ import {
 } from '@/components/ui/command'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
 import { Skeleton } from '@/components/ui/skeleton'
-import { SnapshotDto } from '@daytona/api-client'
+import { SnapshotDto } from '@northrays/api-client'
 import { X } from 'lucide-react'
 
 interface SnapshotFilterProps {

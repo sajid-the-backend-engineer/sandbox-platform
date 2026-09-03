@@ -1,38 +1,38 @@
 ---
 title: TypeScript SDK リファレンス
-description: TypeScript SDK を使用して Daytona のサンドボックスを操作する
-next: /docs/typescript-sdk/daytona
+description: TypeScript SDK を使用して Northrays のサンドボックスを操作する
+next: /docs/typescript-sdk/northrays
 ---
 
-Daytona の TypeScript SDK は、Daytona のサンドボックスをプログラムから操作するための強力なインターフェースを提供します。
+Northrays の TypeScript SDK は、Northrays のサンドボックスをプログラムから操作するための強力なインターフェースを提供します。
 
 ## インストール
 
-npm を使用して Daytona の TypeScript SDK をインストールします：
+npm を使用して Northrays の TypeScript SDK をインストールします：
 
 ```bash
-npm install @daytona/sdk
+npm install @northrays/sdk
 ```
 
 または yarn を使用します：
 
 ```bash
-yarn add @daytona/sdk
+yarn add @northrays/sdk
 ```
 
 ## はじめに
 
-Daytona の TypeScript SDK を使い始めるための簡単な例を紹介します:
+Northrays の TypeScript SDK を使い始めるための簡単な例を紹介します:
 
 ```typescript
-import { Daytona } from '@daytona/sdk'
+import { Northrays } from '@northrays/sdk'
 
 async function main() {
   // SDK を初期化（デフォルトで環境変数を使用）
-  const daytona = new Daytona()
+  const northrays = new Northrays()
 
   // 新しいサンドボックスを作成
-  const sandbox = await daytona.create({
+  const sandbox = await northrays.create({
     language: 'typescript',
     envVars: { NODE_ENV: 'development' },
   })
@@ -50,15 +50,15 @@ main().catch(console.error)
 SDK は環境変数を使うか、コンストラクターにオプションを渡して設定できます:
 
 ```typescript
-import { Daytona } from '@daytona/sdk';
+import { Northrays } from '@northrays/sdk';
 
-// 環境変数を使用 (DAYTONA_API_KEY, DAYTONA_API_URL, DAYTONA_TARGET)
-const daytona = new Daytona();
+// 環境変数を使用 (NORTHRAYS_API_KEY, NORTHRAYS_API_URL, NORTHRAYS_TARGET)
+const northrays = new Northrays();
 
 // 明示的な設定を指定
-const daytona = new Daytona({
+const northrays = new Northrays({
   apiKey: 'your-api-key',
-  apiUrl: 'https://app.daytona.io/api',
+  apiUrl: 'https://app.northrays.com/api',
   target: 'us'
 });
 ```

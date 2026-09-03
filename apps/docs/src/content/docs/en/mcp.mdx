@@ -1,42 +1,42 @@
 ---
-title: Daytona MCP Server
-description: Interact with Daytona sandboxes using the Model Context Protocol.
+title: Northrays MCP Server
+description: Interact with Northrays sandboxes using the Model Context Protocol.
 ---
 
 import { TabItem, Tabs } from '@astrojs/starlight/components'
 
-Daytona Model Context Protocol (MCP) server enables AI agents to interact with [Daytona Sandboxes](/docs/en/sandboxes) programmatically. This guide covers how to set up and use the MCP server with various AI agents.
+Northrays Model Context Protocol (MCP) server enables AI agents to interact with [Northrays Sandboxes](/docs/en/sandboxes) programmatically. This guide covers how to set up and use the MCP server with various AI agents.
 
-## Install Daytona CLI
+## Install Northrays CLI
 
-Install the Daytona CLI to manage the MCP server.
+Install the Northrays CLI to manage the MCP server.
 
 <Tabs syncKey="os">
 <TabItem label="Mac/Linux">
 
 ```bash
-brew install daytonaio/cli/daytona
+brew install northrays/cli/northrays
 ```
 
 </TabItem>
 <TabItem label="Windows">
 
 ```bash
-powershell -Command "irm https://get.daytona.io/windows | iex"
+powershell -Command "irm https://get.northrays.com/windows | iex"
 ```
 
 </TabItem>
 </Tabs>
 
-## Authenticate with Daytona
+## Authenticate with Northrays
 
-Authenticate with Daytona to enable MCP server access.
+Authenticate with Northrays to enable MCP server access.
 
 <Tabs>
 <TabItem label="CLI" icon="seti:shell">
 
 ```bash
-daytona login
+northrays login
 ```
 
 </TabItem>
@@ -44,36 +44,36 @@ daytona login
 
 ## Initialize MCP server
 
-Daytona provides methods to initialize the MCP server with your preferred AI agent. Supported agents include Claude, Cursor, and Windsurf.
+Northrays provides methods to initialize the MCP server with your preferred AI agent. Supported agents include Claude, Cursor, and Windsurf.
 
 <Tabs>
 <TabItem label="CLI" icon="seti:shell">
 
 ```bash
 # Initialize with Claude
-daytona mcp init claude
+northrays mcp init claude
 
 # Initialize with Cursor
-daytona mcp init cursor
+northrays mcp init cursor
 
 # Initialize with Windsurf
-daytona mcp init windsurf
+northrays mcp init windsurf
 ```
 
 </TabItem>
 </Tabs>
 
-After initialization, open your AI agent application to begin using Daytona features.
+After initialization, open your AI agent application to begin using Northrays features.
 
 ## Configure MCP server
 
-Daytona provides methods to generate MCP configuration for integration with other AI agents.
+Northrays provides methods to generate MCP configuration for integration with other AI agents.
 
 <Tabs>
 <TabItem label="CLI" icon="seti:shell">
 
 ```bash
-daytona mcp config
+northrays mcp config
 ```
 
 </TabItem>
@@ -84,14 +84,14 @@ This command outputs a JSON configuration that you can copy into your agent's se
 ```json
 {
   "mcpServers": {
-    "daytona-mcp": {
-      "command": "daytona",
+    "northrays-mcp": {
+      "command": "northrays",
       "args": ["mcp", "start"],
       "env": {
         "HOME": "${HOME}",
         "PATH": "${HOME}:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/homebrew/bin"
       },
-      "logFile": "${HOME}/Library/Logs/daytona/daytona-mcp-server.log"
+      "logFile": "${HOME}/Library/Logs/northrays/northrays-mcp-server.log"
     }
   }
 }
@@ -107,13 +107,13 @@ For Windows users, add the following to the `env` field:
 
 ## Start MCP server
 
-Daytona provides methods to manually start the MCP server.
+Northrays provides methods to manually start the MCP server.
 
 <Tabs>
 <TabItem label="CLI" icon="seti:shell">
 
 ```bash
-daytona mcp start
+northrays mcp start
 ```
 
 </TabItem>
@@ -121,7 +121,7 @@ daytona mcp start
 
 ## Available tools
 
-Daytona MCP server provides the following tools for interacting with Daytona Sandboxes:
+Northrays MCP server provides the following tools for interacting with Northrays Sandboxes:
 
 - [Sandbox management](/docs/en/sandboxes)
 - [File system operations](/docs/en/file-system-operations)
@@ -132,10 +132,10 @@ Daytona MCP server provides the following tools for interacting with Daytona San
 
 ## Troubleshooting
 
-To troubleshoot issues with the Daytona MCP server, try the following:
+To troubleshoot issues with the Northrays MCP server, try the following:
 
-- **Authentication issues**: run `daytona login` to refresh credentials
+- **Authentication issues**: run `northrays login` to refresh credentials
 - **Connection errors**: verify MCP server configuration, check server status
-- **Sandbox errors**: use `daytona list` to check sandbox status
+- **Sandbox errors**: use `northrays list` to check sandbox status
 
-If the issue persists, contact [support@daytona.io](mailto:support@daytona.io).
+If the issue persists, contact [support@northrays.com](mailto:support@northrays.com).

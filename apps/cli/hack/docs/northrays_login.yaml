@@ -1,0 +1,12 @@
+name: northrays login
+synopsis: Log in to Northrays
+usage: northrays login [flags]
+options:
+  - name: api-key
+    usage: API key to use for authentication
+inherited_options:
+  - name: help
+    default_value: 'false'
+    usage: help for northrays
+see_also:
+  - northrays - Northrays CLI

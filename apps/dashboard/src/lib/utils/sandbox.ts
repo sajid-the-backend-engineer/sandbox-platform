@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: AGPL-3.0
  */
 
-import { SandboxListItem, SandboxState } from '@daytona/api-client'
+import { SandboxListItem, SandboxState } from '@northrays/api-client'
 
 export function isStartable(sandbox: SandboxListItem): boolean {
   return (

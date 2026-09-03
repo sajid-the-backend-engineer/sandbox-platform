@@ -18,7 +18,7 @@ ENV PATH="/usr/local/go/bin:${PATH}"
 
 RUN apk add --no-cache git
 
-WORKDIR /daytona
+WORKDIR /northrays
 
 # Yarn caching layer
 COPY package.json yarn.lock .yarnrc.yml ./
@@ -34,7 +34,7 @@ COPY libs/api-client-go/go.mod libs/api-client-go/go.sum libs/api-client-go/
 RUN head -1 go.work > go.work.tmp && printf '\nuse (\n\t./apps/ssh-gateway\n\t./libs/api-client-go\n)\n' >> go.work.tmp && mv go.work.tmp go.work
 
 ENV NX_DAEMON=false
-ENV GONOSUMDB=github.com/daytonaio/daytona
+ENV GONOSUMDB=github.com/northrays/sandbox-platform
 
 RUN go -C apps/ssh-gateway mod download && go -C libs/api-client-go mod download
 
@@ -50,10 +50,10 @@ RUN apk update && apk upgrade --no-cache openssl pcre2
 
 WORKDIR /usr/local/bin
 
-COPY --from=build /daytona/dist/apps/ssh-gateway daytona-ssh-gateway
+COPY --from=build /northrays/dist/apps/ssh-gateway northrays-ssh-gateway
 
-RUN chmod +x daytona-ssh-gateway
+RUN chmod +x northrays-ssh-gateway
 
 EXPOSE 2222
 
-ENTRYPOINT ["daytona-ssh-gateway"]
+ENTRYPOINT ["northrays-ssh-gateway"]

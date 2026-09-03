@@ -3,7 +3,7 @@
 
 import httpx
 
-from daytona.internal.http_client import build_async_http_client, build_sync_http_client
+from northrays.internal.http_client import build_async_http_client, build_sync_http_client
 
 
 class TestBuildHttpClient:

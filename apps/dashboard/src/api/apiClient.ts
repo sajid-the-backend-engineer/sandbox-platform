@@ -9,8 +9,8 @@ import {
   Configuration as AnalyticsConfiguration,
   TelemetryApi as AnalyticsTelemetryApi,
   UsageApi as AnalyticsUsageApi,
-} from '@daytona/analytics-api-client'
-import { Configuration as BillingConfiguration } from '@daytona/billing-api-client'
+} from '@northrays/analytics-api-client'
+import { Configuration as BillingConfiguration } from '@northrays/billing-api-client'
 import {
   ApiKeysApi,
   AuditApi,
@@ -25,9 +25,9 @@ import {
   UsersApi,
   VolumesApi,
   WebhooksApi,
-} from '@daytona/api-client'
+} from '@northrays/api-client'
 import axios, { AxiosError } from 'axios'
-import { DaytonaError } from './errors'
+import { NorthraysError } from './errors'
 
 export class ApiClient {
   private config: Configuration
@@ -67,7 +67,7 @@ export class ApiClient {
           errorMessage = error.response?.data?.message || error.response?.data || error.message || String(error)
         }
 
-        throw DaytonaError.fromString(String(errorMessage), { cause: error instanceof Error ? error : undefined })
+        throw NorthraysError.fromString(String(errorMessage), { cause: error instanceof Error ? error : undefined })
       },
     )
 

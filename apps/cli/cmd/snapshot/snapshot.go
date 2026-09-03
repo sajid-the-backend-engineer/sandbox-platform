@@ -4,14 +4,14 @@
 package snapshot
 
 import (
-	"github.com/daytonaio/daytona/cli/internal"
+	"github.com/northrays/sandbox-platform/cli/internal"
 	"github.com/spf13/cobra"
 )
 
 var SnapshotsCmd = &cobra.Command{
 	Use:     "snapshot",
-	Short:   "Manage Daytona snapshots",
-	Long:    "Commands for managing Daytona snapshots",
+	Short:   "Manage Northrays snapshots",
+	Long:    "Commands for managing Northrays snapshots",
 	Aliases: []string{"snapshots"},
 	GroupID: internal.SANDBOX_GROUP,
 }

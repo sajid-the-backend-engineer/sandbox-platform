@@ -121,10 +121,10 @@
         "cwd": "{workspaceRoot}/dist/libs/sdk-typescript",
         "commands": [
           "npm publish --tag $NPM_TAG --access public --registry https://registry.npmjs.org/ --//registry.npmjs.org/:_authToken=$NPM_TOKEN",
-          "node -e \"const fs = require('fs'); const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8')); pkg.name = '@daytonaio/sdk'; fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2));\"",
+          "node -e \"const fs = require('fs'); const pkg = JSON.parse(fs.readFileSync('package.json', 'utf8')); pkg.name = '@northrays/sdk'; fs.writeFileSync('package.json', JSON.stringify(pkg, null, 2));\"",
           "cp ../../../libs/sdk-typescript/README.legacy.md README.md",
           "npm publish --tag $NPM_TAG --access public --registry https://registry.npmjs.org/ --//registry.npmjs.org/:_authToken=$NPM_TOKEN",
-          "npm deprecate \"@daytonaio/sdk@$NPM_PKG_VERSION\" \"Moved to @daytona/sdk, same API, no breaking changes. Please update: npm uninstall @daytonaio/sdk && npm i @daytona/sdk\" --registry https://registry.npmjs.org/ --//registry.npmjs.org/:_authToken=$NPM_TOKEN || true"
+          "npm deprecate \"@northrays/sdk@$NPM_PKG_VERSION\" \"Moved to @northrays/sdk, same API, no breaking changes. Please update: npm uninstall @northrays/sdk && npm i @northrays/sdk\" --registry https://registry.npmjs.org/ --//registry.npmjs.org/:_authToken=$NPM_TOKEN || true"
         ],
         "parallel": false
       },

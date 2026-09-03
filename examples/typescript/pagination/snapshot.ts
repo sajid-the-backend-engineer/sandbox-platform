@@ -1,9 +1,9 @@
-import { Daytona } from '@daytona/sdk'
+import { Northrays } from '@northrays/sdk'
 
 async function main() {
-  const daytona = new Daytona()
+  const northrays = new Northrays()
 
-  const result = await daytona.snapshot.list(2, 10)
+  const result = await northrays.snapshot.list(2, 10)
   console.log(`Found ${result.total} snapshots`)
   result.items.forEach((snapshot) => console.log(`${snapshot.name} (${snapshot.imageName})`))
 }

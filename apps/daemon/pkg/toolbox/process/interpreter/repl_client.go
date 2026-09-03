@@ -16,8 +16,8 @@ import (
 	"syscall"
 	"time"
 
-	common_errors "github.com/daytonaio/common-go/pkg/errors"
-	"github.com/daytonaio/daemon/pkg/childreap"
+	common_errors "github.com/northrays/common-go/pkg/errors"
+	"github.com/northrays/daemon/pkg/childreap"
 	"github.com/google/uuid"
 	"github.com/gorilla/websocket"
 )
@@ -184,7 +184,7 @@ func (c *Context) start() error {
 
 	// Create (or reuse) a single shared worker script file
 	tempDir := os.TempDir()
-	workerPath := filepath.Join(tempDir, "daytona_repl_worker.py")
+	workerPath := filepath.Join(tempDir, "northrays_repl_worker.py")
 
 	// Check if worker file exists, if not create it
 	if _, err := os.Stat(workerPath); os.IsNotExist(err) {

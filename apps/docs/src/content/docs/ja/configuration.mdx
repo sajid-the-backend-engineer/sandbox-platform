@@ -6,28 +6,28 @@ import { TabItem, Tabs } from '@astrojs/starlight/components'
 
 ## 環境変数を設定する
 
-Daytona で認証するには API キーが必要です。API キーは Daytona プラットフォームから取得できます。
+Northrays で認証するには API キーが必要です。API キーは Northrays プラットフォームから取得できます。
 
-1. [Daytona Dashboard](https://app.daytona.io/dashboard/) にアクセスします。
+1. [Northrays Dashboard](https://app.northrays.com/dashboard/) にアクセスします。
 2. API Keys を開きます。
 3. **`Create Key`** ボタンをクリックします。
-4. **`.env`** ファイルで **`DAYTONA_API_KEY`** 環境変数を設定し、API キーを追加します。
-5. **`.env`** ファイルで **`DAYTONA_API_URL`** 環境変数を設定し、Daytona の API URL を指定します。
+4. **`.env`** ファイルで **`NORTHRAYS_API_KEY`** 環境変数を設定し、API キーを追加します。
+5. **`.env`** ファイルで **`NORTHRAYS_API_URL`** 環境変数を設定し、Northrays の API URL を指定します。
 
 ## 構成オプション
 
-Daytona SDK では、Python と TypeScript で `DaytonaConfig` クラスを使用して設定を行えます。`DaytonaConfig` クラスは次のパラメータを受け取ります。
+Northrays SDK では、Python と TypeScript で `NorthraysConfig` クラスを使用して設定を行えます。`NorthraysConfig` クラスは次のパラメータを受け取ります。
 
-- `api_key`: Daytona の APIキー
-- `api_url`: Daytona の API の URL
-- `target`: サンドボックスを作成する Daytona のターゲット（リージョン）
+- `api_key`: Northrays の APIキー
+- `api_url`: Northrays の API の URL
+- `target`: サンドボックスを作成する Northrays のターゲット（リージョン）
 
 <Tabs syncKey="language">
 <TabItem label="Python" icon="seti:python">
 ```python
-from daytona import DaytonaConfig
+from northrays import NorthraysConfig
 
-config = DaytonaConfig(
+config = NorthraysConfig(
     api_key="your-api-key",
     api_url="your-api-url",
     target="us"
@@ -37,9 +37,9 @@ config = DaytonaConfig(
 </TabItem>
 <TabItem label="TypeScript" icon="seti:typescript">
 ```typescript
-import { DaytonaConfig } from '@daytona/sdk';
+import { NorthraysConfig } from '@northrays/sdk';
 
-const config: DaytonaConfig = {
+const config: NorthraysConfig = {
     apiKey: "your-api-key",          
     apiUrl: "your-api-url",     
     target: "us"                  
@@ -51,17 +51,17 @@ const config: DaytonaConfig = {
 
 ## 環境変数
 
-Daytona SDK は設定に環境変数を利用できます。SDK は次の環境変数を自動的に参照します：
+Northrays SDK は設定に環境変数を利用できます。SDK は次の環境変数を自動的に参照します：
 
 | Variable              | Description                                | Optional |
 | --------------------- | ------------------------------------------ | -------- |
-| **`DAYTONA_API_KEY`** | Daytona の APIキー。                        |          |
-| **`DAYTONA_API_URL`** | Daytona API の URL。                        | Yes      |
-| **`DAYTONA_TARGET`**  | サンドボックスを作成する Daytona のターゲット（ターゲット（リージョン））。 | Yes      |
+| **`NORTHRAYS_API_KEY`** | Northrays の APIキー。                        |          |
+| **`NORTHRAYS_API_URL`** | Northrays API の URL。                        | Yes      |
+| **`NORTHRAYS_TARGET`**  | サンドボックスを作成する Northrays のターゲット（ターゲット（リージョン））。 | Yes      |
 
 ### 環境変数の設定
 
-Daytona SDK は環境変数から設定を読み込みます。以下の方法で設定できます。
+Northrays SDK は環境変数から設定を読み込みます。以下の方法で設定できます。
 
 - [**`.env`** ファイルを使用](#using-a-env-file)
 - [シェル環境を使用](#using-shell-environment)
@@ -71,14 +71,14 @@ Daytona SDK は環境変数から設定を読み込みます。以下の方法�
 プロジェクトのルートディレクトリに `.env` ファイルを作成します：
 
 ```bash
-DAYTONA_API_KEY=your-api-key
-DAYTONA_API_URL=https://your-api-url
-DAYTONA_TARGET=us
+NORTHRAYS_API_KEY=your-api-key
+NORTHRAYS_API_URL=https://your-api-url
+NORTHRAYS_TARGET=us
 ```
 
-- `DAYTONA_API_KEY`: Daytona の APIキー。
-- `DAYTONA_API_URL`: Daytona API の URL。
-- `DAYTONA_TARGET`: サンドボックスを作成する Daytona のターゲット（ターゲット（リージョン））。
+- `NORTHRAYS_API_KEY`: Northrays の APIキー。
+- `NORTHRAYS_API_URL`: Northrays API の URL。
+- `NORTHRAYS_TARGET`: サンドボックスを作成する Northrays のターゲット（ターゲット（リージョン））。
 
 #### シェル環境を使用
 
@@ -87,14 +87,14 @@ DAYTONA_TARGET=us
 <Tabs syncKey="shell">
 <TabItem label="Bash/Zsh" icon="seti:shell">
 ```bash
-export DAYTONA_API_KEY=your-api-key
-export DAYTONA_API_URL=https://your-api-url
+export NORTHRAYS_API_KEY=your-api-key
+export NORTHRAYS_API_URL=https://your-api-url
 ```
 </TabItem>
 <TabItem label="Windows PowerShell" icon="seti:powershell">
 ```bash
-$env:DAYTONA_API_KEY="your-api-key"
-$env:DAYTONA_API_URL="https://your-api-url"
+$env:NORTHRAYS_API_KEY="your-api-key"
+$env:NORTHRAYS_API_URL="https://your-api-url"
 ```
 </TabItem>
 </Tabs>

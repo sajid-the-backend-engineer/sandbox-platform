@@ -2,15 +2,15 @@
 // SPDX-License-Identifier: Apache-2.0
 
 import { app, HttpRequest, HttpResponseInit, InvocationContext } from '@azure/functions'
-import { Daytona, Image } from '@daytona/sdk'
+import { Northrays, Image } from '@northrays/sdk'
 
 export async function sandboxesHandler(_req: HttpRequest, _ctx: InvocationContext): Promise<HttpResponseInit> {
   const image = Image.base('alpine').env({ FOO: 'bar' })
-  const daytona = new Daytona({
-    apiKey: process.env.DAYTONA_API_KEY,
-    apiUrl: process.env.DAYTONA_API_URL,
+  const northrays = new Northrays({
+    apiKey: process.env.NORTHRAYS_API_KEY,
+    apiUrl: process.env.NORTHRAYS_API_URL,
   })
-  const iter = daytona.list()
+  const iter = northrays.list()
   const listOk = typeof (iter as any)[Symbol.asyncIterator] === 'function' && typeof (await iter.next()) === 'object'
   return {
     jsonBody: {

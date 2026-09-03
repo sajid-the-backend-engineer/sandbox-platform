@@ -1,0 +1,12 @@
+name: northrays mcp
+synopsis: Manage Northrays MCP Server
+description: Commands for managing Northrays MCP Server
+inherited_options:
+  - name: help
+    default_value: 'false'
+    usage: help for northrays
+see_also:
+  - northrays - Northrays CLI
+  - northrays mcp config - Outputs JSON configuration for Northrays MCP Server
+  - 'northrays mcp init - Initialize Northrays MCP Server with an agent (currently supported: claude, windsurf, cursor)'
+  - northrays mcp start - Start Northrays MCP Server

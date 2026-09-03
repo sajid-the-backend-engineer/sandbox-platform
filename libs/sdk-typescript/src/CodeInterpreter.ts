@@ -8,15 +8,15 @@
  */
 
 import WebSocket from 'isomorphic-ws'
-import { InterpreterApi } from '@daytona/toolbox-api-client'
-import type { InterpreterContext } from '@daytona/toolbox-api-client'
-import { Configuration } from '@daytona/api-client'
+import { InterpreterApi } from '@northrays/toolbox-api-client'
+import type { InterpreterContext } from '@northrays/toolbox-api-client'
+import { Configuration } from '@northrays/api-client'
 import {
-  DaytonaConnectionError,
-  DaytonaError,
-  DaytonaTimeoutError,
-  DaytonaValidationError,
-} from './errors/DaytonaError'
+  NorthraysConnectionError,
+  NorthraysError,
+  NorthraysTimeoutError,
+  NorthraysValidationError,
+} from './errors/NorthraysError'
 import type { ExecutionError, ExecutionResult, RunCodeOptions } from './types/CodeInterpreter'
 import { createSandboxWebSocket } from './utils/WebSocket'
 
@@ -75,7 +75,7 @@ export class CodeInterpreter {
    */
   public async runCode(code: string, options: RunCodeOptions = {}): Promise<ExecutionResult> {
     if (!code || !code.trim()) {
-      throw new DaytonaValidationError('Code is required for execution')
+      throw new NorthraysValidationError('Code is required for execution')
     }
 
     const url = `${this.clientConfig.basePath.replace(/^http/, 'ws')}/process/interpreter/execute`
@@ -184,7 +184,7 @@ export class CodeInterpreter {
       }
 
       const handleError = (error: Error) => {
-        fail(new DaytonaConnectionError(`Failed to execute code: ${error.message ?? String(error)}`))
+        fail(new NorthraysConnectionError(`Failed to execute code: ${error.message ?? String(error)}`))
       }
 
       const detach = () => {
@@ -218,7 +218,7 @@ export class CodeInterpreter {
         ;(ws as any).on('close', handleClose)
         ;(ws as any).on('error', handleError)
       } else {
-        throw new DaytonaError('Unsupported WebSocket implementation')
+        throw new NorthraysError('Unsupported WebSocket implementation')
       }
     })
   }
@@ -313,15 +313,15 @@ export class CodeInterpreter {
     }
   }
 
-  private createCloseError(code: number, message?: string): DaytonaError {
+  private createCloseError(code: number, message?: string): NorthraysError {
     if (code === WEBSOCKET_TIMEOUT_CODE) {
-      return new DaytonaTimeoutError(
+      return new NorthraysTimeoutError(
         'Execution timed out: operation exceeded the configured `timeout`. Provide a larger value if needed.',
       )
     }
     if (message) {
-      return new DaytonaConnectionError(message + ` (close code ${code})`)
+      return new NorthraysConnectionError(message + ` (close code ${code})`)
     }
-    return new DaytonaConnectionError(`Code execution failed: WebSocket closed with code ${code}`)
+    return new NorthraysConnectionError(`Code execution failed: WebSocket closed with code ${code}`)
   }
 }

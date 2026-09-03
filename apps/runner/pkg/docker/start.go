@@ -10,9 +10,9 @@ import (
 	"slices"
 	"time"
 
-	"github.com/daytonaio/common-go/pkg/timer"
-	"github.com/daytonaio/runner/pkg/api/dto"
-	"github.com/daytonaio/runner/pkg/common"
+	"github.com/northrays/common-go/pkg/timer"
+	"github.com/northrays/runner/pkg/api/dto"
+	"github.com/northrays/runner/pkg/common"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/strslice"
 )
@@ -79,7 +79,7 @@ func (d *DockerClient) Start(ctx context.Context, containerId string, authToken 
 		return nil, "", errors.New("sandbox IP not found? Is the sandbox started?")
 	}
 
-	// Android-device sandboxes do not run the daytona daemon. Readiness is signaled by
+	// Android-device sandboxes do not run the northrays daemon. Readiness is signaled by
 	// the ADB port accepting TCP connections inside the container.
 	if isAndroidDeviceContainer(runningContainer) {
 		if err := d.waitForAdbRunning(ctx, containerIP); err != nil {
@@ -101,8 +101,8 @@ func (d *DockerClient) Start(ctx context.Context, containerId string, authToken 
 	if !slices.Equal(c.Config.Entrypoint, strslice.StrSlice{common.DAEMON_PATH}) {
 		processesCtx := context.Background()
 		go func() {
-			if err := d.startDaytonaDaemon(processesCtx, containerId, c.Config.WorkingDir); err != nil {
-				d.logger.ErrorContext(ctx, "Failed to start Daytona daemon", "error", err)
+			if err := d.startNorthraysDaemon(processesCtx, containerId, c.Config.WorkingDir); err != nil {
+				d.logger.ErrorContext(ctx, "Failed to start Northrays daemon", "error", err)
 			}
 		}()
 	}

@@ -7,4 +7,4 @@ const BEARER_AUTH_HEADER = "Bearer"
 
 const AUTHORIZATION_HEADER = "Authorization"
 
-const DAYTONA_AUTHORIZATION_HEADER = "X-Daytona-Authorization"
+const NORTHRAYS_AUTHORIZATION_HEADER = "X-Northrays-Authorization"

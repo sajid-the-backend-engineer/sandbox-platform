@@ -7,10 +7,10 @@ import (
 	"context"
 	"log/slog"
 
-	"github.com/daytonaio/runner/pkg/cache"
-	"github.com/daytonaio/runner/pkg/docker"
-	"github.com/daytonaio/runner/pkg/models"
-	"github.com/daytonaio/runner/pkg/models/enums"
+	"github.com/northrays/runner/pkg/cache"
+	"github.com/northrays/runner/pkg/docker"
+	"github.com/northrays/runner/pkg/models"
+	"github.com/northrays/runner/pkg/models/enums"
 )
 
 type SandboxService struct {

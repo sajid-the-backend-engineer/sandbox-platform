@@ -1,10 +1,10 @@
-from daytona import Daytona, ListSandboxesQuery, SandboxListSortDirection, SandboxListSortField, SandboxState
+from northrays import Northrays, ListSandboxesQuery, SandboxListSortDirection, SandboxListSortField, SandboxState
 
 
 def main():
-    daytona = Daytona()
+    northrays = Northrays()
 
-    for sandbox in daytona.list(
+    for sandbox in northrays.list(
         ListSandboxesQuery(
             limit=10,
             labels={"env": "dev"},

@@ -17,9 +17,9 @@ import (
 	"github.com/gin-gonic/gin"
 	"golang.org/x/oauth2"
 
-	common_errors "github.com/daytonaio/common-go/pkg/errors"
-	"github.com/daytonaio/common-go/pkg/utils"
-	apiclient "github.com/daytonaio/daytona/libs/api-client-go"
+	common_errors "github.com/northrays/common-go/pkg/errors"
+	"github.com/northrays/common-go/pkg/utils"
+	apiclient "github.com/northrays/sandbox-platform/libs/api-client-go"
 )
 
 func (p *Proxy) AuthCallback(ctx *gin.Context) {
@@ -214,7 +214,7 @@ func (p *Proxy) getUserApiClient(ctx context.Context, authToken string) *apiclie
 	clientConfig := apiclient.NewConfiguration()
 	clientConfig.Servers = apiclient.ServerConfigurations{
 		{
-			URL: p.config.DaytonaApiUrl,
+			URL: p.config.NorthraysApiUrl,
 		},
 	}
 	clientConfig.HTTPClient = p.userAPIHTTPClient

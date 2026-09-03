@@ -5,41 +5,41 @@ description: Access your sandboxes using SSH token-based authentication.
 
 import { TabItem, Tabs } from '@astrojs/starlight/components'
 
-Daytona provides SSH access to your sandboxes using token-based authentication. This allows you to connect from local terminals, IDEs, and development tools without installing additional software.
+Northrays provides SSH access to your sandboxes using token-based authentication. This allows you to connect from local terminals, IDEs, and development tools without installing additional software.
 
 ## Access from Dashboard
 
-Create an SSH access token directly from the [Daytona Dashboard ↗](https://app.daytona.io/dashboard/sandboxes).
+Create an SSH access token directly from the [Northrays Dashboard ↗](https://app.northrays.com/dashboard/sandboxes).
 
-1. Navigate to [Sandboxes ↗](https://app.daytona.io/dashboard/sandboxes)
+1. Navigate to [Sandboxes ↗](https://app.northrays.com/dashboard/sandboxes)
 2. Locate the sandbox you want to create an SSH access token for
 3. Click the sandbox options menu (**⋮**)
 4. Select **Create SSH Access**
 5. Set the expiration time (defaults to 60 minutes)
 6. Click **Create**
 
-Daytona generates a token and displays it in the modal. Copy the token and use it to connect to your sandbox.
+Northrays generates a token and displays it in the modal. Copy the token and use it to connect to your sandbox.
 
 ## Access via CLI
 
-Daytona provides a CLI command to create an SSH access token for a sandbox:
+Northrays provides a CLI command to create an SSH access token for a sandbox:
 
 ```shell  
-daytona create
+northrays create
 ```
 
-When you create a sandbox, Daytona displays the SSH command automatically in the output:
+When you create a sandbox, Northrays displays the SSH command automatically in the output:
 
 ```text
 Sandbox '<sandboxId>' created successfully
-Connect via SSH:         daytona ssh <sandboxId>
-Open the Web Terminal:   https://22222-<sandboxId>.proxy.daytona.work
+Connect via SSH:         northrays ssh <sandboxId>
+Open the Web Terminal:   https://22222-<sandboxId>.proxy.northrays.work
 ```
 
 To SSH into an existing sandbox, use the following command:
 
 ```bash
-daytona ssh <sandbox> --expires 60
+northrays ssh <sandbox> --expires 60
 ```
 
 ## Access via token
@@ -50,10 +50,10 @@ You can create SSH access tokens programmatically. The token can then be used to
 <TabItem label="Python" icon="seti:python">
 
 ```python
-from daytona import Daytona
+from northrays import Northrays
 
-daytona = Daytona()
-sandbox = daytona.get("sandbox-abc123")
+northrays = Northrays()
+sandbox = northrays.get("sandbox-abc123")
 
 # Create SSH access token
 ssh_access = sandbox.create_ssh_access(expires_in_minutes=60)
@@ -64,10 +64,10 @@ print(f"SSH Token: {ssh_access.token}")
 <TabItem label="TypeScript" icon="seti:typescript">
 
 ```typescript
-import { Daytona } from '@daytona/sdk'
+import { Northrays } from '@northrays/sdk'
 
-const daytona = new Daytona()
-const sandbox = await daytona.get('sandbox-abc123')
+const northrays = new Northrays()
+const sandbox = await northrays.get('sandbox-abc123')
 
 // Create SSH access token
 const sshAccess = await sandbox.createSshAccess(60)
@@ -78,10 +78,10 @@ console.log(`SSH Token: ${sshAccess.token}`)
 <TabItem label="Ruby" icon="seti:ruby">
 
 ```ruby
-require 'daytona'
+require 'northrays'
 
-daytona = Daytona::Daytona.new
-sandbox = daytona.get('sandbox-abc123')
+northrays = Northrays::Northrays.new
+sandbox = northrays.get('sandbox-abc123')
 
 # Create SSH access token
 ssh_access = sandbox.create_ssh_access(expires_in_minutes: 60)
@@ -92,7 +92,7 @@ puts "SSH Token: #{ssh_access.token}"
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://app.daytona.io/api/sandbox/{sandboxId}/ssh-access?expiresInMinutes=60' \
+curl 'https://app.northrays.com/api/sandbox/{sandboxId}/ssh-access?expiresInMinutes=60' \
   --request POST \
   --header 'Authorization: Bearer <API_KEY>'
 ```
@@ -103,7 +103,7 @@ curl 'https://app.daytona.io/api/sandbox/{sandboxId}/ssh-access?expiresInMinutes
 To connect to your sandbox, use the following command:
 
 ```bash
-ssh <token>@ssh.app.daytona.io
+ssh <token>@ssh.app.northrays.com
 ```
 
 ## Connect with VS Code
@@ -165,12 +165,12 @@ sandbox.revoke_ssh_access(token: 'specific-token')
 
 ```bash
 # Revoke specific SSH access token
-curl 'https://app.daytona.io/api/sandbox/{sandboxId}/ssh-access?token=specific-token' \
+curl 'https://app.northrays.com/api/sandbox/{sandboxId}/ssh-access?token=specific-token' \
   --request DELETE \
   --header 'Authorization: Bearer <API_KEY>'
 
 # Revoke all SSH access for the sandbox
-curl 'https://app.daytona.io/api/sandbox/{sandboxId}/ssh-access' \
+curl 'https://app.northrays.com/api/sandbox/{sandboxId}/ssh-access' \
   --request DELETE \
   --header 'Authorization: Bearer <API_KEY>'
 ```

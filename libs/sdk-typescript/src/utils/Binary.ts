@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { DaytonaError } from '../errors/DaytonaError'
+import { NorthraysError } from '../errors/NorthraysError'
 import { dynamicRequire } from './Import'
 
 let _BufferCtor: typeof Buffer | null = null
@@ -36,7 +36,7 @@ export function toUint8Array(data: string | ArrayBuffer | ArrayBufferView): Uint
   if (ArrayBuffer.isView(data)) {
     return new Uint8Array(data.buffer, data.byteOffset, data.byteLength)
   }
-  throw new DaytonaError('Unsupported data type for byte conversion.')
+  throw new NorthraysError('Unsupported data type for byte conversion.')
 }
 
 /**
@@ -171,7 +171,7 @@ export async function collectStreamBytes(stream: any): Promise<Uint8Array> {
     return new Uint8Array(arrayBuffer)
   }
 
-  throw new DaytonaError('Unsupported stream type for byte collection.')
+  throw new NorthraysError('Unsupported stream type for byte collection.')
 }
 
 /**

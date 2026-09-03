@@ -10,8 +10,8 @@ import (
 	"testing"
 	"time"
 
-	"github.com/daytonaio/daemon/pkg/toolbox/computeruse"
-	"github.com/daytonaio/daemon/pkg/toolbox/computeruse/manager"
+	"github.com/northrays/daemon/pkg/toolbox/computeruse"
+	"github.com/northrays/daemon/pkg/toolbox/computeruse/manager"
 	"github.com/hashicorp/go-hclog"
 	hc_plugin "github.com/hashicorp/go-plugin"
 	"github.com/stretchr/testify/assert"
@@ -40,7 +40,7 @@ func NewTestClient() (*TestClient, error) {
 	client := hc_plugin.NewClient(&hc_plugin.ClientConfig{
 		HandshakeConfig: manager.ComputerUseHandshakeConfig,
 		Plugins: map[string]hc_plugin.Plugin{
-			"daytona-computer-use": &computeruse.ComputerUsePlugin{},
+			"northrays-computer-use": &computeruse.ComputerUsePlugin{},
 		},
 		Cmd:     exec.Command("./test-computer-use"),
 		Logger:  hclog.New(&hclog.LoggerOptions{Level: hclog.Error}),
@@ -55,7 +55,7 @@ func NewTestClient() (*TestClient, error) {
 	}
 
 	// Get the plugin instance
-	raw, err := rpcClient.Dispense("daytona-computer-use")
+	raw, err := rpcClient.Dispense("northrays-computer-use")
 	if err != nil {
 		client.Kill()
 		return nil, fmt.Errorf("failed to dispense plugin: %v", err)

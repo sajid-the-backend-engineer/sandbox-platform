@@ -4,7 +4,7 @@
  */
 
 export default {
-  displayName: 'daytona',
+  displayName: 'northrays',
   preset: '../../jest.preset.js',
   testEnvironment: 'node',
   transform: {
@@ -12,5 +12,5 @@ export default {
   },
   transformIgnorePatterns: ['/node_modules/(?!uuid)'],
   moduleFileExtensions: ['ts', 'js', 'html'],
-  coverageDirectory: '../../coverage/apps/daytona',
+  coverageDirectory: '../../coverage/apps/northrays',
 }

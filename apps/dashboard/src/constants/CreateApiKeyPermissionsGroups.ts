@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: AGPL-3.0
  */
 
-import { CreateApiKeyPermissionsEnum } from '@daytona/api-client'
+import { CreateApiKeyPermissionsEnum } from '@northrays/api-client'
 
 export const CREATE_API_KEY_PERMISSIONS_GROUPS: { name: string; permissions: CreateApiKeyPermissionsEnum[] }[] = [
   {

@@ -103,24 +103,24 @@ export class OidcConfig {
 
   @ApiProperty({
     description: 'OIDC client ID',
-    example: 'daytona-client',
+    example: 'northrays-client',
   })
   @IsString()
   clientId: string
 
   @ApiProperty({
     description: 'OIDC audience',
-    example: 'daytona-api',
+    example: 'northrays-api',
   })
   @IsString()
   audience: string
 }
 
 @ApiExtraModels(Announcement)
-@ApiSchema({ name: 'DaytonaConfiguration' })
+@ApiSchema({ name: 'NorthraysConfiguration' })
 export class ConfigurationDto {
   @ApiProperty({
-    description: 'Daytona version',
+    description: 'Northrays version',
     example: '0.0.1',
   })
   @IsString()

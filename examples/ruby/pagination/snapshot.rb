@@ -1,10 +1,10 @@
 # frozen_string_literal: true
 
-require 'daytona'
+require 'northrays'
 
-daytona = Daytona::Daytona.new
+northrays = Northrays::Northrays.new
 
-result = daytona.snapshot.list(page: 2, limit: 10)
+result = northrays.snapshot.list(page: 2, limit: 10)
 result.items.each do |snapshot|
   puts "#{snapshot.name} (#{snapshot.image_name})"
 end

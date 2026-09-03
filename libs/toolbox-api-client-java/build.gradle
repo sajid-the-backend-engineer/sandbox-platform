@@ -3,7 +3,7 @@ apply plugin: 'eclipse'
 apply plugin: 'java'
 apply plugin: 'com.diffplug.spotless'
 
-group = 'io.daytona'
+group = 'io.northrays'
 version = '0.0.0-dev'
 
 buildscript {
@@ -98,9 +98,9 @@ if(hasProperty('target') && target == 'android') {
                 artifactId = 'toolbox-api-client'
                 from components.java
                 pom {
-                    name = 'Daytona Toolbox API Client'
-                    description = 'Auto-generated Java client for the Daytona Toolbox API'
-                    url = 'https://github.com/daytonaio/daytona'
+                    name = 'Northrays Toolbox API Client'
+                    description = 'Auto-generated Java client for the Northrays Toolbox API'
+                    url = 'https://github.com/northrays/sandbox-platform'
                     licenses {
                         license {
                             name = 'Apache License, Version 2.0'
@@ -109,15 +109,15 @@ if(hasProperty('target') && target == 'android') {
                     }
                     developers {
                         developer {
-                            id = 'daytonaio'
-                            name = 'Daytona Platforms Inc.'
-                            email = 'support@daytona.io'
+                            id = 'northrays'
+                            name = 'Northrays'
+                            email = 'support@northrays.com'
                         }
                     }
                     scm {
-                        connection = 'scm:git:git://github.com/daytonaio/daytona.git'
-                        developerConnection = 'scm:git:ssh://github.com:daytonaio/daytona.git'
-                        url = 'https://github.com/daytonaio/daytona'
+                        connection = 'scm:git:git://github.com/northrays/sandbox-platform.git'
+                        developerConnection = 'scm:git:ssh://github.com:northrays/northrays.git'
+                        url = 'https://github.com/northrays/sandbox-platform'
                     }
                 }
             }

@@ -1,60 +1,60 @@
 ---
-title: Run OpenClaw in a Daytona Sandbox via CLI
-description: Learn how to run OpenClaw inside a Daytona sandbox using the Daytona CLI for secure, isolated, and always-on AI assistant with Telegram and WhatsApp.
+title: Run OpenClaw in a Northrays Sandbox via CLI
+description: Learn how to run OpenClaw inside a Northrays sandbox using the Northrays CLI for secure, isolated, and always-on AI assistant with Telegram and WhatsApp.
 ---
 
 import { TabItem, Tabs } from '@astrojs/starlight/components'
 
-This guide walks you through setting up [OpenClaw](https://openclaw.ai/) inside a Daytona sandbox and configuring Telegram and WhatsApp channels.
+This guide walks you through setting up [OpenClaw](https://openclaw.ai/) inside a Northrays sandbox and configuring Telegram and WhatsApp channels.
 
-Running OpenClaw in a Daytona sandbox keeps your AI assistant isolated from your local machine, provides a secure environment for code execution, and ensures your bot stays online 24/7 without tying up your personal computer.
+Running OpenClaw in a Northrays sandbox keeps your AI assistant isolated from your local machine, provides a secure environment for code execution, and ensures your bot stays online 24/7 without tying up your personal computer.
 
 ### Prerequisites
 
-- Daytona account and API key (Get it from [Daytona Dashboard](https://app.daytona.io/dashboard/keys))
+- Northrays account and API key (Get it from [Northrays Dashboard](https://app.northrays.com/dashboard/keys))
 - Local terminal (macOS, Linux, or Windows)
 
-### Install the Daytona CLI
+### Install the Northrays CLI
 
 <Tabs syncKey="os">
   <TabItem label="Mac/Linux">
     ```bash
-    brew install daytonaio/cli/daytona
+    brew install northrays/cli/northrays
     ```
   </TabItem>
   <TabItem label="Windows">
     ```bash
-    powershell -Command "irm https://get.daytona.io/windows | iex"
+    powershell -Command "irm https://get.northrays.com/windows | iex"
     ```
   </TabItem>
 </Tabs>
 
 :::note
-Already have the CLI? Check your version with `daytona --version`. If it's below **0.135.0**, [upgrade to the latest version](https://www.daytona.io/docs/en/getting-started/#cli).
+Already have the CLI? Check your version with `northrays --version`. If it's below **0.135.0**, [upgrade to the latest version](https://www.northrays.com/docs/en/getting-started/#cli).
 :::
 
-### Authenticate with Daytona
+### Authenticate with Northrays
 
-Log in to your Daytona account using your API key:
+Log in to your Northrays account using your API key:
 
 ```bash
-daytona login --api-key=YOUR_API_KEY
+northrays login --api-key=YOUR_API_KEY
 ```
 
-Replace `YOUR_API_KEY` with your actual Daytona API key.
+Replace `YOUR_API_KEY` with your actual Northrays API key.
 
 ### Create a Sandbox
 
 Create a sandbox for running OpenClaw:
 
 ```bash
-daytona sandbox create --name openclaw --snapshot daytona-medium --auto-stop 0
+northrays sandbox create --name openclaw --snapshot northrays-medium --auto-stop 0
 ```
 
-OpenClaw comes preinstalled in the default Daytona snapshot, so the command above is all you need.
+OpenClaw comes preinstalled in the default Northrays snapshot, so the command above is all you need.
 
 :::note
-The `--auto-stop 0` flag disables automatic shutdown, keeping OpenClaw accessible until you manually stop or delete the sandbox. The `daytona-medium` snapshot is required because the OpenClaw gateway needs a minimum of 2GB memory.
+The `--auto-stop 0` flag disables automatic shutdown, keeping OpenClaw accessible until you manually stop or delete the sandbox. The `northrays-medium` snapshot is required because the OpenClaw gateway needs a minimum of 2GB memory.
 :::
 
 ### Connect to the Sandbox
@@ -62,7 +62,7 @@ The `--auto-stop 0` flag disables automatic shutdown, keeping OpenClaw accessibl
 SSH into your sandbox:
 
 ```bash
-daytona ssh openclaw
+northrays ssh openclaw
 ```
 
 ### Run OpenClaw Onboarding
@@ -106,15 +106,15 @@ The `&` runs the gateway as a background process, keeping your terminal free for
 
 ### Access the Dashboard
 
-The OpenClaw dashboard is a web interface for managing your assistant, monitoring connections, and configuring channels. To access it, you need a [preview URL](https://www.daytona.io/docs/en/preview/) that exposes the gateway port running inside your sandbox.
+The OpenClaw dashboard is a web interface for managing your assistant, monitoring connections, and configuring channels. To access it, you need a [preview URL](https://www.northrays.com/docs/en/preview/) that exposes the gateway port running inside your sandbox.
 
 In your local terminal (not inside the sandbox SSH session), generate the preview URL:
 
 ```bash
-daytona preview-url openclaw --port 18789
+northrays preview-url openclaw --port 18789
 ```
 
-This command generates a [signed preview URL](https://www.daytona.io/docs/en/preview/#signed-preview-url) that securely exposes the port.
+This command generates a [signed preview URL](https://www.northrays.com/docs/en/preview/#signed-preview-url) that securely exposes the port.
 
 Open the URL in your browser, go to the **Overview** section, paste your gateway token in the **Gateway Token** field, and click **Connect**.
 

@@ -4,7 +4,7 @@
  */
 
 /**
- * External URLs for Daytona resources
+ * External URLs for Northrays resources
  */
-export const DAYTONA_DOCS_URL = 'https://www.daytona.io/docs'
-export const DAYTONA_SLACK_URL = 'https://go.daytona.io/slack'
+export const NORTHRAYS_DOCS_URL = 'https://www.northrays.com/docs'
+export const NORTHRAYS_SLACK_URL = 'https://go.northrays.com/slack'

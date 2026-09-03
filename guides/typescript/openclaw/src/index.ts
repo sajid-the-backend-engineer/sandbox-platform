@@ -4,8 +4,8 @@
  */
 
 import 'dotenv/config'
-import { Daytona } from '@daytona/sdk'
-import type { Sandbox } from '@daytona/sdk'
+import { Northrays } from '@northrays/sdk'
+import type { Sandbox } from '@northrays/sdk'
 import { randomBytes } from 'crypto'
 import { readFileSync } from 'fs'
 import { join } from 'path'
@@ -16,7 +16,7 @@ const OPENCLAW_PORT = 18789 // OpenClaw Gateway and Control UI port
 const SHOW_LOGS = true // Stream OpenClaw stdout/stderr to the terminal
 const MAKE_PUBLIC = true // Expose the sandbox for public internet access
 const PERSIST_SANDBOX = true // Keep the sandbox running after the script exits
-const DAYTONA_SNAPSHOT = 'daytona-medium' // This snapshot has openclaw installed
+const NORTHRAYS_SNAPSHOT = 'northrays-medium' // This snapshot has openclaw installed
 
 // Paths
 const USER_CONFIG_PATH = join(process.cwd(), 'openclaw.json')
@@ -43,7 +43,7 @@ async function shutdown() {
   process.exit(0)
 }
 
-// OpenClaw config to run in a Daytona sandbox
+// OpenClaw config to run in a Northrays sandbox
 const OPENCLAW_CONFIG = {
   gateway: {
     mode: 'local' as const,
@@ -61,13 +61,13 @@ const OPENCLAW_CONFIG = {
 
 // Main function
 async function main() {
-  // Create a new Daytona instance
-  const daytona = new Daytona()
+  // Create a new Northrays instance
+  const northrays = new Northrays()
 
   // Create a new sandbox
-  console.log('Creating Daytona sandbox...')
-  const sandbox = await daytona.create({
-    snapshot: DAYTONA_SNAPSHOT,
+  console.log('Creating Northrays sandbox...')
+  const sandbox = await northrays.create({
+    snapshot: NORTHRAYS_SNAPSHOT,
     autoStopInterval: 0,
     envVars: readEnvFile(ENV_SANDBOX_PATH),
     public: MAKE_PUBLIC,

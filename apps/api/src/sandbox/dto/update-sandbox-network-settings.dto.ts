@@ -26,7 +26,7 @@ export class UpdateSandboxNetworkSettingsDto {
 
   @ApiPropertyOptional({
     description: 'Comma-separated list of allowed domains for the sandbox',
-    example: 'example.com,*.daytona.io',
+    example: 'example.com,*.northrays.com',
   })
   @ValidateIf((_, value) => value !== undefined)
   @IsString()

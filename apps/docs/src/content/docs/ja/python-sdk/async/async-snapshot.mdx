@@ -9,7 +9,7 @@ hideTitleOnPage: true
 class Snapshot(SnapshotDto)
 ```
 
-Daytona（サンドボックスの作成・管理を行うプラットフォーム）における、事前構成済みのサンドボックスであるスナップショット（リソースや依存関係を含む再利用可能なイメージ/テンプレート）を表します。
+Northrays（サンドボックスの作成・管理を行うプラットフォーム）における、事前構成済みのサンドボックスであるスナップショット（リソースや依存関係を含む再利用可能なイメージ/テンプレート）を表します。
 
 **属性**:
 
@@ -37,7 +37,7 @@ Daytona（サンドボックスの作成・管理を行うプラットフォー�
 class AsyncSnapshotService()
 ```
 
-Daytonaのスナップショット（スナップショット（リソースや依存関係を含む再利用可能なイメージ/テンプレート））を管理するサービス。スナップショットの一覧、取得、作成、削除に使用できます。
+Northraysのスナップショット（スナップショット（リソースや依存関係を含む再利用可能なイメージ/テンプレート））を管理するサービス。スナップショットの一覧、取得、作成、削除に使用できます。
 
 #### AsyncSnapshotService.list
 
@@ -56,8 +56,8 @@ async def list() -> List[Snapshot]
 **例**:
 
 ```python
-async with AsyncDaytona() as daytona:
-    snapshots = await daytona.snapshot.list()
+async with AsyncNorthrays() as northrays:
+    snapshots = await northrays.snapshot.list()
     for snapshot in snapshots:
         print(f"{snapshot.name} ({snapshot.image_name})")
 ```
@@ -79,9 +79,9 @@ async def delete(snapshot: Snapshot) -> None
 **例**:
 
 ```python
-async with AsyncDaytona() as daytona:
-    snapshot = await daytona.snapshot.get("test-snapshot")
-    await daytona.snapshot.delete(snapshot)
+async with AsyncNorthrays() as northrays:
+    snapshot = await northrays.snapshot.get("test-snapshot")
+    await northrays.snapshot.delete(snapshot)
     print("Snapshot deleted")
 ```
 
@@ -107,8 +107,8 @@ async def get(name: str) -> Snapshot
 **例**:
 
 ```python
-async with AsyncDaytona() as daytona:
-    snapshot = await daytona.snapshot.get("test-snapshot-name")
+async with AsyncNorthrays() as northrays:
+    snapshot = await northrays.snapshot.get("test-snapshot-name")
     print(f"{snapshot.name} ({snapshot.image_name})")
 ```
 
@@ -136,7 +136,7 @@ async def create(params: CreateSnapshotParams,
 
 ```python
 image = Image.debianSlim('3.12').pipInstall('numpy')
-daytona.snapshot.create(
+northrays.snapshot.create(
     CreateSnapshotParams(name='my-snapshot', image=image),
     on_logs=lambda chunk: print(chunk, end=""),
 )
@@ -189,7 +189,7 @@ class CreateSnapshotParams(BaseModel)
 - `name` _Optional[str]_ - スナップショット名。
 - `image` _Union[str, Image]_ - スナップショットのイメージ。文字列が指定された場合は、
   いずれかのレジストリで利用可能である必要があります。Image インスタンスが指定された場合は、
-  Daytonaで新しいイメージを作成する際に使用されます。
+  Northraysで新しいイメージを作成する際に使用されます。
 - `resources` _Optional[Resources]_ - スナップショットのリソース。
 - `entrypoint` _Optional[List[str]]_ - スナップショットのエントリポイント。
 

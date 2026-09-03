@@ -3,8 +3,8 @@ import base64
 import os
 import time
 
-from daytona import (
-    AsyncDaytona,
+from northrays import (
+    AsyncNorthrays,
     BarChart,
     BoxAndWhiskerChart,
     Chart,
@@ -78,8 +78,8 @@ plt.show()
 
 
 async def main():
-    async with AsyncDaytona() as daytona:
-        sandbox = await daytona.create(
+    async with AsyncNorthrays() as northrays:
+        sandbox = await northrays.create(
             CreateSandboxFromImageParams(
                 image=Image.debian_slim("3.13").pip_install("matplotlib"),
             ),
@@ -110,7 +110,7 @@ async def main():
             else:
                 print("No charts found")
 
-        await daytona.delete(sandbox)
+        await northrays.delete(sandbox)
 
 
 def print_chart(chart: Chart):

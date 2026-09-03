@@ -14,7 +14,7 @@ import (
 	"testing"
 	"time"
 
-	toolbox "github.com/daytonaio/daemon/pkg/toolbox/computeruse"
+	toolbox "github.com/northrays/daemon/pkg/toolbox/computeruse"
 )
 
 func TestRunProcessOnceClosesLogFilesEachRun(t *testing.T) {

@@ -1,0 +1,13 @@
+name: northrays volume get
+synopsis: Get volume details
+usage: northrays volume get [VOLUME_ID_OR_NAME] [flags]
+options:
+  - name: format
+    shorthand: f
+    usage: Output format. Must be one of (yaml, json)
+inherited_options:
+  - name: help
+    default_value: 'false'
+    usage: help for northrays
+see_also:
+  - northrays volume - Manage Northrays volumes

@@ -4,7 +4,7 @@
  */
 
 import React, { Ref, useCallback, useEffect, useImperativeHandle, useMemo, useRef, useState } from 'react'
-import { Region, CreateRunnerResponse } from '@daytona/api-client'
+import { Region, CreateRunnerResponse } from '@northrays/api-client'
 import { useForm } from '@tanstack/react-form'
 import { z } from 'zod'
 import { AnimatePresence, motion } from 'framer-motion'

@@ -948,7 +948,7 @@ export class MetricsInterceptor implements NestInterceptor, OnApplicationShutdow
       is_deprecated: props.isDeprecated,
       sdk_version: props.sdkVersion,
       environment: props.environment,
-      daytona_version: this.version,
+      northrays_version: this.version,
     }
   }
 

@@ -10,7 +10,7 @@ RUN apk add --no-cache python3 py3-setuptools make g++
 
 RUN npm install -g corepack && corepack enable
 
-WORKDIR /daytona
+WORKDIR /northrays
 
 # Yarn caching layer
 COPY package.json yarn.lock .yarnrc.yml ./
@@ -29,7 +29,7 @@ COPY libs/runner-api-client/ libs/runner-api-client/
 COPY libs/runner-proto/ libs/runner-proto/
 
 # Docs build arguments
-ENV PUBLIC_WEB_URL=https://daytona.io
+ENV PUBLIC_WEB_URL=https://northrays.com
 ARG PUBLIC_ALGOLIA_APP_ID
 ENV PUBLIC_ALGOLIA_APP_ID=${PUBLIC_ALGOLIA_APP_ID}
 ARG PUBLIC_ALGOLIA_API_KEY
@@ -60,13 +60,13 @@ FROM node:22-alpine AS docs
 
 ARG VERSION=0.0.1
 
-WORKDIR /daytona
+WORKDIR /northrays
 
-COPY --from=build /daytona/node_modules node_modules
-COPY --from=build /daytona/dist/apps/docs dist/apps/docs
-COPY --from=build /daytona/apps/docs/server dist/apps/docs/server
+COPY --from=build /northrays/node_modules node_modules
+COPY --from=build /northrays/dist/apps/docs dist/apps/docs
+COPY --from=build /northrays/apps/docs/server dist/apps/docs/server
 
-WORKDIR /daytona/dist/apps/docs
+WORKDIR /northrays/dist/apps/docs
 
 RUN VER=$(echo ${VERSION} | sed 's/^v//') && \
   MAJOR=$(echo ${VER} | cut -d. -f1) && \

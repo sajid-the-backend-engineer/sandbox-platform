@@ -8,11 +8,11 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/daytonaio/daytona/libs/sdk-go/pkg/daytona"
+	"github.com/northrays/sandbox-platform/libs/sdk-go/pkg/northrays"
 )
 
 func main() {
-	client, err := daytona.NewClient()
+	client, err := northrays.NewClient()
 	if err != nil {
 		log.Fatalf("Failed to create client: %v", err)
 	}
@@ -21,12 +21,12 @@ func main() {
 
 	// Example 1: Iterate through sandboxes (Go 1.23+ range-over-func)
 	limit := 10
-	sort := daytona.SandboxListSortFieldCreatedAt
-	order := daytona.SandboxListSortDirectionDesc
-	for sandbox, err := range client.ListSeq(ctx, &daytona.ListSandboxesQuery{
+	sort := northrays.SandboxListSortFieldCreatedAt
+	order := northrays.SandboxListSortDirectionDesc
+	for sandbox, err := range client.ListSeq(ctx, &northrays.ListSandboxesQuery{
 		Limit:  &limit,
 		Labels: map[string]string{"env": "dev"},
-		States: []daytona.SandboxState{daytona.SandboxStateStarted},
+		States: []northrays.SandboxState{northrays.SandboxStateStarted},
 		Sort:   &sort,
 		Order:  &order,
 	}) {

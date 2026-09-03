@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: AGPL-3.0
  */
 
-import { VolumeDto } from '@daytona/api-client'
+import { VolumeDto } from '@northrays/api-client'
 import { useQuery } from '@tanstack/react-query'
 import { useApi } from '../useApi'
 import { useSelectedOrganization } from '../useSelectedOrganization'

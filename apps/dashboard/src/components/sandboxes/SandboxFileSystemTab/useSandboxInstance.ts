@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: AGPL-3.0
  */
 
-import { Daytona } from '@daytona/sdk'
+import { Northrays } from '@northrays/sdk'
 import { useMemo } from 'react'
 import { useAuth } from 'react-oidc-context'
 
@@ -22,7 +22,7 @@ export function useSandboxInstance(sandboxId: string) {
       return null
     }
 
-    return new Daytona({
+    return new Northrays({
       jwtToken: user.access_token,
       apiUrl,
       organizationId: selectedOrganization.id,

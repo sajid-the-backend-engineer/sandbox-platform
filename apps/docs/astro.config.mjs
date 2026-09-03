@@ -9,11 +9,11 @@ import config from './gt.config.json'
 import { generateI18nConfig } from './src/i18n/generateI18nConfig'
 
 const jsonDarkString = fs.readFileSync(
-  new URL(`src/assets/themes/daytona-code-dark.json`, import.meta.url),
+  new URL(`src/assets/themes/northrays-code-dark.json`, import.meta.url),
   'utf-8'
 )
 const jsonLightString = fs.readFileSync(
-  new URL(`src/assets/themes/daytona-code-light.json`, import.meta.url),
+  new URL(`src/assets/themes/northrays-code-light.json`, import.meta.url),
   'utf-8'
 )
 const myThemeDark = ExpressiveCodeTheme.fromJSONString(jsonDarkString)
@@ -26,17 +26,17 @@ export default defineConfig({
   integrations: [
     react(),
     starlight({
-      title: 'Daytona',
+      title: 'Northrays',
       favicon: '/favicon.ico',
       social: [
         {
           icon: 'github',
           label: 'GitHub',
-          href: 'https://github.com/daytonaio',
+          href: 'https://github.com/northrays',
         },
       ],
       editLink: {
-        baseUrl: 'https://github.com/daytonaio/daytona/blob/main/apps/docs/',
+        baseUrl: 'https://github.com/northrays/sandbox-platform/blob/main/apps/docs/',
       },
       tableOfContents: { minHeadingLevel: 2, maxHeadingLevel: 4 },
       customCss: ['./src/fonts/font-face.css', './src/styles/style.scss'],
@@ -69,8 +69,8 @@ export default defineConfig({
   ],
   security: {
     allowedDomains: [
-      { hostname: 'daytona.io' },
-      { hostname: 'www.daytona.io' },
+      { hostname: 'northrays.com' },
+      { hostname: 'www.northrays.com' },
       { hostname: 'localhost' },
     ],
   },

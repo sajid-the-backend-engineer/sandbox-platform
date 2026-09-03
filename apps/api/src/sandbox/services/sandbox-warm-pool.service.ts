@@ -90,7 +90,7 @@ export class SandboxWarmPoolService {
       })
       if (!snapshot) {
         throw new BadRequestError(
-          `Snapshot ${sandboxSnapshot} not found. Did you add it through the Daytona Dashboard?`,
+          `Snapshot ${sandboxSnapshot} not found. Did you add it through the Northrays Dashboard?`,
         )
       }
     } else {

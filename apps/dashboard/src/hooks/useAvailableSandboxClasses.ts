@@ -4,7 +4,7 @@
  */
 
 import { useMemo } from 'react'
-import { SandboxClass } from '@daytona/api-client'
+import { SandboxClass } from '@northrays/api-client'
 import { useOrganizationUsageOverviewQuery } from '@/hooks/queries/useOrganizationUsageOverviewQuery'
 import { useSelectedOrganization } from '@/hooks/useSelectedOrganization'
 

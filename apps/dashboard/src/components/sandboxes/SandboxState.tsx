@@ -4,7 +4,7 @@
  */
 
 import { cn } from '@/lib/utils'
-import { SandboxState as SandboxStateType } from '@daytona/api-client'
+import { SandboxState as SandboxStateType } from '@northrays/api-client'
 import { Loader2 } from 'lucide-react'
 import { AnimatePresence, motion, useReducedMotion } from 'motion/react'
 import { getStateLabel } from '../SandboxTable/constants'

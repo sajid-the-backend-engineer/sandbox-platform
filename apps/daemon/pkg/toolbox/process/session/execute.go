@@ -9,9 +9,9 @@ import (
 	"net/http"
 	"strings"
 
-	common_errors "github.com/daytonaio/common-go/pkg/errors"
-	"github.com/daytonaio/daemon/internal/util"
-	"github.com/daytonaio/daemon/pkg/session"
+	common_errors "github.com/northrays/common-go/pkg/errors"
+	"github.com/northrays/daemon/internal/util"
+	"github.com/northrays/daemon/pkg/session"
 	"github.com/gin-gonic/gin"
 )
 

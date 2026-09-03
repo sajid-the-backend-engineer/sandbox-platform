@@ -6,9 +6,9 @@ package common
 import (
 	"context"
 
-	apiclient_cli "github.com/daytonaio/daytona/cli/apiclient"
-	"github.com/daytonaio/daytona/cli/config"
-	apiclient "github.com/daytonaio/daytona/libs/api-client-go"
+	apiclient_cli "github.com/northrays/sandbox-platform/cli/apiclient"
+	"github.com/northrays/sandbox-platform/cli/config"
+	apiclient "github.com/northrays/sandbox-platform/libs/api-client-go"
 )
 
 func GetPersonalOrganizationId(profile config.Profile) (string, error) {

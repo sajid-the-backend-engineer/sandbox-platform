@@ -147,7 +147,7 @@ export class ObjectStorageService {
 
       const command = new AssumeRoleCommand({
         RoleArn: `arn:aws:iam::${config.accountId}:role/${config.roleName}`,
-        RoleSessionName: `daytona-${config.organizationId}-${Date.now()}`,
+        RoleSessionName: `northrays-${config.organizationId}-${Date.now()}`,
         DurationSeconds: 3600, // One hour
         Policy: JSON.stringify(config.policy),
       })

@@ -1,0 +1,14 @@
+name: northrays volume create
+synopsis: Create a volume
+usage: northrays volume create [NAME] [flags]
+options:
+  - name: size
+    shorthand: s
+    default_value: '10'
+    usage: Size of the volume in GB
+inherited_options:
+  - name: help
+    default_value: 'false'
+    usage: help for northrays
+see_also:
+  - northrays volume - Manage Northrays volumes

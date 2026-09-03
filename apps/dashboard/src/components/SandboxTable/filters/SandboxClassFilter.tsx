@@ -12,7 +12,7 @@ import {
   CommandList,
 } from '@/components/ui/command'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'
-import { SandboxClass } from '@daytona/api-client'
+import { SandboxClass } from '@northrays/api-client'
 import { X } from 'lucide-react'
 import { SANDBOX_CLASS_OPTIONS, getSandboxClassLabel } from '../constants'
 

@@ -1,15 +1,15 @@
 import asyncio
 import time
 
-from daytona import AsyncDaytona, CreateSandboxFromSnapshotParams, CreateSnapshotParams, DaytonaConfig, Image
+from northrays import AsyncNorthrays, CreateSandboxFromSnapshotParams, CreateSnapshotParams, NorthraysConfig, Image
 
 
 async def main():
-    async with AsyncDaytona(DaytonaConfig(target="us")) as daytona:
+    async with AsyncNorthrays(NorthraysConfig(target="us")) as northrays:
         snapshot1 = f"us-{int(time.time() * 1000)}"
         print(f"Creating snapshot {snapshot1}")
         try:
-            _ = await daytona.snapshot.create(
+            _ = await northrays.snapshot.create(
                 CreateSnapshotParams(
                     name=snapshot1,
                     image=Image.debian_slim("3.12"),
@@ -23,7 +23,7 @@ async def main():
         snapshot2 = f"eu-{int(time.time() * 1000)}"
         print(f"Creating snapshot {snapshot2}")
         try:
-            _ = await daytona.snapshot.create(
+            _ = await northrays.snapshot.create(
                 CreateSnapshotParams(
                     name=snapshot2,
                     image=Image.debian_slim("3.13"),
@@ -36,16 +36,16 @@ async def main():
 
         print(f"Creating sandbox from snapshot {snapshot1}")
         try:
-            sandbox = await daytona.create(CreateSandboxFromSnapshotParams(snapshot=snapshot1))
-            await daytona.delete(sandbox)
+            sandbox = await northrays.create(CreateSandboxFromSnapshotParams(snapshot=snapshot1))
+            await northrays.delete(sandbox)
         except Exception as e:
             print(e)
         print("--------------------------------")
 
         print(f"Creating sandbox from snapshot {snapshot2}")
         try:
-            sandbox = await daytona.create(CreateSandboxFromSnapshotParams(snapshot=snapshot2))
-            await daytona.delete(sandbox)
+            sandbox = await northrays.create(CreateSandboxFromSnapshotParams(snapshot=snapshot2))
+            await northrays.delete(sandbox)
         except Exception as e:
             print("error", e)
 

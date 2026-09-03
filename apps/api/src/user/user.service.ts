@@ -106,7 +106,7 @@ export class UserService {
   }
 
   private generatePrivateKey(): Promise<UserSSHKeyPair> {
-    const comment = 'daytona'
+    const comment = 'northrays'
 
     return new Promise((resolve, reject) => {
       crypto.generateKeyPair(

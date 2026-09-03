@@ -7,10 +7,10 @@ import { DocumentBuilder } from '@nestjs/swagger'
 
 const getOpenApiConfig = (oidcIssuer: string) =>
   new DocumentBuilder()
-    .setTitle('Daytona')
+    .setTitle('Northrays')
     .addServer('http://localhost:3000')
-    .setDescription('Daytona AI platform API Docs')
-    .setContact('Daytona Platforms Inc.', 'https://www.daytona.io', 'support@daytona.com')
+    .setDescription('Northrays AI platform API Docs')
+    .setContact('Northrays', 'https://www.northrays.com', 'support@northrays.com')
     .setVersion('1.0')
     .setLicense('Apache-2.0', 'https://www.apache.org/licenses/LICENSE-2.0')
     .addBearerAuth({

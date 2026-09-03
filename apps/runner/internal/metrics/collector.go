@@ -14,8 +14,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/daytonaio/runner/pkg/common"
-	"github.com/daytonaio/runner/pkg/docker"
+	"github.com/northrays/runner/pkg/common"
+	"github.com/northrays/runner/pkg/docker"
 	"github.com/docker/docker/api/types/container"
 	"github.com/shirou/gopsutil/v4/cpu"
 	"github.com/shirou/gopsutil/v4/disk"

@@ -5,13 +5,13 @@ description: Manage your organizations and their resources.
 
 import { TabItem, Tabs } from '@astrojs/starlight/components'
 
-Daytona provides organizations as a way to group resources and enable collaboration. Users can work individually in their personal organization or together in a collaborative organization.
+Northrays provides organizations as a way to group resources and enable collaboration. Users can work individually in their personal organization or together in a collaborative organization.
 
-Navigate to [Daytona Dashboard ↗](https://app.daytona.io/dashboard) to manage your organizations, or use the [API](/docs/en/tools/api/#daytona/tag/organizations) to manage them programmatically.
+Navigate to [Northrays Dashboard ↗](https://app.northrays.com/dashboard) to manage your organizations, or use the [API](/docs/en/tools/api/#northrays/tag/organizations) to manage them programmatically.
 
 ## Personal vs Collaborative
 
-Every Daytona user starts with a personal organization, ideal for solo use and experimentation. Collaborative organizations are created manually and designed for company-wide collaboration with shared access and controls.
+Every Northrays user starts with a personal organization, ideal for solo use and experimentation. Collaborative organizations are created manually and designed for company-wide collaboration with shared access and controls.
 
 | **Feature**        | **Personal organization**        | **Collaborative organization**                 |
 | ------------------ | -------------------------------- | ---------------------------------------------- |
@@ -23,13 +23,13 @@ Every Daytona user starts with a personal organization, ideal for solo use and e
 | **Quota Scope**    | Per user                         | Shared across all members                      |
 | **Deletable**      | No                               | Yes (by Owner)                                 |
 
-Users can switch between their personal and collaborative organizations by using the dropdown in the [Daytona Dashboard ↗](https://app.daytona.io/dashboard) sidebar. Each organization has its own sandboxes, API keys, and resource quotas.
+Users can switch between their personal and collaborative organizations by using the dropdown in the [Northrays Dashboard ↗](https://app.northrays.com/dashboard) sidebar. Each organization has its own sandboxes, API keys, and resource quotas.
 
 ## Create organization
 
-Daytona provides options to create organizations in [Daytona Dashboard ↗](https://app.daytona.io/dashboard/) or programmatically using the [API](/docs/en/tools/api/#daytona/tag/organizations).
+Northrays provides options to create organizations in [Northrays Dashboard ↗](https://app.northrays.com/dashboard/) or programmatically using the [API](/docs/en/tools/api/#northrays/tag/organizations).
 
-1. Navigate to [Daytona Dashboard ↗](https://app.daytona.io/dashboard/)
+1. Navigate to [Northrays Dashboard ↗](https://app.northrays.com/dashboard/)
 2. Expand the dropdown at the top-left corner of the sidebar to view your organizations
 3. Click the **Create Organization** button
 4. Enter the organization name
@@ -40,7 +40,7 @@ Daytona provides options to create organizations in [Daytona Dashboard ↗](http
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://app.daytona.io/api/organizations' \
+curl 'https://app.northrays.com/api/organizations' \
   --request POST \
   --header 'Content-Type: application/json' \
   --header 'Authorization: Bearer YOUR_API_KEY' \
@@ -55,13 +55,13 @@ curl 'https://app.daytona.io/api/organizations' \
 
 ## List organizations
 
-Daytona provides methods to list all organizations the authenticated user belongs to.
+Northrays provides methods to list all organizations the authenticated user belongs to.
 
 <Tabs syncKey="language">
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://app.daytona.io/api/organizations' \
+curl 'https://app.northrays.com/api/organizations' \
   --header 'Authorization: Bearer YOUR_API_KEY'
 ```
 
@@ -70,13 +70,13 @@ curl 'https://app.daytona.io/api/organizations' \
 
 ### Get by ID
 
-Daytona provides a method to get an organization by ID.
+Northrays provides a method to get an organization by ID.
 
 <Tabs syncKey="language">
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://app.daytona.io/api/organizations/ORGANIZATION_ID' \
+curl 'https://app.northrays.com/api/organizations/ORGANIZATION_ID' \
   --header 'Authorization: Bearer YOUR_API_KEY'
 ```
 
@@ -85,9 +85,9 @@ curl 'https://app.daytona.io/api/organizations/ORGANIZATION_ID' \
 
 ## Leave organization
 
-Daytona provides options to leave an organization in [Daytona Dashboard ↗](https://app.daytona.io/dashboard/) or programmatically using the [API](/docs/en/tools/api/#daytona/tag/organizations).
+Northrays provides options to leave an organization in [Northrays Dashboard ↗](https://app.northrays.com/dashboard/) or programmatically using the [API](/docs/en/tools/api/#northrays/tag/organizations).
 
-1. Navigate to [Daytona Dashboard ↗](https://app.daytona.io/dashboard/)
+1. Navigate to [Northrays Dashboard ↗](https://app.northrays.com/dashboard/)
 2. Expand the dropdown at the top-left corner of the sidebar to view your organizations
 3. Select the organization you want to leave
 4. Click **Settings** in the sidebar
@@ -98,7 +98,7 @@ Daytona provides options to leave an organization in [Daytona Dashboard ↗](htt
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://app.daytona.io/api/organizations/ORGANIZATION_ID/leave' \
+curl 'https://app.northrays.com/api/organizations/ORGANIZATION_ID/leave' \
   --request POST \
   --header 'Authorization: Bearer YOUR_API_KEY'
 ```
@@ -108,9 +108,9 @@ curl 'https://app.daytona.io/api/organizations/ORGANIZATION_ID/leave' \
 
 ## Delete organization
 
-Daytona provides options to delete an organization in [Daytona Dashboard ↗](https://app.daytona.io/dashboard/) or programmatically using the [API](/docs/en/tools/api/#daytona/tag/organizations).
+Northrays provides options to delete an organization in [Northrays Dashboard ↗](https://app.northrays.com/dashboard/) or programmatically using the [API](/docs/en/tools/api/#northrays/tag/organizations).
 
-1. Navigate to [Daytona Dashboard ↗](https://app.daytona.io/dashboard/)
+1. Navigate to [Northrays Dashboard ↗](https://app.northrays.com/dashboard/)
 2. Expand the dropdown at the top-left corner of the sidebar to view your organizations
 3. Select the organization you want to delete
 4. Click **Settings** in the sidebar
@@ -121,7 +121,7 @@ Daytona provides options to delete an organization in [Daytona Dashboard ↗](ht
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://app.daytona.io/api/organizations/ORGANIZATION_ID' \
+curl 'https://app.northrays.com/api/organizations/ORGANIZATION_ID' \
   --request DELETE \
   --header 'Authorization: Bearer YOUR_API_KEY'
 ```
@@ -154,13 +154,13 @@ The list of available role assignments includes:
 
 ### Create role
 
-Daytona provides a method to create a new role in an organization.
+Northrays provides a method to create a new role in an organization.
 
 <Tabs syncKey="language">
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://app.daytona.io/api/organizations/ORGANIZATION_ID/roles' \
+curl 'https://app.northrays.com/api/organizations/ORGANIZATION_ID/roles' \
   --request POST \
   --header 'Content-Type: application/json' \
   --header 'Authorization: Bearer YOUR_API_KEY' \
@@ -176,13 +176,13 @@ curl 'https://app.daytona.io/api/organizations/ORGANIZATION_ID/roles' \
 
 ### List roles
 
-Daytona provides a method to list all roles in an organization.
+Northrays provides a method to list all roles in an organization.
 
 <Tabs syncKey="language">
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://app.daytona.io/api/organizations/ORGANIZATION_ID/roles' \
+curl 'https://app.northrays.com/api/organizations/ORGANIZATION_ID/roles' \
   --header 'Authorization: Bearer YOUR_API_KEY'
 ```
 
@@ -191,13 +191,13 @@ curl 'https://app.daytona.io/api/organizations/ORGANIZATION_ID/roles' \
 
 ### Update role
 
-Daytona provides a method to update a role in an organization.
+Northrays provides a method to update a role in an organization.
 
 <Tabs syncKey="language">
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://app.daytona.io/api/organizations/ORGANIZATION_ID/roles/ROLE_ID' \
+curl 'https://app.northrays.com/api/organizations/ORGANIZATION_ID/roles/ROLE_ID' \
   --request PUT \
   --header 'Content-Type: application/json' \
   --header 'Authorization: Bearer YOUR_API_KEY' \
@@ -213,13 +213,13 @@ curl 'https://app.daytona.io/api/organizations/ORGANIZATION_ID/roles/ROLE_ID' \
 
 ### Delete role
 
-Daytona provides a method to delete a role in an organization.
+Northrays provides a method to delete a role in an organization.
 
 <Tabs syncKey="language">
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://app.daytona.io/api/organizations/ORGANIZATION_ID/roles/ROLE_ID' \
+curl 'https://app.northrays.com/api/organizations/ORGANIZATION_ID/roles/ROLE_ID' \
   --request DELETE \
   --header 'Authorization: Bearer YOUR_API_KEY'
 ```
@@ -229,17 +229,17 @@ curl 'https://app.daytona.io/api/organizations/ORGANIZATION_ID/roles/ROLE_ID' \
 
 ## Members
 
-Daytona provides methods to manage members in an organization.
+Northrays provides methods to manage members in an organization.
 
 ### List members
 
-Daytona provides a method to list all members in an organization.
+Northrays provides a method to list all members in an organization.
 
 <Tabs syncKey="language">
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://app.daytona.io/api/organizations/ORGANIZATION_ID/users' \
+curl 'https://app.northrays.com/api/organizations/ORGANIZATION_ID/users' \
   --header 'Authorization: Bearer YOUR_API_KEY'
 ```
 
@@ -248,9 +248,9 @@ curl 'https://app.daytona.io/api/organizations/ORGANIZATION_ID/users' \
 
 ### Invite members
 
-Daytona provides a method to invite a new user to an organization.
+Northrays provides a method to invite a new user to an organization.
 
-1. Navigate to [Daytona Dashboard ↗](https://app.daytona.io/dashboard/members)
+1. Navigate to [Northrays Dashboard ↗](https://app.northrays.com/dashboard/members)
 2. Click the **Invite Member** button
 3. Enter the email address of the user you want to invite
 4. [Select a role](#roles) for the new user. If you select the **`Member`** role, define their [assignments](#role-assignments)
@@ -259,7 +259,7 @@ Daytona provides a method to invite a new user to an organization.
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://app.daytona.io/api/organizations/ORGANIZATION_ID/invitations' \
+curl 'https://app.northrays.com/api/organizations/ORGANIZATION_ID/invitations' \
   --request POST \
   --header 'Content-Type: application/json' \
   --header 'Authorization: Bearer YOUR_API_KEY' \
@@ -275,9 +275,9 @@ curl 'https://app.daytona.io/api/organizations/ORGANIZATION_ID/invitations' \
 
 ### Remove members
 
-Daytona provides a method to remove a user from an organization.
+Northrays provides a method to remove a user from an organization.
 
-1. Navigate to [Daytona Dashboard ↗](https://app.daytona.io/dashboard/members)
+1. Navigate to [Northrays Dashboard ↗](https://app.northrays.com/dashboard/members)
 2. Click the **Remove** button next to the user you want to remove
 3. Confirm the removal by clicking the **Remove** button
 
@@ -285,7 +285,7 @@ Daytona provides a method to remove a user from an organization.
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://app.daytona.io/api/organizations/ORGANIZATION_ID/users/USER_ID' \
+curl 'https://app.northrays.com/api/organizations/ORGANIZATION_ID/users/USER_ID' \
   --request DELETE \
   --header 'Authorization: Bearer YOUR_API_KEY'
 ```
@@ -295,9 +295,9 @@ curl 'https://app.daytona.io/api/organizations/ORGANIZATION_ID/users/USER_ID' \
 
 ### Update access
 
-Daytona provides options to update the access of a member in an organization in [Daytona Dashboard ↗](https://app.daytona.io/dashboard/members) or programmatically using the [API](/docs/en/tools/api/#daytona/tag/organizations).
+Northrays provides options to update the access of a member in an organization in [Northrays Dashboard ↗](https://app.northrays.com/dashboard/members) or programmatically using the [API](/docs/en/tools/api/#northrays/tag/organizations).
 
-1. Navigate to [Daytona Dashboard ↗](https://app.daytona.io/dashboard/members)
+1. Navigate to [Northrays Dashboard ↗](https://app.northrays.com/dashboard/members)
 2. Click the three-dot menu on the member row
 3. Click **Change Role** or **Manage Assignments**
 4. Update the role or assignments and click **Save**
@@ -306,7 +306,7 @@ Daytona provides options to update the access of a member in an organization in 
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://app.daytona.io/api/organizations/ORGANIZATION_ID/users/USER_ID/access' \
+curl 'https://app.northrays.com/api/organizations/ORGANIZATION_ID/users/USER_ID/access' \
   --request POST \
   --header 'Content-Type: application/json' \
   --header 'Authorization: Bearer YOUR_API_KEY' \
@@ -321,16 +321,16 @@ curl 'https://app.daytona.io/api/organizations/ORGANIZATION_ID/users/USER_ID/acc
 
 ## Invitations
 
-Daytona provides methods to manage invitations in an organization.
+Northrays provides methods to manage invitations in an organization.
 
-1. Navigate to [Daytona Dashboard ↗](https://app.daytona.io/dashboard/user/invitations)
+1. Navigate to [Northrays Dashboard ↗](https://app.northrays.com/dashboard/user/invitations)
 2. Expand the dropdown at the bottom of the sidebar to view pending invitations to join other organizations.
 
 <Tabs syncKey="language">
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://app.daytona.io/api/organizations/invitations' \
+curl 'https://app.northrays.com/api/organizations/invitations' \
   --header 'Authorization: Bearer YOUR_API_KEY'
 ```
 
@@ -339,13 +339,13 @@ curl 'https://app.daytona.io/api/organizations/invitations' \
 
 ### Get invitations count
 
-Daytona provides a method to get the number of invitations in an organization.
+Northrays provides a method to get the number of invitations in an organization.
 
 <Tabs syncKey="language">
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://app.daytona.io/api/organizations/invitations/count' \
+curl 'https://app.northrays.com/api/organizations/invitations/count' \
   --header 'Authorization: Bearer YOUR_API_KEY'
 ```
 
@@ -354,9 +354,9 @@ curl 'https://app.daytona.io/api/organizations/invitations/count' \
 
 ### Accept invitation
 
-Daytona provides options to accept a pending organization invitation in [Daytona Dashboard ↗](https://app.daytona.io/dashboard/user/invitations) or programmatically using the [API](/docs/en/tools/api/#daytona/tag/organizations).
+Northrays provides options to accept a pending organization invitation in [Northrays Dashboard ↗](https://app.northrays.com/dashboard/user/invitations) or programmatically using the [API](/docs/en/tools/api/#northrays/tag/organizations).
 
-1. Navigate to [Daytona Dashboard ↗](https://app.daytona.io/dashboard/)
+1. Navigate to [Northrays Dashboard ↗](https://app.northrays.com/dashboard/)
 2. Click your profile at the bottom-left of the sidebar
 3. Click **Invitations**
 4. Click the checkmark button on the invitation row
@@ -365,7 +365,7 @@ Daytona provides options to accept a pending organization invitation in [Daytona
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://app.daytona.io/api/organizations/invitations/INVITATION_ID/accept' \
+curl 'https://app.northrays.com/api/organizations/invitations/INVITATION_ID/accept' \
   --request POST \
   --header 'Authorization: Bearer YOUR_API_KEY'
 ```
@@ -377,9 +377,9 @@ Once a user accepts an invitation to join an organization, they get access to re
 
 ### Decline invitation
 
-Daytona provides options to decline a pending organization invitation in [Daytona Dashboard ↗](https://app.daytona.io/dashboard/user/invitations) or programmatically using the [API](/docs/en/tools/api/#daytona/tag/organizations).
+Northrays provides options to decline a pending organization invitation in [Northrays Dashboard ↗](https://app.northrays.com/dashboard/user/invitations) or programmatically using the [API](/docs/en/tools/api/#northrays/tag/organizations).
 
-1. Navigate to [Daytona Dashboard ↗](https://app.daytona.io/dashboard/)
+1. Navigate to [Northrays Dashboard ↗](https://app.northrays.com/dashboard/)
 2. Click your profile at the bottom-left of the sidebar
 3. Click **Invitations**
 4. Click the X button on the invitation row
@@ -389,7 +389,7 @@ Daytona provides options to decline a pending organization invitation in [Dayton
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://app.daytona.io/api/organizations/invitations/INVITATION_ID/decline' \
+curl 'https://app.northrays.com/api/organizations/invitations/INVITATION_ID/decline' \
   --request POST \
   --header 'Authorization: Bearer YOUR_API_KEY'
 ```
@@ -399,13 +399,13 @@ curl 'https://app.daytona.io/api/organizations/invitations/INVITATION_ID/decline
 
 ### List pending
 
-Daytona provides a method to list pending invitations for an organization.
+Northrays provides a method to list pending invitations for an organization.
 
 <Tabs syncKey="language">
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://app.daytona.io/api/organizations/ORGANIZATION_ID/invitations' \
+curl 'https://app.northrays.com/api/organizations/ORGANIZATION_ID/invitations' \
   --header 'Authorization: Bearer YOUR_API_KEY'
 ```
 
@@ -414,9 +414,9 @@ curl 'https://app.daytona.io/api/organizations/ORGANIZATION_ID/invitations' \
 
 ### Update invitation
 
-Daytona provides options to update an invitation for an organization in [Daytona Dashboard ↗](https://app.daytona.io/dashboard/members) or programmatically using the [API](/docs/en/tools/api/#daytona/tag/organizations).
+Northrays provides options to update an invitation for an organization in [Northrays Dashboard ↗](https://app.northrays.com/dashboard/members) or programmatically using the [API](/docs/en/tools/api/#northrays/tag/organizations).
 
-1. Navigate to [Daytona Dashboard ↗](https://app.daytona.io/dashboard/members)
+1. Navigate to [Northrays Dashboard ↗](https://app.northrays.com/dashboard/members)
 2. Scroll to the **Invitations** table
 3. Click the three-dot menu on the invitation row
 4. Click **Edit**
@@ -426,7 +426,7 @@ Daytona provides options to update an invitation for an organization in [Daytona
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://app.daytona.io/api/organizations/ORGANIZATION_ID/invitations/INVITATION_ID' \
+curl 'https://app.northrays.com/api/organizations/ORGANIZATION_ID/invitations/INVITATION_ID' \
   --request PUT \
   --header 'Content-Type: application/json' \
   --header 'Authorization: Bearer YOUR_API_KEY' \
@@ -442,9 +442,9 @@ curl 'https://app.daytona.io/api/organizations/ORGANIZATION_ID/invitations/INVIT
 
 ### Cancel invitation
 
-Daytona provides options to cancel an invitation for an organization in [Daytona Dashboard ↗](https://app.daytona.io/dashboard/members) or programmatically using the [API](/docs/en/tools/api/#daytona/tag/organizations).
+Northrays provides options to cancel an invitation for an organization in [Northrays Dashboard ↗](https://app.northrays.com/dashboard/members) or programmatically using the [API](/docs/en/tools/api/#northrays/tag/organizations).
 
-1. Navigate to [Daytona Dashboard ↗](https://app.daytona.io/dashboard/members)
+1. Navigate to [Northrays Dashboard ↗](https://app.northrays.com/dashboard/members)
 2. Scroll to the **Invitations** table
 3. Click the three-dot menu on the invitation row
 4. Click **Cancel**
@@ -454,7 +454,7 @@ Daytona provides options to cancel an invitation for an organization in [Daytona
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://app.daytona.io/api/organizations/ORGANIZATION_ID/invitations/INVITATION_ID/cancel' \
+curl 'https://app.northrays.com/api/organizations/ORGANIZATION_ID/invitations/INVITATION_ID/cancel' \
   --request POST \
   --header 'Authorization: Bearer YOUR_API_KEY'
 ```
@@ -470,13 +470,13 @@ For more information on available region types, see the [Regions](/docs/en/regio
 
 ### Set default region
 
-Daytona provides options to set the default region programmatically using the [API](/docs/en/tools/api/#daytona/tag/organizations).
+Northrays provides options to set the default region programmatically using the [API](/docs/en/tools/api/#northrays/tag/organizations).
 
 <Tabs syncKey="language">
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://app.daytona.io/api/organizations/ORGANIZATION_ID/default-region' \
+curl 'https://app.northrays.com/api/organizations/ORGANIZATION_ID/default-region' \
   --request PATCH \
   --header 'Content-Type: application/json' \
   --header 'Authorization: Bearer YOUR_API_KEY' \
@@ -490,21 +490,21 @@ curl 'https://app.daytona.io/api/organizations/ORGANIZATION_ID/default-region' \
 
 ## Organization settings
 
-The settings page in the [Daytona Dashboard ↗](https://app.daytona.io/dashboard/settings) allows you to view the organization ID and name, and optionally delete the organization if you don't need it anymore. This action is irreversible, so please proceed with caution. Personal organizations are there by default and cannot be deleted.
+The settings page in the [Northrays Dashboard ↗](https://app.northrays.com/dashboard/settings) allows you to view the organization ID and name, and optionally delete the organization if you don't need it anymore. This action is irreversible, so please proceed with caution. Personal organizations are there by default and cannot be deleted.
 
 ## Advanced operations
 
-Daytona provides methods to perform advanced operations on an organization.
+Northrays provides methods to perform advanced operations on an organization.
 
 ### Usage overview
 
-Daytona provides a method to get the usage overview for an organization.
+Northrays provides a method to get the usage overview for an organization.
 
 <Tabs syncKey="language">
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://app.daytona.io/api/organizations/ORGANIZATION_ID/usage' \
+curl 'https://app.northrays.com/api/organizations/ORGANIZATION_ID/usage' \
   --header 'Authorization: Bearer YOUR_API_KEY'
 ```
 
@@ -513,13 +513,13 @@ curl 'https://app.daytona.io/api/organizations/ORGANIZATION_ID/usage' \
 
 ### Update sandbox default limited network egress
 
-Daytona provides a method to update the sandbox default limited network egress for an organization.
+Northrays provides a method to update the sandbox default limited network egress for an organization.
 
 <Tabs syncKey="language">
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://app.daytona.io/api/organizations/ORGANIZATION_ID/sandbox-default-limited-network-egress' \
+curl 'https://app.northrays.com/api/organizations/ORGANIZATION_ID/sandbox-default-limited-network-egress' \
   --request POST \
   --header 'Content-Type: application/json' \
   --header 'Authorization: Bearer YOUR_API_KEY' \
@@ -533,13 +533,13 @@ curl 'https://app.daytona.io/api/organizations/ORGANIZATION_ID/sandbox-default-l
 
 ### Update experimental configuration
 
-Daytona provides a method to update the experimental configuration for an organization.
+Northrays provides a method to update the experimental configuration for an organization.
 
 <Tabs syncKey="language">
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://app.daytona.io/api/organizations/ORGANIZATION_ID/experimental-config' \
+curl 'https://app.northrays.com/api/organizations/ORGANIZATION_ID/experimental-config' \
   --request PUT \
   --header 'Content-Type: application/json' \
   --header 'Authorization: Bearer YOUR_API_KEY' \

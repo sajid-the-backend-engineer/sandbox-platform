@@ -5,9 +5,9 @@ description: Choose specific geographic locations for reduced latency, comply wi
 
 import { TabItem, Tabs } from '@astrojs/starlight/components'
 
-Sandboxes are isolated runtime environments that run on [runners](/docs/en/bring-your-own-compute) — machines that form Daytona's compute plane.
+Sandboxes are isolated runtime environments that run on [runners](/docs/en/bring-your-own-compute) — machines that form Northrays's compute plane.
 
-Runners are organized into **regions**, which are geographic or logical groupings of compute infrastructure. When creating a sandbox, you can target a specific region, and Daytona will schedule your workload on an available runner within that region.
+Runners are organized into **regions**, which are geographic or logical groupings of compute infrastructure. When creating a sandbox, you can target a specific region, and Northrays will schedule your workload on an available runner within that region.
 
 As a result, you're able to:
 
@@ -22,23 +22,23 @@ Regions are geographic or logical groupings of runners that execute sandbox work
 <TabItem label="Python" icon="seti:python">
 
 ```python
-from daytona import Daytona, DaytonaConfig
+from northrays import Northrays, NorthraysConfig
 
-# Configure Daytona to use the US region
-config = DaytonaConfig(
+# Configure Northrays to use the US region
+config = NorthraysConfig(
     target="us"
 )
 
-# Initialize the Daytona client with the specified configuration
-daytona = Daytona(config)
+# Initialize the Northrays client with the specified configuration
+northrays = Northrays(config)
 ```
 </TabItem>
 <TabItem label="TypeScript" icon="seti:typescript">
 ```typescript
-import { Daytona } from '@daytona/sdk';
+import { Northrays } from '@northrays/sdk';
 
-// Configure Daytona to use the EU region
-const daytona: Daytona = new Daytona({
+// Configure Northrays to use the EU region
+const northrays: Northrays = new Northrays({
     target: "eu"
 });
 ```
@@ -50,12 +50,12 @@ const daytona: Daytona = new Daytona({
 package main
 
 import (
-    "github.com/daytonaio/daytona/libs/sdk-go/pkg/daytona"
-    "github.com/daytonaio/daytona/libs/sdk-go/pkg/types"
+    "github.com/northrays/sandbox-platform/libs/sdk-go/pkg/northrays"
+    "github.com/northrays/sandbox-platform/libs/sdk-go/pkg/types"
 )
 
-// Configure Daytona to use the US region
-client, _ := daytona.NewClientWithConfig(&types.DaytonaConfig{
+// Configure Northrays to use the US region
+client, _ := northrays.NewClientWithConfig(&types.NorthraysConfig{
     Target: "us",
 })
 ```
@@ -64,31 +64,31 @@ client, _ := daytona.NewClientWithConfig(&types.DaytonaConfig{
 <TabItem label="Ruby" icon="seti:ruby">
 
 ```ruby
-require 'daytona'
+require 'northrays'
 
-# Configure Daytona to use the EU region
-config = Daytona::Config.new(
+# Configure Northrays to use the EU region
+config = Northrays::Config.new(
     target: "eu"
 )
 
-# Initialize the Daytona client with the specified configuration
-daytona = Daytona::Daytona.new(config)
+# Initialize the Northrays client with the specified configuration
+northrays = Northrays::Northrays.new(config)
 ```
 
 </TabItem>
 <TabItem label="Java" icon="seti:java">
 
 ```java
-import io.daytona.sdk.Daytona;
-import io.daytona.sdk.DaytonaConfig;
+import io.northrays.sdk.Northrays;
+import io.northrays.sdk.NorthraysConfig;
 
-// Configure Daytona to use the US region
-DaytonaConfig config = new DaytonaConfig.Builder()
-        .apiKey(System.getenv("DAYTONA_API_KEY"))
+// Configure Northrays to use the US region
+NorthraysConfig config = new NorthraysConfig.Builder()
+        .apiKey(System.getenv("NORTHRAYS_API_KEY"))
         .target("us")
         .build();
 
-Daytona daytona = new Daytona(config);
+Northrays northrays = new Northrays(config);
 ```
 
 </TabItem>
@@ -96,9 +96,9 @@ Daytona daytona = new Daytona(config);
 
 ### Shared regions
 
-Shared regions are managed by Daytona and available to all organizations. These regions provide immediate access to Daytona's infrastructure without any setup required.
+Shared regions are managed by Northrays and available to all organizations. These regions provide immediate access to Northrays's infrastructure without any setup required.
 
-Limits are applied to your organization's default region. For access to a different shared region, contact [sales@daytona.io](mailto:sales@daytona.io).
+Limits are applied to your organization's default region. For access to a different shared region, contact [sales@northrays.com](mailto:sales@northrays.com).
 
 | Region        | Target   |
 | ------------- | -------- |
@@ -107,10 +107,10 @@ Limits are applied to your organization's default region. For access to a differ
 
 ### Dedicated regions
 
-Dedicated regions are managed by Daytona and provisioned exclusively for individual organizations. These regions deliver dedicated infrastructure with the operational simplicity of a managed service.
+Dedicated regions are managed by Northrays and provisioned exclusively for individual organizations. These regions deliver dedicated infrastructure with the operational simplicity of a managed service.
 
 :::note
-Contact [sales@daytona.io](mailto:sales@daytona.io) to set up a dedicated region for your organization.
+Contact [sales@northrays.com](mailto:sales@northrays.com) to set up a dedicated region for your organization.
 :::
 
 ### Custom regions

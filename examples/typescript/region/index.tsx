@@ -1,14 +1,14 @@
-import { Daytona, Image } from '@daytona/sdk'
+import { Northrays, Image } from '@northrays/sdk'
 
 async function main() {
-  const daytona = new Daytona({
+  const northrays = new Northrays({
     target: 'us',
   })
 
   const snapshot1 = `us-${Date.now()}`
   console.log(`Creating snapshot ${snapshot1}`)
   try {
-    await daytona.snapshot.create({
+    await northrays.snapshot.create({
       name: snapshot1,
       image: Image.debianSlim('3.12'),
       regionId: 'us',
@@ -21,7 +21,7 @@ async function main() {
   const snapshot2 = `eu-${Date.now()}`
   console.log(`Creating snapshot ${snapshot2}`)
   try {
-    await daytona.snapshot.create({
+    await northrays.snapshot.create({
       name: snapshot2,
       image: Image.debianSlim('3.13'),
       regionId: 'eu',
@@ -33,10 +33,10 @@ async function main() {
 
   console.log(`Creating sandbox from snapshot ${snapshot1}`)
   try {
-    const sandbox = await daytona.create({
+    const sandbox = await northrays.create({
       snapshot: snapshot1,
     })
-    await daytona.delete(sandbox)
+    await northrays.delete(sandbox)
   } catch (error: any) {
     console.error(error?.message)
   }
@@ -44,10 +44,10 @@ async function main() {
 
   console.log(`Creating sandbox from snapshot ${snapshot2}`)
   try {
-    const sandbox = await daytona.create({
+    const sandbox = await northrays.create({
       snapshot: snapshot2,
     })
-    await daytona.delete(sandbox)
+    await northrays.delete(sandbox)
   } catch (error: any) {
     console.error('error', error?.message)
   }

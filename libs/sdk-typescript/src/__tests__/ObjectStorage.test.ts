@@ -4,7 +4,7 @@
 import * as fs from 'fs'
 import * as os from 'os'
 import * as pathe from 'pathe'
-import { DaytonaNotFoundError } from '../errors/DaytonaError'
+import { NorthraysNotFoundError } from '../errors/NorthraysError'
 
 const mockSend = jest.fn()
 const mockUploadDone = jest.fn()
@@ -72,7 +72,7 @@ describe('ObjectStorage', () => {
 
   beforeEach(async () => {
     jest.clearAllMocks()
-    tempDir = await fs.promises.mkdtemp(pathe.join(os.tmpdir(), 'daytona-object-storage-'))
+    tempDir = await fs.promises.mkdtemp(pathe.join(os.tmpdir(), 'northrays-object-storage-'))
 
     mockDynamicImport.mockImplementation(async (moduleName: string) => {
       if (moduleName === 'fs') return originalFs
@@ -121,7 +121,7 @@ describe('ObjectStorage', () => {
     const storage = await makeStorage()
 
     await expect(storage.upload(pathe.join(tempDir, 'missing'), 'org-1', '.')).rejects.toBeInstanceOf(
-      DaytonaNotFoundError,
+      NorthraysNotFoundError,
     )
     await expect(storage.upload(pathe.join(tempDir, 'missing'), 'org-1', '.')).rejects.toThrow(
       `Path does not exist: ${pathe.join(tempDir, 'missing')}`,

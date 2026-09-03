@@ -7,12 +7,12 @@ import (
 	"context"
 	"fmt"
 
-	apiclient_cli "github.com/daytonaio/daytona/cli/apiclient"
-	"github.com/daytonaio/daytona/cli/config"
-	"github.com/daytonaio/daytona/cli/views/common"
-	"github.com/daytonaio/daytona/cli/views/organization"
-	"github.com/daytonaio/daytona/cli/views/util"
-	apiclient "github.com/daytonaio/daytona/libs/api-client-go"
+	apiclient_cli "github.com/northrays/sandbox-platform/cli/apiclient"
+	"github.com/northrays/sandbox-platform/cli/config"
+	"github.com/northrays/sandbox-platform/cli/views/common"
+	"github.com/northrays/sandbox-platform/cli/views/organization"
+	"github.com/northrays/sandbox-platform/cli/views/util"
+	apiclient "github.com/northrays/sandbox-platform/libs/api-client-go"
 	"github.com/spf13/cobra"
 )
 

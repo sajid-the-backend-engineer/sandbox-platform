@@ -1,0 +1,9 @@
+name: northrays archive
+synopsis: Archive a sandbox
+usage: northrays archive [SANDBOX_ID] | [SANDBOX_NAME] [flags]
+inherited_options:
+  - name: help
+    default_value: 'false'
+    usage: help for northrays
+see_also:
+  - northrays - Northrays CLI

@@ -9,9 +9,9 @@ import (
 	"time"
 
 	"github.com/containerd/errdefs"
-	"github.com/daytonaio/common-go/pkg/utils"
-	"github.com/daytonaio/runner/pkg/api/dto"
-	"github.com/daytonaio/runner/pkg/common"
+	"github.com/northrays/common-go/pkg/utils"
+	"github.com/northrays/runner/pkg/api/dto"
+	"github.com/northrays/runner/pkg/common"
 
 	"github.com/docker/docker/api/types/container"
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"

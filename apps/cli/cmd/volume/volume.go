@@ -4,14 +4,14 @@
 package volume
 
 import (
-	"github.com/daytonaio/daytona/cli/internal"
+	"github.com/northrays/sandbox-platform/cli/internal"
 	"github.com/spf13/cobra"
 )
 
 var VolumeCmd = &cobra.Command{
 	Use:     "volume",
-	Short:   "Manage Daytona volumes",
-	Long:    "Commands for managing Daytona volumes",
+	Short:   "Manage Northrays volumes",
+	Long:    "Commands for managing Northrays volumes",
 	Aliases: []string{"volumes"},
 	GroupID: internal.SANDBOX_GROUP,
 }

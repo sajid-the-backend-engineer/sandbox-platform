@@ -1,14 +1,14 @@
-import { Daytona } from '@daytona/sdk'
+import { Northrays } from '@northrays/sdk'
 
 async function main() {
-  const daytona = new Daytona()
+  const northrays = new Northrays()
 
-  const owner = await daytona.create()
+  const owner = await northrays.create()
   console.log(`Owner sandbox ready: id=${owner.id} name=${owner.name}`)
 
   // Linked sandboxes must be ephemeral — `ephemeral: true` sets
   // `autoDeleteInterval=0` automatically.
-  const follower = await daytona.create({
+  const follower = await northrays.create({
     linkedSandbox: owner.id,
     ephemeral: true,
   })
@@ -56,9 +56,9 @@ exit 1
     console.log(`Response from owner: ${curlRes.result.trim()}`)
   } finally {
     console.log(`\nDeleting follower ${follower.id}`)
-    await daytona.delete(follower)
+    await northrays.delete(follower)
     console.log(`Deleting owner ${owner.id}`)
-    await daytona.delete(owner)
+    await northrays.delete(owner)
   }
 }
 

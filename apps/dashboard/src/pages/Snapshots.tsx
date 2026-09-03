@@ -42,7 +42,7 @@ import {
   PaginatedSnapshots,
   SnapshotDto,
   SnapshotState,
-} from '@daytona/api-client'
+} from '@northrays/api-client'
 import { useQueryClient } from '@tanstack/react-query'
 import { parseAsArrayOf, parseAsInteger, parseAsString, useQueryState, useQueryStates } from 'nuqs'
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react'

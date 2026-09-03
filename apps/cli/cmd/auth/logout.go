@@ -4,15 +4,15 @@
 package auth
 
 import (
-	"github.com/daytonaio/daytona/cli/config"
-	"github.com/daytonaio/daytona/cli/internal"
-	"github.com/daytonaio/daytona/cli/views/common"
+	"github.com/northrays/sandbox-platform/cli/config"
+	"github.com/northrays/sandbox-platform/cli/internal"
+	"github.com/northrays/sandbox-platform/cli/views/common"
 	"github.com/spf13/cobra"
 )
 
 var LogoutCmd = &cobra.Command{
 	Use:     "logout",
-	Short:   "Logout from Daytona",
+	Short:   "Logout from Northrays",
 	Args:    cobra.NoArgs,
 	GroupID: internal.USER_GROUP,
 	RunE: func(cmd *cobra.Command, args []string) error {

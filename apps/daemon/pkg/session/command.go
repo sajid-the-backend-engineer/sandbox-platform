@@ -10,7 +10,7 @@ import (
 	"strconv"
 	"strings"
 
-	common_errors "github.com/daytonaio/common-go/pkg/errors"
+	common_errors "github.com/northrays/common-go/pkg/errors"
 )
 
 func (s *SessionService) getSessionCommands(sessionId string) ([]*Command, error) {

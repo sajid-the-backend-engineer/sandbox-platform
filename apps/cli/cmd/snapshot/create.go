@@ -9,13 +9,13 @@ import (
 	"strings"
 	"time"
 
-	apiclient_cli "github.com/daytonaio/daytona/cli/apiclient"
-	"github.com/daytonaio/daytona/cli/cmd/common"
-	"github.com/daytonaio/daytona/cli/config"
-	"github.com/daytonaio/daytona/cli/util"
-	view_common "github.com/daytonaio/daytona/cli/views/common"
-	views_util "github.com/daytonaio/daytona/cli/views/util"
-	apiclient "github.com/daytonaio/daytona/libs/api-client-go"
+	apiclient_cli "github.com/northrays/sandbox-platform/cli/apiclient"
+	"github.com/northrays/sandbox-platform/cli/cmd/common"
+	"github.com/northrays/sandbox-platform/cli/config"
+	"github.com/northrays/sandbox-platform/cli/util"
+	view_common "github.com/northrays/sandbox-platform/cli/views/common"
+	views_util "github.com/northrays/sandbox-platform/cli/views/util"
+	apiclient "github.com/northrays/sandbox-platform/libs/api-client-go"
 	"github.com/spf13/cobra"
 )
 
@@ -142,7 +142,7 @@ var CreateCmd = &cobra.Command{
 		}
 
 		view_common.RenderInfoMessageBold(fmt.Sprintf("Snapshot %s successfully created", snapshotName))
-		view_common.RenderInfoMessage(fmt.Sprintf("%s Run 'daytona sandbox create --snapshot %s' to create a new sandbox using this snapshot", view_common.Checkmark, snapshotName))
+		view_common.RenderInfoMessage(fmt.Sprintf("%s Run 'northrays sandbox create --snapshot %s' to create a new sandbox using this snapshot", view_common.Checkmark, snapshotName))
 		return nil
 	},
 }

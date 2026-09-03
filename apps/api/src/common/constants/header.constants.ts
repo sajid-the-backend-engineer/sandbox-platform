@@ -14,7 +14,7 @@ export const CustomHeaders: {
   }
 } = {
   ORGANIZATION_ID: {
-    name: 'X-Daytona-Organization-ID',
+    name: 'X-Northrays-Organization-ID',
     description: 'Use with JWT to specify the organization ID',
     required: false,
     schema: {
@@ -22,7 +22,7 @@ export const CustomHeaders: {
     },
   },
   SOURCE: {
-    name: 'X-Daytona-Source',
+    name: 'X-Northrays-Source',
     description: 'Use to specify the source of the request',
     required: false,
     schema: {
@@ -30,7 +30,7 @@ export const CustomHeaders: {
     },
   },
   SDK_VERSION: {
-    name: 'X-Daytona-SDK-Version',
+    name: 'X-Northrays-SDK-Version',
     description: 'Use to specify the version of the SDK',
     required: false,
     schema: {

@@ -17,12 +17,12 @@ import { Tabs, TabItem } from '@astrojs/starlight/components';
 <Tabs syncKey="language">
 <TabItem label="Python" icon="seti:python">
 ```bash
-volume = daytona.volume.get("my-volume", create=True)
+volume = northrays.volume.get("my-volume", create=True)
 ```
 </TabItem>
 <TabItem label="TypeScript" icon="seti:typescript">
 ```bash
-const volume = await daytona.volume.get('my-volume', true)
+const volume = await northrays.volume.get('my-volume', true)
 ```
 </TabItem>
 </Tabs>
@@ -35,21 +35,21 @@ const volume = await daytona.volume.get('my-volume', true)
 <TabItem label="Python" icon="seti:python">
 ```python
 import os
-from daytona import CreateSandboxFromSnapshotParams, Daytona, VolumeMount
+from northrays import CreateSandboxFromSnapshotParams, Northrays, VolumeMount
 
-daytona = Daytona()
+northrays = Northrays()
 
 # 新しいボリュームを作成するか、既存のボリュームを取得する
-volume = daytona.volume.get("my-volume", create=True)
+volume = northrays.volume.get("my-volume", create=True)
 
 # ボリュームをサンドボックスにマウントする
-mount_dir_1 = "/home/daytona/volume"
+mount_dir_1 = "/home/northrays/volume"
 
 params = CreateSandboxFromSnapshotParams(
     language="python",
     volumes=[VolumeMount(volume_id=volume.id, mount_path=mount_dir_1)],
 )
-sandbox = daytona.create(params)
+sandbox = northrays.create(params)
 
 # サンドボックスの利用が終わったら、削除できます
 # サンドボックスを削除しても、ボリュームは保持されます
@@ -61,7 +61,7 @@ params = CreateSandboxFromSnapshotParams(
     language="python",
     volumes=[VolumeMount(volume_id=volume.id, mount_path=mount_dir_1, subpath="users/alice")],
 )
-sandbox2 = daytona.create(params)
+sandbox2 = northrays.create(params)
 
 sandbox2.delete()
 ```
@@ -69,19 +69,19 @@ sandbox2.delete()
 </TabItem>
 <TabItem label="TypeScript" icon="seti:typescript">
 ```typescript
-import { Daytona } from '@daytona/sdk'
+import { Northrays } from '@northrays/sdk'
 import path from 'path'
 
 async function main() {
-  const daytona = new Daytona()
+  const northrays = new Northrays()
 
   // 新しいボリュームを作成するか、既存のボリュームを取得する
-  const volume = await daytona.volume.get('my-volume', true)
+  const volume = await northrays.volume.get('my-volume', true)
 
   // ボリュームをサンドボックスにマウントする
-  const mountDir1 = '/home/daytona/volume'
+  const mountDir1 = '/home/northrays/volume'
 
-  const sandbox1 = await daytona.create({
+  const sandbox1 = await northrays.create({
     language: 'typescript',
     volumes: [{ volumeId: volume.id, mountPath: mountDir1 }],
   })
@@ -92,7 +92,7 @@ async function main() {
 
   // ボリューム内の特定のサブパスをマウントします
   // これは、データの分離やマルチテナントの実装に役立ちます
-  const sandbox2 = await daytona.create({
+  const sandbox2 = await northrays.create({
     language: 'typescript',
     volumes: [{ volumeId: volume.id, mountPath: mountDir1, subpath: 'users/alice' }],
   })
@@ -114,14 +114,14 @@ main()
 <Tabs syncKey="language">
 <TabItem label="Python" icon="seti:python">
 ```python
-volume = daytona.volume.get("my-volume", create=True)
-daytona.volume.delete(volume)
+volume = northrays.volume.get("my-volume", create=True)
+northrays.volume.delete(volume)
 ```
 </TabItem>
 <TabItem label="TypeScript" icon="seti:typescript">
 ```typescript
-const volume = await daytona.volume.get('my-volume', true)
-await daytona.volume.delete(volume)
+const volume = await northrays.volume.get('my-volume', true)
+await northrays.volume.delete(volume)
 ```
 </TabItem>
 </Tabs>

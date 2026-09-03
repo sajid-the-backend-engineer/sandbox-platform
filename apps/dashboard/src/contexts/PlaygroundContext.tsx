@@ -25,7 +25,7 @@ import {
   Resources,
   ScreenshotOptions,
   ScreenshotRegion,
-} from '@daytona/sdk'
+} from '@northrays/sdk'
 import { createContext, ReactNode } from 'react'
 
 export interface ParameterFormItem {

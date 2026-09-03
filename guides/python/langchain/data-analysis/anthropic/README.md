@@ -1,14 +1,14 @@
-# LangChain Data Analysis Example (LangChain + Daytona)
+# LangChain Data Analysis Example (LangChain + Northrays)
 
 ## Overview
 
-This example demonstrates how to build a [LangChain](https://www.langchain.com/) agent that performs secure data analysis using [Daytona](https://daytona.io) sandboxes. The agent uses the `DaytonaDataAnalysisTool` to execute Python code in an isolated environment, enabling automated data analysis workflows with natural language prompts.
+This example demonstrates how to build a [LangChain](https://www.langchain.com/) agent that performs secure data analysis using [Northrays](https://northrays.com) sandboxes. The agent uses the `NorthraysDataAnalysisTool` to execute Python code in an isolated environment, enabling automated data analysis workflows with natural language prompts.
 
 In this example, the agent analyzes a vehicle valuations dataset to understand how vehicle prices vary by manufacturing year and generates a line chart showing average price per year.
 
 ## Features
 
-- **Secure sandbox execution:** All Python code runs in isolated Daytona sandboxes
+- **Secure sandbox execution:** All Python code runs in isolated Northrays sandboxes
 - **Natural language interface:** Describe your analysis task in plain English
 - **Automatic artifact handling:** Charts and outputs are automatically captured and saved
 - **Multi-step reasoning:** Agent breaks down complex analysis into logical steps
@@ -26,7 +26,7 @@ In this example, the agent analyzes a vehicle valuations dataset to understand h
 
 To run this example, you need to set the following environment variables:
 
-- `DAYTONA_API_KEY`: Required for access to Daytona sandboxes. Get it from [Daytona Dashboard](https://app.daytona.io/dashboard/keys)
+- `NORTHRAYS_API_KEY`: Required for access to Northrays sandboxes. Get it from [Northrays Dashboard](https://app.northrays.com/dashboard/keys)
 - `ANTHROPIC_API_KEY`: Required for Claude AI model access. Get it from [Anthropic Console](https://console.anthropic.com/)
 
 See the `.env.example` file for the exact structure. Copy `.env.example` to `.env` and fill in your API keys before running.
@@ -51,16 +51,16 @@ Before proceeding, complete the following steps:
 2. Install dependencies:
 
    ```bash
-   pip install -U langchain langchain-anthropic langchain-daytona-data-analysis python-dotenv
+   pip install -U langchain langchain-anthropic langchain-northrays-data-analysis python-dotenv
    ```
 
 3. Download the dataset:
 
    ```bash
-   curl -o dataset.csv https://download.daytona.io/dataset.csv
+   curl -o dataset.csv https://download.northrays.com/dataset.csv
    ```
 
-   Or download manually from [https://download.daytona.io/dataset.csv](https://download.daytona.io/dataset.csv) and save as `dataset.csv`
+   Or download manually from [https://download.northrays.com/dataset.csv](https://download.northrays.com/dataset.csv) and save as `dataset.csv`
 
 4. Run the example:
 
@@ -80,10 +80,10 @@ Before proceeding, complete the following steps:
 
 When you run the example, the agent follows this workflow:
 
-1. **Dataset Upload:** The CSV file is uploaded to the Daytona sandbox with metadata describing its structure
+1. **Dataset Upload:** The CSV file is uploaded to the Northrays sandbox with metadata describing its structure
 2. **Agent Reasoning:** The agent receives your natural language request and plans the analysis steps
 3. **Code Generation:** Agent generates Python code to explore, clean, and analyze the data
-4. **Sandbox Execution:** Code runs securely in the Daytona sandbox environment
+4. **Sandbox Execution:** Code runs securely in the Northrays sandbox environment
 5. **Artifact Processing:** Charts and outputs are captured and processed by your custom handler
 6. **Cleanup:** Sandbox resources are automatically cleaned up
 
@@ -146,7 +146,7 @@ The agent generates a professional line chart showing how average vehicle prices
 
 ## API Reference
 
-The `DaytonaDataAnalysisTool` provides these key methods:
+The `NorthraysDataAnalysisTool` provides these key methods:
 
 ### download_file
 
@@ -180,7 +180,7 @@ def close() -> None
 
 Closes and deletes the sandbox environment. Always call this when finished to clean up resources.
 
-For the complete API reference and additional methods, see the [documentation](https://www.daytona.io/docs/en/langchain-data-analysis/#10-api-reference).
+For the complete API reference and additional methods, see the [documentation](https://www.northrays.com/docs/en/langchain-data-analysis/#10-api-reference).
 
 ## License
 
@@ -189,4 +189,4 @@ See the main project LICENSE file for details.
 ## References
 
 - [LangChain](https://docs.langchain.com/)
-- [Daytona](https://daytona.io)
+- [Northrays](https://northrays.com)

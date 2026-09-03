@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# Kill all processes running on Daytona application ports.
+# Kill all processes running on Northrays application ports.
 #
 set -euo pipefail
 
@@ -25,7 +25,7 @@ PORTS=(
   4321  # docs (functions)
 )
 
-echo "Daytona application ports: ${PORTS[*]}"
+echo "Northrays application ports: ${PORTS[*]}"
 echo ""
 
 declare -A SEEN_PIDS

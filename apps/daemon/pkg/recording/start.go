@@ -12,7 +12,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/daytonaio/daemon/pkg/childreap"
+	"github.com/northrays/daemon/pkg/childreap"
 	"github.com/google/uuid"
 )
 

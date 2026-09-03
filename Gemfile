@@ -3,9 +3,9 @@
 source 'https://rubygems.org'
 
 # Local gems from libs
-gem 'daytona_api_client', '>= 0.0.0.pre.dev', path: 'libs/api-client-ruby'
-gem 'daytona_toolbox_api_client', '>= 0.0.0.pre.dev', path: 'libs/toolbox-api-client-ruby'
-gem 'daytona', '>= 0.0.0.pre.dev', path: 'libs/sdk-ruby'
+gem 'northrays_api_client', '>= 0.0.0.pre.dev', path: 'libs/api-client-ruby'
+gem 'northrays_toolbox_api_client', '>= 0.0.0.pre.dev', path: 'libs/toolbox-api-client-ruby'
+gem 'northrays', '>= 0.0.0.pre.dev', path: 'libs/sdk-ruby'
 
 # Shared development dependencies
 group :development do

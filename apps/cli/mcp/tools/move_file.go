@@ -7,7 +7,7 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/daytonaio/daytona/cli/apiclient"
+	"github.com/northrays/sandbox-platform/cli/apiclient"
 	"github.com/mark3labs/mcp-go/mcp"
 
 	log "github.com/sirupsen/logrus"
@@ -21,7 +21,7 @@ type MoveFileArgs struct {
 
 func GetMoveFileTool() mcp.Tool {
 	return mcp.NewTool("move_file",
-		mcp.WithDescription("Move or rename a file in the Daytona sandbox."),
+		mcp.WithDescription("Move or rename a file in the Northrays sandbox."),
 		mcp.WithString("sourcePath", mcp.Required(), mcp.Description("Source path of the file to move.")),
 		mcp.WithString("destPath", mcp.Required(), mcp.Description("Destination path where to move the file.")),
 		mcp.WithString("id", mcp.Required(), mcp.Description("ID of the sandbox to move the file in.")),
@@ -29,7 +29,7 @@ func GetMoveFileTool() mcp.Tool {
 }
 
 func MoveFile(ctx context.Context, request mcp.CallToolRequest, args MoveFileArgs) (*mcp.CallToolResult, error) {
-	apiClient, err := apiclient.GetApiClient(nil, daytonaMCPHeaders)
+	apiClient, err := apiclient.GetApiClient(nil, northraysMCPHeaders)
 	if err != nil {
 		return &mcp.CallToolResult{IsError: true}, err
 	}

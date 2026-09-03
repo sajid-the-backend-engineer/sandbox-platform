@@ -10,4 +10,4 @@ spec/**
 .gitlab-ci.yml
 docs/**
 README.md
-daytona_toolbox_api_client.gemspec
+northrays_toolbox_api_client.gemspec

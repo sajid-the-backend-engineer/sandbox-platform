@@ -6,15 +6,15 @@
 const fs = require('fs')
 const path = require('path')
 
-const SDK_SOURCE_DIR = path.resolve(__dirname, '../src/main/java/io/daytona/sdk')
+const SDK_SOURCE_DIR = path.resolve(__dirname, '../src/main/java/io/northrays/sdk')
 const DOCS_OUTPUT_DIR = path.resolve(__dirname, '../../../apps/docs/src/content/docs/en/java-sdk')
 
 const DOC_TARGETS = [
-  { outputFile: 'daytona.mdx', logName: 'Daytona', classes: [{ file: 'Daytona.java', className: 'Daytona' }] },
+  { outputFile: 'northrays.mdx', logName: 'Northrays', classes: [{ file: 'Northrays.java', className: 'Northrays' }] },
   {
     outputFile: 'config.mdx',
-    logName: 'DaytonaConfig',
-    classes: [{ file: 'DaytonaConfig.java', className: 'DaytonaConfig', includeInner: ['Builder'] }],
+    logName: 'NorthraysConfig',
+    classes: [{ file: 'NorthraysConfig.java', className: 'NorthraysConfig', includeInner: ['Builder'] }],
   },
   { outputFile: 'sandbox.mdx', logName: 'Sandbox', classes: [{ file: 'Sandbox.java', className: 'Sandbox' }] },
   {
@@ -76,17 +76,17 @@ const DOC_TARGETS = [
     logName: 'Exception Classes',
     title: 'Errors',
     classes: [
-      { file: 'exception/DaytonaException.java', className: 'DaytonaException' },
-      { file: 'exception/DaytonaAuthenticationException.java', className: 'DaytonaAuthenticationException' },
-      { file: 'exception/DaytonaBadRequestException.java', className: 'DaytonaBadRequestException' },
-      { file: 'exception/DaytonaConflictException.java', className: 'DaytonaConflictException' },
-      { file: 'exception/DaytonaConnectionException.java', className: 'DaytonaConnectionException' },
-      { file: 'exception/DaytonaForbiddenException.java', className: 'DaytonaForbiddenException' },
-      { file: 'exception/DaytonaNotFoundException.java', className: 'DaytonaNotFoundException' },
-      { file: 'exception/DaytonaRateLimitException.java', className: 'DaytonaRateLimitException' },
-      { file: 'exception/DaytonaServerException.java', className: 'DaytonaServerException' },
-      { file: 'exception/DaytonaTimeoutException.java', className: 'DaytonaTimeoutException' },
-      { file: 'exception/DaytonaValidationException.java', className: 'DaytonaValidationException' },
+      { file: 'exception/NorthraysException.java', className: 'NorthraysException' },
+      { file: 'exception/NorthraysAuthenticationException.java', className: 'NorthraysAuthenticationException' },
+      { file: 'exception/NorthraysBadRequestException.java', className: 'NorthraysBadRequestException' },
+      { file: 'exception/NorthraysConflictException.java', className: 'NorthraysConflictException' },
+      { file: 'exception/NorthraysConnectionException.java', className: 'NorthraysConnectionException' },
+      { file: 'exception/NorthraysForbiddenException.java', className: 'NorthraysForbiddenException' },
+      { file: 'exception/NorthraysNotFoundException.java', className: 'NorthraysNotFoundException' },
+      { file: 'exception/NorthraysRateLimitException.java', className: 'NorthraysRateLimitException' },
+      { file: 'exception/NorthraysServerException.java', className: 'NorthraysServerException' },
+      { file: 'exception/NorthraysTimeoutException.java', className: 'NorthraysTimeoutException' },
+      { file: 'exception/NorthraysValidationException.java', className: 'NorthraysValidationException' },
     ],
   },
 ]
@@ -446,7 +446,7 @@ function buildClassDoc(classData) {
   lines.push(`## ${classData.className}`)
   lines.push('')
 
-  const classDescription = classData.javadoc.description || `${classData.className} class for Daytona SDK.`
+  const classDescription = classData.javadoc.description || `${classData.className} class for Northrays SDK.`
   lines.push(classDescription)
   lines.push('')
 

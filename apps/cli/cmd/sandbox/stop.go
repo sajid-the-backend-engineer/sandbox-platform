@@ -7,8 +7,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/daytonaio/daytona/cli/apiclient"
-	view_common "github.com/daytonaio/daytona/cli/views/common"
+	"github.com/northrays/sandbox-platform/cli/apiclient"
+	view_common "github.com/northrays/sandbox-platform/cli/views/common"
 	"github.com/spf13/cobra"
 )
 

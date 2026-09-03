@@ -6,7 +6,7 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/daytonaio/daytona/cli/internal"
+	"github.com/northrays/sandbox-platform/cli/internal"
 	"github.com/spf13/cobra"
 )
 
@@ -14,7 +14,7 @@ var VersionCmd = &cobra.Command{
 	Use:   "version",
 	Short: "Print the version number",
 	RunE: func(cmd *cobra.Command, args []string) error {
-		fmt.Println("Daytona CLI version", internal.Version)
+		fmt.Println("Northrays CLI version", internal.Version)
 		return nil
 	},
 }

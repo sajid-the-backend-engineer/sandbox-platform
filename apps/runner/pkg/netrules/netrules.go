@@ -72,8 +72,8 @@ func (manager *NetRulesManager) saveIptablesRules() error {
 	return nil
 }
 
-// ListDaytonaRules returns all DOCKER-USER rules that jump to Daytona chains
-func (manager *NetRulesManager) ListDaytonaRules(table string, chain string) ([]string, error) {
+// ListNorthraysRules returns all DOCKER-USER rules that jump to Northrays chains
+func (manager *NetRulesManager) ListNorthraysRules(table string, chain string) ([]string, error) {
 	manager.mu.Lock()
 	defer manager.mu.Unlock()
 
@@ -82,14 +82,14 @@ func (manager *NetRulesManager) ListDaytonaRules(table string, chain string) ([]
 		return nil, err
 	}
 
-	var daytonaRules []string
+	var northraysRules []string
 	for _, rule := range rules {
 		if strings.Contains(rule, ChainPrefix) {
-			daytonaRules = append(daytonaRules, rule)
+			northraysRules = append(northraysRules, rule)
 		}
 	}
 
-	return daytonaRules, nil
+	return northraysRules, nil
 }
 
 // DeleteChainRule deletes a specific rule from a specific chain
@@ -105,8 +105,8 @@ func (manager *NetRulesManager) DeleteChainRule(table string, chain string, rule
 	return manager.ipt.Delete(table, chain, args...)
 }
 
-// ListDaytonaChains returns all chains that start with DAYTONA-SB-
-func (manager *NetRulesManager) ListDaytonaChains(table string) ([]string, error) {
+// ListNorthraysChains returns all chains that start with NORTHRAYS-SB-
+func (manager *NetRulesManager) ListNorthraysChains(table string) ([]string, error) {
 	manager.mu.Lock()
 	defer manager.mu.Unlock()
 
@@ -115,14 +115,14 @@ func (manager *NetRulesManager) ListDaytonaChains(table string) ([]string, error
 		return nil, err
 	}
 
-	var daytonaChains []string
+	var northraysChains []string
 	for _, chain := range chains {
 		if strings.HasPrefix(chain, ChainPrefix) {
-			daytonaChains = append(daytonaChains, chain)
+			northraysChains = append(northraysChains, chain)
 		}
 	}
 
-	return daytonaChains, nil
+	return northraysChains, nil
 }
 
 // ClearAndDeleteChain deletes a specific table chain

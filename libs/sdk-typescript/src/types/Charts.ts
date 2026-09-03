@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import type { Chart as GeneratedChart, ChartElement as GeneratedChartElement } from '@daytona/toolbox-api-client'
+import type { Chart as GeneratedChart, ChartElement as GeneratedChartElement } from '@northrays/toolbox-api-client'
 
 export enum ChartType {
   LINE = 'line',

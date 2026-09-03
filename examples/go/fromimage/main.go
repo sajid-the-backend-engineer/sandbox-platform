@@ -9,15 +9,15 @@ import (
 	"os"
 	"time"
 
-	"github.com/daytonaio/daytona/libs/sdk-go/pkg/daytona"
-	"github.com/daytonaio/daytona/libs/sdk-go/pkg/options"
-	"github.com/daytonaio/daytona/libs/sdk-go/pkg/types"
+	"github.com/northrays/sandbox-platform/libs/sdk-go/pkg/northrays"
+	"github.com/northrays/sandbox-platform/libs/sdk-go/pkg/options"
+	"github.com/northrays/sandbox-platform/libs/sdk-go/pkg/types"
 )
 
 func main() {
-	// Create a new Daytona client using environment variables
-	// Set DAYTONA_API_KEY before running
-	client, err := daytona.NewClient()
+	// Create a new Northrays client using environment variables
+	// Set NORTHRAYS_API_KEY before running
+	client, err := northrays.NewClient()
 	if err != nil {
 		log.Fatalf("Failed to create client: %v", err)
 	}
@@ -66,7 +66,7 @@ func main() {
 
 	// Example 2: Create a custom image with Python packages
 	log.Println("=== Example 2: Creating custom image with Python packages ===")
-	image2 := daytona.Base("python:3.12-slim-bookworm").
+	image2 := northrays.Base("python:3.12-slim-bookworm").
 		PipInstall([]string{"numpy", "pandas", "matplotlib"}, options.WithFindLinks("https://pypi.org/simple")).
 		Env("APP_ENV", "development").
 		Workdir("/app")
@@ -117,14 +117,14 @@ func main() {
 	log.Println("=== Example 3: Creating image with local files ===")
 
 	// Create temporary test files for demonstration
-	tmpDir := "/tmp/daytona-example"
+	tmpDir := "/tmp/northrays-example"
 	if err := os.MkdirAll(tmpDir, 0755); err != nil {
 		log.Printf("Warning: Could not create temp directory: %v", err)
 	} else {
 		// Create a sample config file
 		configPath := tmpDir + "/config.json"
 		configContent := []byte(`{
-  "app_name": "Daytona Example",
+  "app_name": "Northrays Example",
   "version": "1.0.0",
   "features": {
     "logging": true,
@@ -160,7 +160,7 @@ if __name__ == '__main__':
 		}
 
 		// Create image with local files
-		image3 := daytona.Base("python:3.12-slim-bookworm").
+		image3 := northrays.Base("python:3.12-slim-bookworm").
 			AddLocalFile(configPath, "/app/config.json").
 			AddLocalFile(scriptPath, "/app/app.py").
 			Workdir("/app").
@@ -221,7 +221,7 @@ if __name__ == '__main__':
 	// Example 4: Using DebianSlim helper
 	log.Println("\n=== Example 4: Using DebianSlim helper ===")
 	pythonVersion := "3.11"
-	image4 := daytona.DebianSlim(&pythonVersion).
+	image4 := northrays.DebianSlim(&pythonVersion).
 		PipInstall([]string{"requests", "flask"}, options.WithFindLinks("https://pypi.org/simple")).
 		Expose([]int{5000}).
 		Env("FLASK_APP", "app.py").

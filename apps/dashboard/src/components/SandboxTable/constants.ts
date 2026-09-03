@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: AGPL-3.0
  */
 
-import { SandboxClass, SandboxState } from '@daytona/api-client'
+import { SandboxClass, SandboxState } from '@northrays/api-client'
 import { AndroidLogoIcon, LinuxLogoIcon, WindowsLogoIcon } from '@phosphor-icons/react'
 import { AlertTriangle, Archive, CheckCircle, Circle, Container, LucideIcon, Timer } from 'lucide-react'
 import { FacetedFilterOption } from './types'

@@ -1,0 +1,9 @@
+name: northrays mcp start
+synopsis: Start Northrays MCP Server
+usage: northrays mcp start [flags]
+inherited_options:
+  - name: help
+    default_value: 'false'
+    usage: help for northrays
+see_also:
+  - northrays mcp - Manage Northrays MCP Server

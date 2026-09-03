@@ -1,7 +1,7 @@
 /*
-Daytona Toolbox API
+Northrays Toolbox API
 
-Daytona Toolbox API. The base URL comes from the sandbox's `toolboxProxyUrl` field (returned in sandbox DTO by the main Daytona API) plus the sandbox ID: `{toolboxProxyUrl}/{sandboxId}/{endpoint}`. Default for Daytona Cloud: `https://proxy.app.daytona.io/toolbox/{sandboxId}`.
+Northrays Toolbox API. The base URL comes from the sandbox's `toolboxProxyUrl` field (returned in sandbox DTO by the main Northrays API) plus the sandbox ID: `{toolboxProxyUrl}/{sandboxId}/{endpoint}`. Default for Northrays Cloud: `https://proxy.app.northrays.com/toolbox/{sandboxId}`.
 
 API version: v0.0.0-dev
 */

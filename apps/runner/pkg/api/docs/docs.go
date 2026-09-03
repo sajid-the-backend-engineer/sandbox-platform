@@ -627,7 +627,7 @@ const docTemplate = `{
         },
         "/sandboxes/{sandboxId}/snapshot-from-sandbox": {
             "post": {
-                "description": "Commit the sandbox container filesystem and push the image to the supplied registry under the canonical daytona-{hash}:daytona tag.",
+                "description": "Commit the sandbox container filesystem and push the image to the supplied registry under the canonical northrays-{hash}:northrays tag.",
                 "produces": [
                     "application/json"
                 ],
@@ -2153,8 +2153,8 @@ var SwaggerInfo = &swag.Spec{
 	Host:             "",
 	BasePath:         "",
 	Schemes:          []string{},
-	Title:            "Daytona Runner API",
-	Description:      "Daytona Runner API",
+	Title:            "Northrays Runner API",
+	Description:      "Northrays Runner API",
 	InfoInstanceName: "swagger",
 	SwaggerTemplate:  docTemplate,
 	LeftDelim:        "{{",

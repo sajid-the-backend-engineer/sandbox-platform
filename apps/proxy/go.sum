@@ -13,8 +13,8 @@ github.com/davecgh/go-spew v1.1.0/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSs
 github.com/davecgh/go-spew v1.1.1/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
 github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc h1:U9qPSI2PIWSS1VwoXQT9A3Wy9MM3WgvqSxFWenqJduM=
 github.com/davecgh/go-spew v1.1.2-0.20180830191138-d8f796af33cc/go.mod h1:J7Y8YcW2NihsgmVo/mv3lAwl/skON4iLHjSsI+c5H38=
-github.com/daytonaio/daytona/libs/api-client-go v0.164.0 h1:2zCjpcTpsPxRFJaudNXB613C+MGZK7BXzy5fQG+XdsA=
-github.com/daytonaio/daytona/libs/api-client-go v0.164.0/go.mod h1:1wKpdKRwUzXN7KqR+8MMpq2iEGrprBCgFgFbli89DMo=
+github.com/northrays/sandbox-platform/libs/api-client-go v0.164.0 h1:2zCjpcTpsPxRFJaudNXB613C+MGZK7BXzy5fQG+XdsA=
+github.com/northrays/sandbox-platform/libs/api-client-go v0.164.0/go.mod h1:1wKpdKRwUzXN7KqR+8MMpq2iEGrprBCgFgFbli89DMo=
 github.com/gabriel-vasile/mimetype v1.4.10 h1:zyueNbySn/z8mJZHLt6IPw0KoZsiQNszIpU+bX4+ZK0=
 github.com/gabriel-vasile/mimetype v1.4.10/go.mod h1:d+9Oxyo1wTzWdyVUPMmXFvp4F9tea18J8ufA774AB3s=
 github.com/gin-contrib/cors v1.7.5 h1:cXC9SmofOrRg0w9PigwGlHG3ztswH6bqq4vJVXnvYMk=

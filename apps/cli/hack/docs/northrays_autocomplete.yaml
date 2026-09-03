@@ -1,0 +1,9 @@
+name: northrays autocomplete
+synopsis: Adds a completion script for your shell environment
+usage: northrays autocomplete [bash|zsh|fish|powershell] [flags]
+inherited_options:
+  - name: help
+    default_value: 'false'
+    usage: help for northrays
+see_also:
+  - northrays - Northrays CLI

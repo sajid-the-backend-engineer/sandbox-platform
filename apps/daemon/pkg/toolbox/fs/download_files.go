@@ -19,7 +19,7 @@ import (
 	"strings"
 	"time"
 
-	"github.com/daytonaio/daemon/pkg/common"
+	"github.com/northrays/daemon/pkg/common"
 	"github.com/gin-gonic/gin"
 )
 
@@ -59,7 +59,7 @@ func DownloadFiles(c *gin.Context) {
 		return
 	}
 
-	const boundary = "DAYTONA-FILE-BOUNDARY"
+	const boundary = "NORTHRAYS-FILE-BOUNDARY"
 	c.Status(http.StatusOK)
 	c.Header("Content-Type", fmt.Sprintf("multipart/form-data; boundary=%s", boundary))
 

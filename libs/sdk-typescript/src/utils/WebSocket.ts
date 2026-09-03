@@ -22,8 +22,8 @@ export async function createSandboxWebSocket(
     const previewToken = await getPreviewToken()
     const separator = url.includes('?') ? '&' : '?'
     return new WebSocket(
-      `${url}${separator}DAYTONA_SANDBOX_AUTH_KEY=${previewToken}`,
-      `X-Daytona-SDK-Version~${String(headers['X-Daytona-SDK-Version'] ?? '')}`,
+      `${url}${separator}NORTHRAYS_SANDBOX_AUTH_KEY=${previewToken}`,
+      `X-Northrays-SDK-Version~${String(headers['X-Northrays-SDK-Version'] ?? '')}`,
     )
   }
 

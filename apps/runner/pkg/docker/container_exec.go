@@ -8,7 +8,7 @@ import (
 	"context"
 	"io"
 
-	"github.com/daytonaio/common-go/pkg/log"
+	"github.com/northrays/common-go/pkg/log"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/pkg/stdcopy"
 )

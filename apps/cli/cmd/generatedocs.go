@@ -17,7 +17,7 @@ var defaultDirectory = "docs"
 
 var GenerateDocsCmd = &cobra.Command{
 	Use:   "generate-docs",
-	Short: "Generate documentation for the Daytona CLI",
+	Short: "Generate documentation for the Northrays CLI",
 	Args:  cobra.NoArgs,
 	RunE: func(cmd *cobra.Command, args []string) error {
 		directory, err := cmd.Flags().GetString("directory")

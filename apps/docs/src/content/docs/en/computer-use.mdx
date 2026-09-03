@@ -1,6 +1,6 @@
 ---
 title: Computer Use
-description: Programmatic control of desktop environments within Daytona sandboxes.
+description: Programmatic control of desktop environments within Northrays sandboxes.
 ---
 
 import { TabItem, Tabs } from '@astrojs/starlight/components'
@@ -72,7 +72,7 @@ System.out.println("Computer use processes started: " + result.getMessage());
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://proxy.app.daytona.io/toolbox/{sandboxId}/computeruse/start' \
+curl 'https://proxy.app.northrays.com/toolbox/{sandboxId}/computeruse/start' \
   --request POST
 ```
 
@@ -131,7 +131,7 @@ System.out.println("Computer use processes stopped: " + result.getMessage());
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://proxy.app.daytona.io/toolbox/{sandboxId}/computeruse/stop' \
+curl 'https://proxy.app.northrays.com/toolbox/{sandboxId}/computeruse/stop' \
   --request POST
 ```
 
@@ -190,7 +190,7 @@ System.out.println("Computer use status: " + response.getStatus());
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://proxy.app.daytona.io/toolbox/{sandboxId}/computeruse/status'
+curl 'https://proxy.app.northrays.com/toolbox/{sandboxId}/computeruse/status'
 ```
 
 </TabItem>
@@ -228,7 +228,7 @@ no_vnc_status = sandbox.computer_use.get_process_status("novnc")
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://proxy.app.daytona.io/toolbox/{sandboxId}/computeruse/process/{processName}/status'
+curl 'https://proxy.app.northrays.com/toolbox/{sandboxId}/computeruse/process/{processName}/status'
 ```
 
 </TabItem>
@@ -266,7 +266,7 @@ puts "XFCE4 process restarted: #{result.message}"
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://proxy.app.daytona.io/toolbox/{sandboxId}/computeruse/process/{processName}/restart' \
+curl 'https://proxy.app.northrays.com/toolbox/{sandboxId}/computeruse/process/{processName}/restart' \
   --request POST
 ```
 
@@ -305,7 +305,7 @@ puts "NoVNC logs: #{logs}"
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://proxy.app.daytona.io/toolbox/{sandboxId}/computeruse/process/{processName}/logs'
+curl 'https://proxy.app.northrays.com/toolbox/{sandboxId}/computeruse/process/{processName}/logs'
 ```
 
 </TabItem>
@@ -343,7 +343,7 @@ puts "X11VNC errors: #{errors}"
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://proxy.app.daytona.io/toolbox/{sandboxId}/computeruse/process/{processName}/errors'
+curl 'https://proxy.app.northrays.com/toolbox/{sandboxId}/computeruse/process/{processName}/errors'
 ```
 
 </TabItem>
@@ -434,7 +434,7 @@ sandbox.computerUse.click(100, 200, "right");
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://proxy.app.daytona.io/toolbox/{sandboxId}/computeruse/mouse/click' \
+curl 'https://proxy.app.northrays.com/toolbox/{sandboxId}/computeruse/mouse/click' \
   --request POST \
   --header 'Content-Type: application/json' \
   --data '{
@@ -500,7 +500,7 @@ System.out.println("Mouse moved to: " + result.getX() + ", " + result.getY());
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://proxy.app.daytona.io/toolbox/{sandboxId}/computeruse/mouse/move' \
+curl 'https://proxy.app.northrays.com/toolbox/{sandboxId}/computeruse/mouse/move' \
   --request POST \
   --header 'Content-Type: application/json' \
   --data '{
@@ -564,7 +564,7 @@ System.out.println("Drag ended at: " + result.getX() + ", " + result.getY());
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://proxy.app.daytona.io/toolbox/{sandboxId}/computeruse/mouse/drag' \
+curl 'https://proxy.app.northrays.com/toolbox/{sandboxId}/computeruse/mouse/drag' \
   --request POST \
   --header 'Content-Type: application/json' \
   --data '{
@@ -647,7 +647,7 @@ sandbox.computerUse.scroll(100, 200, 0, 5);
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://proxy.app.daytona.io/toolbox/{sandboxId}/computeruse/mouse/scroll' \
+curl 'https://proxy.app.northrays.com/toolbox/{sandboxId}/computeruse/mouse/scroll' \
   --request POST \
   --header 'Content-Type: application/json' \
   --data '{
@@ -713,7 +713,7 @@ System.out.println("Mouse is at: " + position.getX() + ", " + position.getY());
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://proxy.app.daytona.io/toolbox/{sandboxId}/computeruse/mouse/position'
+curl 'https://proxy.app.northrays.com/toolbox/{sandboxId}/computeruse/mouse/position'
 ```
 
 </TabItem>
@@ -780,7 +780,7 @@ sandbox.computerUse.typeText("Hello, World!");
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://proxy.app.daytona.io/toolbox/{sandboxId}/computeruse/keyboard/type' \
+curl 'https://proxy.app.northrays.com/toolbox/{sandboxId}/computeruse/keyboard/type' \
   --request POST \
   --header 'Content-Type: application/json' \
   --data '{
@@ -873,7 +873,7 @@ sandbox.computerUse.pressHotkey("ctrl", "shift", "t");
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://proxy.app.daytona.io/toolbox/{sandboxId}/computeruse/keyboard/key' \
+curl 'https://proxy.app.northrays.com/toolbox/{sandboxId}/computeruse/keyboard/key' \
   --request POST \
   --header 'Content-Type: application/json' \
   --data '{
@@ -965,7 +965,7 @@ sandbox.computerUse.pressHotkey("alt", "tab");
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://proxy.app.daytona.io/toolbox/{sandboxId}/computeruse/keyboard/hotkey' \
+curl 'https://proxy.app.northrays.com/toolbox/{sandboxId}/computeruse/keyboard/hotkey' \
   --request POST \
   --header 'Content-Type: application/json' \
   --data '{
@@ -1073,7 +1073,7 @@ maxDepth := 2
 
 // Focused app
 focusedScope := "focused"
-focusedTree, err := sandbox.ComputerUse.Accessibility().GetTree(ctx, &daytona.AccessibilityTreeOptions{
+focusedTree, err := sandbox.ComputerUse.Accessibility().GetTree(ctx, &northrays.AccessibilityTreeOptions{
 	Scope:    &focusedScope,
 	MaxDepth: &maxDepth,
 })
@@ -1084,7 +1084,7 @@ if err != nil {
 // Specific process
 processScope := "pid"
 pid := 1234
-processTree, err := sandbox.ComputerUse.Accessibility().GetTree(ctx, &daytona.AccessibilityTreeOptions{
+processTree, err := sandbox.ComputerUse.Accessibility().GetTree(ctx, &northrays.AccessibilityTreeOptions{
 	Scope:    &processScope,
 	PID:      &pid,
 	MaxDepth: &maxDepth,
@@ -1095,7 +1095,7 @@ if err != nil {
 
 // All apps
 allScope := "all"
-desktopTree, err := sandbox.ComputerUse.Accessibility().GetTree(ctx, &daytona.AccessibilityTreeOptions{
+desktopTree, err := sandbox.ComputerUse.Accessibility().GetTree(ctx, &northrays.AccessibilityTreeOptions{
 	Scope:    &allScope,
 	MaxDepth: &maxDepth,
 })
@@ -1123,13 +1123,13 @@ var desktopTree = sandbox.computerUse.getAccessibilityTree("all", null, 2);
 
 ```bash
 # Focused app
-curl 'https://proxy.app.daytona.io/toolbox/{sandboxId}/computeruse/a11y/tree?scope=focused&maxDepth=2'
+curl 'https://proxy.app.northrays.com/toolbox/{sandboxId}/computeruse/a11y/tree?scope=focused&maxDepth=2'
 
 # Specific process
-curl 'https://proxy.app.daytona.io/toolbox/{sandboxId}/computeruse/a11y/tree?scope=pid&pid=1234&maxDepth=2'
+curl 'https://proxy.app.northrays.com/toolbox/{sandboxId}/computeruse/a11y/tree?scope=pid&pid=1234&maxDepth=2'
 
 # All apps
-curl 'https://proxy.app.daytona.io/toolbox/{sandboxId}/computeruse/a11y/tree?scope=all&maxDepth=2'
+curl 'https://proxy.app.northrays.com/toolbox/{sandboxId}/computeruse/a11y/tree?scope=all&maxDepth=2'
 ```
 
 </TabItem>
@@ -1240,7 +1240,7 @@ focusedScope := "focused"
 buttonRole := "button"
 submitName := "Submit"
 substringMatch := "substring"
-buttons, err := sandbox.ComputerUse.Accessibility().FindNodes(ctx, &daytona.AccessibilityFindOptions{
+buttons, err := sandbox.ComputerUse.Accessibility().FindNodes(ctx, &northrays.AccessibilityFindOptions{
 	Scope:     &focusedScope,
 	Role:      &buttonRole,
 	Name:      &submitName,
@@ -1255,7 +1255,7 @@ if err != nil {
 processScope := "pid"
 pid := 1234
 entryRole := "entry"
-entries, err := sandbox.ComputerUse.Accessibility().FindNodes(ctx, &daytona.AccessibilityFindOptions{
+entries, err := sandbox.ComputerUse.Accessibility().FindNodes(ctx, &northrays.AccessibilityFindOptions{
 	Scope:  &processScope,
 	PID:    &pid,
 	Role:   &entryRole,
@@ -1269,7 +1269,7 @@ if err != nil {
 // Find visible nodes across all apps
 allScope := "all"
 visibleLimit := 20
-visibleNodes, err := sandbox.ComputerUse.Accessibility().FindNodes(ctx, &daytona.AccessibilityFindOptions{
+visibleNodes, err := sandbox.ComputerUse.Accessibility().FindNodes(ctx, &northrays.AccessibilityFindOptions{
 	Scope:  &allScope,
 	States: []string{"visible"},
 	Limit:  &visibleLimit,
@@ -1317,7 +1317,7 @@ var visibleNodes = sandbox.computerUse.findAccessibilityNodes(
 
 ```bash
 # Find buttons by accessible name
-curl 'https://proxy.app.daytona.io/toolbox/{sandboxId}/computeruse/a11y/find' \
+curl 'https://proxy.app.northrays.com/toolbox/{sandboxId}/computeruse/a11y/find' \
   --request POST \
   --header 'Content-Type: application/json' \
   --data '{
@@ -1329,7 +1329,7 @@ curl 'https://proxy.app.daytona.io/toolbox/{sandboxId}/computeruse/a11y/find' \
 }'
 
 # Find text entries in a process
-curl 'https://proxy.app.daytona.io/toolbox/{sandboxId}/computeruse/a11y/find' \
+curl 'https://proxy.app.northrays.com/toolbox/{sandboxId}/computeruse/a11y/find' \
   --request POST \
   --header 'Content-Type: application/json' \
   --data '{
@@ -1341,7 +1341,7 @@ curl 'https://proxy.app.daytona.io/toolbox/{sandboxId}/computeruse/a11y/find' \
 }'
 
 # Find visible nodes across all apps
-curl 'https://proxy.app.daytona.io/toolbox/{sandboxId}/computeruse/a11y/find' \
+curl 'https://proxy.app.northrays.com/toolbox/{sandboxId}/computeruse/a11y/find' \
   --request POST \
   --header 'Content-Type: application/json' \
   --data '{
@@ -1399,7 +1399,7 @@ sandbox.computerUse.focusAccessibilityNode("node-id");
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://proxy.app.daytona.io/toolbox/{sandboxId}/computeruse/a11y/node/focus' \
+curl 'https://proxy.app.northrays.com/toolbox/{sandboxId}/computeruse/a11y/node/focus' \
   --request POST \
   --header 'Content-Type: application/json' \
   --data '{"id":"node-id"}'
@@ -1477,13 +1477,13 @@ sandbox.computerUse.invokeAccessibilityNode("node-id", "click");
 
 ```bash
 # Invoke the primary action
-curl 'https://proxy.app.daytona.io/toolbox/{sandboxId}/computeruse/a11y/node/invoke' \
+curl 'https://proxy.app.northrays.com/toolbox/{sandboxId}/computeruse/a11y/node/invoke' \
   --request POST \
   --header 'Content-Type: application/json' \
   --data '{"id":"node-id"}'
 
 # Invoke a named action
-curl 'https://proxy.app.daytona.io/toolbox/{sandboxId}/computeruse/a11y/node/invoke' \
+curl 'https://proxy.app.northrays.com/toolbox/{sandboxId}/computeruse/a11y/node/invoke' \
   --request POST \
   --header 'Content-Type: application/json' \
   --data '{"id":"node-id","action":"click"}'
@@ -1537,7 +1537,7 @@ sandbox.computerUse.setAccessibilityNodeValue("node-id", "hello");
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://proxy.app.daytona.io/toolbox/{sandboxId}/computeruse/a11y/node/value' \
+curl 'https://proxy.app.northrays.com/toolbox/{sandboxId}/computeruse/a11y/node/value' \
   --request POST \
   --header 'Content-Type: application/json' \
   --data '{"id":"node-id","value":"hello"}'
@@ -1617,7 +1617,7 @@ var withCursor = sandbox.computerUse.takeScreenshot(true);
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://proxy.app.daytona.io/toolbox/{sandboxId}/computeruse/screenshot'
+curl 'https://proxy.app.northrays.com/toolbox/{sandboxId}/computeruse/screenshot'
 ```
 
 </TabItem>
@@ -1631,7 +1631,7 @@ Take a screenshot of a specific region.
 <TabItem label="Python" icon="seti:python">
 
 ```python
-from daytona import ScreenshotRegion
+from northrays import ScreenshotRegion
 
 region = ScreenshotRegion(x=100, y=100, width=300, height=200)
 screenshot = sandbox.computer_use.screenshot.take_region(region)
@@ -1651,7 +1651,7 @@ console.log(`Captured region: ${screenshot.region.width}x${screenshot.region.hei
 <TabItem label="Ruby" icon="seti:ruby">
 
 ```ruby
-region = Daytona::ComputerUse::ScreenshotRegion.new(x: 100, y: 100, width: 300, height: 200)
+region = Northrays::ComputerUse::ScreenshotRegion.new(x: 100, y: 100, width: 300, height: 200)
 screenshot = sandbox.computer_use.screenshot.take_region(region: region)
 puts "Captured region: #{screenshot.region.width}x#{screenshot.region.height}"
 ```
@@ -1682,7 +1682,7 @@ System.out.println("Captured region, payload size: " + (sizeBytes != null ? size
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://proxy.app.daytona.io/toolbox/{sandboxId}/computeruse/screenshot/region?x=1&y=1&width=1&height=1'
+curl 'https://proxy.app.northrays.com/toolbox/{sandboxId}/computeruse/screenshot/region?x=1&y=1&width=1&height=1'
 ```
 
 </TabItem>
@@ -1696,7 +1696,7 @@ Take a compressed screenshot of the entire screen.
 <TabItem label="Python" icon="seti:python">
 
 ```python
-from daytona import ScreenshotOptions
+from northrays import ScreenshotOptions
 
 # Default compression
 screenshot = sandbox.computer_use.screenshot.take_compressed()
@@ -1742,12 +1742,12 @@ screenshot = sandbox.computer_use.screenshot.take_compressed
 
 # High quality JPEG
 jpeg = sandbox.computer_use.screenshot.take_compressed(
-  options: Daytona::ComputerUse::ScreenshotOptions.new(format: "jpeg", quality: 95, show_cursor: true)
+  options: Northrays::ComputerUse::ScreenshotOptions.new(format: "jpeg", quality: 95, show_cursor: true)
 )
 
 # Scaled down PNG
 scaled = sandbox.computer_use.screenshot.take_compressed(
-  options: Daytona::ComputerUse::ScreenshotOptions.new(format: "png", scale: 0.5)
+  options: Northrays::ComputerUse::ScreenshotOptions.new(format: "png", scale: 0.5)
 )
 ```
 
@@ -1769,7 +1769,7 @@ var scaled = sandbox.computerUse.takeCompressedScreenshot("png", 80, 0.5);
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://proxy.app.daytona.io/toolbox/{sandboxId}/computeruse/screenshot/compressed'
+curl 'https://proxy.app.northrays.com/toolbox/{sandboxId}/computeruse/screenshot/compressed'
 ```
 
 </TabItem>
@@ -1783,7 +1783,7 @@ Take a compressed screenshot of a specific region.
 <TabItem label="Python" icon="seti:python">
 
 ```python
-from daytona import ScreenshotRegion, ScreenshotOptions
+from northrays import ScreenshotRegion, ScreenshotOptions
 
 region = ScreenshotRegion(x=0, y=0, width=800, height=600)
 screenshot = sandbox.computer_use.screenshot.take_compressed_region(
@@ -1810,10 +1810,10 @@ console.log(`Compressed size: ${screenshot.size_bytes} bytes`);
 <TabItem label="Ruby" icon="seti:ruby">
 
 ```ruby
-region = Daytona::ComputerUse::ScreenshotRegion.new(x: 0, y: 0, width: 800, height: 600)
+region = Northrays::ComputerUse::ScreenshotRegion.new(x: 0, y: 0, width: 800, height: 600)
 screenshot = sandbox.computer_use.screenshot.take_compressed_region(
   region: region,
-  options: Daytona::ComputerUse::ScreenshotOptions.new(format: "jpeg", quality: 80, show_cursor: true)
+  options: Northrays::ComputerUse::ScreenshotOptions.new(format: "jpeg", quality: 80, show_cursor: true)
 )
 puts "Compressed size: #{screenshot.size_bytes} bytes"
 ```
@@ -1822,7 +1822,7 @@ puts "Compressed size: #{screenshot.size_bytes} bytes"
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://proxy.app.daytona.io/toolbox/{sandboxId}/computeruse/screenshot/region/compressed?x=1&y=1&width=1&height=1'
+curl 'https://proxy.app.northrays.com/toolbox/{sandboxId}/computeruse/screenshot/region/compressed?x=1&y=1&width=1&height=1'
 ```
 
 </TabItem>
@@ -1834,20 +1834,20 @@ Computer Use supports screen recording capabilities, allowing you to capture des
 
 ### Configure Recording Directory
 
-By default, recordings are saved to `~/.daytona/recordings`. You can specify a custom directory by passing the `DAYTONA_RECORDINGS_DIR` environment variable when creating a sandbox:
+By default, recordings are saved to `~/.northrays/recordings`. You can specify a custom directory by passing the `NORTHRAYS_RECORDINGS_DIR` environment variable when creating a sandbox:
 
 <Tabs syncKey="language">
 <TabItem label="Python" icon="seti:python">
 
 ```python
-from daytona import Daytona, CreateSandboxFromSnapshotParams
+from northrays import Northrays, CreateSandboxFromSnapshotParams
 
-daytona = Daytona()
-sandbox = daytona.create(
+northrays = Northrays()
+sandbox = northrays.create(
     CreateSandboxFromSnapshotParams(
-        snapshot="daytonaio/sandbox:0.6.0",
+        snapshot="northrays/sandbox:0.6.0",
         name="my-sandbox",
-        env_vars={"DAYTONA_RECORDINGS_DIR": "/home/daytona/my-recordings"}
+        env_vars={"NORTHRAYS_RECORDINGS_DIR": "/home/northrays/my-recordings"}
     )
 )
 ```
@@ -1856,13 +1856,13 @@ sandbox = daytona.create(
 <TabItem label="TypeScript" icon="seti:typescript">
 
 ```typescript
-import { Daytona } from '@daytona/sdk';
+import { Northrays } from '@northrays/sdk';
 
-const daytona = new Daytona();
-const sandbox = await daytona.create({
-  snapshot: 'daytonaio/sandbox:0.6.0',
+const northrays = new Northrays();
+const sandbox = await northrays.create({
+  snapshot: 'northrays/sandbox:0.6.0',
   name: 'my-sandbox',
-  envVars: { DAYTONA_RECORDINGS_DIR: '/home/daytona/my-recordings' }
+  envVars: { NORTHRAYS_RECORDINGS_DIR: '/home/northrays/my-recordings' }
 });
 ```
 
@@ -1870,13 +1870,13 @@ const sandbox = await daytona.create({
 <TabItem label="Ruby" icon="seti:ruby">
 
 ```ruby
-require 'daytona'
+require 'northrays'
 
-daytona = Daytona::Client.new
-sandbox = daytona.create(
-  snapshot: 'daytonaio/sandbox:0.6.0',
+northrays = Northrays::Client.new
+sandbox = northrays.create(
+  snapshot: 'northrays/sandbox:0.6.0',
   name: 'my-sandbox',
-  env_vars: { DAYTONA_RECORDINGS_DIR: '/home/daytona/my-recordings' }
+  env_vars: { NORTHRAYS_RECORDINGS_DIR: '/home/northrays/my-recordings' }
 )
 ```
 
@@ -1885,17 +1885,17 @@ sandbox = daytona.create(
 
 ```go
 import (
-	"github.com/daytonaio/daytona/pkg/client"
-	"github.com/daytonaio/daytona/pkg/types"
+	"github.com/northrays/sandbox-platform/pkg/client"
+	"github.com/northrays/sandbox-platform/pkg/types"
 )
 
-daytona := client.New()
+northrays := client.New()
 envVars := map[string]string{
-	"DAYTONA_RECORDINGS_DIR": "/home/daytona/my-recordings",
+	"NORTHRAYS_RECORDINGS_DIR": "/home/northrays/my-recordings",
 }
 
-sandbox, err := daytona.Create(ctx, &types.CreateSandboxParams{
-	Snapshot: "daytonaio/sandbox:0.6.0",
+sandbox, err := northrays.Create(ctx, &types.CreateSandboxParams{
+	Snapshot: "northrays/sandbox:0.6.0",
 	Name:     "my-sandbox",
 	EnvVars:  envVars,
 })
@@ -1908,18 +1908,18 @@ if err != nil {
 <TabItem label="Java" icon="seti:java">
 
 ```java
-import io.daytona.sdk.Daytona;
-import io.daytona.sdk.Sandbox;
-import io.daytona.sdk.model.CreateSandboxFromSnapshotParams;
+import io.northrays.sdk.Northrays;
+import io.northrays.sdk.Sandbox;
+import io.northrays.sdk.model.CreateSandboxFromSnapshotParams;
 
 import java.util.Map;
 
-try (Daytona daytona = new Daytona()) {
+try (Northrays northrays = new Northrays()) {
     CreateSandboxFromSnapshotParams params = new CreateSandboxFromSnapshotParams();
-    params.setSnapshot("daytonaio/sandbox:0.6.0");
+    params.setSnapshot("northrays/sandbox:0.6.0");
     params.setName("my-sandbox");
-    params.setEnvVars(Map.of("DAYTONA_RECORDINGS_DIR", "/home/daytona/my-recordings"));
-    Sandbox sandbox = daytona.create(params);
+    params.setEnvVars(Map.of("NORTHRAYS_RECORDINGS_DIR", "/home/northrays/my-recordings"));
+    Sandbox sandbox = northrays.create(params);
 }
 ```
 
@@ -1989,7 +1989,7 @@ System.out.println("File path: " + recording.getFilePath());
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://proxy.app.daytona.io/toolbox/{sandboxId}/computeruse/recordings/start' \
+curl 'https://proxy.app.northrays.com/toolbox/{sandboxId}/computeruse/recordings/start' \
   --request POST \
   --header 'Content-Type: application/json' \
   --data '{
@@ -2062,7 +2062,7 @@ System.out.println("Saved to: " + stoppedRecording.getFilePath());
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://proxy.app.daytona.io/toolbox/{sandboxId}/computeruse/recordings/stop' \
+curl 'https://proxy.app.northrays.com/toolbox/{sandboxId}/computeruse/recordings/stop' \
   --request POST \
   --header 'Content-Type: application/json' \
   --data '{
@@ -2141,7 +2141,7 @@ for (var rec : recordingsList.getRecordings()) {
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://proxy.app.daytona.io/toolbox/{sandboxId}/computeruse/recordings'
+curl 'https://proxy.app.northrays.com/toolbox/{sandboxId}/computeruse/recordings'
 ```
 
 </TabItem>
@@ -2209,7 +2209,7 @@ System.out.println("Duration: " + recordingDetail.getDurationSeconds() + "s");
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://proxy.app.daytona.io/toolbox/{sandboxId}/computeruse/recordings/{id}'
+curl 'https://proxy.app.northrays.com/toolbox/{sandboxId}/computeruse/recordings/{id}'
 ```
 
 </TabItem>
@@ -2267,7 +2267,7 @@ System.out.println("Recording deleted successfully");
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://proxy.app.daytona.io/toolbox/{sandboxId}/computeruse/recordings/{id}' \
+curl 'https://proxy.app.northrays.com/toolbox/{sandboxId}/computeruse/recordings/{id}' \
   --request DELETE
 ```
 
@@ -2356,7 +2356,7 @@ Files.copy(tempFile.toPath(), downloadPath, StandardCopyOption.REPLACE_EXISTING)
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://proxy.app.daytona.io/toolbox/{sandboxId}/computeruse/recordings/{id}/download' \
+curl 'https://proxy.app.northrays.com/toolbox/{sandboxId}/computeruse/recordings/{id}/download' \
   --output local_recording.mp4
 ```
 
@@ -2379,7 +2379,7 @@ Every sandbox includes a built-in recording dashboard for managing screen record
 
 To access the recording dashboard:
 
-1. Navigate to your sandboxes in the Daytona Dashboard
+1. Navigate to your sandboxes in the Northrays Dashboard
 2. Click the action menu (three dots) for your sandbox
 3. Select **Screen Recordings** from the dropdown menu
 
@@ -2390,7 +2390,7 @@ The recording dashboard provides:
 - Delete options for managing storage
 
 :::tip
-The recording dashboard runs on a private port and is automatically secured. No additional authentication is required once you access it through the Daytona Dashboard.
+The recording dashboard runs on a private port and is automatically secured. No additional authentication is required once you access it through the Northrays Dashboard.
 :::
 
 ## Display operations
@@ -2465,7 +2465,7 @@ if (info.getDisplays() != null) {
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://proxy.app.daytona.io/toolbox/{sandboxId}/computeruse/display/info'
+curl 'https://proxy.app.northrays.com/toolbox/{sandboxId}/computeruse/display/info'
 ```
 
 </TabItem>
@@ -2537,7 +2537,7 @@ if (list != null) {
 <TabItem label="API" icon="seti:json">
 
 ```bash
-curl 'https://proxy.app.daytona.io/toolbox/{sandboxId}/computeruse/display/windows'
+curl 'https://proxy.app.northrays.com/toolbox/{sandboxId}/computeruse/display/windows'
 ```
 
 </TabItem>

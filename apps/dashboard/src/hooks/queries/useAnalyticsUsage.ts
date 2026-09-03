@@ -12,7 +12,7 @@ import {
   ModelsSandboxUsage,
   ModelsUsageChartPoint,
   ModelsUsagePeriod,
-} from '@daytona/analytics-api-client'
+} from '@northrays/analytics-api-client'
 
 export interface AnalyticsUsageParams {
   from: Date

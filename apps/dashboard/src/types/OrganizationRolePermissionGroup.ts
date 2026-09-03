@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: AGPL-3.0
  */
 
-import { OrganizationRolePermissionsEnum } from '@daytona/api-client'
+import { OrganizationRolePermissionsEnum } from '@northrays/api-client'
 
 export interface OrganizationRolePermissionGroup {
   name: string

@@ -9,8 +9,8 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	common_errors "github.com/daytonaio/common-go/pkg/errors"
-	"github.com/daytonaio/daemon/internal/util"
+	common_errors "github.com/northrays/common-go/pkg/errors"
+	"github.com/northrays/daemon/internal/util"
 )
 
 // CreateSession godoc

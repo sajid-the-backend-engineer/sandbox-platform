@@ -1,6 +1,6 @@
-# Daytona Go SDK
+# Northrays Go SDK
 
-The official Go SDK for Daytona, enabling programmatic interaction with Daytona Sandboxes
+The official Go SDK for Northrays, enabling programmatic interaction with Northrays Sandboxes
 
 ## Quick Start
 
@@ -12,13 +12,13 @@ import (
     "log"
     "time"
 
-    "github.com/daytonaio/daytona/libs/sdk-go/pkg/daytona"
-    "github.com/daytonaio/daytona/libs/sdk-go/pkg/types"
+    "github.com/northrays/sandbox-platform/libs/sdk-go/pkg/northrays"
+    "github.com/northrays/sandbox-platform/libs/sdk-go/pkg/types"
 )
 
 func main() {
-    // Create a new Daytona client (uses DAYTONA_API_KEY from environment)
-    client, err := daytona.NewClient()
+    // Create a new Northrays client (uses NORTHRAYS_API_KEY from environment)
+    client, err := northrays.NewClient()
     if err != nil {
         log.Fatal(err)
     }
@@ -44,7 +44,7 @@ func main() {
   
     // Default WaitForStart is true, but can be overriden for more async behavior
     sandbox, buildLogs, err := client.Create(ctx, params,
-  daytona.WithTimeout(90*time.Second),
+  northrays.WithTimeout(90*time.Second),
  )
  if err != nil {
   log.Fatal(err)
@@ -76,23 +76,23 @@ The SDK can be configured using environment variables or a configuration object.
 Set the following environment variables:
 
 ```bash
-export DAYTONA_API_KEY=your-api-key
+export NORTHRAYS_API_KEY=your-api-key
 ```
 
 Then create the client:
 
 ```go
-client, err := daytona.NewClient()
+client, err := northrays.NewClient()
 ```
 
 ### Configuration Object
 
 ```go
-config := &types.DaytonaConfig{
+config := &types.NorthraysConfig{
     APIKey: "your-api-key",
 }
 
-client, err := daytona.NewClientWithConfig(config)
+client, err := northrays.NewClientWithConfig(config)
 ```
 
 ## Usage Examples
@@ -117,7 +117,7 @@ The `examples/` directory contains comprehensive examples demonstrating various 
 To run an example:
 
 ```bash
-export DAYTONA_API_KEY=your-api-key
+export NORTHRAYS_API_KEY=your-api-key
 go run examples/sandbox/main.go
 go run examples/code_interpreter/main.go
 go run examples/fromimage/main.go
@@ -192,8 +192,8 @@ result, err := sandbox.Process.ExecuteCommand(ctx, "long-running-command")
 
 **Methods:**
 
-- `NewClient() (*Client, error)` - Create a new Daytona client with default configuration
-- `NewClientWithConfig(config *types.DaytonaConfig) (*Client, error)` - Create a new Daytona client with custom configuration
+- `NewClient() (*Client, error)` - Create a new Northrays client with default configuration
+- `NewClientWithConfig(config *types.NorthraysConfig) (*Client, error)` - Create a new Northrays client with custom configuration
 - `Create(ctx, params, options...) (*Sandbox, <-chan string, error)` - Create a sandbox and returns a channel for streaming build logs
   - Options: `WithTimeout(time.Duration)`
 - `Get(ctx, sandboxIDOrName) (*Sandbox, error)` - Get a sandbox by ID or name
@@ -252,5 +252,5 @@ Apache-2.0
 
 For issues and questions:
 
-- **GitHub Issues**: https://github.com/daytonaio/daytona/issues
-- **Documentation**: https://www.daytona.io/docs
+- **GitHub Issues**: https://github.com/northrays/sandbox-platform/issues
+- **Documentation**: https://www.northrays.com/docs

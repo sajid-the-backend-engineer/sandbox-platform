@@ -7,10 +7,10 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/daytonaio/daytona/cli/apiclient"
-	"github.com/daytonaio/daytona/cli/cmd/common"
-	"github.com/daytonaio/daytona/cli/config"
-	"github.com/daytonaio/daytona/cli/views/snapshot"
+	"github.com/northrays/sandbox-platform/cli/apiclient"
+	"github.com/northrays/sandbox-platform/cli/cmd/common"
+	"github.com/northrays/sandbox-platform/cli/config"
+	"github.com/northrays/sandbox-platform/cli/views/snapshot"
 	"github.com/spf13/cobra"
 )
 
@@ -22,7 +22,7 @@ var (
 var ListCmd = &cobra.Command{
 	Use:     "list",
 	Short:   "List all snapshots",
-	Long:    "List all available Daytona snapshots",
+	Long:    "List all available Northrays snapshots",
 	Aliases: common.GetAliases("list"),
 	RunE: func(cmd *cobra.Command, args []string) error {
 		ctx := context.Background()

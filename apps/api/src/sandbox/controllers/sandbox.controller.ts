@@ -1109,7 +1109,7 @@ export class SandboxController {
   ): Promise<SandboxDto> {
     if (authContext.organization.sandboxLimitedNetworkEgress) {
       throw new BadRequestError(
-        'Network access is restricted and cannot be overridden at the sandbox level. See https://www.daytona.io/docs/en/network-limits/#tier-based-network-restrictions',
+        'Network access is restricted and cannot be overridden at the sandbox level. See https://www.northrays.com/docs/en/network-limits/#tier-based-network-restrictions',
       )
     }
     if (

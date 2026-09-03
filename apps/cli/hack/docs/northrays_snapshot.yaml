@@ -1,0 +1,13 @@
+name: northrays snapshot
+synopsis: Manage Northrays snapshots
+description: Commands for managing Northrays snapshots
+inherited_options:
+  - name: help
+    default_value: 'false'
+    usage: help for northrays
+see_also:
+  - northrays - Northrays CLI
+  - northrays snapshot create - Create a snapshot
+  - northrays snapshot delete - Delete a snapshot
+  - northrays snapshot list - List all snapshots
+  - northrays snapshot push - Push local snapshot

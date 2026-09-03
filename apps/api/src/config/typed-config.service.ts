@@ -127,7 +127,7 @@ export class TypedConfigService {
           getCredentials: fromTemporaryCredentials({
             params: {
               RoleArn: this.get('opensearch.aws.roleArn'),
-              RoleSessionName: 'daytona-opensearch',
+              RoleSessionName: 'northrays-opensearch',
             },
           }),
           service: 'es',

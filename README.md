@@ -2,11 +2,11 @@
 
 Secure and elastic infrastructure for running AI-generated code.
 
-This repository is a fork of the Daytona open-source platform, taken at its final
+This repository is a fork of the Northrays open-source platform, taken at its final
 public release, `v0.190.0`. Upstream development moved to a private codebase in
 June 2026 and the original repository is no longer maintained, so this fork is
 maintained independently and is not affiliated with, supported by, or endorsed by
-Daytona Platforms, Inc.
+Northrays
 
 ## Layout
 

@@ -48,7 +48,7 @@ export class EmailService {
       await this.transporter.sendMail({
         from: this.options.from,
         to: payload.inviteeEmail,
-        subject: 'Invitation to join a Daytona organization',
+        subject: 'Invitation to join a Northrays organization',
         html: await renderFile(path.join(__dirname, 'assets/templates/organization-invitation.template.ejs'), {
           organizationName: EmailUtils.sanitizeForDisplay(payload.organizationName),
           invitedBy: payload.invitedBy,

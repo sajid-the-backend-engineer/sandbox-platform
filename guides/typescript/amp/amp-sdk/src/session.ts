@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Sandbox, PtyHandle } from '@daytona/sdk'
+import { Sandbox, PtyHandle } from '@northrays/sdk'
 import { AmpMessage, AssistantMessage, ResultMessage, UserMessage } from './types.js'
 import { renderMarkdown } from './utils.js'
 
@@ -26,7 +26,7 @@ function formatToolUse(block: { name: string; input?: Record<string, unknown> })
   return `🔧 ${description}`
 }
 
-// Represents an Amp Code session within a Daytona sandbox
+// Represents an Amp Code session within a Northrays sandbox
 export class AmpSession {
   private threadId: string | null = null
   private systemPrompt: string | null = null
@@ -136,7 +136,7 @@ export class AmpSession {
     debug('running:', command)
 
     // Send command to the PTY
-    await this.ptyHandle!.sendInput(`cd /home/daytona && ${command}\n`)
+    await this.ptyHandle!.sendInput(`cd /home/northrays && ${command}\n`)
 
     // Wait for the response to complete (signaled by result message)
     await new Promise<void>((resolve) => {
@@ -146,7 +146,7 @@ export class AmpSession {
 
   // Fallback: get most recent thread ID by parsing `amp threads list` text output
   private async getThreadIdFromList(): Promise<string | null> {
-    const result = await this.sandbox.process.executeCommand('amp threads list', '/home/daytona')
+    const result = await this.sandbox.process.executeCommand('amp threads list', '/home/northrays')
     if (result.exitCode !== 0 || !result.result) {
       debug('failed to list threads via text output:', result.result)
       return null

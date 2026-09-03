@@ -618,9 +618,9 @@ function Hit({ hit, setIsSearchVisible, indexName }) {
     let hitUrl = hit.url
 
     if (indexName === 'blogs_test') {
-      hitUrl = `https://www.daytona.io/dotfiles/${hit.slug}`
+      hitUrl = `https://www.northrays.com/dotfiles/${hit.slug}`
     } else if (indexName === 'website') {
-      hitUrl = `https://www.daytona.io/${hit.slug}`
+      hitUrl = `https://www.northrays.com/${hit.slug}`
     }
 
     const currentUrl = window.location.href

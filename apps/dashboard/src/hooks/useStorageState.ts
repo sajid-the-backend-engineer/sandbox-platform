@@ -76,7 +76,7 @@ const getBrowserLocalStorage: StorageStateStorageProvider = () => {
   return window.localStorage
 }
 
-const STORAGE_STATE_CHANGE_EVENT = 'daytona:storage-state-change'
+const STORAGE_STATE_CHANGE_EVENT = 'northrays:storage-state-change'
 
 function useStorageState<TValue>(
   key: string,

@@ -1,9 +1,9 @@
 // Copyright 2025 Daytona Platforms Inc.
 // SPDX-License-Identifier: AGPL-3.0
 
-//	@title			Daytona Runner API
+//	@title			Northrays Runner API
 //	@version		v0.0.0-dev
-//	@description	Daytona Runner API
+//	@description	Northrays Runner API
 //	@license.name	Apache-2.0
 //	@license.url	https://www.apache.org/licenses/LICENSE-2.0
 
@@ -24,21 +24,21 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/daytonaio/runner/cmd/runner/config"
-	"github.com/daytonaio/runner/internal"
-	"github.com/daytonaio/runner/pkg/api/controllers"
-	"github.com/daytonaio/runner/pkg/api/docs"
-	"github.com/daytonaio/runner/pkg/api/middlewares"
-	"github.com/daytonaio/runner/pkg/common"
+	"github.com/northrays/runner/cmd/runner/config"
+	"github.com/northrays/runner/internal"
+	"github.com/northrays/runner/pkg/api/controllers"
+	"github.com/northrays/runner/pkg/api/docs"
+	"github.com/northrays/runner/pkg/api/middlewares"
+	"github.com/northrays/runner/pkg/common"
 	"github.com/prometheus/client_golang/prometheus/promhttp"
 	"go.opentelemetry.io/contrib/instrumentation/github.com/gin-gonic/gin/otelgin"
 
 	"github.com/gin-gonic/gin"
 	"github.com/gin-gonic/gin/binding"
 
-	common_errors "github.com/daytonaio/common-go/pkg/errors"
-	"github.com/daytonaio/common-go/pkg/log"
-	common_proxy "github.com/daytonaio/common-go/pkg/proxy"
+	common_errors "github.com/northrays/common-go/pkg/errors"
+	"github.com/northrays/common-go/pkg/log"
+	common_proxy "github.com/northrays/common-go/pkg/proxy"
 	sloggin "github.com/samber/slog-gin"
 
 	swaggerfiles "github.com/swaggo/files"
@@ -80,8 +80,8 @@ type ApiServer struct {
 }
 
 func (a *ApiServer) Start(ctx context.Context) error {
-	docs.SwaggerInfo.Description = "Daytona Runner API"
-	docs.SwaggerInfo.Title = "Daytona Runner API"
+	docs.SwaggerInfo.Description = "Northrays Runner API"
+	docs.SwaggerInfo.Title = "Northrays Runner API"
 	docs.SwaggerInfo.BasePath = "/"
 	docs.SwaggerInfo.Version = internal.Version
 
@@ -106,7 +106,7 @@ func (a *ApiServer) Start(ctx context.Context) error {
 	if a.logRequests {
 		a.router.Use(sloggin.New(a.logger))
 	}
-	a.router.Use(otelgin.Middleware("daytona-runner"))
+	a.router.Use(otelgin.Middleware("northrays-runner"))
 	a.router.Use(common_errors.NewErrorMiddleware(common.HandlePossibleDockerError))
 	a.router.Use(middlewares.RecoverableErrorsMiddleware())
 

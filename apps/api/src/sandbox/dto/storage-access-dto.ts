@@ -38,7 +38,7 @@ export class StorageAccessDto {
 
   @ApiProperty({
     description: 'S3 bucket name',
-    example: 'daytona',
+    example: 'northrays',
   })
   bucket: string
 }

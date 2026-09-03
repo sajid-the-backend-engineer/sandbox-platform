@@ -1,0 +1,32 @@
+name: northrays
+synopsis: Northrays CLI
+description: Command line interface for Northrays Sandboxes
+usage: northrays [flags]
+options:
+  - name: help
+    default_value: 'false'
+    usage: help for northrays
+  - name: version
+    shorthand: v
+    default_value: 'false'
+    usage: Display the version of Northrays
+see_also:
+  - northrays archive - Archive a sandbox
+  - northrays autocomplete - Adds a completion script for your shell environment
+  - northrays create - Create a new sandbox
+  - northrays delete - Delete a sandbox
+  - northrays docs - Opens the Northrays documentation in your default browser.
+  - northrays exec - Execute a command in a sandbox
+  - northrays info - Get sandbox info
+  - northrays list - List sandboxes
+  - northrays login - Log in to Northrays
+  - northrays logout - Logout from Northrays
+  - northrays mcp - Manage Northrays MCP Server
+  - northrays organization - Manage Northrays organizations
+  - northrays preview-url - Get signed preview URL for a sandbox port
+  - northrays snapshot - Manage Northrays snapshots
+  - northrays ssh - SSH into a sandbox
+  - northrays start - Start a sandbox
+  - northrays stop - Stop a sandbox
+  - northrays version - Print the version number
+  - northrays volume - Manage Northrays volumes

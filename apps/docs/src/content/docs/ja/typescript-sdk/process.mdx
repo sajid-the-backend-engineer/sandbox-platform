@@ -279,14 +279,14 @@ const sessionId = 'my-session';
 
 // Change directory
 await process.executeSessionCommand(sessionId, {
-  command: 'cd /home/daytona'
+  command: 'cd /home/northrays'
 });
 
 // Run command in new directory
 const result = await process.executeSessionCommand(sessionId, {
   command: 'pwd'
 });
-console.log(result.output);  // Prints: /home/daytona
+console.log(result.output);  // Prints: /home/northrays
 ```
 
 ***

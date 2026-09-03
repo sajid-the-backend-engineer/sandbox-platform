@@ -8,7 +8,7 @@ import (
 	"fmt"
 
 	"github.com/containerd/errdefs"
-	common_errors "github.com/daytonaio/common-go/pkg/errors"
+	common_errors "github.com/northrays/common-go/pkg/errors"
 	"github.com/docker/docker/api/types/container"
 )
 

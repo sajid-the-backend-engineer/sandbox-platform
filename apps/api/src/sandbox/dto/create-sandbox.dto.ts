@@ -44,7 +44,7 @@ export class CreateSandboxDto {
 
   @ApiPropertyOptional({
     description: 'The user associated with the project',
-    example: 'daytona',
+    example: 'northrays',
   })
   @IsOptional()
   @IsString()
@@ -64,7 +64,7 @@ export class CreateSandboxDto {
     description: 'Labels for the sandbox',
     type: 'object',
     additionalProperties: { type: 'string' },
-    example: { 'daytona.io/public': 'true' },
+    example: { 'northrays.com/public': 'true' },
   })
   @IsOptional()
   @IsObject()
@@ -96,7 +96,7 @@ export class CreateSandboxDto {
 
   @ApiPropertyOptional({
     description: 'Comma-separated list of allowed domains for the sandbox',
-    example: 'example.com,*.daytona.io',
+    example: 'example.com,*.northrays.com',
   })
   @IsOptional()
   @IsString()

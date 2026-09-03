@@ -1,0 +1,9 @@
+name: northrays organization use
+synopsis: Set active organization
+usage: northrays organization use [ORGANIZATION] [flags]
+inherited_options:
+  - name: help
+    default_value: 'false'
+    usage: help for northrays
+see_also:
+  - northrays organization - Manage Northrays organizations

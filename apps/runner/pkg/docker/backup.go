@@ -8,8 +8,8 @@ import (
 	"errors"
 	"time"
 
-	"github.com/daytonaio/runner/pkg/api/dto"
-	"github.com/daytonaio/runner/pkg/models/enums"
+	"github.com/northrays/runner/pkg/api/dto"
+	"github.com/northrays/runner/pkg/models/enums"
 
 	cmap "github.com/orcaman/concurrent-map/v2"
 )

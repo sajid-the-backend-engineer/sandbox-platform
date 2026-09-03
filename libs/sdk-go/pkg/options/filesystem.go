@@ -3,7 +3,7 @@
 
 package options
 
-// CreateFolder holds optional parameters for [daytona.FileSystemService.CreateFolder].
+// CreateFolder holds optional parameters for [northrays.FileSystemService.CreateFolder].
 type CreateFolder struct {
 	Mode *string // Unix file permissions (e.g., "0755")
 }
@@ -24,7 +24,7 @@ func WithMode(mode string) func(*CreateFolder) {
 	}
 }
 
-// SetFilePermissions holds optional parameters for [daytona.FileSystemService.SetFilePermissions].
+// SetFilePermissions holds optional parameters for [northrays.FileSystemService.SetFilePermissions].
 type SetFilePermissions struct {
 	Mode  *string // Unix file permissions (e.g., "0644")
 	Owner *string // File owner username

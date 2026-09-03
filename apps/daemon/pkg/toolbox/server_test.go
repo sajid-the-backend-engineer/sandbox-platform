@@ -12,7 +12,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 
-	"github.com/daytonaio/daemon/pkg/toolbox/fs"
+	"github.com/northrays/daemon/pkg/toolbox/fs"
 )
 
 func TestFilesRoutesAcceptSlashAndNoSlash(t *testing.T) {

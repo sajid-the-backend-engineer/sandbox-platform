@@ -5,7 +5,7 @@ package controllers
 import (
 	"net/http"
 
-	"github.com/daytonaio/runner/internal"
+	"github.com/northrays/runner/internal"
 	"github.com/gin-gonic/gin"
 )
 

@@ -6,10 +6,10 @@ package controllers
 import (
 	"net/http"
 
-	"github.com/daytonaio/runner/internal"
-	"github.com/daytonaio/runner/pkg/api/dto"
-	"github.com/daytonaio/runner/pkg/models"
-	"github.com/daytonaio/runner/pkg/runner"
+	"github.com/northrays/runner/internal"
+	"github.com/northrays/runner/pkg/api/dto"
+	"github.com/northrays/runner/pkg/models"
+	"github.com/northrays/runner/pkg/runner"
 	"github.com/gin-gonic/gin"
 )
 

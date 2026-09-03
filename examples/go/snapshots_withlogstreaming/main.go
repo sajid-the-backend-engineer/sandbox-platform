@@ -8,14 +8,14 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/daytonaio/daytona/libs/sdk-go/pkg/daytona"
-	"github.com/daytonaio/daytona/libs/sdk-go/pkg/types"
+	"github.com/northrays/sandbox-platform/libs/sdk-go/pkg/northrays"
+	"github.com/northrays/sandbox-platform/libs/sdk-go/pkg/types"
 	"github.com/google/uuid"
 )
 
 // This example demonstrates creating a snapshot with log streaming
 func exampleSnapshotWithLogs() {
-	client, err := daytona.NewClient()
+	client, err := northrays.NewClient()
 	if err != nil {
 		log.Fatalf("Failed to create client: %v", err)
 	}
@@ -66,8 +66,8 @@ func exampleSnapshotWithLogs() {
 
 // This example demonstrates creating a snapshot with a custom Dockerfile
 func exampleSnapshotWithCustomImage() {
-	// Create a new Daytona client
-	client, err := daytona.NewClient()
+	// Create a new Northrays client
+	client, err := northrays.NewClient()
 	if err != nil {
 		log.Fatalf("Failed to create client: %v", err)
 	}
@@ -78,7 +78,7 @@ func exampleSnapshotWithCustomImage() {
 	log.Println("=" + string(make([]byte, 60)) + "=")
 
 	// Build a custom image with Python and some packages
-	image := daytona.Base("python:3.11-slim").
+	image := northrays.Base("python:3.11-slim").
 		Run("apt-get update && apt-get install -y git curl").
 		Run("pip install --no-cache-dir requests numpy pandas")
 

@@ -10,7 +10,7 @@ import (
 	"io"
 	"path/filepath"
 
-	"github.com/daytonaio/daytona/cli/apiclient"
+	"github.com/northrays/sandbox-platform/cli/apiclient"
 	"github.com/mark3labs/mcp-go/mcp"
 )
 
@@ -27,14 +27,14 @@ type Content struct {
 
 func GetFileDownloadTool() mcp.Tool {
 	return mcp.NewTool("file_download",
-		mcp.WithDescription("Download a file from the Daytona sandbox. Returns the file content either as text or as a base64 encoded image. Handles special cases like matplotlib plots stored as JSON with embedded base64 images."),
+		mcp.WithDescription("Download a file from the Northrays sandbox. Returns the file content either as text or as a base64 encoded image. Handles special cases like matplotlib plots stored as JSON with embedded base64 images."),
 		mcp.WithString("filePath", mcp.Required(), mcp.Description("Path to the file to download.")),
 		mcp.WithString("id", mcp.Required(), mcp.Description("ID of the sandbox to download the file from.")),
 	)
 }
 
 func FileDownload(ctx context.Context, request mcp.CallToolRequest, args FileDownloadArgs) (*mcp.CallToolResult, error) {
-	apiClient, err := apiclient.GetApiClient(nil, daytonaMCPHeaders)
+	apiClient, err := apiclient.GetApiClient(nil, northraysMCPHeaders)
 	if err != nil {
 		return &mcp.CallToolResult{IsError: true}, err
 	}

@@ -4,17 +4,17 @@
 package sandbox
 
 import (
-	"github.com/daytonaio/daytona/cli/internal"
+	"github.com/northrays/sandbox-platform/cli/internal"
 	"github.com/spf13/cobra"
 )
 
 var SandboxCmd = &cobra.Command{
 	Use:     "sandbox",
-	Short:   "Manage Daytona sandboxes",
-	Long:    "Commands for managing Daytona sandboxes",
+	Short:   "Manage Northrays sandboxes",
+	Long:    "Commands for managing Northrays sandboxes",
 	Aliases: []string{"sandboxes"},
 	GroupID: internal.SANDBOX_GROUP,
-	Hidden:  true, // Deprecated: use top-level commands instead (e.g., "daytona start" instead of "daytona sandbox start")
+	Hidden:  true, // Deprecated: use top-level commands instead (e.g., "northrays start" instead of "northrays sandbox start")
 }
 
 func init() {

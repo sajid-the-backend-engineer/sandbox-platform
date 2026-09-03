@@ -1,18 +1,18 @@
 #!/usr/bin/env ruby
 # frozen_string_literal: true
 
-require 'daytona'
+require 'northrays'
 
 def main
-  daytona = Daytona::Daytona.new
+  northrays = Northrays::Northrays.new
 
-  owner = daytona.create
+  owner = northrays.create
   puts "Owner sandbox ready: id=#{owner.id}"
 
   # Linked sandboxes must be ephemeral — `ephemeral: true` sets
   # `auto_delete_interval=0` automatically.
-  follower = daytona.create(
-    Daytona::CreateSandboxFromSnapshotParams.new(
+  follower = northrays.create(
+    Northrays::CreateSandboxFromSnapshotParams.new(
       linked_sandbox: owner.id,
       ephemeral: true
     )
@@ -60,9 +60,9 @@ def main
     puts "Response from owner: #{curl_res.result.strip}"
   ensure
     puts "\nDeleting follower #{follower.id}"
-    daytona.delete(follower)
+    northrays.delete(follower)
     puts "Deleting owner #{owner.id}"
-    daytona.delete(owner)
+    northrays.delete(owner)
   end
 end
 

@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 import type { FlueContext } from '@flue/sdk/client'
-import { Daytona } from '@daytona/sdk'
-import { daytona } from '../connectors/daytona'
+import { Northrays } from '@northrays/sdk'
+import { northrays } from '../connectors/northrays'
 import * as v from 'valibot'
 import { readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
@@ -54,14 +54,14 @@ export default async function ({ init, payload, env }: FlueContext) {
     throw new Error(`Invalid issueNumber: ${issueNumber} (must be a positive integer)`)
   }
 
-  const daytonaApiKey = requireEnv(env, 'DAYTONA_API_KEY')
+  const northraysApiKey = requireEnv(env, 'NORTHRAYS_API_KEY')
   const githubToken = requireEnv(env, 'GITHUB_TOKEN')
   const model = env.MODEL ?? 'anthropic/claude-sonnet-4-6'
-  const projectDir = '/home/daytona/project'
+  const projectDir = '/home/northrays/project'
 
   console.log(`[bug-fix] target: ${repo}#${issueNumber} (model: ${model})`)
 
-  const client = new Daytona({ apiKey: daytonaApiKey })
+  const client = new Northrays({ apiKey: northraysApiKey })
   const sandbox = await client.create({
     envVars: { GH_TOKEN: githubToken },
   })
@@ -73,7 +73,7 @@ export default async function ({ init, payload, env }: FlueContext) {
 
   try {
     setupAgent = await init({
-      sandbox: daytona(sandbox, { cleanup: true }),
+      sandbox: northrays(sandbox, { cleanup: true }),
       model,
     })
     const setup = await setupAgent.session()
@@ -177,7 +177,7 @@ export default async function ({ init, payload, env }: FlueContext) {
 
     projectAgent = await init({
       id: `bug-fix-${issueNumber}`,
-      sandbox: daytona(sandbox),
+      sandbox: northrays(sandbox),
       cwd: projectDir,
       model,
     })

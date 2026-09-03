@@ -1,39 +1,39 @@
 ---
 title: CLI
-description: A reference of supported operations using the Daytona CLI.
+description: A reference of supported operations using the Northrays CLI.
 sidebar:
-  label: Daytona CLI Reference
+  label: Northrays CLI Reference
 ---
 import { TabItem, Tabs } from "@astrojs/starlight/components";
 import Aside from "@components/Aside.astro";
 import Label from "@components/Label.astro";
 
-Daytona provides command-line access to core features for interacting with Daytona Sandboxes, including managing their lifecycle, snapshots, and more.
+Northrays provides command-line access to core features for interacting with Northrays Sandboxes, including managing their lifecycle, snapshots, and more.
 
-The CLI reference lists all commands supported by the `daytona` command-line tool, complete with a description of their behavior, and any supported flags.
-You can access this documentation on a per-command basis by appending the `--help`/`-h` flag when invoking `daytona`.
+The CLI reference lists all commands supported by the `northrays` command-line tool, complete with a description of their behavior, and any supported flags.
+You can access this documentation on a per-command basis by appending the `--help`/`-h` flag when invoking `northrays`.
 
 ## Installation
 
-Install the Daytona CLI to interact with Daytona sandboxes from the command line.
+Install the Northrays CLI to interact with Northrays sandboxes from the command line.
 
 <Tabs syncKey="language">
 <TabItem label="Mac">
 
 ```bash
-brew install daytonaio/cli/daytona
+brew install northrays/cli/northrays
 ```
 
-Trust the tap once so routine `brew upgrade` keeps the Daytona CLI up to date. Recent Homebrew versions require third-party taps to be explicitly trusted; without it, a bare `brew upgrade` skips the Daytona tap and the CLI goes stale:
+Trust the tap once so routine `brew upgrade` keeps the Northrays CLI up to date. Recent Homebrew versions require third-party taps to be explicitly trusted; without it, a bare `brew upgrade` skips the Northrays tap and the CLI goes stale:
 
 ```bash
-brew trust daytonaio/cli
+brew trust northrays/cli
 ```
 
-To upgrade the Daytona CLI to the latest version:
+To upgrade the Northrays CLI to the latest version:
 
 ```bash
-brew upgrade daytonaio/cli/daytona
+brew upgrade northrays/cli/northrays
 ```
 
 Alternatively, install directly without Homebrew:
@@ -41,13 +41,13 @@ Alternatively, install directly without Homebrew:
 For Apple Silicon (`arm64`):
 
   ```bash
-  sudo curl -fL https://github.com/daytonaio/daytona/releases/latest/download/daytona-darwin-arm64 -o /usr/local/bin/daytona && sudo chmod +x /usr/local/bin/daytona
+  sudo curl -fL https://github.com/northrays/sandbox-platform/releases/latest/download/northrays-darwin-arm64 -o /usr/local/bin/northrays && sudo chmod +x /usr/local/bin/northrays
   ```
 
 For Intel (`amd64`):
 
   ```bash
-  sudo curl -fL https://github.com/daytonaio/daytona/releases/latest/download/daytona-darwin-amd64 -o /usr/local/bin/daytona && sudo chmod +x /usr/local/bin/daytona
+  sudo curl -fL https://github.com/northrays/sandbox-platform/releases/latest/download/northrays-darwin-amd64 -o /usr/local/bin/northrays && sudo chmod +x /usr/local/bin/northrays
   ```
 
 </TabItem>
@@ -58,65 +58,65 @@ Choose the command for your Linux architecture. Both commands download the lates
 For `amd64` (`x86_64`):
 
   ```bash
-  sudo curl -fL https://github.com/daytonaio/daytona/releases/latest/download/daytona-linux-amd64 -o /usr/local/bin/daytona && sudo chmod +x /usr/local/bin/daytona
+  sudo curl -fL https://github.com/northrays/sandbox-platform/releases/latest/download/northrays-linux-amd64 -o /usr/local/bin/northrays && sudo chmod +x /usr/local/bin/northrays
   ```
 
 For `arm64` (`aarch64`):
 
   ```bash
-  sudo curl -fL https://github.com/daytonaio/daytona/releases/latest/download/daytona-linux-arm64 -o /usr/local/bin/daytona && sudo chmod +x /usr/local/bin/daytona
+  sudo curl -fL https://github.com/northrays/sandbox-platform/releases/latest/download/northrays-linux-arm64 -o /usr/local/bin/northrays && sudo chmod +x /usr/local/bin/northrays
   ```
 
 </TabItem>
 <TabItem label="Windows">
 
 ```bash
-powershell -Command "irm https://get.daytona.io/windows | iex"
+powershell -Command "irm https://get.northrays.com/windows | iex"
 ```
 
 </TabItem>
 </Tabs>
 
-After installing the Daytona CLI, use the `daytona` command to interact with Daytona sandboxes from the command line.
+After installing the Northrays CLI, use the `northrays` command to interact with Northrays sandboxes from the command line.
 
-## daytona
-Daytona CLI
+## northrays
+Northrays CLI
 
 ```shell
-daytona [flags]
+northrays [flags]
 ```
 
 __Flags__
 | Long | Short | Description |
 | :--- | :---- | :---------- |
-| `--help` |  | help for daytona |
-| `--version` | `-v` | Display the version of Daytona |
+| `--help` |  | help for northrays |
+| `--version` | `-v` | Display the version of Northrays |
 
 
-## daytona archive
+## northrays archive
 Archive a sandbox
 
 ```shell
-daytona archive [SANDBOX_ID] | [SANDBOX_NAME] [flags]
+northrays archive [SANDBOX_ID] | [SANDBOX_NAME] [flags]
 ```
 
 __Flags__
 | Long | Short | Description |
 | :--- | :---- | :---------- |
-| `--help` |  | help for daytona |
+| `--help` |  | help for northrays |
 
 
-## daytona autocomplete
+## northrays autocomplete
 Adds a completion script for your shell environment
 
 ```shell
-daytona autocomplete [bash|zsh|fish|powershell] [flags]
+northrays autocomplete [bash|zsh|fish|powershell] [flags]
 ```
 
 __Flags__
 | Long | Short | Description |
 | :--- | :---- | :---------- |
-| `--help` |  | help for daytona |
+| `--help` |  | help for northrays |
 
 <Aside type="note">
 If using bash shell environment, make sure you have bash-completion installed in order to get full autocompletion functionality.
@@ -124,11 +124,11 @@ Linux Installation: ```sudo apt-get install bash-completion```
 macOS Installation: ```brew install bash-completion```
 </Aside>
 
-## daytona create
+## northrays create
 Create a new sandbox
 
 ```shell
-daytona create [flags]
+northrays create [flags]
 ```
 
 __Flags__
@@ -153,41 +153,41 @@ __Flags__
 | `--target` |  | Target region (eu, us) |
 | `--user` |  | User associated with the sandbox |
 | `--volume` | `-v` | Volumes to mount (format: VOLUME_ID_OR_NAME:MOUNT_PATH) |
-| `--help` |  | help for daytona |
+| `--help` |  | help for northrays |
 
 
-## daytona delete
+## northrays delete
 Delete a sandbox
 
 ```shell
-daytona delete [SANDBOX_ID] | [SANDBOX_NAME] [flags]
+northrays delete [SANDBOX_ID] | [SANDBOX_NAME] [flags]
 ```
 
 __Flags__
 | Long | Short | Description |
 | :--- | :---- | :---------- |
 | `--all` | `-a` | Delete all sandboxes |
-| `--help` |  | help for daytona |
+| `--help` |  | help for northrays |
 
 
-## daytona docs
-Opens the Daytona documentation in your default browser.
+## northrays docs
+Opens the Northrays documentation in your default browser.
 
 ```shell
-daytona docs [flags]
+northrays docs [flags]
 ```
 
 __Flags__
 | Long | Short | Description |
 | :--- | :---- | :---------- |
-| `--help` |  | help for daytona |
+| `--help` |  | help for northrays |
 
 
-## daytona exec
+## northrays exec
 Execute a command in a sandbox
 
 ```shell
-daytona exec [SANDBOX_ID | SANDBOX_NAME] -- [COMMAND] [ARGS...] [flags]
+northrays exec [SANDBOX_ID | SANDBOX_NAME] -- [COMMAND] [ARGS...] [flags]
 ```
 
 __Flags__
@@ -195,28 +195,28 @@ __Flags__
 | :--- | :---- | :---------- |
 | `--cwd` |  | Working directory for command execution |
 | `--timeout` |  | Command timeout in seconds (0 for no timeout) |
-| `--help` |  | help for daytona |
+| `--help` |  | help for northrays |
 
 
-## daytona info
+## northrays info
 Get sandbox info
 
 ```shell
-daytona info [SANDBOX_ID] | [SANDBOX_NAME] [flags]
+northrays info [SANDBOX_ID] | [SANDBOX_NAME] [flags]
 ```
 
 __Flags__
 | Long | Short | Description |
 | :--- | :---- | :---------- |
 | `--format` | `-f` | Output format. Must be one of (yaml, json) |
-| `--help` |  | help for daytona |
+| `--help` |  | help for northrays |
 
 
-## daytona list
+## northrays list
 List sandboxes
 
 ```shell
-daytona list [flags]
+northrays list [flags]
 ```
 
 __Flags__
@@ -225,160 +225,160 @@ __Flags__
 | `--cursor` | `-c` | Cursor for pagination |
 | `--format` | `-f` | Output format. Must be one of (yaml, json) |
 | `--limit` | `-l` | Maximum number of items per page |
-| `--help` |  | help for daytona |
+| `--help` |  | help for northrays |
 
 
-## daytona login
-Log in to Daytona
+## northrays login
+Log in to Northrays
 
 ```shell
-daytona login [flags]
+northrays login [flags]
 ```
 
 __Flags__
 | Long | Short | Description |
 | :--- | :---- | :---------- |
 | `--api-key` |  | API key to use for authentication |
-| `--help` |  | help for daytona |
+| `--help` |  | help for northrays |
 
 
-## daytona logout
-Logout from Daytona
+## northrays logout
+Logout from Northrays
 
 ```shell
-daytona logout [flags]
+northrays logout [flags]
 ```
 
 __Flags__
 | Long | Short | Description |
 | :--- | :---- | :---------- |
-| `--help` |  | help for daytona |
+| `--help` |  | help for northrays |
 
 
-## daytona mcp
-Manage Daytona MCP Server
+## northrays mcp
+Manage Northrays MCP Server
 
 ```shell
-daytona mcp [flags]
+northrays mcp [flags]
 ```
 
 __Flags__
 | Long | Short | Description |
 | :--- | :---- | :---------- |
-| `--help` |  | help for daytona |
+| `--help` |  | help for northrays |
 
 
-## daytona mcp config
-Outputs JSON configuration for Daytona MCP Server
+## northrays mcp config
+Outputs JSON configuration for Northrays MCP Server
 
 ```shell
-daytona mcp config [AGENT_NAME] [flags]
+northrays mcp config [AGENT_NAME] [flags]
 ```
 
 __Flags__
 | Long | Short | Description |
 | :--- | :---- | :---------- |
-| `--help` |  | help for daytona |
+| `--help` |  | help for northrays |
 
 
-## daytona mcp init
-Initialize Daytona MCP Server with an agent (currently supported: claude, windsurf, cursor)
+## northrays mcp init
+Initialize Northrays MCP Server with an agent (currently supported: claude, windsurf, cursor)
 
 
 ```shell
-daytona mcp init [AGENT_NAME] [flags]
+northrays mcp init [AGENT_NAME] [flags]
 ```
 
 __Flags__
 | Long | Short | Description |
 | :--- | :---- | :---------- |
-| `--help` |  | help for daytona |
+| `--help` |  | help for northrays |
 
 
-## daytona mcp start
-Start Daytona MCP Server
+## northrays mcp start
+Start Northrays MCP Server
 
 ```shell
-daytona mcp start [flags]
+northrays mcp start [flags]
 ```
 
 __Flags__
 | Long | Short | Description |
 | :--- | :---- | :---------- |
-| `--help` |  | help for daytona |
+| `--help` |  | help for northrays |
 
 
-## daytona organization
-Manage Daytona organizations
+## northrays organization
+Manage Northrays organizations
 
 ```shell
-daytona organization [flags]
+northrays organization [flags]
 ```
 
 __Flags__
 | Long | Short | Description |
 | :--- | :---- | :---------- |
-| `--help` |  | help for daytona |
+| `--help` |  | help for northrays |
 
 
-## daytona organization create
+## northrays organization create
 Create a new organization and set it as active
 
 ```shell
-daytona organization create [ORGANIZATION_NAME] [flags]
+northrays organization create [ORGANIZATION_NAME] [flags]
 ```
 
 __Flags__
 | Long | Short | Description |
 | :--- | :---- | :---------- |
-| `--help` |  | help for daytona |
+| `--help` |  | help for northrays |
 
 
-## daytona organization delete
+## northrays organization delete
 Delete an organization
 
 ```shell
-daytona organization delete [ORGANIZATION] [flags]
+northrays organization delete [ORGANIZATION] [flags]
 ```
 
 __Flags__
 | Long | Short | Description |
 | :--- | :---- | :---------- |
-| `--help` |  | help for daytona |
+| `--help` |  | help for northrays |
 
 
-## daytona organization list
+## northrays organization list
 List all organizations
 
 ```shell
-daytona organization list [flags]
+northrays organization list [flags]
 ```
 
 __Flags__
 | Long | Short | Description |
 | :--- | :---- | :---------- |
 | `--format` | `-f` | Output format. Must be one of (yaml, json) |
-| `--help` |  | help for daytona |
+| `--help` |  | help for northrays |
 
 
-## daytona organization use
+## northrays organization use
 Set active organization
 
 ```shell
-daytona organization use [ORGANIZATION] [flags]
+northrays organization use [ORGANIZATION] [flags]
 ```
 
 __Flags__
 | Long | Short | Description |
 | :--- | :---- | :---------- |
-| `--help` |  | help for daytona |
+| `--help` |  | help for northrays |
 
 
-## daytona preview-url
+## northrays preview-url
 Get signed preview URL for a sandbox port
 
 ```shell
-daytona preview-url [SANDBOX_ID | SANDBOX_NAME] [flags]
+northrays preview-url [SANDBOX_ID | SANDBOX_NAME] [flags]
 ```
 
 __Flags__
@@ -386,27 +386,27 @@ __Flags__
 | :--- | :---- | :---------- |
 | `--expires` |  | URL expiration time in seconds |
 | `--port` | `-p` | Port number to get preview URL for (required) |
-| `--help` |  | help for daytona |
+| `--help` |  | help for northrays |
 
 
-## daytona snapshot
-Manage Daytona snapshots
+## northrays snapshot
+Manage Northrays snapshots
 
 ```shell
-daytona snapshot [flags]
+northrays snapshot [flags]
 ```
 
 __Flags__
 | Long | Short | Description |
 | :--- | :---- | :---------- |
-| `--help` |  | help for daytona |
+| `--help` |  | help for northrays |
 
 
-## daytona snapshot create
+## northrays snapshot create
 Create a snapshot
 
 ```shell
-daytona snapshot create [SNAPSHOT] [flags]
+northrays snapshot create [SNAPSHOT] [flags]
 ```
 
 __Flags__
@@ -420,28 +420,28 @@ __Flags__
 | `--image` | `-i` | The image name for the snapshot |
 | `--memory` |  | Memory that will be allocated to the underlying sandboxes in GB (default: 1) |
 | `--region` |  | ID of the region where the snapshot will be available (defaults to organization default region) |
-| `--help` |  | help for daytona |
+| `--help` |  | help for northrays |
 
 
-## daytona snapshot delete
+## northrays snapshot delete
 Delete a snapshot
 
 ```shell
-daytona snapshot delete [SNAPSHOT_ID | SNAPSHOT_NAME] [flags]
+northrays snapshot delete [SNAPSHOT_ID | SNAPSHOT_NAME] [flags]
 ```
 
 __Flags__
 | Long | Short | Description |
 | :--- | :---- | :---------- |
 | `--all` | `-a` | Delete all snapshots |
-| `--help` |  | help for daytona |
+| `--help` |  | help for northrays |
 
 
-## daytona snapshot list
+## northrays snapshot list
 List all snapshots
 
 ```shell
-daytona snapshot list [flags]
+northrays snapshot list [flags]
 ```
 
 __Flags__
@@ -450,14 +450,14 @@ __Flags__
 | `--format` | `-f` | Output format. Must be one of (yaml, json) |
 | `--limit` | `-l` | Maximum number of items per page |
 | `--page` | `-p` | Page number for pagination (starting from 1) |
-| `--help` |  | help for daytona |
+| `--help` |  | help for northrays |
 
 
-## daytona snapshot push
+## northrays snapshot push
 Push local snapshot
 
 ```shell
-daytona snapshot push [SNAPSHOT] [flags]
+northrays snapshot push [SNAPSHOT] [flags]
 ```
 
 __Flags__
@@ -469,128 +469,128 @@ __Flags__
 | `--memory` |  | Memory that will be allocated to the underlying sandboxes in GB (default: 1) |
 | `--name` | `-n` | Specify the Snapshot name |
 | `--region` |  | ID of the region where the snapshot will be available (defaults to organization default region) |
-| `--help` |  | help for daytona |
+| `--help` |  | help for northrays |
 
 
-## daytona ssh
+## northrays ssh
 SSH into a sandbox
 
 ```shell
-daytona ssh [SANDBOX_ID] | [SANDBOX_NAME] [flags]
+northrays ssh [SANDBOX_ID] | [SANDBOX_NAME] [flags]
 ```
 
 __Flags__
 | Long | Short | Description |
 | :--- | :---- | :---------- |
 | `--expires` |  | SSH access token expiration time in minutes (defaults to 24 hours) |
-| `--help` |  | help for daytona |
+| `--help` |  | help for northrays |
 
 
-## daytona start
+## northrays start
 Start a sandbox
 
 ```shell
-daytona start [SANDBOX_ID] | [SANDBOX_NAME] [flags]
+northrays start [SANDBOX_ID] | [SANDBOX_NAME] [flags]
 ```
 
 __Flags__
 | Long | Short | Description |
 | :--- | :---- | :---------- |
-| `--help` |  | help for daytona |
+| `--help` |  | help for northrays |
 
 
-## daytona stop
+## northrays stop
 Stop a sandbox
 
 ```shell
-daytona stop [SANDBOX_ID] | [SANDBOX_NAME] [flags]
+northrays stop [SANDBOX_ID] | [SANDBOX_NAME] [flags]
 ```
 
 __Flags__
 | Long | Short | Description |
 | :--- | :---- | :---------- |
 | `--force` | `-f` | Force stop the sandbox using SIGKILL |
-| `--help` |  | help for daytona |
+| `--help` |  | help for northrays |
 
 
-## daytona version
+## northrays version
 Print the version number
 
 ```shell
-daytona version [flags]
+northrays version [flags]
 ```
 
 __Flags__
 | Long | Short | Description |
 | :--- | :---- | :---------- |
-| `--help` |  | help for daytona |
+| `--help` |  | help for northrays |
 
 
-## daytona volume
-Manage Daytona volumes
+## northrays volume
+Manage Northrays volumes
 
 ```shell
-daytona volume [flags]
+northrays volume [flags]
 ```
 
 __Flags__
 | Long | Short | Description |
 | :--- | :---- | :---------- |
-| `--help` |  | help for daytona |
+| `--help` |  | help for northrays |
 
 
-## daytona volume create
+## northrays volume create
 Create a volume
 
 ```shell
-daytona volume create [NAME] [flags]
+northrays volume create [NAME] [flags]
 ```
 
 __Flags__
 | Long | Short | Description |
 | :--- | :---- | :---------- |
 | `--size` | `-s` | Size of the volume in GB |
-| `--help` |  | help for daytona |
+| `--help` |  | help for northrays |
 
 
-## daytona volume delete
+## northrays volume delete
 Delete a volume
 
 ```shell
-daytona volume delete [VOLUME_ID_OR_NAME] [flags]
+northrays volume delete [VOLUME_ID_OR_NAME] [flags]
 ```
 
 __Flags__
 | Long | Short | Description |
 | :--- | :---- | :---------- |
-| `--help` |  | help for daytona |
+| `--help` |  | help for northrays |
 
 
-## daytona volume get
+## northrays volume get
 Get volume details
 
 ```shell
-daytona volume get [VOLUME_ID_OR_NAME] [flags]
+northrays volume get [VOLUME_ID_OR_NAME] [flags]
 ```
 
 __Flags__
 | Long | Short | Description |
 | :--- | :---- | :---------- |
 | `--format` | `-f` | Output format. Must be one of (yaml, json) |
-| `--help` |  | help for daytona |
+| `--help` |  | help for northrays |
 
 
-## daytona volume list
+## northrays volume list
 List all volumes
 
 ```shell
-daytona volume list [flags]
+northrays volume list [flags]
 ```
 
 __Flags__
 | Long | Short | Description |
 | :--- | :---- | :---------- |
 | `--format` | `-f` | Output format. Must be one of (yaml, json) |
-| `--help` |  | help for daytona |
+| `--help` |  | help for northrays |
 
 

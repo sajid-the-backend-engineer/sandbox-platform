@@ -9,8 +9,8 @@ import (
 	"fmt"
 	"strings"
 
-	common_errors "github.com/daytonaio/common-go/pkg/errors"
-	"github.com/daytonaio/runner/pkg/api/dto"
+	common_errors "github.com/northrays/common-go/pkg/errors"
+	"github.com/northrays/runner/pkg/api/dto"
 )
 
 func (d *DockerClient) PullSnapshot(ctx context.Context, req dto.PullSnapshotRequestDTO) error {
@@ -44,7 +44,7 @@ func (d *DockerClient) PullSnapshot(ctx context.Context, req dto.PullSnapshotReq
 				return err
 			}
 
-			ref := "daytona-" + getHashWithoutPrefix(imageInfo.Hash) + ":daytona"
+			ref := "northrays-" + getHashWithoutPrefix(imageInfo.Hash) + ":northrays"
 			targetRef = fmt.Sprintf("%s/%s/%s", req.DestinationRegistry.Url, *req.DestinationRegistry.Project, ref)
 		}
 

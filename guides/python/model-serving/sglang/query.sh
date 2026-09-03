@@ -8,7 +8,7 @@
 
 # max_tokens covers reasoning plus answer; gpt-oss thinks before it speaks
 curl -sS --connect-timeout 30 --max-time 120 "$ENDPOINT/v1/chat/completions" \
-  -H "x-daytona-preview-token: $TOKEN" \
+  -H "x-northrays-preview-token: $TOKEN" \
   -H "Content-Type: application/json" \
   -d '{
     "model": "gpt-oss-20b",

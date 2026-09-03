@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Sandbox } from '@daytona/sdk'
+import { Sandbox } from '@northrays/sdk'
 import { LettaMessage, ApprovalRequestMessage, ResultMessage, ToolCall } from './types'
 import { renderMarkdown } from './utils'
 
@@ -43,7 +43,7 @@ function formatToolCall(toolCall: any): string {
   return `\n🔧 ${description}`
 }
 
-// Represents a Letta Code session within a Daytona sandbox
+// Represents a Letta Code session within a Northrays sandbox
 export class LettaSession {
   private currentToolCall: ToolCall | null = null
   private buffer = ''

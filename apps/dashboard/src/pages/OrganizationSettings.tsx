@@ -23,7 +23,7 @@ import { useRegionLookup } from '@/hooks/queries/useRegionsQuery'
 import { useOrganizations } from '@/hooks/useOrganizations'
 import { useSelectedOrganization } from '@/hooks/useSelectedOrganization'
 import { handleApiError } from '@/lib/error-handling'
-import { OrganizationUserRoleEnum } from '@daytona/api-client'
+import { OrganizationUserRoleEnum } from '@northrays/api-client'
 import React, { useRef } from 'react'
 import { toast } from 'sonner'
 

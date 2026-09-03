@@ -3,9 +3,9 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { LspApi } from '@daytona/toolbox-api-client'
-import type { CompletionList, LspSymbol } from '@daytona/toolbox-api-client'
-import { DaytonaValidationError } from './errors/DaytonaError'
+import { LspApi } from '@northrays/toolbox-api-client'
+import type { CompletionList, LspSymbol } from '@northrays/toolbox-api-client'
+import { NorthraysValidationError } from './errors/NorthraysError'
 import { WithInstrumentation } from './utils/otel.decorator'
 
 /**
@@ -56,7 +56,7 @@ export class LspServer {
     private readonly apiClient: LspApi,
   ) {
     if (!Object.values(LspLanguageId).includes(this.languageId)) {
-      throw new DaytonaValidationError(
+      throw new NorthraysValidationError(
         `Invalid languageId: ${this.languageId}. Supported values are: ${Object.values(LspLanguageId).join(', ')}`,
       )
     }

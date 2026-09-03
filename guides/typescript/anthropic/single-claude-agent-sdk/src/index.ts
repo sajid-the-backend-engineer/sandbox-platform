@@ -3,8 +3,8 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Daytona, Sandbox, OutputMessage, ExecutionResult } from '@daytona/sdk'
-import { InterpreterContext, ExecuteResponse } from '@daytona/toolbox-api-client'
+import { Northrays, Sandbox, OutputMessage, ExecutionResult } from '@northrays/sdk'
+import { InterpreterContext, ExecuteResponse } from '@northrays/toolbox-api-client'
 import * as dotenv from 'dotenv'
 import * as readline from 'readline'
 
@@ -26,12 +26,12 @@ async function processPrompt(prompt: string, sandbox: Sandbox, ctx: InterpreterC
 }
 
 async function main() {
-  // Get the Daytona API key from environment variables
-  const apiKey = process.env.DAYTONA_API_KEY
+  // Get the Northrays API key from environment variables
+  const apiKey = process.env.NORTHRAYS_API_KEY
 
   if (!apiKey) {
-    console.error('Error: DAYTONA_API_KEY environment variable is not set')
-    console.error('Please create a .env file with your Daytona API key')
+    console.error('Error: NORTHRAYS_API_KEY environment variable is not set')
+    console.error('Please create a .env file with your Northrays API key')
     process.exit(1)
   }
 
@@ -42,8 +42,8 @@ async function main() {
     process.exit(1)
   }
 
-  // Initialize the Daytona client
-  const daytona = new Daytona({ apiKey })
+  // Initialize the Northrays client
+  const northrays = new Northrays({ apiKey })
 
   let sandbox: Sandbox | undefined
 
@@ -60,12 +60,12 @@ async function main() {
   }
 
   try {
-    // Create a new Daytona sandbox
+    // Create a new Northrays sandbox
     // The sandbox language is irrelevant since we will use the code interpreter SDK
     console.log('Creating sandbox...')
-    sandbox = await daytona.create({
+    sandbox = await northrays.create({
       // Claude Code is memory intensive, so we use a medium snapshot
-      snapshot: 'daytona-medium', // This snapshot has 4GiB RAM and 2 vCPUs
+      snapshot: 'northrays-medium', // This snapshot has 4GiB RAM and 2 vCPUs
       envVars: {
         ANTHROPIC_API_KEY: process.env.SANDBOX_ANTHROPIC_API_KEY,
       },

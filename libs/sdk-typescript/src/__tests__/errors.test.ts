@@ -5,30 +5,30 @@
 
 import { AxiosError, AxiosHeaders } from 'axios'
 import {
-  createDaytonaError,
-  createAxiosDaytonaError,
-  DaytonaConnectionError,
-  DaytonaError,
-  DaytonaNotFoundError,
-  DaytonaTimeoutError,
-} from '../errors/DaytonaError'
+  createNorthraysError,
+  createAxiosNorthraysError,
+  NorthraysConnectionError,
+  NorthraysError,
+  NorthraysNotFoundError,
+  NorthraysTimeoutError,
+} from '../errors/NorthraysError'
 
-describe('Daytona error mapping', () => {
+describe('Northrays error mapping', () => {
   it('classifies Axios timeouts before generic network failures', () => {
     const error = new AxiosError('timeout of 1000ms exceeded', 'ECONNABORTED')
 
-    const daytonaError = createAxiosDaytonaError(error)
+    const northraysError = createAxiosNorthraysError(error)
 
-    expect(daytonaError).toBeInstanceOf(DaytonaTimeoutError)
-    expect(daytonaError.message).toBe('Operation timed out')
+    expect(northraysError).toBeInstanceOf(NorthraysTimeoutError)
+    expect(northraysError.message).toBe('Operation timed out')
   })
 
   it('classifies Axios connection failures without a response', () => {
     const error = new AxiosError('connect ECONNREFUSED', 'ERR_NETWORK', undefined, {} as never)
 
-    const daytonaError = createAxiosDaytonaError(error)
+    const northraysError = createAxiosNorthraysError(error)
 
-    expect(daytonaError).toBeInstanceOf(DaytonaConnectionError)
+    expect(northraysError).toBeInstanceOf(NorthraysConnectionError)
   })
 
   it('maps HTTP status codes and structured error codes from Axios responses', () => {
@@ -44,12 +44,12 @@ describe('Daytona error mapping', () => {
       statusText: 'Not Found',
     })
 
-    const daytonaError = createAxiosDaytonaError(error)
+    const northraysError = createAxiosNorthraysError(error)
 
-    expect(daytonaError).toBeInstanceOf(DaytonaNotFoundError)
-    expect(daytonaError.statusCode).toBe(404)
-    expect(daytonaError.errorCode).toBe('FILE_NOT_FOUND')
-    expect(daytonaError.headers).toBe(headers)
+    expect(northraysError).toBeInstanceOf(NorthraysNotFoundError)
+    expect(northraysError.statusCode).toBe(404)
+    expect(northraysError.errorCode).toBe('FILE_NOT_FOUND')
+    expect(northraysError.headers).toBe(headers)
   })
 
   it('extracts alternative structured error code fields', () => {
@@ -61,9 +61,9 @@ describe('Daytona error mapping', () => {
       statusText: 'Too Many Requests',
     })
 
-    const daytonaError = createAxiosDaytonaError(error)
+    const northraysError = createAxiosNorthraysError(error)
 
-    expect(daytonaError.errorCode).toBe('RATE_LIMITED')
+    expect(northraysError.errorCode).toBe('RATE_LIMITED')
   })
 
   it('stringifies object payloads when mapping axios errors', () => {
@@ -75,23 +75,23 @@ describe('Daytona error mapping', () => {
       statusText: 'Server Error',
     })
 
-    const daytonaError = createAxiosDaytonaError(error)
+    const northraysError = createAxiosNorthraysError(error)
 
-    expect(daytonaError).toBeInstanceOf(DaytonaError)
-    expect(daytonaError.message).toBe('{"nested":{"reason":"bad request"}}')
+    expect(northraysError).toBeInstanceOf(NorthraysError)
+    expect(northraysError.message).toBe('{"nested":{"reason":"bad request"}}')
   })
 
-  it('creates generic DaytonaError for unknown non-network axios failures', () => {
+  it('creates generic NorthraysError for unknown non-network axios failures', () => {
     const error = new AxiosError('unknown failure')
 
-    const daytonaError = createAxiosDaytonaError(error)
+    const northraysError = createAxiosNorthraysError(error)
 
-    expect(daytonaError).toBeInstanceOf(DaytonaError)
-    expect(daytonaError).not.toBeInstanceOf(DaytonaConnectionError)
+    expect(northraysError).toBeInstanceOf(NorthraysError)
+    expect(northraysError).not.toBeInstanceOf(NorthraysConnectionError)
   })
 
-  it('creates structured Daytona errors directly', () => {
-    const error = createDaytonaError('conflict', 409, undefined, 'ALREADY_EXISTS')
+  it('creates structured Northrays errors directly', () => {
+    const error = createNorthraysError('conflict', 409, undefined, 'ALREADY_EXISTS')
 
     expect(error.message).toBe('conflict')
     expect(error.statusCode).toBe(409)

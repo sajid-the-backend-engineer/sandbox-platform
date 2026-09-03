@@ -33,7 +33,7 @@ import { Button } from '@/components/ui/button'
 import { Checkbox } from '@/components/ui/checkbox'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { DAYTONA_DOCS_URL } from '@/constants/ExternalLinks'
+import { NORTHRAYS_DOCS_URL } from '@/constants/ExternalLinks'
 import { DEFAULT_PAGE_SIZE, PAGE_SIZE_OPTIONS } from '@/constants/Pagination'
 import { LocalStorageKey } from '@/enums/LocalStorageKey'
 import { RoutePath } from '@/enums/RoutePath'
@@ -75,8 +75,8 @@ import {
   SandboxListSortDirection,
   SandboxListSortField,
   SandboxState,
-} from '@daytona/api-client'
-import type { Sandbox as CreatedSandbox } from '@daytona/sdk'
+} from '@northrays/api-client'
+import type { Sandbox as CreatedSandbox } from '@northrays/sdk'
 import { useMutation, useQueryClient } from '@tanstack/react-query'
 import { PlusIcon } from 'lucide-react'
 import {
@@ -690,7 +690,7 @@ const Sandboxes: React.FC = () => {
                   <div>Computer-use dependencies are missing in the runtime environment.</div>
                   <div className="mt-2">
                     <a
-                      href={`${DAYTONA_DOCS_URL}/getting-started/computer-use`}
+                      href={`${NORTHRAYS_DOCS_URL}/getting-started/computer-use`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="text-primary hover:underline"

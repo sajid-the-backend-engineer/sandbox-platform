@@ -59,7 +59,7 @@ func HandleErrorResponse(res *http.Response, requestErr error) error {
 	}
 
 	if res.StatusCode == http.StatusUnauthorized {
-		errMessage += " - run 'daytona login' to reauthenticate"
+		errMessage += " - run 'northrays login' to reauthenticate"
 	}
 
 	if res.StatusCode == http.StatusForbidden {

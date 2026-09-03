@@ -1,42 +1,42 @@
 ---
 title: Python SDK リファレンス
-description: Python SDK を使用して Daytona サンドボックスとやり取りする
-next: /docs/python-sdk/daytona
+description: Python SDK を使用して Northrays サンドボックスとやり取りする
+next: /docs/python-sdk/northrays
 ---
 
 import { TabItem, Tabs } from '@astrojs/starlight/components'
 
-Daytona の Python SDK は、Daytona サンドボックスとプログラム的にやり取りするための堅牢なインターフェースを提供します。
+Northrays の Python SDK は、Northrays サンドボックスとプログラム的にやり取りするための堅牢なインターフェースを提供します。
 
 ## インストール
 
-pip で Daytona の Python SDK をインストールします:
+pip で Northrays の Python SDK をインストールします:
 
 ```bash
-pip install daytona
+pip install northrays
 ```
 
 または poetry を使用します:
 
 ```bash
-poetry add daytona
+poetry add northrays
 ```
 
 ## はじめに
 
-Daytona の Python SDK を使い始めるためのシンプルな例を示します。
+Northrays の Python SDK を使い始めるためのシンプルな例を示します。
 
 <Tabs syncKey="language">
   <TabItem label="Sync" icon="seti:python">
     ```python
-    from daytona import Daytona
+    from northrays import Northrays
 
     def main():
         # SDK を初期化（既定で環境変数を使用）
-        daytona = Daytona()
+        northrays = Northrays()
 
         # サンドボックスを新規作成
-        sandbox = daytona.create()
+        sandbox = northrays.create()
 
         # コマンドを実行
         response = sandbox.process.exec("echo 'Hello, World!'")
@@ -50,13 +50,13 @@ Daytona の Python SDK を使い始めるためのシンプルな例を示しま
   <TabItem label="Async" icon="seti:python">
     ```python
     import asyncio
-    from daytona import AsyncDaytona
+    from northrays import AsyncNorthrays
 
     async def main():
         # SDK を初期化（既定で環境変数を使用）
-        async with AsyncDaytona() as daytona:
+        async with AsyncNorthrays() as northrays:
             # サンドボックスを新規作成
-            sandbox = await daytona.create()
+            sandbox = await northrays.create()
 
             # コマンドを実行
             response = await sandbox.process.exec("echo 'Hello, World!'")
@@ -75,42 +75,42 @@ SDK は環境変数を使うか、コンストラクタにオプションを渡�
 <Tabs syncKey="language">
   <TabItem label="Sync" icon="seti:python">
     ```python
-    from daytona import Daytona, DaytonaConfig
+    from northrays import Northrays, NorthraysConfig
 
-    # 環境変数を使用 (DAYTONA_API_KEY, DAYTONA_API_URL, DAYTONA_TARGET)
-    daytona = Daytona()
+    # 環境変数を使用 (NORTHRAYS_API_KEY, NORTHRAYS_API_URL, NORTHRAYS_TARGET)
+    northrays = Northrays()
 
     # 明示的な設定を使用
-    config = DaytonaConfig(
+    config = NorthraysConfig(
         api_key="your-api-key",
-        api_url="https://app.daytona.io/api",
+        api_url="https://app.northrays.com/api",
         target="us"
     )
-    daytona = Daytona(config)
+    northrays = Northrays(config)
     ```
   </TabItem>
 
   <TabItem label="Async" icon="seti:python">
     ```python
     import asyncio
-    from daytona import AsyncDaytona, DaytonaConfig
+    from northrays import AsyncNorthrays, NorthraysConfig
 
     async def main():
         try:
-            # 環境変数を使用 (DAYTONA_API_KEY, DAYTONA_API_URL, DAYTONA_TARGET)
-            daytona = AsyncDaytona()
+            # 環境変数を使用 (NORTHRAYS_API_KEY, NORTHRAYS_API_URL, NORTHRAYS_TARGET)
+            northrays = AsyncNorthrays()
             # 非同期コードをここに記述
             pass
         finally:
-            await daytona.close()
+            await northrays.close()
 
         # 明示的な設定を使用
-        config = DaytonaConfig(
+        config = NorthraysConfig(
             api_key="your-api-key",
-            api_url="https://app.daytona.io/api",
+            api_url="https://app.northrays.com/api",
             target="us"
         )
-        async with AsyncDaytona(config) as daytona:
+        async with AsyncNorthrays(config) as northrays:
             # ここにコードを記述
             pass
 

@@ -7,20 +7,20 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/daytonaio/runner/internal/constants"
+	"github.com/northrays/runner/internal/constants"
 	"github.com/gin-gonic/gin"
 
-	common_errors "github.com/daytonaio/common-go/pkg/errors"
+	common_errors "github.com/northrays/common-go/pkg/errors"
 )
 
 func AuthMiddleware(apiToken string) gin.HandlerFunc {
 	return func(ctx *gin.Context) {
-		authHeader := ctx.GetHeader(constants.DAYTONA_AUTHORIZATION_HEADER)
+		authHeader := ctx.GetHeader(constants.NORTHRAYS_AUTHORIZATION_HEADER)
 		if authHeader == "" {
 			authHeader = ctx.GetHeader(constants.AUTHORIZATION_HEADER)
 		}
 
-		ctx.Request.Header.Del(constants.DAYTONA_AUTHORIZATION_HEADER)
+		ctx.Request.Header.Del(constants.NORTHRAYS_AUTHORIZATION_HEADER)
 
 		if authHeader == "" {
 			ctx.Error(common_errors.NewUnauthorizedError(errors.New("authorization header required")))

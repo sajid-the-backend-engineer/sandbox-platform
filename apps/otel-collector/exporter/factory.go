@@ -14,13 +14,13 @@ import (
 	"go.opentelemetry.io/collector/exporter"
 	"go.opentelemetry.io/collector/exporter/exporterhelper"
 
-	common_cache "github.com/daytonaio/common-go/pkg/cache"
-	apiclient "github.com/daytonaio/daytona/libs/api-client-go"
-	"github.com/daytonaio/otel-collector/exporter/internal/config"
+	common_cache "github.com/northrays/common-go/pkg/cache"
+	apiclient "github.com/northrays/sandbox-platform/libs/api-client-go"
+	"github.com/northrays/otel-collector/exporter/internal/config"
 )
 
 const (
-	typeStr   = "daytona_exporter"
+	typeStr   = "northrays_exporter"
 	stability = component.StabilityLevelBeta
 )
 

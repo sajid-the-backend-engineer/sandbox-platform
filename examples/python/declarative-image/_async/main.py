@@ -1,8 +1,8 @@
 import asyncio
 import time
 
-from daytona import (
-    AsyncDaytona,
+from northrays import (
+    AsyncNorthrays,
     CreateSandboxFromImageParams,
     CreateSandboxFromSnapshotParams,
     CreateSnapshotParams,
@@ -12,7 +12,7 @@ from daytona import (
 
 
 async def main():
-    daytona = AsyncDaytona()
+    northrays = AsyncNorthrays()
 
     try:
         # Generate unique name for the snapshot to avoid conflicts
@@ -28,18 +28,18 @@ async def main():
             .pip_install(["numpy", "pandas", "matplotlib", "scipy", "scikit-learn", "jupyter"])
             .run_commands(
                 "apt-get update && apt-get install -y git",
-                "groupadd -r daytona && useradd -r -g daytona -m daytona",
-                "mkdir -p /home/daytona/workspace",
+                "groupadd -r northrays && useradd -r -g northrays -m northrays",
+                "mkdir -p /home/northrays/workspace",
             )
-            .dockerfile_commands(["USER daytona"])
-            .workdir("/home/daytona/workspace")
+            .dockerfile_commands(["USER northrays"])
+            .workdir("/home/northrays/workspace")
             .env({"MY_ENV_VAR": "My Environment Variable"})
-            .add_local_file("file_example.txt", "/home/daytona/workspace/file_example.txt")
+            .add_local_file("file_example.txt", "/home/northrays/workspace/file_example.txt")
         )
 
         # Create the image
         print(f"=== Creating Snapshot: {snapshot_name} ===")
-        _ = await daytona.snapshot.create(
+        _ = await northrays.snapshot.create(
             CreateSnapshotParams(
                 name=snapshot_name,
                 image=image,
@@ -54,7 +54,7 @@ async def main():
 
         # Create first sandbox using the pre-built image
         print("\n=== Creating Sandbox from Pre-built Image ===")
-        sandbox1 = await daytona.create(CreateSandboxFromSnapshotParams(snapshot=snapshot_name))
+        sandbox1 = await northrays.create(CreateSandboxFromSnapshotParams(snapshot=snapshot_name))
 
         try:
             # Verify the first sandbox environment
@@ -69,7 +69,7 @@ async def main():
             print(response.result)
         finally:
             # Clean up first sandbox
-            await daytona.delete(sandbox1)
+            await northrays.delete(sandbox1)
 
         # Create second sandbox with a new dynamic image
         print("=== Creating Sandbox with Dynamic Image ===")
@@ -78,13 +78,13 @@ async def main():
         dynamic_image = (
             Image.debian_slim("3.11")
             .pip_install(["pytest", "pytest-cov", "black", "isort", "mypy", "ruff"])
-            .run_commands("apt-get update && apt-get install -y git", "mkdir -p /home/daytona/project")
-            .workdir("/home/daytona/project")
+            .run_commands("apt-get update && apt-get install -y git", "mkdir -p /home/northrays/project")
+            .workdir("/home/northrays/project")
             .env({"ENV_VAR": "My Environment Variable"})
         )
 
         # Create sandbox with the dynamic image
-        sandbox2 = await daytona.create(
+        sandbox2 = await northrays.create(
             CreateSandboxFromImageParams(
                 image=dynamic_image,
             ),
@@ -100,9 +100,9 @@ async def main():
             print(response.result)
         finally:
             # Clean up second sandbox
-            await daytona.delete(sandbox2)
+            await northrays.delete(sandbox2)
     finally:
-        await daytona.close()
+        await northrays.close()
 
 
 if __name__ == "__main__":

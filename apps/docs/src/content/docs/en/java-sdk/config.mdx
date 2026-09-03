@@ -1,11 +1,11 @@
 ---
-title: "DaytonaConfig"
+title: "NorthraysConfig"
 hideTitleOnPage: true
 ---
 
-## DaytonaConfig
+## NorthraysConfig
 
-Configuration used to initialize a `Daytona` client.
+Configuration used to initialize a `Northrays` client.
 
 Contains API authentication settings, API endpoint URL, and the default target region used
 when creating new Sandboxes.
@@ -28,7 +28,7 @@ Returns the API key used to authenticate SDK requests.
 public String getApiUrl()
 ```
 
-Returns the Daytona API base URL.
+Returns the Northrays API base URL.
 
 **Returns**:
 
@@ -60,9 +60,9 @@ of instrumentation landing in a future release.
 
 - `boolean` - `true` if OpenTelemetry tracing is enabled
 
-## DaytonaConfig.Builder
+## NorthraysConfig.Builder
 
-Builder for creating immutable `DaytonaConfig` instances.
+Builder for creating immutable `NorthraysConfig` instances.
 
 ### Methods
 
@@ -75,7 +75,7 @@ Sets the API key used for authenticating SDK requests.
 
 **Parameters**:
 
-- `apiKey` _String_ - Daytona API key
+- `apiKey` _String_ - Northrays API key
 
 **Returns**:
 
@@ -86,11 +86,11 @@ Sets the API key used for authenticating SDK requests.
 public Builder apiUrl(String apiUrl)
 ```
 
-Sets the Daytona API base URL.
+Sets the Northrays API base URL.
 
 **Parameters**:
 
-- `apiUrl` _String_ - API URL to use; defaults to `https://app.daytona.io/api` when omitted
+- `apiUrl` _String_ - API URL to use; defaults to `https://app.northrays.com/api` when omitted
 
 **Returns**:
 
@@ -132,11 +132,11 @@ of instrumentation landing in a future release.
 
 #### build()
 ```java
-public DaytonaConfig build()
+public NorthraysConfig build()
 ```
 
-Builds a new immutable `DaytonaConfig`.
+Builds a new immutable `NorthraysConfig`.
 
 **Returns**:
 
-- `DaytonaConfig` - configured `DaytonaConfig` instance
+- `NorthraysConfig` - configured `NorthraysConfig` instance

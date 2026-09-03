@@ -7,8 +7,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/daytonaio/runner/pkg/api/dto"
-	"github.com/daytonaio/runner/pkg/common"
+	"github.com/northrays/runner/pkg/api/dto"
+	"github.com/northrays/runner/pkg/common"
 )
 
 // RecoverFromStorageLimit attempts to recover a sandbox from storage limit issues

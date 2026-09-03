@@ -10,18 +10,18 @@ web:
   allowedOrigins: ['*']
   allowedHeaders: ['x-requested-with']
 staticClients:
-  - id: daytona
+  - id: northrays
     redirectURIs:
       - 'http://localhost:3000'
       - 'http://localhost:3000/dashboard'
       - 'http://localhost:3000/api/oauth2-redirect.html'
       - 'http://localhost:3009/callback'
       - 'http://proxy.localhost:4000/callback'
-    name: 'Daytona'
+    name: 'Northrays'
     public: true
 enablePasswordDB: true
 staticPasswords:
-  - email: 'dev@daytona.io'
+  - email: 'dev@northrays.com'
     # password generated with:
     # echo password | htpasswd -BinC 10 admin | cut -d: -f2
     hash: '$2a$10$2b2cU8CPhOTaGrs1HRQuAueS7JTT5ZHsHSzYiFPm1leZck7Mc8T4W'

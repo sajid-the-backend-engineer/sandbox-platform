@@ -1,7 +1,7 @@
 import asyncio
 import sys
 
-from daytona import AsyncDaytona, AsyncSandbox, PtySize
+from northrays import AsyncNorthrays, AsyncSandbox, PtySize
 
 
 async def interactive_pty_session(sandbox: AsyncSandbox):
@@ -82,8 +82,8 @@ async def kill_pty_session(sandbox: AsyncSandbox):
 
 
 async def main():
-    async with AsyncDaytona() as daytona:
-        sandbox = await daytona.create()
+    async with AsyncNorthrays() as northrays:
+        sandbox = await northrays.create()
 
         try:
             # Interactive PTY session with exit
@@ -94,7 +94,7 @@ async def main():
             print(f"Error executing PTY commands: {error}")
         finally:
             print(f"\nDeleting sandbox: {sandbox.id}")
-            await daytona.delete(sandbox)
+            await northrays.delete(sandbox)
 
 
 if __name__ == "__main__":

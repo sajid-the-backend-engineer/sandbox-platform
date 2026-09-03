@@ -1,14 +1,14 @@
 // Copyright Daytona Platforms Inc.
 // SPDX-License-Identifier: Apache-2.0
 
-import { Daytona, Image } from '@daytona/sdk'
+import { Northrays, Image } from '@northrays/sdk'
 
 const image = Image.base('alpine').env({ FOO: 'bar' })
 if (!image.dockerfile.includes('FROM alpine')) throw new Error('Image.base failed')
 if (!image.dockerfile.includes('ENV FOO')) throw new Error('Image.env failed')
 
-const daytona = new Daytona()
-const iter = daytona.list()
+const northrays = new Northrays()
+const iter = northrays.list()
 if (typeof (iter as any)[Symbol.asyncIterator] !== 'function') {
   throw new Error('list() did not return an async iterator')
 }

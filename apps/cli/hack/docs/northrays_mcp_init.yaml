@@ -1,0 +1,10 @@
+name: northrays mcp init
+synopsis: |
+  Initialize Northrays MCP Server with an agent (currently supported: claude, windsurf, cursor)
+usage: northrays mcp init [AGENT_NAME] [flags]
+inherited_options:
+  - name: help
+    default_value: 'false'
+    usage: help for northrays
+see_also:
+  - northrays mcp - Manage Northrays MCP Server

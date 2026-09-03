@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: AGPL-3.0
  */
 
-import { RegenerateApiKeyResponse } from '@daytona/api-client'
+import { RegenerateApiKeyResponse } from '@northrays/api-client'
 import { useMutation } from '@tanstack/react-query'
 import { useApi } from '../useApi'
 import { mutationKeys } from './mutationKeys'

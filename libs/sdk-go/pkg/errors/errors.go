@@ -8,158 +8,158 @@ import (
 	"fmt"
 	"net/http"
 
-	apiclient "github.com/daytonaio/daytona/libs/api-client-go"
-	"github.com/daytonaio/daytona/libs/toolbox-api-client-go"
+	apiclient "github.com/northrays/sandbox-platform/libs/api-client-go"
+	"github.com/northrays/sandbox-platform/libs/toolbox-api-client-go"
 )
 
-// DaytonaError is the base error type for all Daytona SDK errors
-type DaytonaError struct {
+// NorthraysError is the base error type for all Northrays SDK errors
+type NorthraysError struct {
 	Message    string
 	StatusCode int
 	Headers    http.Header
 }
 
-func (e *DaytonaError) Error() string {
+func (e *NorthraysError) Error() string {
 	if e.StatusCode != 0 {
-		return fmt.Sprintf("Daytona error (status %d): %s", e.StatusCode, e.Message)
+		return fmt.Sprintf("Northrays error (status %d): %s", e.StatusCode, e.Message)
 	}
-	return fmt.Sprintf("Daytona error: %s", e.Message)
+	return fmt.Sprintf("Northrays error: %s", e.Message)
 }
 
-// NewDaytonaError creates a new DaytonaError
-func NewDaytonaError(message string, statusCode int, headers http.Header) *DaytonaError {
-	return &DaytonaError{
+// NewNorthraysError creates a new NorthraysError
+func NewNorthraysError(message string, statusCode int, headers http.Header) *NorthraysError {
+	return &NorthraysError{
 		Message:    message,
 		StatusCode: statusCode,
 		Headers:    headers,
 	}
 }
 
-// DaytonaNotFoundError represents a resource not found error (404)
-type DaytonaNotFoundError struct {
-	*DaytonaError
+// NorthraysNotFoundError represents a resource not found error (404)
+type NorthraysNotFoundError struct {
+	*NorthraysError
 }
 
-func (e *DaytonaNotFoundError) Error() string {
+func (e *NorthraysNotFoundError) Error() string {
 	return fmt.Sprintf("Resource not found: %s", e.Message)
 }
 
-// NewDaytonaNotFoundError creates a new DaytonaNotFoundError
-func NewDaytonaNotFoundError(message string, headers http.Header) *DaytonaNotFoundError {
-	return &DaytonaNotFoundError{
-		DaytonaError: NewDaytonaError(message, http.StatusNotFound, headers),
+// NewNorthraysNotFoundError creates a new NorthraysNotFoundError
+func NewNorthraysNotFoundError(message string, headers http.Header) *NorthraysNotFoundError {
+	return &NorthraysNotFoundError{
+		NorthraysError: NewNorthraysError(message, http.StatusNotFound, headers),
 	}
 }
 
-// DaytonaRateLimitError represents a rate limit error (429)
-type DaytonaRateLimitError struct {
-	*DaytonaError
+// NorthraysRateLimitError represents a rate limit error (429)
+type NorthraysRateLimitError struct {
+	*NorthraysError
 }
 
-func (e *DaytonaRateLimitError) Error() string {
+func (e *NorthraysRateLimitError) Error() string {
 	return fmt.Sprintf("Rate limit exceeded: %s", e.Message)
 }
 
-// NewDaytonaRateLimitError creates a new DaytonaRateLimitError
-func NewDaytonaRateLimitError(message string, headers http.Header) *DaytonaRateLimitError {
-	return &DaytonaRateLimitError{
-		DaytonaError: NewDaytonaError(message, http.StatusTooManyRequests, headers),
+// NewNorthraysRateLimitError creates a new NorthraysRateLimitError
+func NewNorthraysRateLimitError(message string, headers http.Header) *NorthraysRateLimitError {
+	return &NorthraysRateLimitError{
+		NorthraysError: NewNorthraysError(message, http.StatusTooManyRequests, headers),
 	}
 }
 
-// DaytonaAuthenticationError represents an authentication error (401)
-type DaytonaAuthenticationError struct {
-	*DaytonaError
+// NorthraysAuthenticationError represents an authentication error (401)
+type NorthraysAuthenticationError struct {
+	*NorthraysError
 }
 
-func (e *DaytonaAuthenticationError) Error() string {
+func (e *NorthraysAuthenticationError) Error() string {
 	return fmt.Sprintf("Authentication failed: %s", e.Message)
 }
 
-func NewDaytonaAuthenticationError(message string, headers http.Header) *DaytonaAuthenticationError {
-	return &DaytonaAuthenticationError{
-		DaytonaError: NewDaytonaError(message, http.StatusUnauthorized, headers),
+func NewNorthraysAuthenticationError(message string, headers http.Header) *NorthraysAuthenticationError {
+	return &NorthraysAuthenticationError{
+		NorthraysError: NewNorthraysError(message, http.StatusUnauthorized, headers),
 	}
 }
 
-// DaytonaForbiddenError represents a forbidden/authorization error (403)
-type DaytonaForbiddenError struct {
-	*DaytonaError
+// NorthraysForbiddenError represents a forbidden/authorization error (403)
+type NorthraysForbiddenError struct {
+	*NorthraysError
 }
 
-func (e *DaytonaForbiddenError) Error() string {
+func (e *NorthraysForbiddenError) Error() string {
 	return fmt.Sprintf("Forbidden: %s", e.Message)
 }
 
-func NewDaytonaForbiddenError(message string, headers http.Header) *DaytonaForbiddenError {
-	return &DaytonaForbiddenError{
-		DaytonaError: NewDaytonaError(message, http.StatusForbidden, headers),
+func NewNorthraysForbiddenError(message string, headers http.Header) *NorthraysForbiddenError {
+	return &NorthraysForbiddenError{
+		NorthraysError: NewNorthraysError(message, http.StatusForbidden, headers),
 	}
 }
 
-// DaytonaConflictError represents a conflict error (409)
-type DaytonaConflictError struct {
-	*DaytonaError
+// NorthraysConflictError represents a conflict error (409)
+type NorthraysConflictError struct {
+	*NorthraysError
 }
 
-func (e *DaytonaConflictError) Error() string {
+func (e *NorthraysConflictError) Error() string {
 	return fmt.Sprintf("Conflict: %s", e.Message)
 }
 
-func NewDaytonaConflictError(message string, headers http.Header) *DaytonaConflictError {
-	return &DaytonaConflictError{
-		DaytonaError: NewDaytonaError(message, http.StatusConflict, headers),
+func NewNorthraysConflictError(message string, headers http.Header) *NorthraysConflictError {
+	return &NorthraysConflictError{
+		NorthraysError: NewNorthraysError(message, http.StatusConflict, headers),
 	}
 }
 
-// DaytonaValidationError represents a validation/bad request error (400)
-type DaytonaValidationError struct {
-	*DaytonaError
+// NorthraysValidationError represents a validation/bad request error (400)
+type NorthraysValidationError struct {
+	*NorthraysError
 }
 
-func (e *DaytonaValidationError) Error() string {
+func (e *NorthraysValidationError) Error() string {
 	return fmt.Sprintf("Validation error: %s", e.Message)
 }
 
-func NewDaytonaValidationError(message string, headers http.Header) *DaytonaValidationError {
-	return &DaytonaValidationError{
-		DaytonaError: NewDaytonaError(message, http.StatusBadRequest, headers),
+func NewNorthraysValidationError(message string, headers http.Header) *NorthraysValidationError {
+	return &NorthraysValidationError{
+		NorthraysError: NewNorthraysError(message, http.StatusBadRequest, headers),
 	}
 }
 
-// DaytonaServerError represents a server error (5xx)
-type DaytonaServerError struct {
-	*DaytonaError
+// NorthraysServerError represents a server error (5xx)
+type NorthraysServerError struct {
+	*NorthraysError
 }
 
-func (e *DaytonaServerError) Error() string {
+func (e *NorthraysServerError) Error() string {
 	return fmt.Sprintf("Server error: %s", e.Message)
 }
 
-func NewDaytonaServerError(message string, statusCode int, headers http.Header) *DaytonaServerError {
-	return &DaytonaServerError{
-		DaytonaError: NewDaytonaError(message, statusCode, headers),
+func NewNorthraysServerError(message string, statusCode int, headers http.Header) *NorthraysServerError {
+	return &NorthraysServerError{
+		NorthraysError: NewNorthraysError(message, statusCode, headers),
 	}
 }
 
-// DaytonaTimeoutError represents a timeout error
-type DaytonaTimeoutError struct {
-	*DaytonaError
+// NorthraysTimeoutError represents a timeout error
+type NorthraysTimeoutError struct {
+	*NorthraysError
 }
 
-func (e *DaytonaTimeoutError) Error() string {
+func (e *NorthraysTimeoutError) Error() string {
 	return fmt.Sprintf("Operation timed out: %s", e.Message)
 }
 
-func NewDaytonaTimeoutError(message string) *DaytonaTimeoutError {
-	return &DaytonaTimeoutError{
-		DaytonaError: NewDaytonaError(message, 0, nil),
+func NewNorthraysTimeoutError(message string) *NorthraysTimeoutError {
+	return &NorthraysTimeoutError{
+		NorthraysError: NewNorthraysError(message, 0, nil),
 	}
 }
 
-// NewDaytonaErrorFromBody parses a JSON response body and maps the status code
+// NewNorthraysErrorFromBody parses a JSON response body and maps the status code
 // to the appropriate SDK error type. Falls back to the raw body as the message.
-func NewDaytonaErrorFromBody(body []byte, statusCode int, headers http.Header) error {
+func NewNorthraysErrorFromBody(body []byte, statusCode int, headers http.Header) error {
 	var message string
 
 	if len(body) > 0 {
@@ -189,11 +189,11 @@ func NewDaytonaErrorFromBody(body []byte, statusCode int, headers http.Header) e
 
 	switch statusCode {
 	case http.StatusNotFound:
-		return NewDaytonaNotFoundError(message, headers)
+		return NewNorthraysNotFoundError(message, headers)
 	case http.StatusTooManyRequests:
-		return NewDaytonaRateLimitError(message, headers)
+		return NewNorthraysRateLimitError(message, headers)
 	default:
-		return NewDaytonaError(message, statusCode, headers)
+		return NewNorthraysError(message, statusCode, headers)
 	}
 }
 
@@ -298,22 +298,22 @@ func ConvertToolboxError(err error, httpResp *http.Response) error {
 func mapStatusCodeToError(statusCode int, message string, headers http.Header) error {
 	switch {
 	case statusCode == http.StatusBadRequest:
-		return NewDaytonaValidationError(message, headers)
+		return NewNorthraysValidationError(message, headers)
 	case statusCode == http.StatusUnauthorized:
-		return NewDaytonaAuthenticationError(message, headers)
+		return NewNorthraysAuthenticationError(message, headers)
 	case statusCode == http.StatusForbidden:
-		return NewDaytonaForbiddenError(message, headers)
+		return NewNorthraysForbiddenError(message, headers)
 	case statusCode == http.StatusNotFound:
-		return NewDaytonaNotFoundError(message, headers)
+		return NewNorthraysNotFoundError(message, headers)
 	case statusCode == http.StatusConflict:
-		return NewDaytonaConflictError(message, headers)
+		return NewNorthraysConflictError(message, headers)
 	case statusCode == http.StatusTooManyRequests:
-		return NewDaytonaRateLimitError(message, headers)
+		return NewNorthraysRateLimitError(message, headers)
 	case statusCode >= 500 && statusCode <= 599:
-		return NewDaytonaServerError(message, statusCode, headers)
+		return NewNorthraysServerError(message, statusCode, headers)
 	case statusCode == 0:
-		return NewDaytonaError(message, 0, nil)
+		return NewNorthraysError(message, 0, nil)
 	default:
-		return NewDaytonaError(message, statusCode, headers)
+		return NewNorthraysError(message, statusCode, headers)
 	}
 }

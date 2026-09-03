@@ -15,7 +15,7 @@ import {
 } from '@/contexts/PlaygroundContext'
 import { KeyboardActions } from '@/enums/Playground'
 import { usePlayground } from '@/hooks/usePlayground'
-import { ComputerUse } from '@daytona/sdk'
+import { ComputerUse } from '@northrays/sdk'
 import PlaygroundActionForm from '../../ActionForm'
 import InlineInputFormControl from '../../Inputs/InlineInputFormControl'
 import FormNumberInput from '../../Inputs/NumberInput'
@@ -46,7 +46,7 @@ const VNCKeyboardOperations: React.FC<VNCInteractionOptionsSectionComponentProps
   ]
 
   const typeParamsFormData: ParameterFormData<KeyboardType> = [
-    { label: 'Text', key: 'text', placeholder: 'Daytona', required: true },
+    { label: 'Text', key: 'text', placeholder: 'Northrays', required: true },
     { label: 'Delay(ms)', key: 'delay', placeholder: '50ms', min: 0, max: Infinity, step: 10 },
   ]
 

@@ -10,8 +10,8 @@ import (
 	"net/url"
 	"strings"
 
-	"github.com/daytonaio/common-go/pkg/errors"
-	"github.com/daytonaio/common-go/pkg/proxy"
+	"github.com/northrays/common-go/pkg/errors"
+	"github.com/northrays/common-go/pkg/proxy"
 	"github.com/gin-gonic/gin"
 
 	"github.com/gorilla/websocket"

@@ -17,9 +17,9 @@ module.exports = {
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
   roots: ['<rootDir>/src'],
   moduleNameMapper: {
-    '^@daytona/api-client$': '<rootDir>/../api-client/src/index.ts',
-    '^@daytona/toolbox-api-client$': '<rootDir>/../toolbox-api-client/src/index.ts',
-    '^@daytona/sdk$': '<rootDir>/src/index.ts',
+    '^@northrays/api-client$': '<rootDir>/../api-client/src/index.ts',
+    '^@northrays/toolbox-api-client$': '<rootDir>/../toolbox-api-client/src/index.ts',
+    '^@northrays/sdk$': '<rootDir>/src/index.ts',
   },
   coverageDirectory: '../../coverage/libs/sdk-typescript',
 }

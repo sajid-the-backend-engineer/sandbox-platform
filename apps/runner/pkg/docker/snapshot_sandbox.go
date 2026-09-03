@@ -9,14 +9,14 @@ import (
 	"strings"
 	"time"
 
-	"github.com/daytonaio/runner/pkg/api/dto"
+	"github.com/northrays/runner/pkg/api/dto"
 )
 
 func snapshotRegistryProject(reg *dto.RegistryDTO) string {
 	if reg.Project != nil && *reg.Project != "" {
 		return *reg.Project
 	}
-	return "daytona"
+	return "northrays"
 }
 
 func snapshotRegistryHost(reg *dto.RegistryDTO) string {
@@ -27,12 +27,12 @@ func snapshotRegistryHost(reg *dto.RegistryDTO) string {
 // snapshotTempImageRef is a local-only intermediate tag we commit to before
 // we know the image hash. It is never pushed to the registry.
 func snapshotTempImageRef(sandboxID string) string {
-	return fmt.Sprintf("daytona-from-sandbox-%s:%d", sandboxID, time.Now().UnixNano())
+	return fmt.Sprintf("northrays-from-sandbox-%s:%d", sandboxID, time.Now().UnixNano())
 }
 
 func snapshotCanonicalImageRef(reg *dto.RegistryDTO, hash string) string {
 	return fmt.Sprintf(
-		"%s/%s/daytona-%s:daytona",
+		"%s/%s/northrays-%s:northrays",
 		snapshotRegistryHost(reg),
 		snapshotRegistryProject(reg),
 		dto.HashWithoutPrefix(hash),
@@ -41,7 +41,7 @@ func snapshotCanonicalImageRef(reg *dto.RegistryDTO, hash string) string {
 
 // CreateSnapshotFromSandbox commits the sandbox container filesystem, pushes
 // the resulting image to the internal registry under the canonical
-// `daytona-{hash}:daytona` tag, and returns image metadata for the API
+// `northrays-{hash}:northrays` tag, and returns image metadata for the API
 // snapshot record. Running containers are briefly paused during commit to
 // produce a consistent on-disk snapshot.
 func (d *DockerClient) CreateSnapshotFromSandbox(ctx context.Context, sandboxID string, registry *dto.RegistryDTO) (*dto.SnapshotInfoResponse, error) {

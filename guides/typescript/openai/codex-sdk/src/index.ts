@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import { Daytona, Sandbox } from '@daytona/sdk'
+import { Northrays, Sandbox } from '@northrays/sdk'
 import * as dotenv from 'dotenv'
 import * as readline from 'readline'
 
@@ -46,12 +46,12 @@ async function processPrompt(prompt: string, sandbox: Sandbox): Promise<void> {
 }
 
 async function main() {
-  // Get the Daytona API key from environment variables
-  const apiKey = process.env.DAYTONA_API_KEY
+  // Get the Northrays API key from environment variables
+  const apiKey = process.env.NORTHRAYS_API_KEY
 
   if (!apiKey) {
-    console.error('Error: DAYTONA_API_KEY environment variable is not set')
-    console.error('Please create a .env file with your Daytona API key')
+    console.error('Error: NORTHRAYS_API_KEY environment variable is not set')
+    console.error('Please create a .env file with your Northrays API key')
     process.exit(1)
   }
 
@@ -62,8 +62,8 @@ async function main() {
     process.exit(1)
   }
 
-  // Initialize the Daytona client
-  const daytona = new Daytona({ apiKey })
+  // Initialize the Northrays client
+  const northrays = new Northrays({ apiKey })
 
   let sandbox: Sandbox | undefined
 
@@ -81,7 +81,7 @@ async function main() {
 
   try {
     console.log('Creating sandbox...')
-    sandbox = await daytona.create({
+    sandbox = await northrays.create({
       envVars: {
         OPENAI_API_KEY: process.env.SANDBOX_OPENAI_API_KEY || '',
       },
@@ -90,7 +90,7 @@ async function main() {
     // Register cleanup handler on process exit
     process.once('SIGINT', cleanup)
 
-    // Create the URL pattern for Daytona preview links
+    // Create the URL pattern for Northrays preview links
     // This is a URL where PORTNUMBER is a placeholder for the port number
     // We first generate a preview link with the dummy port 1234, then replace it with PORTNUMBER
     const previewLink = await sandbox.getPreviewLink(1234)
@@ -98,8 +98,8 @@ async function main() {
 
     // Configure the Codex system prompt
     const systemPrompt = [
-      'You are running in a Daytona sandbox.',
-      'Use the /home/daytona directory instead of /workspace for file operations.',
+      'You are running in a Northrays sandbox.',
+      'Use the /home/northrays directory instead of /workspace for file operations.',
       `When running services on localhost, they will be accessible as: ${previewUrlPattern}`,
     ].join(' ')
     const config = `developer_instructions = "${systemPrompt}"`

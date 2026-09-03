@@ -38,8 +38,8 @@ export function LoadingFallbackContent({ className, source = 'unknown' }: Loadin
         <p className="text-sm text-muted-foreground text-center">This is taking longer than expected...</p>
         <p className="text-sm text-muted-foreground text-center">
           If this issue persists, contact us at{' '}
-          <a href="mailto:support@daytona.io" className="text-primary underline">
-            support@daytona.io
+          <a href="mailto:support@northrays.com" className="text-primary underline">
+            support@northrays.com
           </a>
           .
         </p>

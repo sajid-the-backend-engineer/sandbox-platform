@@ -1,0 +1,17 @@
+// Copyright Daytona Platforms Inc.
+// SPDX-License-Identifier: Apache-2.0
+
+package io.northrays.sdk.model;
+
+public class Command extends io.northrays.toolbox.client.model.Command {
+    public Command() {}
+
+    public Command(io.northrays.toolbox.client.model.Command source) {
+        super();
+        if (source != null) {
+            setId(source.getId());
+            setCommand(source.getCommand());
+            setExitCode(source.getExitCode());
+        }
+    }
+}

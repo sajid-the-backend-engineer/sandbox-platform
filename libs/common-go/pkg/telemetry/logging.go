@@ -10,7 +10,7 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/daytonaio/common-go/pkg/log"
+	"github.com/northrays/common-go/pkg/log"
 	"go.opentelemetry.io/contrib/bridges/otelslog"
 	"go.opentelemetry.io/otel/exporters/otlp/otlplog/otlploghttp"
 	"go.opentelemetry.io/otel/log/global"

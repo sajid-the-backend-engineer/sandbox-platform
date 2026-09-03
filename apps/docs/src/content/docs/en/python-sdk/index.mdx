@@ -1,44 +1,44 @@
 ---
 title: Python SDK Reference
-description: Interact with Daytona Sandboxes using the Python SDK
-next: /docs/python-sdk/daytona
+description: Interact with Northrays Sandboxes using the Python SDK
+next: /docs/python-sdk/northrays
 ---
 
 import { TabItem, Tabs } from '@astrojs/starlight/components'
 
-The Daytona Python SDK provides a robust interface for programmatically interacting with Daytona Sandboxes.
+The Northrays Python SDK provides a robust interface for programmatically interacting with Northrays Sandboxes.
 
 ## Installation
 
-Install the Daytona Python SDK using pip:
+Install the Northrays Python SDK using pip:
 
 ```bash
-pip install daytona
+pip install northrays
 ```
 
 Or using poetry:
 
 ```bash
-poetry add daytona
+poetry add northrays
 ```
 
 ## Getting Started
 
 ### Create a Sandbox
 
-Create a Daytona Sandbox to run your code securely in an isolated environment. The following snippet is an example "Hello World" program that runs securely inside a Daytona Sandbox.
+Create a Northrays Sandbox to run your code securely in an isolated environment. The following snippet is an example "Hello World" program that runs securely inside a Northrays Sandbox.
 
 <Tabs>
   <TabItem label="Sync" icon="seti:python">
     ```python
-    from daytona import Daytona
+    from northrays import Northrays
 
     def main():
         # Initialize the SDK (uses environment variables by default)
-        daytona = Daytona()
+        northrays = Northrays()
 
         # Create a new sandbox
-        sandbox = daytona.create()
+        sandbox = northrays.create()
 
         # Execute a command
         response = sandbox.process.exec("echo 'Hello, World!'")
@@ -52,13 +52,13 @@ Create a Daytona Sandbox to run your code securely in an isolated environment. T
   <TabItem label="Async" icon="seti:python">
     ```python
     import asyncio
-    from daytona import AsyncDaytona
+    from northrays import AsyncNorthrays
 
     async def main():
         # Initialize the SDK (uses environment variables by default)
-        async with AsyncDaytona() as daytona:
+        async with AsyncNorthrays() as northrays:
             # Create a new sandbox
-            sandbox = await daytona.create()
+            sandbox = await northrays.create()
 
             # Execute a command
             response = await sandbox.process.exec("echo 'Hello, World!'")
@@ -72,47 +72,47 @@ Create a Daytona Sandbox to run your code securely in an isolated environment. T
 
 ## Configuration
 
-The Daytona SDK can be configured using environment variables or by passing options to the constructor:
+The Northrays SDK can be configured using environment variables or by passing options to the constructor:
 
 <Tabs>
   <TabItem label="Sync" icon="seti:python">
     ```python
-    from daytona import Daytona, DaytonaConfig
+    from northrays import Northrays, NorthraysConfig
 
-    # Using environment variables (DAYTONA_API_KEY, DAYTONA_API_URL, DAYTONA_TARGET)
-    daytona = Daytona()
+    # Using environment variables (NORTHRAYS_API_KEY, NORTHRAYS_API_URL, NORTHRAYS_TARGET)
+    northrays = Northrays()
 
     # Using explicit configuration
-    config = DaytonaConfig(
+    config = NorthraysConfig(
         api_key="YOUR_API_KEY",
-        api_url="https://app.daytona.io/api",
+        api_url="https://app.northrays.com/api",
         target="us"
     )
-    daytona = Daytona(config)
+    northrays = Northrays(config)
     ```
   </TabItem>
 
   <TabItem label="Async" icon="seti:python">
     ```python
     import asyncio
-    from daytona import AsyncDaytona, DaytonaConfig
+    from northrays import AsyncNorthrays, NorthraysConfig
 
     async def main():
         try:
-            # Using environment variables (DAYTONA_API_KEY, DAYTONA_API_URL, DAYTONA_TARGET)
-            daytona = AsyncDaytona()
+            # Using environment variables (NORTHRAYS_API_KEY, NORTHRAYS_API_URL, NORTHRAYS_TARGET)
+            northrays = AsyncNorthrays()
             # Your async code here
             pass
         finally:
-            await daytona.close()
+            await northrays.close()
 
         # Using explicit configuration
-        config = DaytonaConfig(
+        config = NorthraysConfig(
             api_key="YOUR_API_KEY",
-            api_url="https://app.daytona.io/api",
+            api_url="https://app.northrays.com/api",
             target="us"
         )
-        async with AsyncDaytona(config) as daytona:
+        async with AsyncNorthrays(config) as northrays:
             # Your code here
             pass
 
@@ -122,4 +122,4 @@ The Daytona SDK can be configured using environment variables or by passing opti
   </TabItem>
 </Tabs>
 
-For more information on configuring the Daytona SDK, see [configuration](/docs/en/configuration).
+For more information on configuring the Northrays SDK, see [configuration](/docs/en/configuration).

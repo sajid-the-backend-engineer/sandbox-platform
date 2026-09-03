@@ -9,7 +9,7 @@
  *   B. Deleted sandbox  -> tool call throws a clear SandboxUnavailableError
  *                          (NOT a raw Docker error, and NOT run on the host).
  *
- * Requires DAYTONA_API_KEY.
+ * Requires NORTHRAYS_API_KEY.
  */
 import { createRequire } from 'node:module'
 import path from 'node:path'
@@ -27,7 +27,7 @@ const jiti = createJiti(import.meta.url, {
   moduleCache: false,
   alias: { '@earendil-works/pi-coding-agent': hostEntry },
 })
-const { Daytona } = await import('@daytona/sdk')
+const { Northrays } = await import('@northrays/sdk')
 
 let pass = 0,
   fail = 0
@@ -45,12 +45,12 @@ const check = (cond, msg, detail) => {
 
 const { createBashOps } = await jiti.import(path.join(root, 'src/ops.ts'))
 
-const daytona = new Daytona()
-const sandbox = await daytona.create({ labels: { 'created-by': 'pi-daytona-test' }, autoDeleteInterval: 60 })
+const northrays = new Northrays()
+const sandbox = await northrays.create({ labels: { 'created-by': 'pi-northrays-test' }, autoDeleteInterval: 60 })
 const ops = createBashOps(sandbox)
 const runOps = async (command) => {
   let out = ''
-  const { exitCode } = await ops.exec(command, '/home/daytona', { onData: (b) => (out += b.toString()) })
+  const { exitCode } = await ops.exec(command, '/home/northrays', { onData: (b) => (out += b.toString()) })
   return { out: out.trim(), exitCode }
 }
 

@@ -9,9 +9,9 @@ import (
 	"os"
 	"strings"
 
-	"github.com/daytonaio/daytona/cli/apiclient"
-	"github.com/daytonaio/daytona/cli/cmd/common"
-	"github.com/daytonaio/daytona/cli/toolbox"
+	"github.com/northrays/sandbox-platform/cli/apiclient"
+	"github.com/northrays/sandbox-platform/cli/cmd/common"
+	"github.com/northrays/sandbox-platform/cli/toolbox"
 	"github.com/spf13/cobra"
 )
 

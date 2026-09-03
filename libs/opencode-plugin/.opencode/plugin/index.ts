@@ -4,8 +4,8 @@
  */
 
 /**
- * Main entry point for the OpenCode Daytona plugin.
- * Re-exports the default plugin from daytona.
+ * Main entry point for the OpenCode Northrays plugin.
+ * Re-exports the default plugin from northrays.
  */
 
-export { default } from './daytona/index.js'
+export { default } from './northrays/index.js'

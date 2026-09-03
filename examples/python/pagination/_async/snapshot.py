@@ -1,11 +1,11 @@
 import asyncio
 
-from daytona import AsyncDaytona
+from northrays import AsyncNorthrays
 
 
 async def main():
-    async with AsyncDaytona() as daytona:
-        result = await daytona.snapshot.list(page=2, limit=10)
+    async with AsyncNorthrays() as northrays:
+        result = await northrays.snapshot.list(page=2, limit=10)
         for snapshot in result.items:
             print(f"{snapshot.name} ({snapshot.image_name})")
 

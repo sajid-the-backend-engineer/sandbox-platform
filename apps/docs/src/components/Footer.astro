@@ -10,7 +10,7 @@ const [maj, min] = [major(version), minor(version)]
 const release = `${maj}.${min}`
 // TODO: switch to SDK
 
-const releaseLink = `https://github.com/daytonaio/daytona/releases/tag/v${release}.0`
+const releaseLink = `https://github.com/northrays/sandbox-platform/releases/tag/v${release}.0`
 
 const lang = Astro.props.lang ?? Astro.locals.starlightRoute.lang
 ---
@@ -24,21 +24,21 @@ const lang = Astro.props.lang ?? Astro.locals.starlightRoute.lang
       <Fragment set:html={textArrowIcon} />{
         Astro.locals.t('footer.needHelp' as any)
       } -
-      <a href="mailto:support@daytona.io"
+      <a href="mailto:support@northrays.com"
         >{Astro.locals.t('footer.reachSupport' as any)}</a
       >
     </p>
     <p>
       <Fragment set:html={textArrowIcon} />{
         Astro.locals.t('footer.latestUpdates' as any)
-      } - <a href="https://github.com/daytonaio/daytona/commits/main/"
+      } - <a href="https://github.com/northrays/sandbox-platform/commits/main/"
         >{Astro.locals.t('footer.viewChangelog' as any)}</a
       >
     </p>
     <p>
       <Fragment set:html={textArrowIcon} />{
         Astro.locals.t('footer.dotfilesInsider' as any)
-      } - <a href="https://www.daytona.io/dotfiles/"
+      } - <a href="https://www.northrays.com/dotfiles/"
         >{Astro.locals.t('footer.readBlog' as any)}</a
       >
     </p>
@@ -46,14 +46,14 @@ const lang = Astro.props.lang ?? Astro.locals.starlightRoute.lang
       <Fragment set:html={textArrowIcon} />{
         Astro.locals.t('footer.LLMs' as any)
       } -
-      <a href="https://www.daytona.io/docs/llms.txt">llms.txt</a> &
-      <a href="https://www.daytona.io/docs/llms-full.txt">llms-full.txt</a>
+      <a href="https://www.northrays.com/docs/llms.txt">llms.txt</a> &
+      <a href="https://www.northrays.com/docs/llms-full.txt">llms-full.txt</a>
     </p>
   </div>
 
   <div class="docs-footer__container__bottom">
     <div class="docs-footer__container__bottom-block">
-      <div><p>© {new Date().getFullYear()} Daytona Platforms, Inc.</p></div>
+      <div><p>© {new Date().getFullYear()} Northrays</p></div>
       <div class="divider"></div>
     </div>
 
@@ -62,10 +62,10 @@ const lang = Astro.props.lang ?? Astro.locals.starlightRoute.lang
       <ThemeSelect />
     </div>
     <div class="menu-list">
-      <a href="https://www.daytona.io/company/privacy-policy"
+      <a href="https://www.northrays.com/company/privacy-policy"
         >{Astro.locals.t('footer.privacyPolicy' as any)}</a
       >
-      <a href="https://www.daytona.io/company/terms-of-service"
+      <a href="https://www.northrays.com/company/terms-of-service"
         >{Astro.locals.t('footer.termsOfService' as any)}</a
       >
     </div>

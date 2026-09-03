@@ -4,7 +4,7 @@
  */
 
 import { anthropic } from '@ai-sdk/anthropic'
-import { Daytona, Sandbox } from '@daytona/sdk'
+import { Northrays, Sandbox } from '@northrays/sdk'
 import { ToolLoopAgent, stepCountIs, tool } from 'ai'
 import { writeFileSync } from 'fs'
 import { randomUUID } from 'node:crypto'
@@ -32,9 +32,9 @@ Produce two artifacts on my local disk: ./sieve_benchmark.png with a chart compa
 Keep your final answer concise; the full report is in the downloaded files.`
 
 async function main(): Promise<void> {
-  if (!process.env.DAYTONA_API_KEY) {
-    console.error('Error: DAYTONA_API_KEY environment variable is not set')
-    console.error('Please create a .env file with your Daytona API key')
+  if (!process.env.NORTHRAYS_API_KEY) {
+    console.error('Error: NORTHRAYS_API_KEY environment variable is not set')
+    console.error('Please create a .env file with your Northrays API key')
     process.exit(1)
   }
   if (!process.env.ANTHROPIC_API_KEY) {
@@ -43,14 +43,14 @@ async function main(): Promise<void> {
     process.exit(1)
   }
 
-  const daytona = new Daytona()
+  const northrays = new Northrays()
   let sandbox: Sandbox | undefined
 
   try {
     console.log('Creating sandbox...')
-    sandbox = await daytona.create()
+    sandbox = await northrays.create()
 
-    // Five tools that wrap Daytona primitives. Each has a single, non-overlapping
+    // Five tools that wrap Northrays primitives. Each has a single, non-overlapping
     // job so the agent never has to choose between two paths for the same goal:
     const runCode = tool({
       description:

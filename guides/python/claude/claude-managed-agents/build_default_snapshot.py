@@ -13,7 +13,7 @@ import sys
 import dotenv
 import host_lib
 
-from daytona import CreateSnapshotParams, Daytona, DaytonaNotFoundError, Image, Resources
+from northrays import CreateSnapshotParams, Northrays, NorthraysNotFoundError, Image, Resources
 
 dotenv.load_dotenv(override=True)
 
@@ -28,16 +28,16 @@ def main() -> int:
 
     name = host_lib.default_snapshot_name()
 
-    daytona = Daytona()
+    northrays = Northrays()
     try:
-        existing = daytona.snapshot.get(name)
+        existing = northrays.snapshot.get(name)
         print(f"snapshot {name} already exists (id {existing.id}); skipping build")
         return 0
-    except DaytonaNotFoundError:
+    except NorthraysNotFoundError:
         pass
 
     print(f"building snapshot {name} from {DOCKERFILE} (this is slow)...")
-    snapshot = daytona.snapshot.create(
+    snapshot = northrays.snapshot.create(
         CreateSnapshotParams(
             name=name,
             image=Image.from_dockerfile(str(DOCKERFILE)),

@@ -16,10 +16,10 @@ import (
 )
 
 const (
-	SKIP_PREVIEW_WARNING_HEADER      = "X-Daytona-Skip-Preview-Warning"
-	PREVIEW_PAGE_ACCEPT_COOKIE_NAME  = "daytona-preview-page-accepted"
+	SKIP_PREVIEW_WARNING_HEADER      = "X-Northrays-Skip-Preview-Warning"
+	PREVIEW_PAGE_ACCEPT_COOKIE_NAME  = "northrays-preview-page-accepted"
 	PREVIEW_PAGE_COOKIE_MAX_AGE      = 1 * 24 * 60 * 60 // 1 day in seconds
-	ACCEPT_PREVIEW_PAGE_WARNING_PATH = "/accept-daytona-preview-warning"
+	ACCEPT_PREVIEW_PAGE_WARNING_PATH = "/accept-northrays-preview-warning"
 )
 
 // isSafeRedirect permits only same-host absolute URLs (http/https) and
@@ -133,7 +133,7 @@ func serveWarningPage(c *gin.Context, https bool) {
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Daytona Preview - Warning</title>
+    <title>Northrays Preview - Warning</title>
     <style>
       * {
         margin: 0;
@@ -293,11 +293,11 @@ func serveWarningPage(c *gin.Context, https bool) {
         <p class="warning-subtitle">You are about to visit <strong>%s</strong></p>
 
         <div class="warning-text">
-          • This website is served through <a href="https://daytona.io" target="_blank">daytona.io</a><br />
+          • This website is served through <a href="https://northrays.com" target="_blank">northrays.com</a><br />
           • Content and functionality may change without notice<br />
           • You should only visit this website if you trust whoever sent the link to<br />
           • Be careful about disclosing personal or financial information like passwords, phone numbers, or credit cards<br />
-          • To get rid of this warning for your organization, visit our docs: <a href="https://daytona.io/docs/en/preview-and-authentication" target="_blank">https://daytona.io/docs/en/preview-and-authentication</a>
+          • To get rid of this warning for your organization, visit our docs: <a href="https://northrays.com/docs/en/preview-and-authentication" target="_blank">https://northrays.com/docs/en/preview-and-authentication</a>
         </div>
 
         <form action="%s" method="POST" style="margin: 0">
@@ -308,7 +308,7 @@ func serveWarningPage(c *gin.Context, https bool) {
       </div>
     </div>
 
-    <div class="footer">Powered by Daytona - Secure and Elastic Infrastructure for AI-Generated Code</div>
+    <div class="footer">Powered by Northrays - Secure and Elastic Infrastructure for AI-Generated Code</div>
   </body>
 </html>`
 

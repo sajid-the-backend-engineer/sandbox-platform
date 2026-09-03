@@ -1,7 +1,7 @@
 /* tslint:disable */
 /**
- * Daytona Billing API
- * Daytona Billing API
+ * Northrays Billing API
+ * Northrays Billing API
  *
  * The version of the OpenAPI document: v0.0.0-dev
  * 

@@ -10,8 +10,8 @@ import {
 } from '@/contexts/PlaygroundContext'
 import { DisplayActions } from '@/enums/Playground'
 import { usePlayground } from '@/hooks/usePlayground'
-import { DisplayInfoResponse, WindowsResponse } from '@daytona/api-client'
-import { ComputerUse } from '@daytona/sdk'
+import { DisplayInfoResponse, WindowsResponse } from '@northrays/api-client'
+import { ComputerUse } from '@northrays/sdk'
 import PlaygroundActionForm from '../../ActionForm'
 
 const VNCDisplayOperations: React.FC<VNCInteractionOptionsSectionComponentProps> = ({

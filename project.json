@@ -1,5 +1,5 @@
 {
-  "name": "@daytona/ai",
+  "name": "@northrays/ai",
   "$schema": "node_modules/nx/schemas/project-schema.json",
   "targets": {
     "local-registry": {

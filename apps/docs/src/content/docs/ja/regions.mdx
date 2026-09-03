@@ -4,27 +4,27 @@ title: リージョンの選択
 
 import { TabItem, Tabs } from '@astrojs/starlight/components'
 
-Daytona は現在、以下のリージョンで利用可能です。
+Northrays は現在、以下のリージョンで利用可能です。
 
 - 米国（US）
 - 欧州（EU）
 
-Daytona の[設定](/docs/ja/configuration)手順でリージョンを選択できます。
+Northrays の[設定](/docs/ja/configuration)手順でリージョンを選択できます。
 
 ```python
-from daytona import Daytona, DaytonaConfig
+from northrays import Northrays, NorthraysConfig
 
-config = DaytonaConfig(
+config = NorthraysConfig(
     target="us"
 )
 
-daytona = Daytona(config)
+northrays = Northrays(config)
 ```
 
 ```typescript
-import { Daytona } from '@daytona/sdk';
+import { Northrays } from '@northrays/sdk';
 
-const daytona: Daytona = new Daytona({
+const northrays: Northrays = new Northrays({
     target: "eu"
 });
 ```

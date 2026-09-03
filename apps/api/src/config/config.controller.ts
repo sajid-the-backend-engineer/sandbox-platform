@@ -19,7 +19,7 @@ export class ConfigController {
   @ApiOperation({ summary: 'Get config' })
   @ApiResponse({
     status: 200,
-    description: 'Daytona configuration',
+    description: 'Northrays configuration',
     type: ConfigurationDto,
   })
   getConfig() {

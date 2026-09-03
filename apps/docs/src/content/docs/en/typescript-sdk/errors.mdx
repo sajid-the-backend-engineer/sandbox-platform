@@ -4,19 +4,19 @@ hideTitleOnPage: true
 ---
 
 
-## DaytonaAuthenticationError
+## NorthraysAuthenticationError
 
 Error thrown when authentication fails (HTTP 401).
 
 **Properties**:
 
 - `errorCode?` _string_ - Machine-readable error code if available
-    - _Inherited from_: `DaytonaError.errorCode`
+    - _Inherited from_: `NorthraysError.errorCode`
 - `headers?` _AxiosHeaders_ - Response headers if available
-    - _Inherited from_: `DaytonaError.headers`
+    - _Inherited from_: `NorthraysError.headers`
 - `statusCode?` _number_ - HTTP status code if available
     
-    - _Inherited from_: `DaytonaError.statusCode`
+    - _Inherited from_: `NorthraysError.statusCode`
 
 
 
@@ -25,11 +25,11 @@ Error thrown when authentication fails (HTTP 401).
 
 ```ts
 try {
-  for await (const sandbox of daytona.list()) {
+  for await (const sandbox of northrays.list()) {
     console.log(sandbox.id)
   }
 } catch (error) {
-  if (error instanceof DaytonaAuthenticationError) {
+  if (error instanceof NorthraysAuthenticationError) {
     console.log(error.statusCode)
   }
 }
@@ -37,18 +37,18 @@ try {
 
 **Extends:**
 
-- `DaytonaError`
+- `NorthraysError`
 
 ### Constructors
 
-#### new DaytonaAuthenticationError()
+#### new NorthraysAuthenticationError()
 
 ```ts
-new DaytonaAuthenticationError(
+new NorthraysAuthenticationError(
    message: string, 
    statusCode?: number, 
    headers?: AxiosHeaders, 
-   errorCode?: string): DaytonaAuthenticationError
+   errorCode?: string): NorthraysAuthenticationError
 ```
 
 **Parameters**:
@@ -61,24 +61,24 @@ new DaytonaAuthenticationError(
 
 **Returns**:
 
-- `DaytonaAuthenticationError`
+- `NorthraysAuthenticationError`
 
 ##### Inherited from
 
-`DaytonaError`.`constructor`
-## DaytonaAuthorizationError
+`NorthraysError`.`constructor`
+## NorthraysAuthorizationError
 
 Error thrown when the request is forbidden (HTTP 403).
 
 **Properties**:
 
 - `errorCode?` _string_ - Machine-readable error code if available
-    - _Inherited from_: `DaytonaError.errorCode`
+    - _Inherited from_: `NorthraysError.errorCode`
 - `headers?` _AxiosHeaders_ - Response headers if available
-    - _Inherited from_: `DaytonaError.headers`
+    - _Inherited from_: `NorthraysError.headers`
 - `statusCode?` _number_ - HTTP status code if available
     
-    - _Inherited from_: `DaytonaError.statusCode`
+    - _Inherited from_: `NorthraysError.statusCode`
 
 
 
@@ -87,9 +87,9 @@ Error thrown when the request is forbidden (HTTP 403).
 
 ```ts
 try {
-  await daytona.get('sandbox-without-access')
+  await northrays.get('sandbox-without-access')
 } catch (error) {
-  if (error instanceof DaytonaAuthorizationError) {
+  if (error instanceof NorthraysAuthorizationError) {
     console.log(error.message)
   }
 }
@@ -97,18 +97,18 @@ try {
 
 **Extends:**
 
-- `DaytonaError`
+- `NorthraysError`
 
 ### Constructors
 
-#### new DaytonaAuthorizationError()
+#### new NorthraysAuthorizationError()
 
 ```ts
-new DaytonaAuthorizationError(
+new NorthraysAuthorizationError(
    message: string, 
    statusCode?: number, 
    headers?: AxiosHeaders, 
-   errorCode?: string): DaytonaAuthorizationError
+   errorCode?: string): NorthraysAuthorizationError
 ```
 
 **Parameters**:
@@ -121,24 +121,24 @@ new DaytonaAuthorizationError(
 
 **Returns**:
 
-- `DaytonaAuthorizationError`
+- `NorthraysAuthorizationError`
 
 ##### Inherited from
 
-`DaytonaError`.`constructor`
-## DaytonaConflictError
+`NorthraysError`.`constructor`
+## NorthraysConflictError
 
 Error thrown when a resource conflict occurs (HTTP 409).
 
 **Properties**:
 
 - `errorCode?` _string_ - Machine-readable error code if available
-    - _Inherited from_: `DaytonaError.errorCode`
+    - _Inherited from_: `NorthraysError.errorCode`
 - `headers?` _AxiosHeaders_ - Response headers if available
-    - _Inherited from_: `DaytonaError.headers`
+    - _Inherited from_: `NorthraysError.headers`
 - `statusCode?` _number_ - HTTP status code if available
     
-    - _Inherited from_: `DaytonaError.statusCode`
+    - _Inherited from_: `NorthraysError.statusCode`
 
 
 
@@ -147,9 +147,9 @@ Error thrown when a resource conflict occurs (HTTP 409).
 
 ```ts
 try {
-  await daytona.create({ name: 'existing-sandbox' })
+  await northrays.create({ name: 'existing-sandbox' })
 } catch (error) {
-  if (error instanceof DaytonaConflictError) {
+  if (error instanceof NorthraysConflictError) {
     console.log(error.errorCode)
   }
 }
@@ -157,18 +157,18 @@ try {
 
 **Extends:**
 
-- `DaytonaError`
+- `NorthraysError`
 
 ### Constructors
 
-#### new DaytonaConflictError()
+#### new NorthraysConflictError()
 
 ```ts
-new DaytonaConflictError(
+new NorthraysConflictError(
    message: string, 
    statusCode?: number, 
    headers?: AxiosHeaders, 
-   errorCode?: string): DaytonaConflictError
+   errorCode?: string): NorthraysConflictError
 ```
 
 **Parameters**:
@@ -181,24 +181,24 @@ new DaytonaConflictError(
 
 **Returns**:
 
-- `DaytonaConflictError`
+- `NorthraysConflictError`
 
 ##### Inherited from
 
-`DaytonaError`.`constructor`
-## DaytonaConnectionError
+`NorthraysError`.`constructor`
+## NorthraysConnectionError
 
 Error thrown when a network connection fails.
 
 **Properties**:
 
 - `errorCode?` _string_ - Machine-readable error code if available
-    - _Inherited from_: `DaytonaError.errorCode`
+    - _Inherited from_: `NorthraysError.errorCode`
 - `headers?` _AxiosHeaders_ - Response headers if available
-    - _Inherited from_: `DaytonaError.headers`
+    - _Inherited from_: `NorthraysError.headers`
 - `statusCode?` _number_ - HTTP status code if available
     
-    - _Inherited from_: `DaytonaError.statusCode`
+    - _Inherited from_: `NorthraysError.statusCode`
 
 
 
@@ -209,7 +209,7 @@ Error thrown when a network connection fails.
 try {
   await ptyHandle.waitForConnection()
 } catch (error) {
-  if (error instanceof DaytonaConnectionError) {
+  if (error instanceof NorthraysConnectionError) {
     console.log(error.message)
   }
 }
@@ -217,18 +217,18 @@ try {
 
 **Extends:**
 
-- `DaytonaError`
+- `NorthraysError`
 
 ### Constructors
 
-#### new DaytonaConnectionError()
+#### new NorthraysConnectionError()
 
 ```ts
-new DaytonaConnectionError(
+new NorthraysConnectionError(
    message: string, 
    statusCode?: number, 
    headers?: AxiosHeaders, 
-   errorCode?: string): DaytonaConnectionError
+   errorCode?: string): NorthraysConnectionError
 ```
 
 **Parameters**:
@@ -241,14 +241,14 @@ new DaytonaConnectionError(
 
 **Returns**:
 
-- `DaytonaConnectionError`
+- `NorthraysConnectionError`
 
 ##### Inherited from
 
-`DaytonaError`.`constructor`
-## DaytonaError
+`NorthraysError`.`constructor`
+## NorthraysError
 
-Base error for Daytona SDK.
+Base error for Northrays SDK.
 
 **Properties**:
 
@@ -264,9 +264,9 @@ Base error for Daytona SDK.
 
 ```ts
 try {
-  await daytona.get('missing-sandbox')
+  await northrays.get('missing-sandbox')
 } catch (error) {
-  if (error instanceof DaytonaError) {
+  if (error instanceof NorthraysError) {
     console.log(error.statusCode)
     console.log(error.errorCode)
     console.log(error.message)
@@ -280,25 +280,25 @@ try {
 
 ### Extended by
 
-- `DaytonaNotFoundError`
-- `DaytonaRateLimitError`
-- `DaytonaAuthenticationError`
-- `DaytonaAuthorizationError`
-- `DaytonaConflictError`
-- `DaytonaValidationError`
-- `DaytonaTimeoutError`
-- `DaytonaConnectionError`
+- `NorthraysNotFoundError`
+- `NorthraysRateLimitError`
+- `NorthraysAuthenticationError`
+- `NorthraysAuthorizationError`
+- `NorthraysConflictError`
+- `NorthraysValidationError`
+- `NorthraysTimeoutError`
+- `NorthraysConnectionError`
 
 ### Constructors
 
-#### new DaytonaError()
+#### new NorthraysError()
 
 ```ts
-new DaytonaError(
+new NorthraysError(
    message: string, 
    statusCode?: number, 
    headers?: AxiosHeaders, 
-   errorCode?: string): DaytonaError
+   errorCode?: string): NorthraysError
 ```
 
 **Parameters**:
@@ -311,26 +311,26 @@ new DaytonaError(
 
 **Returns**:
 
-- `DaytonaError`
+- `NorthraysError`
 
 ##### Overrides
 
 ```ts
 Error.constructor
 ```
-## DaytonaNotFoundError
+## NorthraysNotFoundError
 
 Error thrown when a resource is not found (HTTP 404).
 
 **Properties**:
 
 - `errorCode?` _string_ - Machine-readable error code if available
-    - _Inherited from_: `DaytonaError.errorCode`
+    - _Inherited from_: `NorthraysError.errorCode`
 - `headers?` _AxiosHeaders_ - Response headers if available
-    - _Inherited from_: `DaytonaError.headers`
+    - _Inherited from_: `NorthraysError.headers`
 - `statusCode?` _number_ - HTTP status code if available
     
-    - _Inherited from_: `DaytonaError.statusCode`
+    - _Inherited from_: `NorthraysError.statusCode`
 
 
 
@@ -341,7 +341,7 @@ Error thrown when a resource is not found (HTTP 404).
 try {
   await sandbox.fs.downloadFile('/workspace/missing.txt')
 } catch (error) {
-  if (error instanceof DaytonaNotFoundError) {
+  if (error instanceof NorthraysNotFoundError) {
     console.log(error.statusCode)
   }
 }
@@ -349,18 +349,18 @@ try {
 
 **Extends:**
 
-- `DaytonaError`
+- `NorthraysError`
 
 ### Constructors
 
-#### new DaytonaNotFoundError()
+#### new NorthraysNotFoundError()
 
 ```ts
-new DaytonaNotFoundError(
+new NorthraysNotFoundError(
    message: string, 
    statusCode?: number, 
    headers?: AxiosHeaders, 
-   errorCode?: string): DaytonaNotFoundError
+   errorCode?: string): NorthraysNotFoundError
 ```
 
 **Parameters**:
@@ -373,24 +373,24 @@ new DaytonaNotFoundError(
 
 **Returns**:
 
-- `DaytonaNotFoundError`
+- `NorthraysNotFoundError`
 
 ##### Inherited from
 
-`DaytonaError`.`constructor`
-## DaytonaRateLimitError
+`NorthraysError`.`constructor`
+## NorthraysRateLimitError
 
 Error thrown when rate limit is exceeded.
 
 **Properties**:
 
 - `errorCode?` _string_ - Machine-readable error code if available
-    - _Inherited from_: `DaytonaError.errorCode`
+    - _Inherited from_: `NorthraysError.errorCode`
 - `headers?` _AxiosHeaders_ - Response headers if available
-    - _Inherited from_: `DaytonaError.headers`
+    - _Inherited from_: `NorthraysError.headers`
 - `statusCode?` _number_ - HTTP status code if available
     
-    - _Inherited from_: `DaytonaError.statusCode`
+    - _Inherited from_: `NorthraysError.statusCode`
 
 
 
@@ -399,11 +399,11 @@ Error thrown when rate limit is exceeded.
 
 ```ts
 try {
-  for await (const sandbox of daytona.list()) {
+  for await (const sandbox of northrays.list()) {
     console.log(sandbox.id)
   }
 } catch (error) {
-  if (error instanceof DaytonaRateLimitError) {
+  if (error instanceof NorthraysRateLimitError) {
     console.log(error.errorCode)
   }
 }
@@ -411,18 +411,18 @@ try {
 
 **Extends:**
 
-- `DaytonaError`
+- `NorthraysError`
 
 ### Constructors
 
-#### new DaytonaRateLimitError()
+#### new NorthraysRateLimitError()
 
 ```ts
-new DaytonaRateLimitError(
+new NorthraysRateLimitError(
    message: string, 
    statusCode?: number, 
    headers?: AxiosHeaders, 
-   errorCode?: string): DaytonaRateLimitError
+   errorCode?: string): NorthraysRateLimitError
 ```
 
 **Parameters**:
@@ -435,24 +435,24 @@ new DaytonaRateLimitError(
 
 **Returns**:
 
-- `DaytonaRateLimitError`
+- `NorthraysRateLimitError`
 
 ##### Inherited from
 
-`DaytonaError`.`constructor`
-## DaytonaTimeoutError
+`NorthraysError`.`constructor`
+## NorthraysTimeoutError
 
 Error thrown when a timeout occurs.
 
 **Properties**:
 
 - `errorCode?` _string_ - Machine-readable error code if available
-    - _Inherited from_: `DaytonaError.errorCode`
+    - _Inherited from_: `NorthraysError.errorCode`
 - `headers?` _AxiosHeaders_ - Response headers if available
-    - _Inherited from_: `DaytonaError.headers`
+    - _Inherited from_: `NorthraysError.headers`
 - `statusCode?` _number_ - HTTP status code if available
     
-    - _Inherited from_: `DaytonaError.statusCode`
+    - _Inherited from_: `NorthraysError.statusCode`
 
 
 
@@ -463,7 +463,7 @@ Error thrown when a timeout occurs.
 try {
   await sandbox.waitUntilStarted(1)
 } catch (error) {
-  if (error instanceof DaytonaTimeoutError) {
+  if (error instanceof NorthraysTimeoutError) {
     console.log(error.message)
   }
 }
@@ -471,18 +471,18 @@ try {
 
 **Extends:**
 
-- `DaytonaError`
+- `NorthraysError`
 
 ### Constructors
 
-#### new DaytonaTimeoutError()
+#### new NorthraysTimeoutError()
 
 ```ts
-new DaytonaTimeoutError(
+new NorthraysTimeoutError(
    message: string, 
    statusCode?: number, 
    headers?: AxiosHeaders, 
-   errorCode?: string): DaytonaTimeoutError
+   errorCode?: string): NorthraysTimeoutError
 ```
 
 **Parameters**:
@@ -495,24 +495,24 @@ new DaytonaTimeoutError(
 
 **Returns**:
 
-- `DaytonaTimeoutError`
+- `NorthraysTimeoutError`
 
 ##### Inherited from
 
-`DaytonaError`.`constructor`
-## DaytonaValidationError
+`NorthraysError`.`constructor`
+## NorthraysValidationError
 
 Error thrown when input validation fails (HTTP 400 or client-side validation).
 
 **Properties**:
 
 - `errorCode?` _string_ - Machine-readable error code if available
-    - _Inherited from_: `DaytonaError.errorCode`
+    - _Inherited from_: `NorthraysError.errorCode`
 - `headers?` _AxiosHeaders_ - Response headers if available
-    - _Inherited from_: `DaytonaError.headers`
+    - _Inherited from_: `NorthraysError.headers`
 - `statusCode?` _number_ - HTTP status code if available
     
-    - _Inherited from_: `DaytonaError.statusCode`
+    - _Inherited from_: `NorthraysError.statusCode`
 
 
 
@@ -523,7 +523,7 @@ Error thrown when input validation fails (HTTP 400 or client-side validation).
 try {
   Image.debianSlim('3.8' as never)
 } catch (error) {
-  if (error instanceof DaytonaValidationError) {
+  if (error instanceof NorthraysValidationError) {
     console.log(error.message)
   }
 }
@@ -531,18 +531,18 @@ try {
 
 **Extends:**
 
-- `DaytonaError`
+- `NorthraysError`
 
 ### Constructors
 
-#### new DaytonaValidationError()
+#### new NorthraysValidationError()
 
 ```ts
-new DaytonaValidationError(
+new NorthraysValidationError(
    message: string, 
    statusCode?: number, 
    headers?: AxiosHeaders, 
-   errorCode?: string): DaytonaValidationError
+   errorCode?: string): NorthraysValidationError
 ```
 
 **Parameters**:
@@ -555,18 +555,18 @@ new DaytonaValidationError(
 
 **Returns**:
 
-- `DaytonaValidationError`
+- `NorthraysValidationError`
 
 ##### Inherited from
 
-`DaytonaError`.`constructor`
-## createAxiosDaytonaError()
+`NorthraysError`.`constructor`
+## createAxiosNorthraysError()
 
 ```ts
-function createAxiosDaytonaError(error: AxiosError): DaytonaError
+function createAxiosNorthraysError(error: AxiosError): NorthraysError
 ```
 
-Creates the appropriate Daytona error subclass from an Axios error.
+Creates the appropriate Northrays error subclass from an Axios error.
 
 **Parameters**:
 
@@ -575,22 +575,22 @@ Creates the appropriate Daytona error subclass from an Axios error.
 
 **Returns**:
 
-- `DaytonaError`
+- `NorthraysError`
 
 ***
 
 
-## createDaytonaError()
+## createNorthraysError()
 
 ```ts
-function createDaytonaError(
+function createNorthraysError(
    message: string, 
    statusCode?: number, 
    headers?: AxiosHeaders, 
-   errorCode?: string): DaytonaError
+   errorCode?: string): NorthraysError
 ```
 
-Creates the appropriate Daytona error subclass from structured error metadata.
+Creates the appropriate Northrays error subclass from structured error metadata.
 
 **Parameters**:
 
@@ -602,7 +602,7 @@ Creates the appropriate Daytona error subclass from structured error metadata.
 
 **Returns**:
 
-- `DaytonaError`
+- `NorthraysError`
 
 ***
 
@@ -610,10 +610,10 @@ Creates the appropriate Daytona error subclass from structured error metadata.
 ## errorClassFromStatusCode()
 
 ```ts
-function errorClassFromStatusCode(statusCode?: number): typeof DaytonaError
+function errorClassFromStatusCode(statusCode?: number): typeof NorthraysError
 ```
 
-Maps an HTTP status code to the corresponding Daytona error class.
+Maps an HTTP status code to the corresponding Northrays error class.
 
 **Parameters**:
 
@@ -622,7 +622,7 @@ Maps an HTTP status code to the corresponding Daytona error class.
 
 ### Returns
 
-*typeof* `DaytonaError`
+*typeof* `NorthraysError`
 
 ***
 

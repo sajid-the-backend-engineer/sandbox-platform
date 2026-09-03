@@ -8,22 +8,22 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
-	"github.com/daytonaio/daytona/cli/cmd"
-	"github.com/daytonaio/daytona/cli/cmd/auth"
-	"github.com/daytonaio/daytona/cli/cmd/mcp"
-	"github.com/daytonaio/daytona/cli/cmd/organization"
-	"github.com/daytonaio/daytona/cli/cmd/sandbox"
-	"github.com/daytonaio/daytona/cli/cmd/snapshot"
-	"github.com/daytonaio/daytona/cli/cmd/volume"
-	"github.com/daytonaio/daytona/cli/internal"
+	"github.com/northrays/sandbox-platform/cli/cmd"
+	"github.com/northrays/sandbox-platform/cli/cmd/auth"
+	"github.com/northrays/sandbox-platform/cli/cmd/mcp"
+	"github.com/northrays/sandbox-platform/cli/cmd/organization"
+	"github.com/northrays/sandbox-platform/cli/cmd/sandbox"
+	"github.com/northrays/sandbox-platform/cli/cmd/snapshot"
+	"github.com/northrays/sandbox-platform/cli/cmd/volume"
+	"github.com/northrays/sandbox-platform/cli/internal"
 	"github.com/joho/godotenv"
 	"github.com/spf13/cobra"
 )
 
 var rootCmd = &cobra.Command{
-	Use:               "daytona",
-	Short:             "Daytona CLI",
-	Long:              "Command line interface for Daytona Sandboxes",
+	Use:               "northrays",
+	Short:             "Northrays CLI",
+	Long:              "Command line interface for Northrays Sandboxes",
 	DisableAutoGenTag: true,
 	SilenceUsage:      true,
 	SilenceErrors:     true,
@@ -62,8 +62,8 @@ func init() {
 	rootCmd.AddCommand(createSandboxShortcut(sandbox.PreviewUrlCmd))
 
 	rootCmd.CompletionOptions.HiddenDefaultCmd = true
-	rootCmd.PersistentFlags().BoolP("help", "", false, "help for daytona")
-	rootCmd.Flags().BoolP("version", "v", false, "Display the version of Daytona")
+	rootCmd.PersistentFlags().BoolP("help", "", false, "help for northrays")
+	rootCmd.Flags().BoolP("version", "v", false, "Display the version of Northrays")
 
 	rootCmd.PreRun = func(command *cobra.Command, args []string) {
 		versionFlag, _ := command.Flags().GetBool("version")
