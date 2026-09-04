@@ -248,6 +248,36 @@ variable "default_runner_disk" {
 # them changes nothing.
 # ---------------------------------------------------------------------------
 
+# ---------------------------------------------------------------------------
+# CI/CD
+# ---------------------------------------------------------------------------
+
+variable "github_repository" {
+  description = <<-EOT
+    owner/repo that may assume the deploy role, e.g. acme/platform.
+
+    Empty creates no role at all, for environments deployed by hand. The value
+    is matched against the OIDC token's `sub` claim, and it is what stops any
+    other repository on GitHub from assuming the role.
+  EOT
+  type        = string
+  default     = ""
+}
+
+variable "github_deploy_refs" {
+  description = <<-EOT
+    Which refs of github_repository may assume the role, as `sub` claim
+    suffixes: "ref:refs/heads/main" for a branch, "environment:production" for a
+    protected environment, or "*" for any ref in the repository.
+
+    Narrow this to a protected branch or environment before the role is allowed
+    to touch anything you care about -- "*" means any branch, including one
+    opened by a fork's pull request.
+  EOT
+  type        = list(string)
+  default     = ["*"]
+}
+
 variable "max_auto_archive_interval_minutes" {
   description = <<-EOT
     Minutes a stopped sandbox may sit before being archived off the runner,

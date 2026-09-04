@@ -188,3 +188,8 @@ output "route53_zone_id_effective" {
   description = "The hosted zone id actually in use, whichever way it was resolved."
   value       = local.route53_zone_id
 }
+
+output "github_deploy_role_arn" {
+  description = "Role ARN for the GitHub Actions deploy workflow. Set as the repository variable AWS_DEPLOY_ROLE_ARN."
+  value       = try(aws_iam_role.github_deploy[0].arn, "")
+}
