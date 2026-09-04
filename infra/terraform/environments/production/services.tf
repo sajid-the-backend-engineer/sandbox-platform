@@ -172,6 +172,12 @@ module "api" {
 
     DEFAULT_SNAPSHOT = var.default_snapshot
 
+    # How long a stopped sandbox may sit before it is archived off the runner.
+    # The application default is 30 days, which suits people who return to a
+    # workspace. Agents abandon sandboxes on crash or timeout and never come
+    # back, so that default would let dead sandboxes hold runner disk for weeks.
+    MAX_AUTO_ARCHIVE_INTERVAL = tostring(var.max_auto_archive_interval_minutes)
+
     # Per-organization quotas. These are a second, independent ceiling on top of
     # what the runner host physically has: a sandbox is refused if EITHER the
     # organization's quota or the runner's advertised capacity is exhausted.

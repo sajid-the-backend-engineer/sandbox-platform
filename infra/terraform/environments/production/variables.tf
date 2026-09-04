@@ -248,6 +248,18 @@ variable "default_runner_disk" {
 # them changes nothing.
 # ---------------------------------------------------------------------------
 
+variable "max_auto_archive_interval_minutes" {
+  description = <<-EOT
+    Minutes a stopped sandbox may sit before being archived off the runner,
+    freeing its CPU, memory and disk.
+
+    The application default is 43200 (30 days). Lower it for agent-driven
+    workloads, where sandboxes are abandoned rather than returned to.
+  EOT
+  type        = number
+  default     = 43200
+}
+
 variable "org_quota_total_cpu" {
   description = "Total vCPU one organization may consume across all its sandboxes."
   type        = number
