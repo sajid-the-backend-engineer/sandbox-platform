@@ -1,0 +1,39 @@
+# Copyright © 2026 Northrays Private Limited
+# SPDX-License-Identifier: AGPL-3.0
+
+# Provider plugins and downloaded modules. Large, machine-specific, and
+# reconstructed by `terraform init`.
+.terraform/
+.terraform.tfstate.lock.info
+
+# State. This stack uses an S3 backend, so a local state file here means
+# something went wrong -- most likely an apply run before `init` configured the
+# backend. Never commit one: it contains database endpoints, generated secret
+# material and every resource identifier in the account.
+*.tfstate
+*.tfstate.*
+crash.log
+crash.*.log
+
+# Real variable values. terraform.tfvars.example is the committed template.
+*.tfvars
+*.tfvars.json
+!*.tfvars.example
+
+# Backend settings, which embed the account ID.
+backend.hcl
+
+# Saved plans. Binary, environment-specific, and can embed sensitive values.
+tfplan
+*.tfplan
+
+# Editor and CLI config overrides.
+.terraformrc
+terraform.rc
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+
+# The lock file is deliberately NOT ignored. Committing .terraform.lock.hcl is
+# what makes provider versions reproducible between a developer's machine and CI.

@@ -1,0 +1,178 @@
+# Copyright © 2026 Northrays Private Limited
+# SPDX-License-Identifier: AGPL-3.0
+
+# Copy to terraform.tfvars and edit. terraform.tfvars is gitignored.
+#
+# NOTHING SECRET GOES IN THIS FILE. Passwords, API keys and client secrets live
+# in Secrets Manager and are injected into tasks at runtime -- see the "Populating
+# secrets" section of ../../README.md. If you find yourself wanting to add a
+# password here, that is the signal to go add it to Secrets Manager instead.
+
+# ---------------------------------------------------------------------------
+# Placement
+# ---------------------------------------------------------------------------
+
+aws_region   = "us-west-1"
+environment  = "production"
+cluster_name = "northrays-production"
+
+# ---------------------------------------------------------------------------
+# Networking
+# ---------------------------------------------------------------------------
+
+vpc_cidr = "10.20.0.0/16"
+az_count = 2
+
+# One NAT gateway instead of one per AZ saves roughly $32/month but makes
+# outbound internet a single-AZ dependency. Acceptable in staging, not here.
+single_nat_gateway = false
+
+# Turn on once ECR pull volume makes NAT data-processing charges visible.
+enable_interface_endpoints = false
+
+# ---------------------------------------------------------------------------
+# Domain
+#
+# Strongly recommended. Without it the stack serves plain HTTP on the load
+# balancer's generated DNS name, and the proxy's per-sandbox preview URLs --
+# which are wildcard subdomains -- do not work at all.
+#
+# If the domain is already a public Route53 hosted zone, set domain_name and
+# leave the other two alone -- the zone is looked up by name.
+#
+# If the parent domain lives at an outside registrar (GoDaddy, Cloudflare,
+# Namecheap), set create_route53_zone = true instead. Terraform creates the zone
+# and the route53_name_servers output gives you four NS records to add at the
+# registrar for this subdomain. Certificates cannot validate until that
+# delegation resolves, so apply the zone, delegate, wait, then apply the rest.
+# ---------------------------------------------------------------------------
+
+# domain_name         = "sandbox.example.com"
+# create_route53_zone = true
+
+# Only when pointing at a zone that already exists and you know its id.
+# route53_zone_id = "Z0123456789ABCDEFGHIJ"
+
+# ---------------------------------------------------------------------------
+# Images
+#
+# Only used for the initial task definitions. CI registers new revisions on
+# every deploy and Terraform ignores changes to container definitions, so this
+# does not need updating as part of a release.
+# ---------------------------------------------------------------------------
+
+image_tag = "latest"
+
+# ---------------------------------------------------------------------------
+# Service sizing
+# ---------------------------------------------------------------------------
+
+api_cpu           = 1024
+api_memory        = 2048
+api_desired_count = 2
+
+proxy_cpu           = 512
+proxy_memory        = 1024
+proxy_desired_count = 2
+
+dashboard_cpu           = 256
+dashboard_memory        = 512
+dashboard_desired_count = 2
+
+ssh_gateway_cpu           = 256
+ssh_gateway_memory        = 512
+ssh_gateway_desired_count = 2
+
+# ---------------------------------------------------------------------------
+# Runner
+#
+# Instance sizing is the sandbox density lever: the runner reserves 4 vCPU and
+# 8 GB per build job, so an m6a.xlarge (4 vCPU / 16 GB) fits about one
+# concurrent build plus running sandboxes. Scale the instance type before the
+# instance count.
+#
+# runner_desired_count above 1 needs application-level work as well -- read the
+# note on the variable before changing it.
+# ---------------------------------------------------------------------------
+
+runner_instance_type        = "m5.xlarge"
+runner_asg_min_size         = 1
+runner_asg_max_size         = 4
+runner_asg_desired_capacity = 1
+runner_root_volume_size     = 200
+runner_desired_count        = 1
+
+# ---------------------------------------------------------------------------
+# Data tier
+# ---------------------------------------------------------------------------
+
+db_instance_class        = "db.t4g.medium"
+db_allocated_storage     = 50
+db_multi_az              = true
+db_backup_retention_days = 14
+
+redis_node_type     = "cache.t4g.micro"
+redis_replica_count = 1
+
+# ---------------------------------------------------------------------------
+# OIDC
+#
+# Client IDs and audiences are public identifiers and belong here. The two
+# client SECRETS go in Secrets Manager as
+# northrays/production/oidc-client-secret and
+# northrays/production/oidc-management-api-client-secret.
+#
+# Register these redirect URIs with the provider (substitute your domain):
+#   https://northrays.example.com/callback
+#   https://api.northrays.example.com/api/auth/callback
+# ---------------------------------------------------------------------------
+
+# oidc_issuer_base_url = "https://your-tenant.auth0.com"
+# oidc_client_id       = "your-client-id"
+# oidc_audience        = "https://api.northrays.example.com"
+
+# oidc_management_api_enabled   = false
+# oidc_management_api_client_id = ""
+# oidc_management_api_audience  = ""
+
+# ---------------------------------------------------------------------------
+# Email
+#
+# The password goes in Secrets Manager as northrays/production/smtp-password.
+# Note the variable is SMTP_EMAIL_FROM in the application, not SMTP_FROM.
+# ---------------------------------------------------------------------------
+
+# smtp_host       = "email-smtp.us-east-1.amazonaws.com"
+# smtp_port       = 587
+# smtp_user       = "AKIA..."
+# smtp_secure     = false
+# smtp_email_from = "noreply@northrays.example.com"
+
+# ---------------------------------------------------------------------------
+# Application behaviour
+# ---------------------------------------------------------------------------
+
+# default_snapshot = "northrays/sandbox:0.1.0"
+maintenance_mode   = false
+log_level          = "info"
+log_retention_days = 30
+
+# The proxy's metrics listener is off unless METRICS_PORT is set; 2112 is not a
+# built-in default.
+enable_proxy_metrics = true
+
+# ---------------------------------------------------------------------------
+# Secrets
+#
+# false means every secret is created holding an obvious REPLACE_ME placeholder
+# and a human populates the real values. true seeds generated random values for
+# the secrets that are pure random material -- convenient, but it writes those
+# values into Terraform state, so only enable it if the state bucket is treated
+# as secret material.
+# ---------------------------------------------------------------------------
+
+generate_random_secret_values = false
+
+# Role ARNs the api may assume for customers who bring their own registry or
+# bucket. Add ARNs as customers are onboarded; never widen this to a wildcard.
+customer_assumable_role_arns = []

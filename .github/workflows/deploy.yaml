@@ -1,0 +1,797 @@
+# Copyright © 2026 Northrays Private Limited
+# SPDX-License-Identifier: AGPL-3.0
+
+# ---------------------------------------------------------------------------
+# Production deploy to AWS (ECR + ECS on cluster `northrays-production`).
+#
+# Deploy order, and why:
+#
+#   1. build          Build every service image once and push it to its ECR
+#                     repo under two tags: the immutable git SHA and `latest`.
+#                     Everything downstream deploys the SHA tag — `latest` is a
+#                     convenience pointer only, never what ECS is pinned to.
+#
+#   2. migrate-pre    `migration:run:init` then `migration:run:pre-deploy`, in
+#                     that order, as one-off ECS tasks on the
+#                     `northrays-migrations` family (a fresh revision pinned to
+#                     the new api image, so migrations and the code that will
+#                     run against them come from the same build).
+#
+#   3. deploy         Roll each ECS service onto the new task definition and
+#                     wait for it to reach steady state.
+#
+#   4. migrate-post   `migration:run:post-deploy`.
+#
+# This is the expand/contract (a.k.a. parallel-change) migration pattern. The
+# pre-deploy migrations only EXPAND the schema — add columns, add tables, add
+# nullable/defaulted fields, backfill — so the schema stays readable and
+# writable by BOTH the currently running old code and the incoming new code.
+# That is what makes step 3 safe: during a rolling ECS deployment both versions
+# serve traffic simultaneously, and neither sees a schema it cannot handle.
+# Only once every task is on the new revision does step 4 CONTRACT the schema:
+# drop the columns/tables the old code needed and the new code does not. Run
+# destructive changes in pre-deploy instead and the old tasks still serving
+# traffic start erroring the moment the migration lands.
+#
+# Failure handling: every step is fail-loud. Each one-off migration task is
+# polled to STOPPED and its container exit code is asserted to be 0 — a
+# migration that dies quietly (OOM, bad SQL swallowed by the CLI, image pull
+# failure) fails the workflow instead of letting a half-migrated schema through
+# to the deploy. If migrate-pre fails, no service is rolled at all. If deploy
+# fails, post-deploy never runs, so the contract step cannot drop things the
+# still-running old code depends on. The concurrency group is deliberately NOT
+# cancel-in-progress: interrupting a deploy between migration and rollout is
+# exactly the half-applied state we are trying to avoid.
+#
+# Rollback: re-run via workflow_dispatch with `image_tag` set to a previously
+# built SHA. That skips the build and redeploys existing ECR images. Note that
+# it does NOT revert migrations — expand/contract means the older image is
+# expected to still run against the newer (expanded) schema.
+# ---------------------------------------------------------------------------
+
+name: Deploy
+
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+    inputs:
+      image_tag:
+        description: 'Existing ECR image tag to deploy (e.g. a previous commit SHA). Leave empty to build from this commit.'
+        required: false
+        default: ''
+
+permissions:
+  contents: read
+  id-token: write # required for OIDC role assumption; no static AWS keys anywhere
+
+concurrency:
+  # Serialise deploys. Never cancel one in flight — see the header comment.
+  group: deploy-production
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: ${{ vars.AWS_REGION || 'us-east-1' }}
+  ECS_CLUSTER: northrays-production
+  MIGRATIONS_TASK_FAMILY: northrays-migrations
+  MIGRATIONS_CONTAINER_NAME: ${{ vars.MIGRATIONS_CONTAINER_NAME || 'migrations' }}
+  # ECS service whose awsvpc networking the one-off migration tasks piggyback
+  # on, so they land in the same subnets/security groups that can reach the DB.
+  NETWORK_REFERENCE_SERVICE: northrays-api
+
+jobs:
+  # -------------------------------------------------------------------------
+  prepare:
+    name: Resolve image tag
+    runs-on: ubuntu-latest
+    outputs:
+      image_tag: ${{ steps.resolve.outputs.image_tag }}
+      build_needed: ${{ steps.resolve.outputs.build_needed }}
+      ecr_registry: ${{ steps.resolve.outputs.ecr_registry }}
+    steps:
+      - name: Validate required configuration
+        env:
+          ROLE_ARN: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          missing=0
+          if [ -z "$ROLE_ARN" ]; then
+            echo "::error::vars.AWS_DEPLOY_ROLE_ARN is not set — cannot assume the deploy role."
+            missing=1
+          fi
+          if [ -z "$ACCOUNT_ID" ]; then
+            echo "::error::vars.AWS_ACCOUNT_ID is not set — cannot build ECR image URIs."
+            missing=1
+          fi
+          exit "$missing"
+
+      - name: Resolve tag
+        id: resolve
+        env:
+          REQUESTED_TAG: ${{ github.event.inputs.image_tag }}
+          ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          if [ -n "${REQUESTED_TAG:-}" ]; then
+            # Keep this conservative: the value is interpolated into image URIs.
+            if ! printf '%s' "$REQUESTED_TAG" | grep -Eq '^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$'; then
+              echo "::error::image_tag '$REQUESTED_TAG' is not a valid OCI tag."
+              exit 1
+            fi
+            echo "image_tag=$REQUESTED_TAG" >> "$GITHUB_OUTPUT"
+            echo "build_needed=false" >> "$GITHUB_OUTPUT"
+            echo "Redeploying existing images tagged '$REQUESTED_TAG' (build skipped)."
+          else
+            echo "image_tag=${GITHUB_SHA}" >> "$GITHUB_OUTPUT"
+            echo "build_needed=true" >> "$GITHUB_OUTPUT"
+            echo "Building images from ${GITHUB_SHA}."
+          fi
+          echo "ecr_registry=${ACCOUNT_ID}.dkr.ecr.${AWS_REGION}.amazonaws.com" >> "$GITHUB_OUTPUT"
+
+  # -------------------------------------------------------------------------
+  build:
+    name: Build & push ${{ matrix.service }}
+    needs: prepare
+    if: needs.prepare.outputs.build_needed == 'true'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: true
+      matrix:
+        include:
+          - service: api
+            dockerfile: apps/api/Dockerfile
+            target: northrays
+            ecr_repository: northrays/api
+          - service: dashboard
+            dockerfile: apps/dashboard/Dockerfile
+            target: dashboard
+            ecr_repository: northrays/dashboard
+          - service: proxy
+            dockerfile: apps/proxy/Dockerfile
+            target: proxy
+            ecr_repository: northrays/proxy
+          - service: runner
+            dockerfile: apps/runner/Dockerfile
+            target: runner
+            ecr_repository: northrays/runner
+            needs_computer_use: 'true'
+          - service: ssh-gateway
+            dockerfile: apps/ssh-gateway/Dockerfile
+            target: ssh-gateway
+            ecr_repository: northrays/ssh-gateway
+    env:
+      BUILDX_NO_DEFAULT_ATTESTATIONS: '1'
+      NX_NO_CLOUD: 'true'
+      NX_DAEMON: 'false'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
+
+      - name: Free up disk space
+        run: |
+          sudo rm -rf /usr/local/lib/android /usr/share/dotnet /opt/ghc /usr/local/.ghcup
+          df -h /
+
+      - name: Ensure go.work.sum exists
+        # apps/{proxy,runner,ssh-gateway}/Dockerfile do `COPY go.work go.work.sum`.
+        # The file is not committed, so create it before the build context is sent.
+        run: touch go.work.sum
+
+      - name: Set up toolchain (computer-use prerequisite)
+        if: matrix.needs_computer_use == 'true'
+        uses: ./.github/actions/setup-toolchain
+        with:
+          install-python: 'false'
+          install-ruby: 'false'
+          install-java: 'false'
+          install-poetry: 'false'
+          install-swag: 'false'
+          run-poetry-install: 'false'
+
+      - name: Build computer-use binary
+        if: matrix.needs_computer_use == 'true'
+        # apps/runner/Dockerfile does `COPY dist/libs/computer-use-amd64 ...`,
+        # which nx produces outside Docker (.dockerignore un-ignores that path).
+        run: |
+          set -euo pipefail
+          mkdir -p dist/libs
+          yarn nx run computer-use:build-amd64
+          test -f dist/libs/computer-use-amd64
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+          role-session-name: gha-build-${{ matrix.service }}-${{ github.run_id }}
+
+      - name: Log in to Amazon ECR
+        id: ecr-login
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: ${{ matrix.dockerfile }}
+          target: ${{ matrix.target }}
+          platforms: linux/amd64
+          push: true
+          provenance: false
+          build-args: |
+            VERSION=${{ needs.prepare.outputs.image_tag }}
+          tags: |
+            ${{ steps.ecr-login.outputs.registry }}/${{ matrix.ecr_repository }}:${{ needs.prepare.outputs.image_tag }}
+            ${{ steps.ecr-login.outputs.registry }}/${{ matrix.ecr_repository }}:latest
+          cache-from: type=gha,scope=deploy-${{ matrix.service }}
+          cache-to: type=gha,scope=deploy-${{ matrix.service }},mode=max
+
+  # -------------------------------------------------------------------------
+  verify-images:
+    name: Verify images exist in ECR
+    needs: [prepare, build]
+    # `always()` so this still runs when `build` was skipped (redeploy of an
+    # existing tag) — but only if nothing upstream actually failed.
+    if: always() && needs.prepare.result == 'success' && needs.build.result != 'failure' && needs.build.result != 'cancelled'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+          role-session-name: gha-verify-${{ github.run_id }}
+
+      - name: Check every service image is present
+        env:
+          IMAGE_TAG: ${{ needs.prepare.outputs.image_tag }}
+        run: |
+          set -euo pipefail
+          rc=0
+          for repo in northrays/api northrays/dashboard northrays/proxy northrays/runner northrays/ssh-gateway; do
+            if aws ecr describe-images \
+                 --repository-name "$repo" \
+                 --image-ids "imageTag=$IMAGE_TAG" \
+                 --output text >/dev/null 2>&1; then
+              echo "ok   $repo:$IMAGE_TAG"
+            else
+              echo "::error::$repo:$IMAGE_TAG not found in ECR."
+              rc=1
+            fi
+          done
+          exit "$rc"
+
+  # -------------------------------------------------------------------------
+  migrate-pre:
+    name: Migrations (init + pre-deploy)
+    needs: [prepare, verify-images]
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    outputs:
+      migrations_task_definition: ${{ steps.register.outputs.task_definition_arn }}
+    steps:
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+          role-session-name: gha-migrate-pre-${{ github.run_id }}
+
+      - name: Install ECS one-off task runner
+        # Written to RUNNER_TEMP rather than committed under .github/: the repo's
+        # .licenserc.yaml globs '**/*.sh' with no .github exemption, so a checked-in
+        # helper script would fail the CI license-header job.
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/bin"
+          cat > "$RUNNER_TEMP/bin/run-migration.sh" <<'SCRIPT'
+          #!/usr/bin/env bash
+          # Run one migration script as a one-off ECS task, wait for it to stop,
+          # and fail unless the container exited 0.
+          set -euo pipefail
+
+          MIGRATION_SCRIPT="${1:?usage: run-migration.sh <yarn-script>}"
+          TIMEOUT_SECONDS="${MIGRATION_TIMEOUT_SECONDS:-1800}"
+          POLL_SECONDS=10
+
+          : "${ECS_CLUSTER:?}" "${MIGRATIONS_CONTAINER_NAME:?}" "${TASK_DEFINITION_ARN:?}"
+          : "${ECS_SUBNETS:?}" "${ECS_SECURITY_GROUPS:?}"
+          ASSIGN_PUBLIC_IP="${ECS_ASSIGN_PUBLIC_IP:-DISABLED}"
+          LAUNCH_TYPE="${ECS_LAUNCH_TYPE:-FARGATE}"
+
+          echo "::group::run-task $MIGRATION_SCRIPT"
+
+          overrides=$(jq -nc \
+            --arg name "$MIGRATIONS_CONTAINER_NAME" \
+            --arg script "$MIGRATION_SCRIPT" \
+            '{containerOverrides: [{name: $name, command: ["yarn", $script]}]}')
+
+          network=$(jq -nc \
+            --argjson subnets "$ECS_SUBNETS" \
+            --argjson groups "$ECS_SECURITY_GROUPS" \
+            --arg public "$ASSIGN_PUBLIC_IP" \
+            '{awsvpcConfiguration: {subnets: $subnets, securityGroups: $groups, assignPublicIp: $public}}')
+
+          run_output=$(aws ecs run-task \
+            --cluster "$ECS_CLUSTER" \
+            --task-definition "$TASK_DEFINITION_ARN" \
+            --launch-type "$LAUNCH_TYPE" \
+            --count 1 \
+            --started-by "gha-${GITHUB_RUN_ID:-manual}" \
+            --network-configuration "$network" \
+            --overrides "$overrides" \
+            --output json)
+
+          failures=$(printf '%s' "$run_output" | jq -r '.failures // [] | length')
+          if [ "$failures" != "0" ]; then
+            echo "::error::ECS refused to start the '$MIGRATION_SCRIPT' task:"
+            printf '%s' "$run_output" | jq '.failures'
+            exit 1
+          fi
+
+          task_arn=$(printf '%s' "$run_output" | jq -r '.tasks[0].taskArn')
+          if [ -z "$task_arn" ] || [ "$task_arn" = "null" ]; then
+            echo "::error::run-task returned no taskArn for '$MIGRATION_SCRIPT'."
+            printf '%s' "$run_output"
+            exit 1
+          fi
+          task_id="${task_arn##*/}"
+          echo "task: $task_arn"
+          echo "::endgroup::"
+
+          # Poll rather than `aws ecs wait tasks-stopped`: the waiter caps out at
+          # ~10 minutes, which a large backfill can legitimately exceed.
+          deadline=$(( SECONDS + TIMEOUT_SECONDS ))
+          status=""
+          while [ "$SECONDS" -lt "$deadline" ]; do
+            status=$(aws ecs describe-tasks --cluster "$ECS_CLUSTER" --tasks "$task_arn" \
+              --query 'tasks[0].lastStatus' --output text)
+            if [ "$status" = "STOPPED" ]; then
+              break
+            fi
+            echo "  $MIGRATION_SCRIPT: $status ..."
+            sleep "$POLL_SECONDS"
+          done
+
+          if [ "$status" != "STOPPED" ]; then
+            echo "::error::Migration '$MIGRATION_SCRIPT' did not stop within ${TIMEOUT_SECONDS}s (last status: $status). Stopping it."
+            aws ecs stop-task --cluster "$ECS_CLUSTER" --task "$task_arn" \
+              --reason "timed out in GitHub Actions" >/dev/null || true
+            exit 1
+          fi
+
+          task_json=$(aws ecs describe-tasks --cluster "$ECS_CLUSTER" --tasks "$task_arn" --output json)
+          exit_code=$(printf '%s' "$task_json" \
+            | jq -r --arg name "$MIGRATIONS_CONTAINER_NAME" \
+                '.tasks[0].containers[] | select(.name == $name) | .exitCode // "null"')
+          stopped_reason=$(printf '%s' "$task_json" | jq -r '.tasks[0].stoppedReason // "unknown"')
+
+          # Best-effort log tail — never let a logging problem mask the real result.
+          log_group=$(aws ecs describe-task-definition --task-definition "$TASK_DEFINITION_ARN" \
+            --query "taskDefinition.containerDefinitions[?name=='$MIGRATIONS_CONTAINER_NAME'].logConfiguration.options.\"awslogs-group\" | [0]" \
+            --output text 2>/dev/null || echo "None")
+          log_prefix=$(aws ecs describe-task-definition --task-definition "$TASK_DEFINITION_ARN" \
+            --query "taskDefinition.containerDefinitions[?name=='$MIGRATIONS_CONTAINER_NAME'].logConfiguration.options.\"awslogs-stream-prefix\" | [0]" \
+            --output text 2>/dev/null || echo "None")
+          if [ "$log_group" != "None" ] && [ "$log_prefix" != "None" ]; then
+            echo "::group::logs $MIGRATION_SCRIPT"
+            aws logs get-log-events \
+              --log-group-name "$log_group" \
+              --log-stream-name "${log_prefix}/${MIGRATIONS_CONTAINER_NAME}/${task_id}" \
+              --limit 500 --no-start-from-head \
+              --query 'events[].message' --output text 2>/dev/null || echo "(logs unavailable)"
+            echo "::endgroup::"
+          fi
+
+          if [ "$exit_code" != "0" ]; then
+            echo "::error::Migration '$MIGRATION_SCRIPT' failed (container exit code: $exit_code, stoppedReason: $stopped_reason)."
+            exit 1
+          fi
+
+          echo "Migration '$MIGRATION_SCRIPT' completed successfully."
+          SCRIPT
+          chmod +x "$RUNNER_TEMP/bin/run-migration.sh"
+
+      - name: Discover migration task networking
+        id: network
+        # The migrations task must sit in the same subnets/security groups as the
+        # API so it can reach the database. Read that off the running API service
+        # unless it has been pinned explicitly via repo variables.
+        env:
+          OVERRIDE_SUBNETS: ${{ vars.ECS_SUBNET_IDS }}
+          OVERRIDE_SECURITY_GROUPS: ${{ vars.ECS_SECURITY_GROUP_IDS }}
+          OVERRIDE_ASSIGN_PUBLIC_IP: ${{ vars.ECS_ASSIGN_PUBLIC_IP }}
+        run: |
+          set -euo pipefail
+          if [ -n "${OVERRIDE_SUBNETS:-}" ] && [ -n "${OVERRIDE_SECURITY_GROUPS:-}" ]; then
+            subnets=$(printf '%s' "$OVERRIDE_SUBNETS" | jq -Rc 'split(",") | map(gsub("^\\s+|\\s+$";"")) | map(select(length > 0))')
+            groups=$(printf '%s' "$OVERRIDE_SECURITY_GROUPS" | jq -Rc 'split(",") | map(gsub("^\\s+|\\s+$";"")) | map(select(length > 0))')
+            public="${OVERRIDE_ASSIGN_PUBLIC_IP:-DISABLED}"
+          else
+            cfg=$(aws ecs describe-services \
+              --cluster "$ECS_CLUSTER" \
+              --services "$NETWORK_REFERENCE_SERVICE" \
+              --query 'services[0].networkConfiguration.awsvpcConfiguration' \
+              --output json)
+            if [ -z "$cfg" ] || [ "$cfg" = "null" ]; then
+              echo "::error::Could not read awsvpcConfiguration from service '$NETWORK_REFERENCE_SERVICE'. Set vars.ECS_SUBNET_IDS and vars.ECS_SECURITY_GROUP_IDS instead."
+              exit 1
+            fi
+            subnets=$(printf '%s' "$cfg" | jq -c '.subnets')
+            groups=$(printf '%s' "$cfg" | jq -c '.securityGroups')
+            public=$(printf '%s' "$cfg" | jq -r '.assignPublicIp // "DISABLED"')
+          fi
+          echo "subnets=$subnets" >> "$GITHUB_OUTPUT"
+          echo "security_groups=$groups" >> "$GITHUB_OUTPUT"
+          echo "assign_public_ip=$public" >> "$GITHUB_OUTPUT"
+          echo "subnets: $subnets"
+          echo "securityGroups: $groups"
+
+      - name: Register migrations task definition for this build
+        id: register
+        # containerOverrides cannot override `image`, so pin the new api image by
+        # registering a fresh revision of the northrays-migrations family. The api
+        # image ships the TypeORM CLI + migration sources for exactly this purpose.
+        env:
+          IMAGE: ${{ needs.prepare.outputs.ecr_registry }}/northrays/api:${{ needs.prepare.outputs.image_tag }}
+        run: |
+          set -euo pipefail
+          aws ecs describe-task-definition \
+            --task-definition "$MIGRATIONS_TASK_FAMILY" \
+            --query 'taskDefinition' --output json > current-td.json
+
+          if ! jq -e --arg n "$MIGRATIONS_CONTAINER_NAME" \
+                 '.containerDefinitions | map(select(.name == $n)) | length == 1' current-td.json >/dev/null; then
+            echo "::error::Task definition '$MIGRATIONS_TASK_FAMILY' has no container named '$MIGRATIONS_CONTAINER_NAME'. Set vars.MIGRATIONS_CONTAINER_NAME to the real name."
+            jq -r '.containerDefinitions[].name' current-td.json
+            exit 1
+          fi
+
+          jq --arg image "$IMAGE" --arg n "$MIGRATIONS_CONTAINER_NAME" '
+            .containerDefinitions |= map(if .name == $n then .image = $image else . end)
+            | del(.taskDefinitionArn, .revision, .status, .requiresAttributes,
+                  .compatibilities, .registeredAt, .registeredBy, .deregisteredAt)
+          ' current-td.json > new-td.json
+
+          arn=$(aws ecs register-task-definition \
+            --cli-input-json file://new-td.json \
+            --query 'taskDefinition.taskDefinitionArn' --output text)
+          echo "task_definition_arn=$arn" >> "$GITHUB_OUTPUT"
+          echo "Registered $arn with image $IMAGE"
+
+      - name: Run migration:run:init
+        env:
+          TASK_DEFINITION_ARN: ${{ steps.register.outputs.task_definition_arn }}
+          ECS_SUBNETS: ${{ steps.network.outputs.subnets }}
+          ECS_SECURITY_GROUPS: ${{ steps.network.outputs.security_groups }}
+          ECS_ASSIGN_PUBLIC_IP: ${{ steps.network.outputs.assign_public_ip }}
+          ECS_LAUNCH_TYPE: ${{ vars.ECS_LAUNCH_TYPE || 'FARGATE' }}
+        run: |
+          bash "$RUNNER_TEMP/bin/run-migration.sh" migration:run:init
+
+      - name: Run migration:run:pre-deploy
+        env:
+          TASK_DEFINITION_ARN: ${{ steps.register.outputs.task_definition_arn }}
+          ECS_SUBNETS: ${{ steps.network.outputs.subnets }}
+          ECS_SECURITY_GROUPS: ${{ steps.network.outputs.security_groups }}
+          ECS_ASSIGN_PUBLIC_IP: ${{ steps.network.outputs.assign_public_ip }}
+          ECS_LAUNCH_TYPE: ${{ vars.ECS_LAUNCH_TYPE || 'FARGATE' }}
+        run: |
+          bash "$RUNNER_TEMP/bin/run-migration.sh" migration:run:pre-deploy
+
+  # -------------------------------------------------------------------------
+  deploy:
+    name: Deploy ${{ matrix.service }}
+    needs: [prepare, migrate-pre]
+    runs-on: ubuntu-latest
+    # Headroom for SERVICE_STABLE_RETRIES (3) x the ~10 min services-stable waiter.
+    timeout-minutes: 60
+    strategy:
+      # Roll every service even if one fails, so a single bad service does not
+      # leave the rest on the old (already pre-migrated) image. The job — and
+      # therefore the workflow — still fails, and post-deploy is skipped.
+      fail-fast: false
+      matrix:
+        include:
+          - service: api
+            ecs_service: northrays-api
+            task_family: northrays-api
+            ecr_repository: northrays/api
+          - service: dashboard
+            ecs_service: northrays-dashboard
+            task_family: northrays-dashboard
+            ecr_repository: northrays/dashboard
+          - service: proxy
+            ecs_service: northrays-proxy
+            task_family: northrays-proxy
+            ecr_repository: northrays/proxy
+          - service: ssh-gateway
+            ecs_service: northrays-ssh-gateway
+            task_family: northrays-ssh-gateway
+            ecr_repository: northrays/ssh-gateway
+          - service: runner
+            ecs_service: northrays-runner
+            task_family: northrays-runner
+            ecr_repository: northrays/runner
+    steps:
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+          role-session-name: gha-deploy-${{ matrix.service }}-${{ github.run_id }}
+
+      - name: Render task definition with the new image
+        id: render
+        env:
+          IMAGE: ${{ needs.prepare.outputs.ecr_registry }}/${{ matrix.ecr_repository }}:${{ needs.prepare.outputs.image_tag }}
+          TASK_FAMILY: ${{ matrix.task_family }}
+          CONTAINER_NAME: ${{ matrix.service }}
+        run: |
+          set -euo pipefail
+          aws ecs describe-task-definition \
+            --task-definition "$TASK_FAMILY" \
+            --query 'taskDefinition' --output json > current-td.json
+
+          if ! jq -e --arg n "$CONTAINER_NAME" \
+                 '.containerDefinitions | map(select(.name == $n)) | length == 1' current-td.json >/dev/null; then
+            echo "::error::Task definition '$TASK_FAMILY' has no container named '$CONTAINER_NAME'."
+            jq -r '.containerDefinitions[].name' current-td.json
+            exit 1
+          fi
+
+          # Strip the read-only fields describe-task-definition adds;
+          # register-task-definition rejects them.
+          jq --arg image "$IMAGE" --arg n "$CONTAINER_NAME" '
+            .containerDefinitions |= map(if .name == $n then .image = $image else . end)
+            | del(.taskDefinitionArn, .revision, .status, .requiresAttributes,
+                  .compatibilities, .registeredAt, .registeredBy, .deregisteredAt)
+          ' current-td.json > new-td.json
+
+          arn=$(aws ecs register-task-definition \
+            --cli-input-json file://new-td.json \
+            --query 'taskDefinition.taskDefinitionArn' --output text)
+          echo "task_definition_arn=$arn" >> "$GITHUB_OUTPUT"
+          echo "Registered $arn with image $IMAGE"
+
+      - name: Update service
+        env:
+          ECS_SERVICE: ${{ matrix.ecs_service }}
+          TASK_DEFINITION_ARN: ${{ steps.render.outputs.task_definition_arn }}
+        run: |
+          set -euo pipefail
+          aws ecs update-service \
+            --cluster "$ECS_CLUSTER" \
+            --service "$ECS_SERVICE" \
+            --task-definition "$TASK_DEFINITION_ARN" \
+            --force-new-deployment \
+            --output text --query 'service.serviceName'
+
+      - name: Wait for service stability
+        env:
+          ECS_SERVICE: ${{ matrix.ecs_service }}
+        run: |
+          set -euo pipefail
+          # The `services-stable` waiter caps at 40 polls x 15s = ~10 minutes,
+          # which a slow image pull or a long draining period can exceed. Retry
+          # the waiter rather than failing a deployment that is still healthily
+          # rolling forward; a genuinely broken rollout (or an ECS deployment
+          # circuit breaker rollback) still fails once the retries run out.
+          attempts=0
+          max_attempts="${SERVICE_STABLE_RETRIES:-3}"
+          until aws ecs wait services-stable --cluster "$ECS_CLUSTER" --services "$ECS_SERVICE"; do
+            attempts=$((attempts + 1))
+            if [ "$attempts" -ge "$max_attempts" ]; then
+              echo "::error::Service '$ECS_SERVICE' did not reach a stable state."
+              aws ecs describe-services --cluster "$ECS_CLUSTER" --services "$ECS_SERVICE" \
+                --query 'services[0].{deployments:deployments,events:events[0:10]}' --output json || true
+              exit 1
+            fi
+            echo "Still rolling out; re-arming waiter (attempt $attempts/$max_attempts) ..."
+          done
+          echo "Service '$ECS_SERVICE' is stable."
+
+  # -------------------------------------------------------------------------
+  migrate-post:
+    name: Migrations (post-deploy)
+    needs: [prepare, migrate-pre, deploy]
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+          role-session-name: gha-migrate-post-${{ github.run_id }}
+
+      - name: Install ECS one-off task runner
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/bin"
+          cat > "$RUNNER_TEMP/bin/run-migration.sh" <<'SCRIPT'
+          #!/usr/bin/env bash
+          set -euo pipefail
+
+          MIGRATION_SCRIPT="${1:?usage: run-migration.sh <yarn-script>}"
+          TIMEOUT_SECONDS="${MIGRATION_TIMEOUT_SECONDS:-1800}"
+          POLL_SECONDS=10
+
+          : "${ECS_CLUSTER:?}" "${MIGRATIONS_CONTAINER_NAME:?}" "${TASK_DEFINITION_ARN:?}"
+          : "${ECS_SUBNETS:?}" "${ECS_SECURITY_GROUPS:?}"
+          ASSIGN_PUBLIC_IP="${ECS_ASSIGN_PUBLIC_IP:-DISABLED}"
+          LAUNCH_TYPE="${ECS_LAUNCH_TYPE:-FARGATE}"
+
+          echo "::group::run-task $MIGRATION_SCRIPT"
+
+          overrides=$(jq -nc \
+            --arg name "$MIGRATIONS_CONTAINER_NAME" \
+            --arg script "$MIGRATION_SCRIPT" \
+            '{containerOverrides: [{name: $name, command: ["yarn", $script]}]}')
+
+          network=$(jq -nc \
+            --argjson subnets "$ECS_SUBNETS" \
+            --argjson groups "$ECS_SECURITY_GROUPS" \
+            --arg public "$ASSIGN_PUBLIC_IP" \
+            '{awsvpcConfiguration: {subnets: $subnets, securityGroups: $groups, assignPublicIp: $public}}')
+
+          run_output=$(aws ecs run-task \
+            --cluster "$ECS_CLUSTER" \
+            --task-definition "$TASK_DEFINITION_ARN" \
+            --launch-type "$LAUNCH_TYPE" \
+            --count 1 \
+            --started-by "gha-${GITHUB_RUN_ID:-manual}" \
+            --network-configuration "$network" \
+            --overrides "$overrides" \
+            --output json)
+
+          failures=$(printf '%s' "$run_output" | jq -r '.failures // [] | length')
+          if [ "$failures" != "0" ]; then
+            echo "::error::ECS refused to start the '$MIGRATION_SCRIPT' task:"
+            printf '%s' "$run_output" | jq '.failures'
+            exit 1
+          fi
+
+          task_arn=$(printf '%s' "$run_output" | jq -r '.tasks[0].taskArn')
+          if [ -z "$task_arn" ] || [ "$task_arn" = "null" ]; then
+            echo "::error::run-task returned no taskArn for '$MIGRATION_SCRIPT'."
+            printf '%s' "$run_output"
+            exit 1
+          fi
+          task_id="${task_arn##*/}"
+          echo "task: $task_arn"
+          echo "::endgroup::"
+
+          deadline=$(( SECONDS + TIMEOUT_SECONDS ))
+          status=""
+          while [ "$SECONDS" -lt "$deadline" ]; do
+            status=$(aws ecs describe-tasks --cluster "$ECS_CLUSTER" --tasks "$task_arn" \
+              --query 'tasks[0].lastStatus' --output text)
+            if [ "$status" = "STOPPED" ]; then
+              break
+            fi
+            echo "  $MIGRATION_SCRIPT: $status ..."
+            sleep "$POLL_SECONDS"
+          done
+
+          if [ "$status" != "STOPPED" ]; then
+            echo "::error::Migration '$MIGRATION_SCRIPT' did not stop within ${TIMEOUT_SECONDS}s (last status: $status). Stopping it."
+            aws ecs stop-task --cluster "$ECS_CLUSTER" --task "$task_arn" \
+              --reason "timed out in GitHub Actions" >/dev/null || true
+            exit 1
+          fi
+
+          task_json=$(aws ecs describe-tasks --cluster "$ECS_CLUSTER" --tasks "$task_arn" --output json)
+          exit_code=$(printf '%s' "$task_json" \
+            | jq -r --arg name "$MIGRATIONS_CONTAINER_NAME" \
+                '.tasks[0].containers[] | select(.name == $name) | .exitCode // "null"')
+          stopped_reason=$(printf '%s' "$task_json" | jq -r '.tasks[0].stoppedReason // "unknown"')
+
+          log_group=$(aws ecs describe-task-definition --task-definition "$TASK_DEFINITION_ARN" \
+            --query "taskDefinition.containerDefinitions[?name=='$MIGRATIONS_CONTAINER_NAME'].logConfiguration.options.\"awslogs-group\" | [0]" \
+            --output text 2>/dev/null || echo "None")
+          log_prefix=$(aws ecs describe-task-definition --task-definition "$TASK_DEFINITION_ARN" \
+            --query "taskDefinition.containerDefinitions[?name=='$MIGRATIONS_CONTAINER_NAME'].logConfiguration.options.\"awslogs-stream-prefix\" | [0]" \
+            --output text 2>/dev/null || echo "None")
+          if [ "$log_group" != "None" ] && [ "$log_prefix" != "None" ]; then
+            echo "::group::logs $MIGRATION_SCRIPT"
+            aws logs get-log-events \
+              --log-group-name "$log_group" \
+              --log-stream-name "${log_prefix}/${MIGRATIONS_CONTAINER_NAME}/${task_id}" \
+              --limit 500 --no-start-from-head \
+              --query 'events[].message' --output text 2>/dev/null || echo "(logs unavailable)"
+            echo "::endgroup::"
+          fi
+
+          if [ "$exit_code" != "0" ]; then
+            echo "::error::Migration '$MIGRATION_SCRIPT' failed (container exit code: $exit_code, stoppedReason: $stopped_reason)."
+            exit 1
+          fi
+
+          echo "Migration '$MIGRATION_SCRIPT' completed successfully."
+          SCRIPT
+          chmod +x "$RUNNER_TEMP/bin/run-migration.sh"
+
+      - name: Discover migration task networking
+        id: network
+        env:
+          OVERRIDE_SUBNETS: ${{ vars.ECS_SUBNET_IDS }}
+          OVERRIDE_SECURITY_GROUPS: ${{ vars.ECS_SECURITY_GROUP_IDS }}
+          OVERRIDE_ASSIGN_PUBLIC_IP: ${{ vars.ECS_ASSIGN_PUBLIC_IP }}
+        run: |
+          set -euo pipefail
+          if [ -n "${OVERRIDE_SUBNETS:-}" ] && [ -n "${OVERRIDE_SECURITY_GROUPS:-}" ]; then
+            subnets=$(printf '%s' "$OVERRIDE_SUBNETS" | jq -Rc 'split(",") | map(gsub("^\\s+|\\s+$";"")) | map(select(length > 0))')
+            groups=$(printf '%s' "$OVERRIDE_SECURITY_GROUPS" | jq -Rc 'split(",") | map(gsub("^\\s+|\\s+$";"")) | map(select(length > 0))')
+            public="${OVERRIDE_ASSIGN_PUBLIC_IP:-DISABLED}"
+          else
+            cfg=$(aws ecs describe-services \
+              --cluster "$ECS_CLUSTER" \
+              --services "$NETWORK_REFERENCE_SERVICE" \
+              --query 'services[0].networkConfiguration.awsvpcConfiguration' \
+              --output json)
+            if [ -z "$cfg" ] || [ "$cfg" = "null" ]; then
+              echo "::error::Could not read awsvpcConfiguration from service '$NETWORK_REFERENCE_SERVICE'. Set vars.ECS_SUBNET_IDS and vars.ECS_SECURITY_GROUP_IDS instead."
+              exit 1
+            fi
+            subnets=$(printf '%s' "$cfg" | jq -c '.subnets')
+            groups=$(printf '%s' "$cfg" | jq -c '.securityGroups')
+            public=$(printf '%s' "$cfg" | jq -r '.assignPublicIp // "DISABLED"')
+          fi
+          echo "subnets=$subnets" >> "$GITHUB_OUTPUT"
+          echo "security_groups=$groups" >> "$GITHUB_OUTPUT"
+          echo "assign_public_ip=$public" >> "$GITHUB_OUTPUT"
+
+      - name: Run migration:run:post-deploy
+        env:
+          # Reuse the exact revision migrate-pre registered, so the contract step
+          # runs from the same image as the expand step.
+          TASK_DEFINITION_ARN: ${{ needs.migrate-pre.outputs.migrations_task_definition }}
+          ECS_SUBNETS: ${{ steps.network.outputs.subnets }}
+          ECS_SECURITY_GROUPS: ${{ steps.network.outputs.security_groups }}
+          ECS_ASSIGN_PUBLIC_IP: ${{ steps.network.outputs.assign_public_ip }}
+          ECS_LAUNCH_TYPE: ${{ vars.ECS_LAUNCH_TYPE || 'FARGATE' }}
+        run: |
+          bash "$RUNNER_TEMP/bin/run-migration.sh" migration:run:post-deploy
+
+  # -------------------------------------------------------------------------
+  summary:
+    name: Deploy summary
+    needs: [prepare, build, verify-images, migrate-pre, deploy, migrate-post]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Report
+        env:
+          IMAGE_TAG: ${{ needs.prepare.outputs.image_tag }}
+        run: |
+          set -euo pipefail
+          {
+            echo "### Deploy to \`northrays-production\`"
+            echo
+            echo "| Stage | Result |"
+            echo "| --- | --- |"
+            echo "| Image tag | \`$IMAGE_TAG\` |"
+            echo "| Build | ${{ needs.build.result }} |"
+            echo "| Verify images | ${{ needs.verify-images.result }} |"
+            echo "| Migrations (init + pre-deploy) | ${{ needs.migrate-pre.result }} |"
+            echo "| Deploy services | ${{ needs.deploy.result }} |"
+            echo "| Migrations (post-deploy) | ${{ needs.migrate-post.result }} |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          # Fail the workflow loudly if any required stage did not succeed.
+          for r in "${{ needs.verify-images.result }}" "${{ needs.migrate-pre.result }}" \
+                   "${{ needs.deploy.result }}" "${{ needs.migrate-post.result }}"; do
+            if [ "$r" != "success" ]; then
+              echo "::error::Deploy did not complete cleanly — see the stage table above."
+              exit 1
+            fi
+          done
