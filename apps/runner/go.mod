@@ -5,7 +5,6 @@ go 1.25.5
 require (
 	github.com/containerd/errdefs v1.0.0
 	github.com/coreos/go-iptables v0.8.0
-	github.com/northrays/sandbox-platform/libs/api-client-go v0.149.0
 	github.com/docker/cli v29.2.1+incompatible
 	github.com/docker/docker v28.5.2+incompatible
 	github.com/docker/go-units v0.5.0
@@ -19,6 +18,7 @@ require (
 	github.com/mattn/go-isatty v0.0.20
 	github.com/minio/minio-go/v7 v7.0.91
 	github.com/moby/buildkit v0.28.1
+	github.com/northrays/sandbox-platform/libs/api-client-go v0.149.0
 	github.com/opencontainers/image-spec v1.1.1
 	github.com/orcaman/concurrent-map/v2 v2.0.1
 	github.com/prometheus/client_golang v1.23.2
@@ -160,3 +160,5 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gotest.tools/v3 v3.5.2 // indirect
 )
+
+replace github.com/northrays/sandbox-platform/libs/api-client-go => ../../libs/api-client-go

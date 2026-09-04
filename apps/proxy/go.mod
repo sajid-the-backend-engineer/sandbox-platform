@@ -4,7 +4,6 @@ go 1.25.4
 
 require (
 	github.com/coreos/go-oidc/v3 v3.12.0
-	github.com/northrays/sandbox-platform/libs/api-client-go v0.164.0
 	github.com/gin-contrib/cors v1.7.5
 	github.com/gin-gonic/gin v1.10.1
 	github.com/go-playground/validator/v10 v10.27.0
@@ -12,6 +11,7 @@ require (
 	github.com/joho/godotenv v1.5.1
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/mssola/useragent v1.0.0
+	github.com/northrays/sandbox-platform/libs/api-client-go v0.164.0
 	github.com/prometheus/client_golang v1.23.2
 	github.com/sirupsen/logrus v1.9.4
 	golang.org/x/oauth2 v0.35.0
@@ -56,3 +56,5 @@ require (
 	google.golang.org/protobuf v1.36.11 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+replace github.com/northrays/sandbox-platform/libs/api-client-go => ../../libs/api-client-go

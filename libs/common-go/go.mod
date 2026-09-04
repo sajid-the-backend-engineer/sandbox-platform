@@ -3,9 +3,9 @@ module github.com/northrays/common-go
 go 1.25.4
 
 require (
-	github.com/northrays/sandbox-platform/libs/api-client-go v0.152.1
 	github.com/gin-gonic/gin v1.10.1
 	github.com/jellydator/ttlcache/v3 v3.4.0
+	github.com/northrays/sandbox-platform/libs/api-client-go v0.152.1
 	github.com/redis/go-redis/v9 v9.10.0
 	go.opentelemetry.io/contrib/bridges/otelslog v0.13.0
 	go.opentelemetry.io/contrib/instrumentation/host v0.64.0
@@ -73,3 +73,5 @@ require (
 	google.golang.org/protobuf v1.36.11 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
+
+replace github.com/northrays/sandbox-platform/libs/api-client-go => ../api-client-go
