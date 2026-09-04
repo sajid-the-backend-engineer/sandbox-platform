@@ -180,6 +180,40 @@ module "api" {
 
     DEFAULT_SNAPSHOT = var.default_snapshot
 
+    # Every variable below exists because the api getOrThrows it at boot with no
+    # default: absence is not "feature off", it is a crash loop before the first
+    # request. Audited statically against configuration.ts rather than
+    # discovered one boot failure at a time.
+
+    # Preview URLs. The api substitutes both placeholders; the wildcard
+    # certificate on the ALB covers the resulting hostnames.
+    PROXY_TEMPLATE_URL = "${local.scheme}://{{PORT}}-{{sandboxId}}.proxy.${var.domain_name != "" ? var.domain_name : module.alb.alb_dns_name}"
+
+    # Analytics. Northrays has no PostHog account; the key is a syntactically
+    # plausible non-key so the client constructs and its events go nowhere.
+    # Replace with a real project key to turn product analytics on.
+    POSTHOG_API_KEY     = "phc_disabled"
+    POSTHOG_HOST        = "https://us.i.posthog.com"
+    POSTHOG_ENVIRONMENT = var.environment
+
+    # Container registries for sandbox snapshot images. The platform expects a
+    # basic-auth registry (upstream ran Harbor); none is provisioned yet, and
+    # none is needed until the runner builds its first snapshot -- the runner is
+    # scaled to zero today. These values let the api boot and honestly name the
+    # ECR registry, but pushing snapshots needs a real registry decision first:
+    # either the ECR credential broker path or a small Harbor/registry:2
+    # deployment. Tracked in the README.
+    TRANSIENT_REGISTRY_URL        = "https://${local.account_id}.dkr.ecr.${local.region}.amazonaws.com"
+    TRANSIENT_REGISTRY_ADMIN      = "AWS"
+    TRANSIENT_REGISTRY_PROJECT_ID = "northrays-transient"
+    INTERNAL_REGISTRY_URL         = "https://${local.account_id}.dkr.ecr.${local.region}.amazonaws.com"
+    INTERNAL_REGISTRY_ADMIN       = "AWS"
+    INTERNAL_REGISTRY_PROJECT_ID  = "northrays"
+    # Deliberately not real credentials and not in Secrets Manager: nothing can
+    # authenticate with these, which is the point until a registry exists.
+    TRANSIENT_REGISTRY_PASSWORD = "registry-not-provisioned"
+    INTERNAL_REGISTRY_PASSWORD  = "registry-not-provisioned"
+
     # How long a stopped sandbox may sit before it is archived off the runner.
     # The application default is 30 days, which suits people who return to a
     # workspace. Agents abandon sandboxes on crash or timeout and never come
