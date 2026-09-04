@@ -316,7 +316,7 @@ jobs:
           overrides=$(jq -nc \
             --arg name "$MIGRATIONS_CONTAINER_NAME" \
             --arg script "$MIGRATION_SCRIPT" \
-            '{containerOverrides: [{name: $name, command: ["yarn", $script]}]}')
+            '{containerOverrides: [{name: $name, command: [$script]}]}')
 
           network=$(jq -nc \
             --argjson subnets "$ECS_SUBNETS" \
@@ -639,7 +639,7 @@ jobs:
           overrides=$(jq -nc \
             --arg name "$MIGRATIONS_CONTAINER_NAME" \
             --arg script "$MIGRATION_SCRIPT" \
-            '{containerOverrides: [{name: $name, command: ["yarn", $script]}]}')
+            '{containerOverrides: [{name: $name, command: [$script]}]}')
 
           network=$(jq -nc \
             --argjson subnets "$ECS_SUBNETS" \
