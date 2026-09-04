@@ -12,6 +12,11 @@
 # commonly already present -- creating a second one for the same URL fails with
 # EntityAlreadyExists.
 
+locals {
+  github_owner     = try(split("/", var.github_repository)[0], "")
+  github_repo_name = try(split("/", var.github_repository)[1], "")
+}
+
 data "aws_iam_openid_connect_provider" "github" {
   count = var.github_repository != "" ? 1 : 0
 
@@ -39,10 +44,26 @@ data "aws_iam_policy_document" "github_deploy_assume" {
     # Scoped to this repository. Without this condition ANY GitHub repository in
     # the world could assume the role -- the audience check alone does not
     # identify who is asking.
+    #
+    # Two shapes are accepted because GitHub issues both. The documented form is
+    #   repo:<owner>/<repo>:<ref>
+    # but where immutable ids are enabled the owner and repository carry their
+    # numeric ids:
+    #   repo:<owner>@218566306/<repo>@1355969394:<ref>
+    # Matching only the documented form fails with a bare "Not authorized to
+    # perform sts:AssumeRoleWithWebIdentity", which says nothing about why.
+    #
+    # The ids are still bounded by the literal owner and repository names on
+    # either side, so this does not widen the trust to other repositories.
     condition {
       test     = "StringLike"
       variable = "token.actions.githubusercontent.com:sub"
-      values   = [for r in var.github_deploy_refs : "repo:${var.github_repository}:${r}"]
+      values = flatten([
+        for r in var.github_deploy_refs : [
+          "repo:${var.github_repository}:${r}",
+          "repo:${local.github_owner}@*/${local.github_repo_name}@*:${r}",
+        ]
+      ])
     }
   }
 }

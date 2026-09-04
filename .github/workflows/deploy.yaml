@@ -138,7 +138,11 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 90
     strategy:
-      fail-fast: true
+      # One service failing should not cancel four builds that are fine. The
+      # deploy job needs every image, so a single failure still blocks the
+      # rollout -- this only preserves the successful work and shows the real
+      # failure rather than four "operation was canceled" messages hiding it.
+      fail-fast: false
       matrix:
         include:
           - service: api
