@@ -281,6 +281,39 @@ variable "runner_desired_count" {
 # Data tier
 # ---------------------------------------------------------------------------
 
+variable "use_rds" {
+  description = <<-EOT
+    Run Postgres on RDS (true, the default) or as a container inside the ECS
+    cluster (false).
+
+    Leaving this true changes nothing: RDS is created exactly as before and none
+    of the in-cluster Postgres resources exist.
+
+    Setting it false replaces the managed instance with a single `postgres`
+    container on a dedicated EC2 host, backed by a dedicated EBS volume, and
+    registered in Cloud Map as postgres.<namespace>. That saves the RDS bill and
+    costs, concretely:
+
+      - No point-in-time recovery. Recovery granularity becomes "the last
+        scheduled pg_dump", which is daily by default.
+      - No standby and no automatic failover. Losing the host or the AZ is a
+        hard outage until an instance comes back and re-attaches the volume.
+      - Downtime on every task replacement. The service is configured to stop
+        the old task before starting the new one, because two Postgres processes
+        on one data directory would corrupt it.
+      - Self-managed everything: version upgrades, tuning, vacuum monitoring.
+
+    It is a defensible trade for a handful of users. It is not a production
+    database posture, and the README section "Postgres in the cluster" spells out
+    the restore procedure you will need.
+
+    Read directly from configuration and never derived from a resource
+    attribute, because it drives `count` on roughly thirty resources.
+  EOT
+  type        = bool
+  default     = true
+}
+
 variable "db_instance_class" {
   description = "RDS instance class."
   type        = string
@@ -303,6 +336,134 @@ variable "db_backup_retention_days" {
   description = "Automated backup retention in days."
   type        = number
   default     = 14
+}
+
+# ---------------------------------------------------------------------------
+# In-cluster Postgres
+#
+# Every variable below is inert while use_rds is true.
+# ---------------------------------------------------------------------------
+
+variable "postgres_data_volume_size" {
+  description = <<-EOT
+    Size in GiB of the dedicated EBS volume holding the Postgres data directory.
+
+    This is NOT the instance root volume: it is a separate gp3 volume that
+    survives instance replacement and carries prevent_destroy. Growing it later
+    is a modify-volume plus an online xfs_growfs; shrinking it is not possible.
+  EOT
+  type        = number
+  default     = 50
+}
+
+variable "postgres_data_volume_iops" {
+  description = "Provisioned IOPS for the gp3 data volume. 3000 is the gp3 baseline and is included in the per-GiB price."
+  type        = number
+  default     = 3000
+}
+
+variable "postgres_data_volume_throughput" {
+  description = "Provisioned throughput in MiB/s for the gp3 data volume. 125 is the included baseline."
+  type        = number
+  default     = 125
+}
+
+variable "postgres_data_mount_path" {
+  description = "Where the data volume is mounted on the host. The ECS task bind-mounts <path>/data, so the filesystem root itself never becomes the data directory."
+  type        = string
+  default     = "/mnt/pgdata"
+}
+
+variable "postgres_instance_type" {
+  description = <<-EOT
+    EC2 instance type for the Postgres host.
+
+    t3.medium (2 vCPU / 4 GiB) is sized for the handful of users this mode is
+    intended for. Raise postgres_task_memory alongside it if you change this --
+    the task's hard memory limit has to stay below what the instance actually
+    registers with ECS, which is a few hundred MiB less than its nominal RAM.
+  EOT
+  type        = string
+  default     = "t3.medium"
+}
+
+variable "postgres_root_volume_size" {
+  description = "Root EBS volume size in GiB on the Postgres host. Holds the OS and the container image only -- the database lives on the separate data volume."
+  type        = number
+  default     = 30
+}
+
+variable "postgres_subnet_index" {
+  description = <<-EOT
+    Index into the private subnet list picking the one subnet the Postgres host
+    and its task run in.
+
+    A single subnet, not the full list, because an EBS volume exists in exactly
+    one availability zone and can only attach to an instance in that same zone.
+    The data volume is created in the AZ of this subnet.
+
+    Must be less than az_count. Changing it after the volume exists does NOT
+    move the data -- you would be pointing a host in one AZ at a volume in
+    another, and it would never attach.
+  EOT
+  type        = number
+  default     = 0
+}
+
+variable "postgres_image" {
+  description = <<-EOT
+    Postgres container image. Matches the version in docker/docker-compose.yaml
+    (postgres:18) so development and production run the same major version.
+
+    Pulled from the ECR Public mirror of the Docker official image rather than
+    from Docker Hub directly, because ECR Public needs no credentials and has no
+    anonymous pull rate limit.
+  EOT
+  type        = string
+  default     = "public.ecr.aws/docker/library/postgres:18"
+}
+
+variable "postgres_task_cpu" {
+  description = "CPU units for the Postgres task."
+  type        = number
+  default     = 1024
+}
+
+variable "postgres_task_memory" {
+  description = "Hard memory limit in MiB for the Postgres task. Must be below the memory the host registers with ECS, or the task is unplaceable and the service never starts."
+  type        = number
+  default     = 2560
+}
+
+variable "postgres_backup_image" {
+  description = <<-EOT
+    Image for the scheduled pg_dump task. Empty means use postgres_image, which
+    is the right default: pg_dump refuses to dump a server newer than itself, so
+    the client version must track the server version.
+
+    Point this at a pre-baked image containing pg_dump and the AWS CLI to remove
+    the runtime package install the backup script otherwise performs.
+  EOT
+  type        = string
+  default     = ""
+}
+
+variable "postgres_backup_schedule" {
+  description = "EventBridge Scheduler expression for the pg_dump job, interpreted in UTC. Daily at 08:00 UTC by default."
+  type        = string
+  default     = "cron(0 8 * * ? *)"
+}
+
+variable "postgres_backup_retention_days" {
+  description = <<-EOT
+    Days a pg_dump object is kept in the backup bucket before S3 expires it.
+
+    With no RDS there are no automated snapshots, so this number is the entire
+    recovery window. Zero disables the prefix rule and lets dumps fall under the
+    bucket-wide 90-day snapshot expiry instead.
+  EOT
+  type        = number
+  default     = 30
 }
 
 variable "redis_node_type" {

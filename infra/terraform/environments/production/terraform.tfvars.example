@@ -106,10 +106,32 @@ runner_desired_count        = 1
 # Data tier
 # ---------------------------------------------------------------------------
 
+# true  -> managed RDS Postgres (the default, and what these db_* settings size)
+# false -> Postgres as a container in the cluster on a dedicated EBS volume
+#
+# Read the "Postgres in the cluster" section of ../../README.md before setting
+# this false. It trades the RDS bill for no point-in-time recovery, no failover,
+# downtime on every task replacement, and a restore procedure you run by hand.
+use_rds = true
+
 db_instance_class        = "db.t4g.medium"
 db_allocated_storage     = 50
 db_multi_az              = true
 db_backup_retention_days = 14
+
+# All inert while use_rds is true.
+#
+# postgres_subnet_index picks the availability zone the data volume and its host
+# are pinned to; it must be less than az_count and must not be changed once the
+# volume holds data.
+# postgres_data_volume_size can be grown later but never shrunk.
+# postgres_backup_retention_days is the entire recovery window in this mode.
+# postgres_data_volume_size      = 50
+# postgres_subnet_index          = 0
+# postgres_instance_type         = "t3.medium"
+# postgres_task_memory           = 2560
+# postgres_backup_schedule       = "cron(0 8 * * ? *)"
+# postgres_backup_retention_days = 30
 
 redis_node_type     = "cache.t4g.micro"
 redis_replica_count = 1

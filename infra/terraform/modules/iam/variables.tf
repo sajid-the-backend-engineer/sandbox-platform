@@ -12,6 +12,19 @@ variable "service_names" {
   default     = ["api", "dashboard", "proxy", "ssh-gateway", "runner"]
 }
 
+variable "extra_service_names" {
+  description = <<-EOT
+    Additional services that get a task role, concatenated onto service_names.
+
+    For workloads only some deployments run -- the in-cluster Postgres service
+    and its backup task -- so an environment can add them without restating the
+    default list. Any service-specific policy is attached by the caller using
+    the task_role_names output.
+  EOT
+  type        = list(string)
+  default     = []
+}
+
 variable "ecr_repository_arns" {
   description = "ECR repository ARNs the task execution role may pull from. Scoping to these means a compromised execution role cannot enumerate or pull unrelated images in the account."
   type        = list(string)

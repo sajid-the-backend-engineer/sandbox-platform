@@ -36,15 +36,33 @@ locals {
     path_patterns = ["/proxy", "/proxy/*"]
   }
 
-  # Shared data-tier settings. TLS is on for both because the RDS parameter group
-  # sets rds.force_ssl and the ElastiCache group enables transit encryption --
-  # a client that does not opt in simply cannot connect.
-  db_environment = {
+  # Shared data-tier settings.
+  #
+  # On RDS, TLS is on because the parameter group sets rds.force_ssl -- a client
+  # that does not opt in simply cannot connect.
+  #
+  # With Postgres in the cluster it is off, and that is not a preference. The
+  # stock postgres image serves plain TCP with no server certificate at all, so
+  # DB_TLS_ENABLED = "true" would make every connection fail at the handshake
+  # rather than degrade to plaintext. The traffic stays inside the VPC, on a
+  # security group that admits three named source groups, which is the mitigation
+  # such as it is. Turning TLS back on means giving the container a certificate
+  # and a postgresql.conf, not flipping this string.
+  #
+  # Selected from var.use_rds directly. module.data's db_* outputs fall back to
+  # safe values when RDS is absent, so neither branch can produce a null.
+  db_environment = var.use_rds ? {
     DB_HOST        = module.data.db_host
     DB_PORT        = tostring(module.data.db_port)
     DB_USERNAME    = module.data.db_username
     DB_DATABASE    = module.data.db_name
     DB_TLS_ENABLED = "true"
+    } : {
+    DB_HOST        = local.postgres_internal_host
+    DB_PORT        = "5432"
+    DB_USERNAME    = module.data.db_username
+    DB_DATABASE    = module.data.db_name
+    DB_TLS_ENABLED = "false"
   }
 
   redis_environment = {

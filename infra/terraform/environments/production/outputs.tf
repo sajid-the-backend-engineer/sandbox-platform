@@ -113,8 +113,28 @@ output "nat_gateway_public_ips" {
 }
 
 output "db_endpoint" {
-  description = "Postgres hostname. The password is in Secrets Manager, never here."
-  value       = module.data.db_host
+  description = "Postgres hostname, wherever it currently lives. The password is in Secrets Manager, never here."
+  value       = local.db_environment.DB_HOST
+}
+
+output "postgres_mode" {
+  description = "Where Postgres runs: \"rds\" for the managed instance, \"in-cluster\" for the container on a dedicated EBS volume."
+  value       = var.use_rds ? "rds" : "in-cluster"
+}
+
+output "postgres_data_volume_id" {
+  description = <<-EOT
+    EBS volume holding the database, when Postgres runs in the cluster.
+
+    This carries prevent_destroy. Tearing the stack down means deleting it by
+    hand after the rest of the destroy -- see the README. Empty on RDS.
+  EOT
+  value       = one(aws_ebs_volume.postgres[*].id) != null ? one(aws_ebs_volume.postgres[*].id) : ""
+}
+
+output "postgres_backup_location" {
+  description = "S3 prefix scheduled pg_dump output is written to. Empty on RDS, which backs itself up."
+  value       = var.use_rds ? "" : "s3://${module.data.backup_bucket_name}/${local.postgres_backup_prefix}"
 }
 
 output "redis_endpoint" {

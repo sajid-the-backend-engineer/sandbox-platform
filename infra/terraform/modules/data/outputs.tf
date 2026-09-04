@@ -1,34 +1,48 @@
 # Copyright © 2026 Northrays Private Limited
 # SPDX-License-Identifier: AGPL-3.0
 
+# The db_* outputs use splat + one() rather than a [0] index so that they stay
+# evaluable when create_rds is false. An index into a zero-count resource is an
+# error even inside the untaken branch of a conditional, and these outputs are
+# read by callers that branch on the same flag.
+#
+# db_name and db_username fall back to the module's own variables rather than to
+# empty strings: a caller running Postgres in-cluster still needs to know which
+# database and role the api expects, and those are the same values either way.
+
 output "db_host" {
-  description = "Postgres endpoint hostname, without the port. Injected as DB_HOST."
-  value       = aws_db_instance.this.address
+  description = "Postgres endpoint hostname, without the port. Injected as DB_HOST. Empty when create_rds is false."
+  value       = one(aws_db_instance.this[*].address) != null ? one(aws_db_instance.this[*].address) : ""
 }
 
 output "db_port" {
   description = "Postgres port. Injected as DB_PORT."
-  value       = aws_db_instance.this.port
+  value       = one(aws_db_instance.this[*].port) != null ? one(aws_db_instance.this[*].port) : 5432
 }
 
 output "db_name" {
-  description = "Application database name. Injected as DB_DATABASE."
-  value       = aws_db_instance.this.db_name
+  description = "Application database name. Injected as DB_DATABASE. Falls back to var.db_name when create_rds is false."
+  value       = one(aws_db_instance.this[*].db_name) != null ? one(aws_db_instance.this[*].db_name) : var.db_name
 }
 
 output "db_username" {
-  description = "Postgres master username. Injected as DB_USERNAME."
-  value       = aws_db_instance.this.username
+  description = "Postgres master username. Injected as DB_USERNAME. Falls back to var.db_username when create_rds is false."
+  value       = one(aws_db_instance.this[*].username) != null ? one(aws_db_instance.this[*].username) : var.db_username
 }
 
 output "db_instance_arn" {
-  description = "ARN of the RDS instance."
-  value       = aws_db_instance.this.arn
+  description = "ARN of the RDS instance. Empty when create_rds is false."
+  value       = one(aws_db_instance.this[*].arn) != null ? one(aws_db_instance.this[*].arn) : ""
 }
 
 output "db_security_group_id" {
-  description = "Security group guarding Postgres."
-  value       = aws_security_group.rds.id
+  description = "Security group guarding Postgres. Null when create_rds is false -- there is no RDS instance to guard."
+  value       = one(aws_security_group.rds[*].id)
+}
+
+output "rds_enabled" {
+  description = "Whether this module created a managed RDS instance. Mirrors var.create_rds and is safe to branch on at plan time."
+  value       = var.create_rds
 }
 
 output "redis_host" {

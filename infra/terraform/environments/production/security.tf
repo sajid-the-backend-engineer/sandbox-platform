@@ -13,10 +13,28 @@
 # Nothing is open to a CIDR range except the two load balancers' public ingress.
 
 locals {
-  # Postgres is reached only by the api. The proxy, ssh-gateway and runner all
-  # go through the api rather than holding their own database connections.
-  postgres_clients = {
+  # Postgres is reached only by the api and the one-shot migration task. The
+  # proxy, ssh-gateway and runner all go through the api rather than holding
+  # their own database connections -- there is no separate worker process in
+  # this stack, the api does that work in-process.
+  #
+  # Which set is populated depends on where Postgres lives. Both are guarded by
+  # var.use_rds, a configuration value, so the for_each key sets are decidable
+  # at plan time; the map VALUES are security group IDs that are only known
+  # after apply, which for_each permits.
+  postgres_clients = var.use_rds ? {
     api = module.api.security_group_id
+  } : {}
+
+  # The in-cluster Postgres task has one more client than RDS did: the scheduled
+  # pg_dump task, which RDS did not need because RDS backed itself up.
+  #
+  # one() rather than a [0] index -- an index into a zero-count resource is an
+  # error even in the branch that is not taken.
+  in_cluster_postgres_clients = var.use_rds ? {} : {
+    api        = module.api.security_group_id
+    migrations = aws_security_group.migrations.id
+    backup     = one(aws_security_group.postgres_backup[*].id)
   }
 
   # Redis is shared by the api and the proxy for caching, rate limiting and
@@ -63,9 +81,26 @@ resource "aws_vpc_security_group_ingress_rule" "redis" {
 # The one-shot migration task runs under the api's task role but gets its own
 # security group, so it needs its own path to Postgres.
 resource "aws_vpc_security_group_ingress_rule" "postgres_from_migrations" {
+  count = var.use_rds ? 1 : 0
+
   security_group_id            = module.data.db_security_group_id
   description                  = "Postgres from the migration task"
   referenced_security_group_id = aws_security_group.migrations.id
+  from_port                    = 5432
+  to_port                      = 5432
+  ip_protocol                  = "tcp"
+}
+
+# The same access, aimed at the in-cluster Postgres task's own ENI instead of at
+# RDS. Exactly one of these two rule sets exists in any given deployment.
+resource "aws_vpc_security_group_ingress_rule" "postgres_in_cluster" {
+  for_each = local.in_cluster_postgres_clients
+
+  # Safe to index: this resource only has instances when the for_each map is
+  # non-empty, which is precisely when the task security group exists.
+  security_group_id            = aws_security_group.postgres_task[0].id
+  description                  = "Postgres from ${each.key}"
+  referenced_security_group_id = each.value
   from_port                    = 5432
   to_port                      = 5432
   ip_protocol                  = "tcp"

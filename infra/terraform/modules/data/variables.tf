@@ -50,6 +50,23 @@ variable "redis_auth_token_secret_arn" {
 # Postgres
 # ---------------------------------------------------------------------------
 
+variable "create_rds" {
+  description = <<-EOT
+    Create the managed RDS Postgres instance and everything that only exists to
+    serve it: the subnet group, parameter group, security group and enhanced
+    monitoring role.
+
+    False is for callers that run Postgres as a container in the ECS cluster
+    instead (see environments/production/postgres.tf). Redis and the S3 buckets
+    in this module are unaffected either way.
+
+    This is a plain configuration value on purpose: it drives `count` on several
+    resources below, and a count must be decidable at plan time.
+  EOT
+  type        = bool
+  default     = true
+}
+
 variable "db_engine_version" {
   description = "Postgres major.minor version. Only the major version is pinned in the parameter group family."
   type        = string
@@ -168,6 +185,25 @@ variable "backup_bucket_expiry_days" {
   description = "Days before runner snapshot backups are expired. Zero disables expiry and lets the bucket grow without bound."
   type        = number
   default     = 90
+}
+
+variable "postgres_dump_prefix" {
+  description = "Key prefix in the backup bucket that scheduled pg_dump output is written under. Only meaningful when create_rds is false."
+  type        = string
+  default     = "postgres/"
+}
+
+variable "postgres_dump_retention_days" {
+  description = <<-EOT
+    Days before scheduled pg_dump objects under postgres_dump_prefix are expired.
+
+    Zero disables the prefix rule, in which case dumps fall under the bucket-wide
+    backup_bucket_expiry_days rule instead. Set this SHORTER than
+    backup_bucket_expiry_days or it has no effect: when two lifecycle rules match
+    one object, the earlier expiry wins.
+  EOT
+  type        = number
+  default     = 0
 }
 
 variable "tags" {

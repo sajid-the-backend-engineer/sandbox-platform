@@ -79,14 +79,18 @@ resource "aws_ecs_task_definition" "migrations" {
     command          = ["migration:run:pre-deploy"]
     workingDirectory = "/northrays"
 
+    # Built from the same local the api's environment is, so the two cannot
+    # disagree about where Postgres is or whether to speak TLS to it. A
+    # migration task pointed at a different host than the api is a subtle and
+    # expensive mistake.
     environment = [
       { name = "NODE_ENV", value = "production" },
       { name = "ENVIRONMENT", value = var.environment },
-      { name = "DB_HOST", value = module.data.db_host },
-      { name = "DB_PORT", value = tostring(module.data.db_port) },
-      { name = "DB_USERNAME", value = module.data.db_username },
-      { name = "DB_DATABASE", value = module.data.db_name },
-      { name = "DB_TLS_ENABLED", value = "true" },
+      { name = "DB_HOST", value = local.db_environment.DB_HOST },
+      { name = "DB_PORT", value = local.db_environment.DB_PORT },
+      { name = "DB_USERNAME", value = local.db_environment.DB_USERNAME },
+      { name = "DB_DATABASE", value = local.db_environment.DB_DATABASE },
+      { name = "DB_TLS_ENABLED", value = local.db_environment.DB_TLS_ENABLED },
     ]
 
     secrets = [

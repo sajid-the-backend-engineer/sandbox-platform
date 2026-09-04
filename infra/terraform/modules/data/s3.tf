@@ -133,6 +133,25 @@ resource "aws_s3_bucket_lifecycle_configuration" "backups" {
     }
   }
 
+  # Scheduled pg_dump output, when Postgres runs in-cluster rather than on RDS.
+  # These are the only copy of the database, so they get their own retention
+  # knob instead of inheriting the snapshot expiry above.
+  #
+  # Disabled rather than omitted when the retention is zero: an omitted rule
+  # would churn the whole lifecycle configuration in and out on every toggle.
+  rule {
+    id     = "expire-postgres-dumps"
+    status = var.postgres_dump_retention_days > 0 ? "Enabled" : "Disabled"
+
+    filter {
+      prefix = var.postgres_dump_prefix
+    }
+
+    expiration {
+      days = var.postgres_dump_retention_days > 0 ? var.postgres_dump_retention_days : 365
+    }
+  }
+
   rule {
     id     = "abort-incomplete-multipart-uploads"
     status = "Enabled"

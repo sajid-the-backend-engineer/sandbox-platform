@@ -28,6 +28,8 @@ infra/terraform/
     service-ec2-runner/  EC2 ASG, capacity provider, and the runner service
   environments/
     production/          Wires the modules together
+      postgres.tf        Optional in-cluster Postgres (use_rds = false)
+      postgres_backup.tf Its scheduled pg_dump to S3
 ```
 
 Modules are wired only in `environments/production/main.tf`,
@@ -267,6 +269,154 @@ lives in Secrets Manager:
 2. `aws rds modify-db-instance --db-instance-identifier northrays-production-postgres --master-user-password '<new>' --apply-immediately`
 
 Then restart the api service so tasks pick up the new value.
+
+With `use_rds = false` step 2 is instead an `ALTER ROLE northrays PASSWORD '<new>'`
+inside the container. `POSTGRES_PASSWORD` is only read by `initdb` on the very
+first boot; changing the secret afterwards does not change the role's password.
+
+## Postgres in the cluster
+
+`use_rds = false` replaces the managed RDS instance with a `postgres:18`
+container running on a dedicated EC2 host inside the ECS cluster. RDS remains
+fully defined and working — the flag is a switch, not a deletion, and setting it
+back to `true` recreates the identical instance.
+
+This exists because RDS is the largest single line on the bill and a deployment
+with a handful of users may reasonably decide it is not worth it. **It is not a
+production database posture.** Read what follows before choosing it.
+
+### What it actually costs you
+
+| | RDS | In-cluster |
+| --- | --- | --- |
+| Point-in-time recovery | Yes, to the second | **No.** The last `pg_dump` — daily by default |
+| Failover | Multi-AZ standby, automatic | **None.** Losing the host or its AZ is a hard outage |
+| Deploys | Rolling, no downtime | **Stop-then-start.** Every task replacement is a database outage of a minute or two, and the api errors throughout |
+| Backups | Automatic and continuous | A scheduled `pg_dump` this stack creates for you |
+| Upgrades, tuning, vacuum monitoring | AWS's problem | Yours |
+| TLS on the wire | Forced by `rds.force_ssl` | **Off.** The stock image serves plain TCP |
+
+`DB_TLS_ENABLED` flips to `"false"` automatically in this mode. That is not a
+preference: the stock image has no server certificate, so leaving TLS on makes
+every connection fail at the handshake. Traffic stays inside the VPC on a
+security group that admits three named source groups — the api, the migration
+task, and the backup task — and nothing else.
+
+### How it is put together
+
+- A **dedicated `gp3` EBS volume** (`postgres_data_volume_size`, 50 GiB by
+  default, encrypted) holds the data directory. Not the instance root volume,
+  which would be deleted with its instance.
+- An EBS volume lives in **one availability zone**, so the host is a dedicated
+  autoscaling group of exactly one instance pinned to a single subnet
+  (`postgres_subnet_index`). The runner's multi-AZ group is not reused: a host
+  in the wrong AZ could never attach the volume.
+- On boot the instance **attaches the volume by ID**, waits for the device,
+  checks with `lsblk`, `blkid` and `file -s` whether it already holds a
+  filesystem, and formats **only** when all three agree it is blank. Anything
+  ambiguous is a hard failure that leaves the data untouched. It then mounts at
+  `/mnt/pgdata` by UUID.
+- `/etc/ecs/ecs.config` is written **last**, after the mount succeeds. If any of
+  the above fails the instance never joins the cluster at all, so the service
+  stays pending rather than starting Postgres on an empty root-volume directory
+  and quietly initialising a fresh, empty database.
+- That config sets the ECS attribute `northrays.role=postgres`, and the service
+  carries a matching `memberOf` placement constraint. Runner tasks cannot land
+  there — they place through a capacity provider bound to the runner ASG.
+- The service uses EC2 launch type (Fargate cannot bind-mount a host path) with
+  `deployment_minimum_healthy_percent = 0` and `maximum_percent = 100`, so the
+  old task releases the volume before the new one starts. Two Postgres processes
+  on one data directory corrupt it.
+- It registers in Cloud Map as `postgres.northrays.internal`, and reuses the
+  existing `DB_PASSWORD` secret as `POSTGRES_PASSWORD`. There is no second
+  secret to drift.
+
+### Backups
+
+A daily `pg_dump` runs as a Fargate task driven by EventBridge Scheduler
+(`postgres_backup_schedule`, 08:00 UTC by default) and writes a custom-format
+dump to the backup bucket:
+
+```
+s3://northrays-production-backups-<account>/postgres/YYYY/MM/DD/northrays-<timestamp>.dump
+```
+
+S3 expires them after `postgres_backup_retention_days` (30). The task checks the
+dump's size before uploading and reads the object back afterwards, and exits
+non-zero if any step fails.
+
+Nothing alerts on that failure. **Add a CloudWatch alarm on the
+`/ecs/northrays-production/postgres-backup` log group, or on the task's exit
+code, before you rely on this.** Check it is working:
+
+```bash
+aws s3 ls s3://$(terraform output -raw backup_bucket)/postgres/ --recursive | tail
+```
+
+Run one on demand:
+
+```bash
+aws ecs run-task --cluster northrays-production \
+  --task-definition northrays-postgres-backup --launch-type FARGATE \
+  --network-configuration "awsvpcConfiguration={subnets=[$SUBNETS],securityGroups=[$SGS],assignPublicIp=DISABLED}"
+```
+
+### Restoring from a dump
+
+There is no console button for this. The procedure:
+
+1. **Stop the api** so nothing writes during the restore:
+   `aws ecs update-service --cluster northrays-production --service northrays-api --desired-count 0`
+2. Fetch the dump you want:
+   `aws s3 cp s3://<bucket>/postgres/2026/09/01/northrays-<ts>.dump ./restore.dump`
+3. Get a shell in the Postgres task:
+   ```bash
+   aws ecs execute-command --cluster northrays-production \
+     --task <task-id> --container postgres --interactive --command /bin/bash
+   ```
+   The dump has to reach the container. The simplest route is to copy it onto
+   the host over Session Manager (`aws ssm start-session --target <instance-id>`)
+   into `/mnt/pgdata/data`, which is the same directory the container sees as
+   `/var/lib/postgresql/data`.
+4. Restore into a clean database:
+   ```bash
+   dropdb  -U northrays northrays
+   createdb -U northrays northrays
+   pg_restore -U northrays -d northrays --no-owner --no-privileges /var/lib/postgresql/data/restore.dump
+   ```
+5. Scale the api back up.
+
+Practise this once on a throwaway stack. A restore procedure that has never been
+run is not a backup strategy.
+
+### Tearing it down
+
+The data volume carries `prevent_destroy`. `terraform destroy` will fail while it
+exists, and so will flipping `use_rds` back to `true` — which would otherwise
+silently delete the only copy of the database. That is the intended behaviour.
+
+Removing it is a conscious two-step:
+
+```bash
+terraform state rm aws_ebs_volume.postgres[0]
+aws ec2 delete-volume --volume-id $(terraform output -raw postgres_data_volume_id)
+```
+
+Take a final `pg_dump` first. Nothing else will.
+
+### Migrating between the two modes
+
+Terraform does not move the data for you; the switch changes where the api
+points, nothing more.
+
+- **RDS → in-cluster:** dump with `pg_dump` against the RDS endpoint, apply with
+  `use_rds = false`, then restore into the container as above before scaling the
+  api back up.
+- **In-cluster → RDS:** dump from the container, apply with `use_rds = true`,
+  restore into the new RDS instance, then delete the EBS volume by hand.
+
+Either way the migration task definitions and the api both follow the flag, so
+run the three migration phases against the new location before serving traffic.
 
 ## What a human must do before this can deploy
 

@@ -11,7 +11,9 @@
 # avoids a dependency cycle between this module and that one.
 
 resource "aws_cloudwatch_log_group" "this" {
-  for_each = toset(var.log_group_services)
+  # Both lists are plain configuration, so the key set is fully known at plan
+  # time regardless of what the rest of the stack resolves to.
+  for_each = toset(concat(var.log_group_services, var.extra_log_group_services))
 
   name              = "/ecs/${var.cluster_name}/${each.value}"
   retention_in_days = var.log_retention_days

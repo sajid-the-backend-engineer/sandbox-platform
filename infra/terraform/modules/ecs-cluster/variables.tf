@@ -41,6 +41,19 @@ variable "log_group_services" {
   ]
 }
 
+variable "extra_log_group_services" {
+  description = <<-EOT
+    Additional log groups to create alongside log_group_services.
+
+    This exists so an environment can add workloads that only some deployments
+    run -- the in-cluster Postgres service and its backup task, for instance --
+    without restating the whole default list. It is concatenated, not merged, so
+    a name appearing in both lists still yields exactly one log group.
+  EOT
+  type        = list(string)
+  default     = []
+}
+
 variable "log_retention_days" {
   description = "CloudWatch Logs retention in days. Zero means never expire, which is rarely what you want given log ingestion is billed by volume and storage accrues indefinitely."
   type        = number

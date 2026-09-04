@@ -6,8 +6,14 @@
 # AWS API calls at all (dashboard, ssh-gateway) still gets a role, because having
 # a distinct identity per service is what makes CloudTrail readable.
 
+locals {
+  # Concatenation of two configuration lists, so the key set is known at plan
+  # time and never depends on a resource attribute.
+  all_service_names = toset(concat(var.service_names, var.extra_service_names))
+}
+
 resource "aws_iam_role" "task" {
-  for_each = toset(var.service_names)
+  for_each = local.all_service_names
 
   name               = "${var.name}-${each.value}-task"
   description        = "Application task role for the ${each.value} service."
@@ -68,7 +74,7 @@ data "aws_iam_policy_document" "ecs_exec" {
 }
 
 resource "aws_iam_role_policy" "ecs_exec" {
-  for_each = var.enable_ecs_exec ? toset(var.service_names) : toset([])
+  for_each = var.enable_ecs_exec ? local.all_service_names : toset([])
 
   name   = "ecs-exec"
   role   = aws_iam_role.task[each.value].id

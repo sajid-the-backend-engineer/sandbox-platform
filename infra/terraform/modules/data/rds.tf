@@ -3,8 +3,18 @@
 
 # The single Postgres database backing the api. All three TypeORM migration
 # phases (init, pre-deploy, post-deploy) run against this one instance.
+#
+# Every resource in this file is guarded by `count` on var.create_rds so the
+# caller can opt out of managed Postgres and run it as a container in the ECS
+# cluster instead. The guard is a variable, never a resource attribute, so the
+# count is always resolvable at plan time.
+#
+# Nothing here is deleted when create_rds is false: flipping it back to true
+# recreates the identical instance from the same configuration.
 
 data "aws_secretsmanager_secret_version" "db_password" {
+  count = var.create_rds ? 1 : 0
+
   secret_id = var.db_password_secret_arn
 }
 
@@ -13,6 +23,8 @@ locals {
 }
 
 resource "aws_db_subnet_group" "this" {
+  count = var.create_rds ? 1 : 0
+
   name        = "${var.name}-db"
   description = "Private database subnets for ${var.name} Postgres"
   subnet_ids  = var.database_subnet_ids
@@ -21,6 +33,8 @@ resource "aws_db_subnet_group" "this" {
 }
 
 resource "aws_security_group" "rds" {
+  count = var.create_rds ? 1 : 0
+
   name_prefix = "${var.name}-rds-"
   description = "Postgres access for ${var.name}. Ingress only from application security groups."
   vpc_id      = var.vpc_id
@@ -38,10 +52,13 @@ resource "aws_security_group" "rds" {
 # Keyed by index, not by toset(): security group IDs are apply-time values, and
 # a for_each set takes its keys from its values, so unknown members would abort
 # the plan.
+#
+# The create_rds guard is applied to the map itself rather than to each rule, so
+# the for_each collapses to an empty map from configuration alone.
 resource "aws_vpc_security_group_ingress_rule" "rds_from_apps" {
-  for_each = { for i, sg in var.allowed_security_group_ids : tostring(i) => sg }
+  for_each = var.create_rds ? { for i, sg in var.allowed_security_group_ids : tostring(i) => sg } : {}
 
-  security_group_id            = aws_security_group.rds.id
+  security_group_id            = aws_security_group.rds[0].id
   description                  = "Postgres from application security group ${each.key}"
   referenced_security_group_id = each.value
   from_port                    = 5432
@@ -54,6 +71,8 @@ resource "aws_vpc_security_group_ingress_rule" "rds_from_apps" {
 # only applies when no rules are defined via the aws_security_group resource itself.
 
 resource "aws_db_parameter_group" "this" {
+  count = var.create_rds ? 1 : 0
+
   name_prefix = "${var.name}-pg${local.db_major_version}-"
   family      = "postgres${local.db_major_version}"
   description = "Postgres tuning for ${var.name}"
@@ -87,6 +106,8 @@ resource "aws_db_parameter_group" "this" {
 # Enhanced monitoring gives per-second OS metrics, which is how you tell a slow
 # query apart from a starved instance.
 resource "aws_iam_role" "rds_monitoring" {
+  count = var.create_rds ? 1 : 0
+
   name_prefix = "${var.name}-rds-mon-"
 
   assume_role_policy = jsonencode({
@@ -102,11 +123,15 @@ resource "aws_iam_role" "rds_monitoring" {
 }
 
 resource "aws_iam_role_policy_attachment" "rds_monitoring" {
-  role       = aws_iam_role.rds_monitoring.name
+  count = var.create_rds ? 1 : 0
+
+  role       = aws_iam_role.rds_monitoring[0].name
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonRDSEnhancedMonitoringRole"
 }
 
 resource "aws_db_instance" "this" {
+  count = var.create_rds ? 1 : 0
+
   identifier = "${var.name}-postgres"
 
   engine         = "postgres"
@@ -120,12 +145,12 @@ resource "aws_db_instance" "this" {
 
   db_name  = var.db_name
   username = var.db_username
-  password = data.aws_secretsmanager_secret_version.db_password.secret_string
+  password = data.aws_secretsmanager_secret_version.db_password[0].secret_string
   port     = 5432
 
-  db_subnet_group_name   = aws_db_subnet_group.this.name
-  vpc_security_group_ids = [aws_security_group.rds.id]
-  parameter_group_name   = aws_db_parameter_group.this.name
+  db_subnet_group_name   = aws_db_subnet_group.this[0].name
+  vpc_security_group_ids = [aws_security_group.rds[0].id]
+  parameter_group_name   = aws_db_parameter_group.this[0].name
   publicly_accessible    = false
 
   multi_az                = var.db_multi_az
@@ -147,7 +172,7 @@ resource "aws_db_instance" "this" {
   performance_insights_enabled          = var.db_performance_insights_enabled
   performance_insights_retention_period = var.db_performance_insights_enabled ? 7 : null
   monitoring_interval                   = 60
-  monitoring_role_arn                   = aws_iam_role.rds_monitoring.arn
+  monitoring_role_arn                   = aws_iam_role.rds_monitoring[0].arn
   enabled_cloudwatch_logs_exports       = ["postgresql", "upgrade"]
 
   tags = merge(var.tags, { Name = "${var.name}-postgres" })
