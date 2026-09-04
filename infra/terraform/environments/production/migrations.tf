@@ -79,19 +79,24 @@ resource "aws_ecs_task_definition" "migrations" {
     command          = ["migration:run:pre-deploy"]
     workingDirectory = "/northrays"
 
-    # Built from the same local the api's environment is, so the two cannot
-    # disagree about where Postgres is or whether to speak TLS to it. A
-    # migration task pointed at a different host than the api is a subtle and
-    # expensive mistake.
-    environment = [
-      { name = "NODE_ENV", value = "production" },
-      { name = "ENVIRONMENT", value = var.environment },
-      { name = "DB_HOST", value = local.db_environment.DB_HOST },
-      { name = "DB_PORT", value = local.db_environment.DB_PORT },
-      { name = "DB_USERNAME", value = local.db_environment.DB_USERNAME },
-      { name = "DB_DATABASE", value = local.db_environment.DB_DATABASE },
-      { name = "DB_TLS_ENABLED", value = local.db_environment.DB_TLS_ENABLED },
-    ]
+    # The WHOLE db_environment map, not selected keys from it. This block once
+    # enumerated the five keys it knew about, which silently dropped
+    # DB_TLS_REJECT_UNAUTHORIZED when that was added to the shared local -- the
+    # api got it, migrations did not, and the drift surfaced as a TLS failure
+    # only at migration time. Iterating the map means a key added to the local
+    # reaches both consumers or neither.
+    environment = concat(
+      [
+        { name = "NODE_ENV", value = "production" },
+        { name = "ENVIRONMENT", value = var.environment },
+      ],
+      [
+        for k in sort(keys(local.db_environment)) : {
+          name  = k
+          value = local.db_environment[k]
+        }
+      ],
+    )
 
     secrets = [
       { name = "DB_PASSWORD", valueFrom = module.secrets.secret_arns["DB_PASSWORD"] },
