@@ -172,6 +172,22 @@ module "api" {
 
     DEFAULT_SNAPSHOT = var.default_snapshot
 
+    # Per-organization quotas. These are a second, independent ceiling on top of
+    # what the runner host physically has: a sandbox is refused if EITHER the
+    # organization's quota or the runner's advertised capacity is exhausted.
+    #
+    # They are set explicitly rather than left to the application defaults
+    # because the default disk quota is 30 GB per organization, which caps an
+    # org at three 10 GB sandboxes no matter how large default_runner_disk is.
+    # That limit is invisible from the infrastructure side -- the host simply
+    # looks idle -- so it belongs next to the capacity it has to agree with.
+    DEFAULT_ORG_QUOTA_TOTAL_CPU_QUOTA        = tostring(var.org_quota_total_cpu)
+    DEFAULT_ORG_QUOTA_TOTAL_MEMORY_QUOTA     = tostring(var.org_quota_total_memory)
+    DEFAULT_ORG_QUOTA_TOTAL_DISK_QUOTA       = tostring(var.org_quota_total_disk)
+    DEFAULT_ORG_QUOTA_MAX_CPU_PER_SANDBOX    = tostring(var.org_quota_max_cpu_per_sandbox)
+    DEFAULT_ORG_QUOTA_MAX_MEMORY_PER_SANDBOX = tostring(var.org_quota_max_memory_per_sandbox)
+    DEFAULT_ORG_QUOTA_MAX_DISK_PER_SANDBOX   = tostring(var.org_quota_max_disk_per_sandbox)
+
     # Optional subsystems, all off. No MSK, OpenSearch or ClickHouse is
     # provisioned by this stack -- see the reserved variables in variables.tf.
     KAFKA_ENABLED = tostring(var.enable_kafka_audit)

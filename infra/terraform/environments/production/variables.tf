@@ -235,6 +235,61 @@ variable "default_runner_disk" {
   default     = 50
 }
 
+# ---------------------------------------------------------------------------
+# Organization quotas
+#
+# The second ceiling on sandbox capacity. A sandbox is refused if either these
+# quotas or the runner's advertised capacity is exhausted, so they need to be
+# chosen together with default_runner_cpu/memory/disk -- quotas far below the
+# hardware waste the instance, and quotas far above it produce sandboxes the
+# scheduler accepts and the host cannot run.
+#
+# The defaults here reproduce the application's own defaults, so setting none of
+# them changes nothing.
+# ---------------------------------------------------------------------------
+
+variable "org_quota_total_cpu" {
+  description = "Total vCPU one organization may consume across all its sandboxes."
+  type        = number
+  default     = 10
+}
+
+variable "org_quota_total_memory" {
+  description = "Total memory in GB one organization may consume across all its sandboxes."
+  type        = number
+  default     = 10
+}
+
+variable "org_quota_total_disk" {
+  description = <<-EOT
+    Total disk in GB one organization may consume.
+
+    The application default is 30, which silently caps an organization at three
+    10 GB sandboxes regardless of how much disk the runner advertises. Raise
+    this alongside default_runner_disk or the extra storage is unreachable.
+  EOT
+  type        = number
+  default     = 30
+}
+
+variable "org_quota_max_cpu_per_sandbox" {
+  description = "Largest vCPU a single sandbox may request."
+  type        = number
+  default     = 4
+}
+
+variable "org_quota_max_memory_per_sandbox" {
+  description = "Largest memory in GB a single sandbox may request."
+  type        = number
+  default     = 8
+}
+
+variable "org_quota_max_disk_per_sandbox" {
+  description = "Largest disk in GB a single sandbox may request."
+  type        = number
+  default     = 10
+}
+
 variable "build_cpu_cores" {
   description = "vCPU reserved for a single sandbox build job. With default_runner_cpu, sets how many builds run concurrently on one host."
   type        = number
