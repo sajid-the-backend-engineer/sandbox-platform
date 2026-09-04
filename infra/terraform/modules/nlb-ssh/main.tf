@@ -110,8 +110,10 @@ resource "aws_lb_listener" "this" {
   tags = merge(var.tags, { Name = "${var.name}-ssh" })
 }
 
+# Driven by configuration rather than by inspecting route53_zone_id, which is
+# unknown at plan time when the zone is created in the same apply.
 data "aws_route53_zone" "this" {
-  count = local.has_domain && var.route53_zone_id == "" ? 1 : 0
+  count = var.lookup_zone_by_name ? 1 : 0
 
   name         = "${var.domain_name}."
   private_zone = false
@@ -120,7 +122,7 @@ data "aws_route53_zone" "this" {
 resource "aws_route53_record" "ssh" {
   count = local.has_domain ? 1 : 0
 
-  zone_id = var.route53_zone_id != "" ? var.route53_zone_id : data.aws_route53_zone.this[0].zone_id
+  zone_id = var.lookup_zone_by_name ? data.aws_route53_zone.this[0].zone_id : var.route53_zone_id
   name    = "ssh.${var.domain_name}"
   type    = "A"
 

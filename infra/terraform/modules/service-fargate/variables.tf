@@ -291,9 +291,15 @@ variable "external_target_group_arns" {
 # ---------------------------------------------------------------------------
 
 variable "service_discovery_namespace_id" {
-  description = "Cloud Map namespace to register in. Empty skips registration."
+  description = "Cloud Map namespace to register in. May be an unknown value at plan time."
   type        = string
   default     = ""
+}
+
+variable "enable_service_discovery" {
+  description = "Register this service in Cloud Map. Kept separate from the namespace id so the decision is known at plan time."
+  type        = bool
+  default     = true
 }
 
 variable "service_discovery_name" {

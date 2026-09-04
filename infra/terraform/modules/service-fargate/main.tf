@@ -20,7 +20,9 @@ locals {
   # name when it swaps in a new image, so the two must agree.
   container_name = replace(var.name, "northrays-", "")
 
-  register_discovery = var.service_discovery_namespace_id != ""
+  # From configuration, not from the namespace id: the namespace is created in
+  # the same apply, so its id is unknown at plan time and cannot drive a count.
+  register_discovery = var.enable_service_discovery
   attach_alb         = var.alb != null
 
   # AWS allows at most six characters here. northrays-api -> "api",

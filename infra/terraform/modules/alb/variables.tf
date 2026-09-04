@@ -39,9 +39,20 @@ variable "domain_name" {
 }
 
 variable "route53_zone_id" {
-  description = "Hosted zone to create records in. When empty and domain_name is set, the zone is looked up by name."
+  description = "Hosted zone to create records in. May be an unknown value at plan time when the zone is created in the same apply."
   type        = string
   default     = ""
+}
+
+variable "lookup_zone_by_name" {
+  description = <<-EOT
+    Look the hosted zone up by domain_name instead of using route53_zone_id.
+
+    Must be decided from configuration alone, never from route53_zone_id, so
+    that it stays known at plan time.
+  EOT
+  type        = bool
+  default     = false
 }
 
 variable "subject_alternative_names" {

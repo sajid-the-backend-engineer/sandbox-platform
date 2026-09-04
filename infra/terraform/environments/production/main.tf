@@ -182,6 +182,11 @@ locals {
     var.create_route53_zone && var.domain_name != "" ? aws_route53_zone.this[0].zone_id :
     ""
   )
+
+  # Decided from configuration only. Deriving this from route53_zone_id instead
+  # would make it unknown at plan time whenever the zone is created in the same
+  # apply, and an unknown value cannot drive a `count`.
+  lookup_zone_by_name = var.domain_name != "" && var.route53_zone_id == "" && !var.create_route53_zone
 }
 
 # ---------------------------------------------------------------------------
@@ -195,8 +200,9 @@ module "alb" {
   vpc_id            = module.network.vpc_id
   public_subnet_ids = module.network.public_subnet_ids
 
-  domain_name     = var.domain_name
-  route53_zone_id = local.route53_zone_id
+  domain_name         = var.domain_name
+  route53_zone_id     = local.route53_zone_id
+  lookup_zone_by_name = local.lookup_zone_by_name
 
   tags = local.common_tags
 }
@@ -209,8 +215,9 @@ module "nlb_ssh" {
   public_subnet_ids = module.network.public_subnet_ids
   port              = local.ports.ssh_gateway
 
-  domain_name     = var.domain_name
-  route53_zone_id = local.route53_zone_id
+  domain_name         = var.domain_name
+  route53_zone_id     = local.route53_zone_id
+  lookup_zone_by_name = local.lookup_zone_by_name
 
   tags = local.common_tags
 }

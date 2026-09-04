@@ -5,8 +5,12 @@
 # Certificate (only when a domain is configured)
 # ---------------------------------------------------------------------------
 
+# Whether to look the zone up is decided by the caller from configuration, not
+# by inspecting route53_zone_id. When the zone is created in the same apply that
+# id is unknown until apply time, and a count that depends on an unknown value
+# fails the plan outright.
 data "aws_route53_zone" "this" {
-  count = local.has_domain && var.route53_zone_id == "" ? 1 : 0
+  count = var.lookup_zone_by_name ? 1 : 0
 
   name         = "${var.domain_name}."
   private_zone = false
@@ -14,7 +18,7 @@ data "aws_route53_zone" "this" {
 
 locals {
   zone_id = local.has_domain ? (
-    var.route53_zone_id != "" ? var.route53_zone_id : data.aws_route53_zone.this[0].zone_id
+    var.lookup_zone_by_name ? data.aws_route53_zone.this[0].zone_id : var.route53_zone_id
   ) : ""
 }
 
