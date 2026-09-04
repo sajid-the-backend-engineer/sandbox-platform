@@ -221,6 +221,10 @@ module "api" {
     OIDC_MANAGEMENT_API_CLIENT_SECRET = module.secrets.secret_arns["OIDC_MANAGEMENT_API_CLIENT_SECRET"]
     SMTP_PASSWORD                     = module.secrets.secret_arns["SMTP_PASSWORD"]
     HEALTH_CHECK_API_KEY              = module.secrets.secret_arns["HEALTH_CHECK_API_KEY"]
+    # Static keys the api's getOrThrow demands at boot; see
+    # s3_static_credentials.tf for why the task role alone is not enough.
+    S3_ACCESS_KEY = aws_secretsmanager_secret.s3_access_key.arn
+    S3_SECRET_KEY = aws_secretsmanager_secret.s3_secret_key.arn
   }
 
   ingress_security_group_ids = [module.alb.security_group_id]
