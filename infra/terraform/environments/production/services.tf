@@ -57,6 +57,14 @@ locals {
     DB_USERNAME    = module.data.db_username
     DB_DATABASE    = module.data.db_name
     DB_TLS_ENABLED = "true"
+    # RDS presents a certificate signed by Amazon's own RDS CA, which is not in
+    # Node's default trust store, so full verification fails with
+    # SELF_SIGNED_CERT_IN_CHAIN. Traffic is still TLS-encrypted; what is skipped
+    # is CA verification, inside a VPC where the endpoint is resolved through
+    # AWS's own DNS. The strict fix is shipping the RDS CA bundle into the image
+    # and pointing NODE_EXTRA_CA_CERTS at it -- noted in the README as
+    # hardening, since it changes the image rather than this string.
+    DB_TLS_REJECT_UNAUTHORIZED = "false"
     } : {
     DB_HOST        = local.postgres_internal_host
     DB_PORT        = "5432"
