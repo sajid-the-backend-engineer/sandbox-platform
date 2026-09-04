@@ -144,9 +144,22 @@ redis_replica_count = 1
 # northrays/production/oidc-client-secret and
 # northrays/production/oidc-management-api-client-secret.
 #
-# Register these redirect URIs with the provider (substitute your domain):
-#   https://northrays.example.com/callback
-#   https://api.northrays.example.com/api/auth/callback
+# Register the dashboard as a SINGLE PAGE APPLICATION, not a web application.
+# It authenticates in the browser with oidc-client-ts using authorization code
+# + PKCE and holds no client secret; registering it as a confidential client
+# makes the provider expect a secret the dashboard cannot supply.
+#
+# Both URIs below are /dashboard, taken from redirect_uri and
+# post_logout_redirect_uri in apps/dashboard/src/providers/ConfigProvider.tsx.
+# Substitute your domain:
+#   Callback:    https://sandbox.example.com/dashboard
+#   Logout:      https://sandbox.example.com/dashboard
+#   Web origin:  https://sandbox.example.com
+#
+# oidc_audience is a separate API/resource-server identifier registered with the
+# provider, which the dashboard sends as an `audience` parameter and the api
+# validates. Note that `audience` is an Auth0 convention: on Cognito the token
+# audience is the client id instead, so set oidc_audience accordingly.
 # ---------------------------------------------------------------------------
 
 # oidc_issuer_base_url = "https://your-tenant.auth0.com"
