@@ -68,9 +68,17 @@ variable "create_rds" {
 }
 
 variable "db_engine_version" {
-  description = "Postgres major.minor version. Only the major version is pinned in the parameter group family."
+  description = <<-EOT
+    Postgres major.minor version. Only the major version is pinned in the
+    parameter group family.
+
+    RDS retires minor versions, and creation fails outright against one that has
+    been withdrawn rather than rounding to the nearest available. Check
+    `aws rds describe-db-engine-versions --engine postgres` for the region
+    before pinning.
+  EOT
   type        = string
-  default     = "16.4"
+  default     = "17.11"
 }
 
 variable "db_instance_class" {
