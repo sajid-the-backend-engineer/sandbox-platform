@@ -48,19 +48,34 @@ resource "aws_acm_certificate" "this" {
 # unvalidated and the certificate stuck in PENDING_VALIDATION until the
 # validation resource below times out.
 #
-# Grouping by resource_record_name handles both cases correctly: real duplicates
-# collapse, distinct records survive.
+# The keys must come from configuration. ACM's domain_validation_options do not
+# exist until the certificate is created, so using resource_record_name as the
+# key fails the plan outright -- Terraform cannot know how many records it is
+# about to create. Stripping the wildcard label reproduces ACM's own collapsing
+# rule statically: *.<domain> folds onto <domain>, while *.proxy.<domain> folds
+# onto proxy.<domain>, which is not itself on the certificate and so keeps a
+# distinct record. Same two records as before, decided from config rather than
+# from apply-time output.
 resource "aws_route53_record" "cert_validation" {
-  for_each = local.has_domain ? {
-    for opt in aws_acm_certificate.this[0].domain_validation_options :
-    opt.resource_record_name => opt...
-  } : {}
+  for_each = toset(local.cert_validation_names)
 
   zone_id = local.zone_id
-  name    = each.key
-  type    = each.value[0].resource_record_type
-  records = [each.value[0].resource_record_value]
-  ttl     = 60
+
+  # Duplicates within a group carry byte-identical name/type/value, so taking
+  # the first match is not a choice between differing options.
+  name = [
+    for opt in aws_acm_certificate.this[0].domain_validation_options :
+    opt.resource_record_name if replace(opt.domain_name, "*.", "") == each.key
+  ][0]
+  type = [
+    for opt in aws_acm_certificate.this[0].domain_validation_options :
+    opt.resource_record_type if replace(opt.domain_name, "*.", "") == each.key
+  ][0]
+  records = [[
+    for opt in aws_acm_certificate.this[0].domain_validation_options :
+    opt.resource_record_value if replace(opt.domain_name, "*.", "") == each.key
+  ][0]]
+  ttl = 60
   # ACM re-issues the same record for names sharing a validation token; without
   # this a re-apply collides with the record it created last time.
   allow_overwrite = true

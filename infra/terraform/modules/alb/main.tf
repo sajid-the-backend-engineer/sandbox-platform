@@ -23,6 +23,13 @@ locals {
   ] : []
 
   sans = length(var.subject_alternative_names) > 0 ? var.subject_alternative_names : local.default_sans
+
+  # One entry per DNS validation record the certificate will need, derived from
+  # configuration so it is known at plan time. See the cert_validation resource
+  # in listeners.tf for why the wildcard label is stripped.
+  cert_validation_names = local.has_domain ? distinct([
+    for name in concat([var.domain_name], local.sans) : replace(name, "*.", "")
+  ]) : []
 }
 
 # ---------------------------------------------------------------------------
