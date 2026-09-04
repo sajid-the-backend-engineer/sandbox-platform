@@ -203,7 +203,7 @@ Notes per secret:
 
 | Secret | Notes |
 | --- | --- |
-| `db-password` | RDS rejects `/`, `@`, `"` and spaces. Must be set before the data tier is created. |
+| `db-password` | RDS rejects `/`, `@`, `"` and spaces. Must be set before the data tier is created. With `use_rds = false` the same secret becomes the container's `POSTGRES_PASSWORD`, read by `initdb` on first boot only. |
 | `redis-password` | ElastiCache AUTH token: 16–128 printable characters. Must be set before the data tier is created. |
 | `encryption-key`, `encryption-salt` | Opaque random strings. Changing these after data exists makes previously encrypted columns unreadable. |
 | `admin-api-key`, `proxy-api-key`, `health-check-api-key` | Random strings shared between services. |
