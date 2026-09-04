@@ -134,9 +134,9 @@ module "api" {
     DEFAULT_RUNNER_API_URL     = local.internal_runner_url
     DEFAULT_RUNNER_PROXY_URL   = local.internal_runner_url
     DEFAULT_RUNNER_API_VERSION = "2"
-    DEFAULT_RUNNER_CPU         = "4"
-    DEFAULT_RUNNER_MEMORY      = "8"
-    DEFAULT_RUNNER_DISK        = "50"
+    DEFAULT_RUNNER_CPU         = tostring(var.default_runner_cpu)
+    DEFAULT_RUNNER_MEMORY      = tostring(var.default_runner_memory)
+    DEFAULT_RUNNER_DISK        = tostring(var.default_runner_disk)
 
     PROXY_DOMAIN   = module.alb.proxy_domain
     PROXY_PROTOCOL = local.scheme
@@ -462,8 +462,8 @@ module "runner" {
 
     # Per-sandbox build reservation. These drive how many concurrent builds fit
     # on one instance, so they and runner_instance_type have to be chosen together.
-    BUILD_CPU_CORES = "4"
-    BUILD_MEMORY_GB = "8"
+    BUILD_CPU_CORES = tostring(var.build_cpu_cores)
+    BUILD_MEMORY_GB = tostring(var.build_memory_gb)
   }
 
   secrets = {

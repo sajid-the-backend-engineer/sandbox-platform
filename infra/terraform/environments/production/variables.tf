@@ -210,6 +210,43 @@ variable "runner_instance_type" {
   default     = "m5.xlarge"
 }
 
+variable "default_runner_cpu" {
+  description = <<-EOT
+    vCPU the scheduler believes a runner host has available for sandboxes.
+
+    This is an advertisement, not a limit: set it above what the instance can
+    actually provide and the scheduler will happily place sandboxes that the
+    host then cannot run. Keep it below runner_instance_type's real capacity,
+    leaving headroom for the OS, the ECS agent and the runner's own container.
+  EOT
+  type        = number
+  default     = 4
+}
+
+variable "default_runner_memory" {
+  description = "Memory in GB the scheduler believes a runner host has available for sandboxes. Same advertisement caveat as default_runner_cpu."
+  type        = number
+  default     = 8
+}
+
+variable "default_runner_disk" {
+  description = "Disk in GB advertised per runner. Must fit within runner_root_volume_size alongside images and the Docker state directory."
+  type        = number
+  default     = 50
+}
+
+variable "build_cpu_cores" {
+  description = "vCPU reserved for a single sandbox build job. With default_runner_cpu, sets how many builds run concurrently on one host."
+  type        = number
+  default     = 4
+}
+
+variable "build_memory_gb" {
+  description = "Memory in GB reserved for a single sandbox build job."
+  type        = number
+  default     = 8
+}
+
 variable "runner_asg_min_size" {
   description = "Minimum runner instances."
   type        = number
