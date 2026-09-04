@@ -1,5 +1,6 @@
 /*
  * Copyright 2025 Daytona Platforms Inc.
+ * Copyright © 2026 Northrays Private Limited
  * SPDX-License-Identifier: Apache-2.0
  *
  * post-build.js rewrites every `require(` in the ESM output of this file to

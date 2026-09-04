@@ -1,4 +1,5 @@
 # Copyright 2025 Daytona Platforms Inc.
+# Copyright © 2026 Northrays Private Limited
 # SPDX-License-Identifier: Apache-2.0
 
 # Note: This module is uploaded to the Northrays sandbox and used inside of the code interpreter.

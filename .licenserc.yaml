@@ -4,11 +4,11 @@ header:
     copyright-owner: Northrays
     content: |
       Copyright 2025 Daytona Platforms Inc.
-      Copyright 2026 Northrays
+      Copyright © 2026 Northrays Private Limited
       SPDX-License-Identifier: AGPL-3.0
     pattern: |
       Copyright (\d{4} )?Daytona Platforms Inc\.
-      (Copyright (\d{4} )?Northrays\s+)?SPDX-License-Identifier: AGPL-3\.0
+      (Copyright (© )?(\d{4} )?Northrays( Private Limited)?\s+)?SPDX-License-Identifier: AGPL-3\.0
   paths:
     - '**/*.go'
     - '**/*.sh'

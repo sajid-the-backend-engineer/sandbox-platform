@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 
 // Copyright Daytona Platforms Inc.
+// Copyright © 2026 Northrays Private Limited
 // SPDX-License-Identifier: Apache-2.0
 
 const fs = require('fs')

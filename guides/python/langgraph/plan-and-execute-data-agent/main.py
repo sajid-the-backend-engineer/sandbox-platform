@@ -1,4 +1,5 @@
 # Copyright Daytona Platforms Inc.
+# Copyright © 2026 Northrays Private Limited
 # SPDX-License-Identifier: Apache-2.0
 
 """Plan-and-execute LangGraph agent that ETLs GitHub data into a Northrays-sandboxed SQLite."""
