@@ -179,7 +179,17 @@ module "iam" {
   extra_service_names = local.postgres_workloads
 
   ecr_repository_arns = module.ecr.repository_arn_list
-  secret_arns         = values(module.secrets.secret_arns)
+  # The execution role grant is this explicit ARN list, not a name-prefix
+  # wildcard -- a secret created outside module.secrets must be appended here or
+  # tasks referencing it die in ResourceInitializationError before the
+  # container starts.
+  secret_arns = concat(
+    values(module.secrets.secret_arns),
+    [
+      aws_secretsmanager_secret.s3_access_key.arn,
+      aws_secretsmanager_secret.s3_secret_key.arn,
+    ],
+  )
   log_group_arns      = module.ecs_cluster.log_group_arn_list
   exec_log_group_arns = [module.ecs_cluster.exec_log_group_arn]
 
