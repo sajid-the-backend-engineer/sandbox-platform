@@ -44,7 +44,13 @@ FROM node:24-slim AS northrays
 
 ENV CI=true
 
-RUN apt-get update && apt-get install -y --no-install-recommends curl && \
+# ca-certificates is not optional here even though node:24-slim ships a working
+# Node TLS stack: Node carries its own CA store, curl uses the system one, and
+# without this package curl has no trust store at all -- it fails with
+# "error setting certificate file: /etc/ssl/certs/ca-certificates.crt" on the
+# very next HTTPS request. curl itself stays because the HEALTHCHECK below uses
+# it.
+RUN apt-get update && apt-get install -y --no-install-recommends curl ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
 # Amazon's global RDS trust bundle, so the api can VERIFY the RDS Postgres

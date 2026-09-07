@@ -12,6 +12,17 @@ description = "Python SDK for Northrays"
 readme = "README.md"
 requires-python = ">=3.9,<4.0"
 dependencies = [
+    # The generated API clients this package imports at runtime. They are
+    # built from the same OpenAPI spec in the same release, so the publish
+    # workflow (scripts/set-python-package-version.py) rewrites these four
+    # lines to "==<version>" before building. The floor is 0.0.0.dev0 rather
+    # than 0.0.0 on purpose: a checkout installed from git carries version
+    # 0.0.0-dev, which PEP 440 orders BEFORE 0.0.0, so ">=0.0.0" would reject
+    # the very clients installed next to it.
+    "northrays-api-client>=0.0.0.dev0",
+    "northrays-api-client-async>=0.0.0.dev0",
+    "northrays-toolbox-api-client>=0.0.0.dev0",
+    "northrays-toolbox-api-client-async>=0.0.0.dev0",
     "python-dotenv>=1.0.0,<2.0.0",
     "pydantic>=2.4.2,<3.0.0",
     "Deprecated>=1.2.18,<2.0.0",

@@ -1,0 +1,272 @@
+# Copyright © 2026 Northrays Private Limited
+# SPDX-License-Identifier: AGPL-3.0
+
+# ---------------------------------------------------------------------------
+# Publishes the Python SDK and its four generated API clients to the private
+# CodeArtifact repository, as one version.
+#
+# Why one workflow for five packages: libs/sdk-python (`northrays`) imports
+# northrays_api_client, northrays_api_client_async,
+# northrays_toolbox_api_client and northrays_toolbox_api_client_async at
+# runtime. They are generated from the same OpenAPI spec and only work in the
+# combination they were generated with, so they are always released together
+# and the SDK's dependency on each is pinned to `==<version>` at build time
+# (scripts/set-python-package-version.py). A consumer then gets a coherent set
+# from a plain `pip install northrays==<version>`.
+#
+# Why CodeArtifact and not PyPI: the packages are private for now. The
+# repository has an upstream connection to public PyPI, so the SDK's
+# third-party dependencies resolve through the same index.
+#
+# Credentials: none stored in GitHub. The job assumes the deploy role over
+# OIDC and mints a 12-hour CodeArtifact token from that. Nothing in this
+# workflow can read or change anything outside the one domain/repository the
+# role policy names (infra/terraform/environments/production/github_oidc.tf).
+#
+# Every step is fail-loud. A version that already exists in the repository is
+# rejected by CodeArtifact on upload (409) rather than overwritten; publish a
+# new version instead. The final steps download the SDK back from the index
+# and resolve its full dependency tree, so a push that "succeeded" but is not
+# installable fails here and not on the agent host.
+# ---------------------------------------------------------------------------
+
+name: Publish Python SDK
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version to publish, e.g. 0.1.0 (PEP 440 pre-releases like 0.2.0rc1 are accepted).'
+        required: true
+
+permissions:
+  contents: read
+  id-token: write # required for OIDC role assumption; no static AWS keys anywhere
+
+concurrency:
+  group: sdk-publish-python
+  cancel-in-progress: false
+
+env:
+  # CodeArtifact is not available in us-west-1, where the rest of the stack
+  # runs, so the index lives in its own region (terraform var
+  # codeartifact_region). Every AWS call in this job is CodeArtifact or STS,
+  # so the whole job runs against that region.
+  AWS_REGION: ${{ vars.AWS_CODEARTIFACT_REGION || 'us-west-2' }}
+  CODEARTIFACT_DOMAIN: northrays
+  CODEARTIFACT_REPOSITORY: northrays-python
+  PYTHON_VERSION: '3.12'
+  # Build order is irrelevant for wheels; listed SDK-last only for readability.
+  PACKAGE_DIRS: >-
+    libs/api-client-python
+    libs/api-client-python-async
+    libs/toolbox-api-client-python
+    libs/toolbox-api-client-python-async
+    libs/sdk-python
+
+jobs:
+  publish:
+    name: Publish northrays ${{ inputs.version }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Validate inputs and configuration
+        env:
+          VERSION: ${{ inputs.version }}
+          ROLE_ARN: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          # Conservative: the value is written into five pyproject files and
+          # becomes wheel filenames. Same shape scripts/set-python-package-version.py
+          # enforces; checked here too so a bad value fails before checkout.
+          if ! printf '%s' "$VERSION" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+((a|b|rc)[0-9]+)?(\.dev[0-9]+)?$'; then
+            echo "::error::version '$VERSION' is not a plain X.Y.Z version (optionally with aN/bN/rcN and/or .devN)."
+            exit 1
+          fi
+          missing=0
+          if [ -z "$ROLE_ARN" ]; then
+            echo "::error::vars.AWS_DEPLOY_ROLE_ARN is not set — cannot assume the deploy role."
+            missing=1
+          fi
+          if [ -z "$ACCOUNT_ID" ]; then
+            echo "::error::vars.AWS_ACCOUNT_ID is not set — needed as the CodeArtifact domain owner."
+            missing=1
+          fi
+          exit "$missing"
+
+      - name: Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@a309ff8b426b58ec0e2a45f0f869d46889d02405 # v6.2.0
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: Install build tooling
+        run: |
+          set -euo pipefail
+          python -m pip install --upgrade pip
+          python -m pip install build twine
+          python -m pip list | grep -E '^(build|twine) '
+
+      - name: Stamp version into all five packages
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          python scripts/set-python-package-version.py "$VERSION"
+          git --no-pager diff --stat
+
+      - name: Build wheels and sdists
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          rm -rf "$RUNNER_TEMP/dist"
+          for dir in $PACKAGE_DIRS; do
+            name=$(basename "$dir")
+            echo "::group::build $dir"
+            python -m build --outdir "$RUNNER_TEMP/dist/$name" "$dir"
+            echo "::endgroup::"
+            wheels=$(find "$RUNNER_TEMP/dist/$name" -name '*.whl' | wc -l)
+            sdists=$(find "$RUNNER_TEMP/dist/$name" -name '*.tar.gz' | wc -l)
+            if [ "$wheels" != "1" ] || [ "$sdists" != "1" ]; then
+              echo "::error::$dir produced $wheels wheel(s) and $sdists sdist(s); expected one of each."
+              exit 1
+            fi
+            # Every artefact must carry the requested version in its filename.
+            if find "$RUNNER_TEMP/dist/$name" -type f | grep -vq -- "-${VERSION}"; then
+              echo "::error::$dir produced an artefact not versioned $VERSION:"
+              ls -1 "$RUNNER_TEMP/dist/$name"
+              exit 1
+            fi
+          done
+          find "$RUNNER_TEMP/dist" -type f | sort
+
+      - name: Assert the SDK wheel pins its clients to this version
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          wheel=$(find "$RUNNER_TEMP/dist/sdk-python" -name '*.whl')
+          python - "$wheel" "$VERSION" <<'PY'
+          import sys, zipfile
+          wheel, version = sys.argv[1], sys.argv[2]
+          z = zipfile.ZipFile(wheel)
+          meta = next(n for n in z.namelist() if n.endswith("METADATA"))
+          lines = z.read(meta).decode().splitlines()
+          expected = {
+              "northrays-api-client", "northrays-api-client-async",
+              "northrays-toolbox-api-client", "northrays-toolbox-api-client-async",
+          }
+          found = {}
+          for line in lines:
+              if line.startswith("Requires-Dist: northrays"):
+                  name, _, spec = line[len("Requires-Dist: "):].partition(" ")
+                  found[name] = spec.strip("()")
+          print("\n".join(f"{k} {v}" for k, v in sorted(found.items())))
+          bad = {k: v for k, v in found.items() if k in expected and v != f"=={version}"}
+          missing = expected - found.keys()
+          if bad or missing:
+              print(f"::error::SDK wheel does not pin its clients to =={version}: bad={bad} missing={sorted(missing)}")
+              sys.exit(1)
+          PY
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+          role-session-name: gha-sdk-publish-python-${{ github.run_id }}
+
+      - name: Log twine in to CodeArtifact
+        env:
+          ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          # Writes ~/.pypirc with a `codeartifact` repository entry holding a
+          # 12-hour token minted from the OIDC session. Nothing persists past
+          # this runner.
+          aws codeartifact login --tool twine \
+            --domain "$CODEARTIFACT_DOMAIN" \
+            --domain-owner "$ACCOUNT_ID" \
+            --repository "$CODEARTIFACT_REPOSITORY" \
+            --region "$AWS_REGION"
+
+      - name: Upload to CodeArtifact
+        run: |
+          set -euo pipefail
+          for dir in $PACKAGE_DIRS; do
+            name=$(basename "$dir")
+            echo "::group::upload $name"
+            # No --skip-existing on purpose: re-publishing a version must fail,
+            # not silently leave the old artefacts in place.
+            twine upload --non-interactive --repository codeartifact "$RUNNER_TEMP/dist/$name"/*
+            echo "::endgroup::"
+          done
+
+      - name: Verify the index serves the SDK
+        env:
+          ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          token=$(aws codeartifact get-authorization-token \
+            --domain "$CODEARTIFACT_DOMAIN" \
+            --domain-owner "$ACCOUNT_ID" \
+            --region "$AWS_REGION" \
+            --query authorizationToken --output text)
+          echo "::add-mask::$token"
+          endpoint=$(aws codeartifact get-repository-endpoint \
+            --domain "$CODEARTIFACT_DOMAIN" \
+            --domain-owner "$ACCOUNT_ID" \
+            --repository "$CODEARTIFACT_REPOSITORY" \
+            --format pypi \
+            --region "$AWS_REGION" \
+            --query repositoryEndpoint --output text)
+          echo "index: ${endpoint}simple/"
+          # Passed through the environment, not argv, so the token never
+          # appears in the process list or in pip's own logging of its args.
+          export PIP_INDEX_URL="https://aws:${token}@${endpoint#https://}simple/"
+
+          # 1. The exact SDK artefact we just pushed comes back from the index.
+          rm -rf "$RUNNER_TEMP/verify" && mkdir -p "$RUNNER_TEMP/verify"
+          python -m pip download --no-deps --no-cache-dir \
+            --dest "$RUNNER_TEMP/verify" "northrays==$VERSION"
+          ls -1 "$RUNNER_TEMP/verify"
+
+          # 2. The whole tree resolves through the index: the four clients we
+          #    pushed (pinned ==VERSION) plus third-party dependencies via the
+          #    PyPI upstream. --dry-run resolves and downloads without
+          #    installing; --ignore-installed stops the runner's own
+          #    site-packages from satisfying anything.
+          python -m pip install --dry-run --ignore-installed --no-cache-dir \
+            "northrays==$VERSION" 2>&1 | tee "$RUNNER_TEMP/resolve.log"
+          for pkg in northrays_api_client northrays_api_client_async northrays_toolbox_api_client northrays_toolbox_api_client_async; do
+            if ! grep -Eq "${pkg}[-_]${VERSION}" "$RUNNER_TEMP/resolve.log"; then
+              echo "::error::dependency resolution did not pick up ${pkg} ${VERSION} from the index."
+              exit 1
+            fi
+          done
+
+      - name: Summary
+        env:
+          VERSION: ${{ inputs.version }}
+          ACCOUNT_ID: ${{ vars.AWS_ACCOUNT_ID }}
+        run: |
+          set -euo pipefail
+          {
+            echo "### Published \`northrays==$VERSION\` to CodeArtifact"
+            echo
+            echo "Domain \`$CODEARTIFACT_DOMAIN\`, repository \`$CODEARTIFACT_REPOSITORY\`, region \`$AWS_REGION\`."
+            echo
+            echo "Install on a machine whose role carries the \`northrays-python-index-read\` policy:"
+            echo
+            echo '```bash'
+            echo "aws codeartifact login --tool pip --domain $CODEARTIFACT_DOMAIN --domain-owner $ACCOUNT_ID --repository $CODEARTIFACT_REPOSITORY --region $AWS_REGION"
+            echo "pip install northrays==$VERSION"
+            echo '```'
+          } >> "$GITHUB_STEP_SUMMARY"
