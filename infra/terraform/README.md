@@ -255,8 +255,11 @@ and will not fight either of them.
 
 ```bash
 aws ecs execute-command --cluster northrays-production \
-  --task <task-id> --container northrays-api --interactive --command /bin/sh
+  --task <task-id> --container api --interactive --command /bin/sh
 ```
+
+The container name is the service name minus its `northrays-` prefix (`api`,
+`proxy`, ...), which is what the deploy workflow asserts against.
 
 Sessions are logged to `/ecs/northrays-production/exec`.
 
@@ -417,6 +420,99 @@ points, nothing more.
 
 Either way the migration task definitions and the api both follow the flag, so
 run the three migration phases against the new location before serving traffic.
+
+## Hardening
+
+### RDS certificate verification — done, flip pending
+
+The api and migrations tasks talk to RDS over TLS (`rds.force_ssl`), but the
+first deployments ran with `DB_TLS_REJECT_UNAUTHORIZED=false`: RDS certificates
+chain to Amazon's own RDS CAs, which Node's built-in store does not carry, so
+verification failed with `SELF_SIGNED_CERT_IN_CHAIN`. Encrypted, but not
+authenticated — a resolver or route inside the VPC could have stood in for the
+endpoint.
+
+The fix is in two halves that ship separately, and that separation is what
+makes it zero-outage:
+
+1. **The image carries the trust.** `apps/api/Dockerfile` downloads Amazon's
+   global RDS bundle to `/northrays/certs/rds-global-bundle.pem` and sets
+   `NODE_EXTRA_CA_CERTS` to it. The build fails if the download is empty or
+   malformed. Node applies it process-wide, so the api server and the typeorm
+   migration CLI (same image) both gain the chain with no code change. On its
+   own this changes nothing: the flag still decides whether the chain is
+   enforced.
+2. **The flag is a variable.** `db_tls_reject_unauthorized` (default `true`)
+   feeds `DB_TLS_REJECT_UNAUTHORIZED` in `local.db_environment`, which the api
+   module and the migrations task both consume in full.
+
+Because both task definitions `ignore_changes` on `container_definitions`, the
+variable's value does **not** reach the live revision on `terraform apply`. It
+lands only through `-replace`, and the service is repointed by CI, which clones
+the family's latest revision and pins the running image SHA.
+
+**Do not flip before the bundle-carrying image is live.** `true` against an
+older image fails every database connection on the next task start.
+
+Flip procedure, on the admin box:
+
+```bash
+# 0. Confirm the running api image already carries the bundle (phase 1 is live).
+task=$(aws ecs list-tasks --cluster northrays-production --service-name northrays-api \
+         --query 'taskArns[0]' --output text)
+aws ecs execute-command --cluster northrays-production --task "$task" \
+  --container api --interactive \
+  --command "sh -c 'echo NODE_EXTRA_CA_CERTS=\$NODE_EXTRA_CA_CERTS; head -1 /northrays/certs/rds-global-bundle.pem'"
+
+# 1. Prove the chain verifies from inside a task, before touching Terraform.
+aws ecs execute-command --cluster northrays-production --task "$task" \
+  --container api --interactive \
+  --command "node -e \"const{Client}=require('/northrays/node_modules/pg');const c=new Client({host:process.env.DB_HOST,port:+process.env.DB_PORT,user:process.env.DB_USERNAME,password:process.env.DB_PASSWORD,database:process.env.DB_DATABASE,ssl:{rejectUnauthorized:true}});c.connect().then(()=>c.query('select 1')).then(()=>{console.log('RDS chain verified');process.exit(0)}).catch(e=>{console.error('FAILED:',e.message);process.exit(1)})\""
+
+# 2. Ensure db_tls_reject_unauthorized is true in terraform.tfvars (or absent --
+#    true is the default), then register new revisions of both families.
+cd infra/terraform/environments/production
+terraform plan -replace=module.api.aws_ecs_task_definition.this \
+               -replace=aws_ecs_task_definition.migrations -out=tfplan
+terraform apply tfplan
+
+# 3. Repoint the service. Re-run the deploy workflow on the SHA already running:
+#    it skips the build, clones the new latest revision (now carrying "true"),
+#    pins that SHA, rolls the api, and runs the migration phases under
+#    verification too.
+gh workflow run deploy.yaml -f image_tag=$(git rev-parse HEAD)
+gh run watch
+
+# 4. Verify.
+curl -fsS -o /dev/null -w '%{http_code}\n' https://api.sandbox.aadml.com/api/health   # expect 200
+aws ecs describe-task-definition --task-definition northrays-api \
+  --query "taskDefinition.containerDefinitions[0].environment[?name=='DB_TLS_REJECT_UNAUTHORIZED'].value" --output text  # expect true
+python3 scripts/smoke-test-sandbox.py
+```
+
+Do not use a bare `aws ecs update-service --force-new-deployment`: it re-rolls
+the revision the service is *already* on, which still says `false`. And do not
+point the service at the Terraform-registered revision directly — its image is
+`var.image_tag` (`latest`), a moving pointer ECS must never be pinned to.
+
+Rollback, fastest first:
+
+```bash
+# a. Repoint the api at its previous CI revision (same image, flag still false).
+aws ecs update-service --cluster northrays-production --service northrays-api \
+  --task-definition northrays-api:<previous revision> --force-new-deployment
+
+# b. Then make Terraform agree so the next deploy does not re-flip it:
+#    set db_tls_reject_unauthorized = false in terraform.tfvars, and
+terraform apply -replace=module.api.aws_ecs_task_definition.this \
+                -replace=aws_ecs_task_definition.migrations
+gh workflow run deploy.yaml -f image_tag=$(git rev-parse HEAD)
+```
+
+If verification ever starts failing on its own, the likely cause is an RDS CA
+rotation (`aws rds describe-db-instances --query
+'DBInstances[].CACertificateIdentifier'`): rebuild the api image, which
+refreshes the bundle, before anything else.
 
 ## What a human must do before this can deploy
 

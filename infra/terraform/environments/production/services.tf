@@ -57,14 +57,21 @@ locals {
     DB_USERNAME    = module.data.db_username
     DB_DATABASE    = module.data.db_name
     DB_TLS_ENABLED = "true"
-    # RDS presents a certificate signed by Amazon's own RDS CA, which is not in
-    # Node's default trust store, so full verification fails with
-    # SELF_SIGNED_CERT_IN_CHAIN. Traffic is still TLS-encrypted; what is skipped
-    # is CA verification, inside a VPC where the endpoint is resolved through
-    # AWS's own DNS. The strict fix is shipping the RDS CA bundle into the image
-    # and pointing NODE_EXTRA_CA_CERTS at it -- noted in the README as
-    # hardening, since it changes the image rather than this string.
-    DB_TLS_REJECT_UNAUTHORIZED = "false"
+    # Whether the RDS certificate CHAIN is verified, not just encrypted to. RDS
+    # certificates are signed by Amazon's own RDS CAs, which Node's built-in
+    # store does not carry, so verification only works because the api image
+    # ships Amazon's global RDS trust bundle and sets NODE_EXTRA_CA_CERTS to it
+    # (apps/api/Dockerfile). That bundle is process-wide, so the api server and
+    # the migrations task -- same image -- verify identically.
+    #
+    # The trust bundle is an image property and this flag is a task-definition
+    # property, and the two ship separately: CI rolls images, while a change to
+    # this value reaches the live revision only through a -replace of both task
+    # definitions (they ignore container_definitions). Keeping it a variable
+    # is what makes the rollout safe -- true on an image without the bundle
+    # fails every connection, so the flip is done deliberately, after the
+    # bundle-carrying image is live, and can be reverted the same way.
+    DB_TLS_REJECT_UNAUTHORIZED = tostring(var.db_tls_reject_unauthorized)
     } : {
     DB_HOST        = local.postgres_internal_host
     DB_PORT        = "5432"

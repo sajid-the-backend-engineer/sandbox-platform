@@ -530,6 +530,28 @@ variable "db_backup_retention_days" {
   default     = 14
 }
 
+variable "db_tls_reject_unauthorized" {
+  description = <<-EOT
+    Verify the RDS Postgres certificate chain (true, the default) or only
+    encrypt to it (false). Becomes DB_TLS_REJECT_UNAUTHORIZED on the api and
+    migrations tasks. Inert while use_rds is false, where TLS is off entirely.
+
+    Verification works because the api image ships Amazon's global RDS trust
+    bundle and points NODE_EXTRA_CA_CERTS at it (apps/api/Dockerfile). Set this
+    false only against an api image built before that bundle was added -- such
+    an image fails every connection with SELF_SIGNED_CERT_IN_CHAIN when this is
+    true -- or as a rollback while diagnosing a chain problem.
+
+    Changing it does NOT reach the running service on its own: both task
+    definitions ignore changes to container_definitions, so the value lands only
+    after `terraform apply -replace=module.api.aws_ecs_task_definition.this
+    -replace=aws_ecs_task_definition.migrations` followed by a redeploy. The
+    README section "Hardening" has the full procedure.
+  EOT
+  type        = bool
+  default     = true
+}
+
 # ---------------------------------------------------------------------------
 # In-cluster Postgres
 #

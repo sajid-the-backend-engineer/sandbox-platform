@@ -46,6 +46,29 @@ ENV CI=true
 
 RUN apt-get update && apt-get install -y --no-install-recommends curl && \
     rm -rf /var/lib/apt/lists/*
+
+# Amazon's global RDS trust bundle, so the api can VERIFY the RDS Postgres
+# certificate rather than merely encrypt to it. RDS certificates chain to
+# Amazon's own RDS CAs, which Node's built-in Mozilla store does not carry, so
+# with rejectUnauthorized the handshake fails SELF_SIGNED_CERT_IN_CHAIN unless
+# the bundle is supplied. NODE_EXTRA_CA_CERTS appends to the default store
+# (it does not replace it, so outbound TLS to Auth0/S3/SMTP is unaffected) and
+# is honoured process-wide -- by the api server AND by the typeorm migration
+# CLI that runs from this same image -- so no application code reads it.
+#
+# Shipping the bundle changes nothing by itself: whether the chain is enforced
+# is still DB_TLS_REJECT_UNAUTHORIZED, set per environment. The build fails
+# loudly on a bad download so an image that silently cannot verify is never
+# produced. Amazon rotates CAs rarely; rebuilds pick up the current bundle.
+RUN mkdir -p /northrays/certs && \
+    curl -fsSL --retry 3 --retry-delay 2 \
+      -o /northrays/certs/rds-global-bundle.pem \
+      https://truststore.pki.rds.amazonaws.com/global/global-bundle.pem && \
+    test -s /northrays/certs/rds-global-bundle.pem && \
+    head -n 1 /northrays/certs/rds-global-bundle.pem | grep -qx -- '-----BEGIN CERTIFICATE-----' && \
+    chmod 0644 /northrays/certs/rds-global-bundle.pem
+ENV NODE_EXTRA_CA_CERTS=/northrays/certs/rds-global-bundle.pem
+
 # Pin corepack's home to a shared, world-readable path and pre-fetch the pinned
 # yarn release at build time. Without this, a pod running as a non-root user
 # (e.g. a hardened k8s securityContext) gets a different $HOME, misses the
