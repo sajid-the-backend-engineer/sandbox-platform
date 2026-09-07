@@ -258,6 +258,19 @@ module "api" {
     DEFAULT_ORG_QUOTA_MAX_MEMORY_PER_SANDBOX = tostring(var.org_quota_max_memory_per_sandbox)
     DEFAULT_ORG_QUOTA_MAX_DISK_PER_SANDBOX   = tostring(var.org_quota_max_disk_per_sandbox)
 
+    # The admin organization's own quotas. Every one of these defaults to 0 in
+    # the application, which is not "unlimited" -- it is zero, so the admin API
+    # key cannot create a snapshot, sandbox or volume at all. That surfaces as
+    # "CPU request 1 exceeds maximum allowed per sandbox (0)" on an operation
+    # that looks like it should be privileged. Mirroring the org quotas keeps
+    # the admin key usable for exactly the operator tasks it exists for.
+    ADMIN_TOTAL_CPU_QUOTA        = tostring(var.org_quota_total_cpu)
+    ADMIN_TOTAL_MEMORY_QUOTA     = tostring(var.org_quota_total_memory)
+    ADMIN_TOTAL_DISK_QUOTA       = tostring(var.org_quota_total_disk)
+    ADMIN_MAX_CPU_PER_SANDBOX    = tostring(var.org_quota_max_cpu_per_sandbox)
+    ADMIN_MAX_MEMORY_PER_SANDBOX = tostring(var.org_quota_max_memory_per_sandbox)
+    ADMIN_MAX_DISK_PER_SANDBOX   = tostring(var.org_quota_max_disk_per_sandbox)
+
     # Optional subsystems, all off. No MSK, OpenSearch or ClickHouse is
     # provisioned by this stack -- see the reserved variables in variables.tf.
     KAFKA_ENABLED = tostring(var.enable_kafka_audit)
