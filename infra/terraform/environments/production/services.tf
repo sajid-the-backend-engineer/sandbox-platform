@@ -180,6 +180,13 @@ module "api" {
 
     DEFAULT_SNAPSHOT = var.default_snapshot
 
+    # Organization actions are gated on a verified email address. Auth0 already
+    # decides who may sign up, and it is Auth0 -- not this platform -- that
+    # owns the email_verified claim, so for a closed deployment this gate adds a
+    # mail-delivery dependency without adding a decision. Set false once
+    # accounts are opened beyond a known set of people.
+    SKIP_USER_EMAIL_VERIFICATION = tostring(var.skip_user_email_verification)
+
     # Every variable below exists because the api getOrThrows it at boot with no
     # default: absence is not "feature off", it is a crash loop before the first
     # request. Audited statically against configuration.ts rather than

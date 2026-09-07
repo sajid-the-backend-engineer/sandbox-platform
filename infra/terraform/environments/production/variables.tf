@@ -278,6 +278,19 @@ variable "github_deploy_refs" {
   default     = ["*"]
 }
 
+variable "skip_user_email_verification" {
+  description = <<-EOT
+    Allow organization actions without a verified email address.
+
+    The identity provider owns the email_verified claim and already controls who
+    may sign up, so on a closed deployment this gate mostly couples the platform
+    to mail delivery. Set false before opening signups beyond a known set of
+    people.
+  EOT
+  type        = bool
+  default     = false
+}
+
 variable "max_auto_archive_interval_minutes" {
   description = <<-EOT
     Minutes a stopped sandbox may sit before being archived off the runner,

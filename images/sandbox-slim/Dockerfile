@@ -19,10 +19,20 @@ SHELL ["/bin/bash", "-c"]
 # Install pipx and uv
 RUN python3 -m pip install --no-cache-dir pipx==1.8.0 && pipx ensurepath && pipx install uv==0.9.26
 
-# Install Python LSP, northrays and essential pip packages
+# Install Python LSP and essential pip packages.
+#
+# The SDK is deliberately absent. This line read `northrays==0.22.0`, which the
+# rebrand renamed from `daytona` without ever publishing under the new name --
+# nothing by that name exists on PyPI, so the build failed here every time. It
+# is also not needed: the SDK is what talks TO this platform from outside, and
+# the runner injects its own daemon binary into the sandbox at start, so nothing
+# in here has to import it.
+#
+# To give sandboxes the SDK anyway, install it from the repository with a build
+# arg carrying a read-only token, rather than restoring a name PyPI does not
+# serve.
 RUN python3 -m pip install --no-cache-dir \
     python-lsp-server==1.14.0 \
-    northrays==0.22.0 \
     matplotlib==3.10.8 \
     pandas==2.2.3 \
     numpy==2.2.6
