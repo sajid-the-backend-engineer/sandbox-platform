@@ -168,13 +168,25 @@ resource "aws_lb_listener" "https" {
 # ---------------------------------------------------------------------------
 
 locals {
-  # Apex, api, proxy, and the wildcard that carries per-sandbox preview URLs.
-  alias_records = local.has_domain ? {
-    apex          = var.domain_name
-    api           = "api.${var.domain_name}"
-    proxy         = "proxy.${var.domain_name}"
-    proxy_preview = "*.proxy.${var.domain_name}"
-  } : {}
+  # Apex, api, proxy, and the wildcard that carries per-sandbox preview URLs,
+  # plus whatever single-label hostnames the caller adds.
+  #
+  # The extra names are keyed by their LABEL, which comes straight from a
+  # variable. That keeps every map key known at plan time -- keying by the
+  # rendered FQDN would too, but only because domain_name is also a variable;
+  # the label is the value that is guaranteed to be configuration.
+  #
+  # *.<domain> is on the certificate but has no alias record, so any additional
+  # hostname needs one here or it simply does not resolve.
+  alias_records = local.has_domain ? merge(
+    {
+      apex          = var.domain_name
+      api           = "api.${var.domain_name}"
+      proxy         = "proxy.${var.domain_name}"
+      proxy_preview = "*.proxy.${var.domain_name}"
+    },
+    { for label in var.extra_alias_hostnames : label => "${label}.${var.domain_name}" },
+  ) : {}
 }
 
 resource "aws_route53_record" "alias" {

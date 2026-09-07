@@ -194,6 +194,77 @@ variable "ssh_gateway_desired_count" {
 }
 
 # ---------------------------------------------------------------------------
+# Snapshot manager (the internal Docker registry)
+# ---------------------------------------------------------------------------
+
+variable "snapshot_manager_cpu" {
+  description = "snapshot-manager task CPU units. The registry streams bytes between the client and S3 and does no image processing, so it is I/O bound rather than CPU bound."
+  type        = number
+  default     = 256
+}
+
+variable "snapshot_manager_memory" {
+  description = "snapshot-manager task memory in MiB. Layer data is streamed, not buffered whole, so this does not scale with image size."
+  type        = number
+  default     = 512
+}
+
+variable "snapshot_manager_desired_count" {
+  description = <<-EOT
+    Initial snapshot-manager task count. Two so a task loss does not take
+    sandbox creation down with it -- the shared SNAPSHOT_MANAGER_HTTP_SECRET is
+    what makes more than one safe.
+  EOT
+  type        = number
+  default     = 2
+}
+
+variable "snapshot_manager_hostname_label" {
+  description = <<-EOT
+    DNS label the registry is served on, under domain_name: "registry" yields
+    registry.<domain>.
+
+    A bare label, not an FQDN. The ALB's certificate already carries *.<domain>,
+    so any single-label value here is covered without re-issuing it -- and a
+    label with a dot in it would NOT be, since an ACM wildcard matches exactly
+    one level.
+  EOT
+  type        = string
+  default     = "registry"
+
+  validation {
+    condition     = can(regex("^[a-z0-9]([a-z0-9-]*[a-z0-9])?$", var.snapshot_manager_hostname_label))
+    error_message = "snapshot_manager_hostname_label must be a single lowercase DNS label with no dots."
+  }
+}
+
+variable "snapshot_manager_s3_root_directory" {
+  description = <<-EOT
+    Key prefix inside the registry bucket that all registry data is stored
+    under. Changing this on a live deployment orphans everything already pushed:
+    the registry looks under the new prefix, finds nothing, and every existing
+    snapshot has to be rebuilt.
+  EOT
+  type        = string
+  default     = "registry"
+}
+
+variable "internal_registry_username" {
+  description = <<-EOT
+    Basic-auth username shared by the snapshot-manager registry and the api that
+    pushes to it. The matching password lives in the INTERNAL_REGISTRY_PASSWORD
+    secret, which both sides read, so only this half is configuration.
+
+    Changing it after first boot is not enough on its own: the api seeds the
+    credential into a DockerRegistry row and only reseeds when no internal
+    registry row exists, so the old row has to be deleted for a new value to
+    take effect.
+  EOT
+  type        = string
+  default     = "northrays"
+}
+
+# ---------------------------------------------------------------------------
 # Runner
 # ---------------------------------------------------------------------------
 

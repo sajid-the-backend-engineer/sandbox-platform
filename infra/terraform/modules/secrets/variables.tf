@@ -34,6 +34,21 @@ variable "secret_names" {
     "SMTP_PASSWORD",
     "HEALTH_CHECK_API_KEY",
     "NORTHRAYS_RUNNER_TOKEN",
+
+    # Basic-auth password for the in-cluster snapshot-manager registry. ONE
+    # value read by two sides: the snapshot-manager injects it as
+    # SNAPSHOT_MANAGER_AUTH_PASSWORD, and the api as INTERNAL_REGISTRY_PASSWORD
+    # (and TRANSIENT_REGISTRY_PASSWORD). Pointing both at the same secret is what
+    # keeps them from drifting -- the api seeds the credential into a Postgres
+    # row on first boot, so a mismatch is not visible until a snapshot push
+    # fails with "denied".
+    "INTERNAL_REGISTRY_PASSWORD",
+
+    # distribution's shared HTTP secret. It signs the upload-state blobs handed
+    # back to clients mid-push, so every replica must hold the same value or a
+    # layer upload that lands on a different task than it started on is
+    # rejected.
+    "SNAPSHOT_MANAGER_HTTP_SECRET",
   ]
 }
 

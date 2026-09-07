@@ -14,6 +14,7 @@ variable "repository_names" {
     "northrays/proxy",
     "northrays/runner",
     "northrays/ssh-gateway",
+    "northrays/snapshot-manager",
   ]
 }
 

@@ -25,24 +25,26 @@ locals {
   # Image URIs for the initial task definitions. CI replaces the tag on every
   # deploy by registering a new revision.
   images = {
-    api         = "${module.ecr.repository_urls["northrays/api"]}:${var.image_tag}"
-    dashboard   = "${module.ecr.repository_urls["northrays/dashboard"]}:${var.image_tag}"
-    proxy       = "${module.ecr.repository_urls["northrays/proxy"]}:${var.image_tag}"
-    runner      = "${module.ecr.repository_urls["northrays/runner"]}:${var.image_tag}"
-    ssh_gateway = "${module.ecr.repository_urls["northrays/ssh-gateway"]}:${var.image_tag}"
+    api              = "${module.ecr.repository_urls["northrays/api"]}:${var.image_tag}"
+    dashboard        = "${module.ecr.repository_urls["northrays/dashboard"]}:${var.image_tag}"
+    proxy            = "${module.ecr.repository_urls["northrays/proxy"]}:${var.image_tag}"
+    runner           = "${module.ecr.repository_urls["northrays/runner"]}:${var.image_tag}"
+    ssh_gateway      = "${module.ecr.repository_urls["northrays/ssh-gateway"]}:${var.image_tag}"
+    snapshot_manager = "${module.ecr.repository_urls["northrays/snapshot-manager"]}:${var.image_tag}"
   }
 
   # Ports. Several of these are configuration-only in the application: the
   # runner compiles in 8080 and the proxy requires PROXY_PORT to be set at all,
   # so these values must be passed as environment variables, not assumed.
   ports = {
-    api           = 3000
-    dashboard     = 80 # nginx
-    proxy         = 4000
-    runner        = 3003
-    runner_ssh    = 2220 # hardcoded in the ssh-gateway's dialling code
-    ssh_gateway   = 2222
-    proxy_metrics = 2112
+    api              = 3000
+    dashboard        = 80 # nginx
+    proxy            = 4000
+    runner           = 3003
+    runner_ssh       = 2220 # hardcoded in the ssh-gateway's dialling code
+    ssh_gateway      = 2222
+    proxy_metrics    = 2112
+    snapshot_manager = 5000 # SNAPSHOT_MANAGER_ADDR default, restated explicitly
   }
 
   namespace = module.ecs_cluster.namespace_name
@@ -76,6 +78,40 @@ locals {
   # use_rds is false; consumers select between this and module.data.db_host on
   # the same flag.
   postgres_internal_host = "postgres.${local.namespace}"
+
+  # ---------------------------------------------------------------------------
+  # Internal snapshot registry
+  #
+  # The platform pulls a base image from a public registry and RE-PUSHES it into
+  # an "internal registry" before launching sandboxes from there. That registry
+  # cannot be ECR: apps/api/src/docker-registry/services/docker-registry.service.ts
+  # resolveCredentials() returns the row untouched whenever organizationId is
+  # absent, which is exactly the case for INTERNAL and TRANSIENT rows, so ECR's
+  # 12-hour authorization tokens would be minted once at seed time and never
+  # refreshed. apps/snapshot-manager is a real distribution registry with S3
+  # storage and basic auth, so it is deployed here instead.
+  #
+  # It is reached over the PUBLIC ALB on registry.<domain>, because
+  # docker-registry.service.ts:547 forces https:// onto any registry URL without
+  # a scheme and Docker refuses plain-HTTP registries -- so it needs real TLS,
+  # and the ALB's existing ACM certificate already covers *.<domain>.
+  #
+  # SECURITY: this makes the registry internet-reachable, protected only by basic
+  # auth over TLS. The hardening path is a second, internal-scheme ALB in the
+  # private subnets with its own certificate, reached over Cloud Map from the api
+  # and the runner; that is a strictly larger change (a private hosted zone and a
+  # certificate for a name that never resolves publicly) and is not done here.
+  snapshot_manager_host = var.domain_name != "" ? "${var.snapshot_manager_hostname_label}.${var.domain_name}" : ""
+
+  # The value seeded into the api's DockerRegistry rows. Without a domain there
+  # is no HTTPS name to hand out; the Cloud Map address is the honest fallback
+  # even though Docker will refuse it, because the alternative is a URL that
+  # resolves to nothing.
+  snapshot_manager_registry_url = (
+    local.snapshot_manager_host != ""
+    ? "https://${local.snapshot_manager_host}"
+    : "http://snapshot-manager.${local.namespace}:${local.ports.snapshot_manager}"
+  )
 }
 
 # ---------------------------------------------------------------------------
@@ -116,9 +152,10 @@ module "ecs_cluster" {
   vpc_id             = module.network.vpc_id
   log_retention_days = var.log_retention_days
 
-  # Empty unless Postgres runs in the cluster, so RDS deployments get exactly
-  # the log groups they had before.
-  extra_log_group_services = local.postgres_workloads
+  # snapshot-manager is always present; the Postgres pair only when Postgres
+  # runs in the cluster, so RDS deployments get exactly the log groups they had
+  # before plus the registry's.
+  extra_log_group_services = concat(local.postgres_workloads, ["snapshot-manager"])
 
   tags = local.common_tags
 }
@@ -174,9 +211,15 @@ module "iam" {
 
   name = local.name
 
-  # Task roles for the in-cluster Postgres service and its backup task. Empty
-  # while RDS is in use.
-  extra_service_names = local.postgres_workloads
+  # Task roles beyond the five defaults: the snapshot-manager registry always,
+  # and the in-cluster Postgres service plus its backup task only when RDS is
+  # not in use.
+  #
+  # The snapshot-manager's role carries nothing but the baseline logging and
+  # ecs-exec grants. Its S3 access does NOT come from this role -- the
+  # application reads static keys out of the environment and never consults the
+  # SDK credential chain. See snapshot_manager.tf.
+  extra_service_names = concat(local.postgres_workloads, ["snapshot-manager"])
 
   ecr_repository_arns = module.ecr.repository_arn_list
   # The execution role grant is this explicit ARN list, not a name-prefix
@@ -188,6 +231,12 @@ module "iam" {
     [
       aws_secretsmanager_secret.s3_access_key.arn,
       aws_secretsmanager_secret.s3_secret_key.arn,
+      # Static S3 keys for the snapshot-manager registry, created outside
+      # module.secrets for the same reason the api's are. Omitting them here
+      # makes every snapshot-manager task fail in ResourceInitializationError
+      # before the container starts.
+      aws_secretsmanager_secret.snapshot_manager_s3_access_key.arn,
+      aws_secretsmanager_secret.snapshot_manager_s3_secret_key.arn,
     ],
   )
   log_group_arns      = module.ecs_cluster.log_group_arn_list
@@ -255,6 +304,12 @@ module "alb" {
   domain_name         = var.domain_name
   route53_zone_id     = local.route53_zone_id
   lookup_zone_by_name = local.lookup_zone_by_name
+
+  # registry.<domain> for the snapshot-manager. The existing certificate already
+  # carries *.<domain>, so this adds an alias record and nothing else -- no
+  # re-issue, no revalidation. A bare label from a variable, so the record's map
+  # key is known at plan time.
+  extra_alias_hostnames = [var.snapshot_manager_hostname_label]
 
   tags = local.common_tags
 }

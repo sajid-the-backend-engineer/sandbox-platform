@@ -166,6 +166,10 @@ jobs:
             dockerfile: apps/ssh-gateway/Dockerfile
             target: ssh-gateway
             ecr_repository: northrays/ssh-gateway
+          - service: snapshot-manager
+            dockerfile: apps/snapshot-manager/Dockerfile
+            target: snapshot-manager
+            ecr_repository: northrays/snapshot-manager
     env:
       BUILDX_NO_DEFAULT_ATTESTATIONS: '1'
       NX_NO_CLOUD: 'true'
@@ -260,7 +264,7 @@ jobs:
         run: |
           set -euo pipefail
           rc=0
-          for repo in northrays/api northrays/dashboard northrays/proxy northrays/runner northrays/ssh-gateway; do
+          for repo in northrays/api northrays/dashboard northrays/proxy northrays/runner northrays/ssh-gateway northrays/snapshot-manager; do
             if aws ecr describe-images \
                  --repository-name "$repo" \
                  --image-ids "imageTag=$IMAGE_TAG" \
@@ -525,6 +529,14 @@ jobs:
             ecs_service: northrays-runner
             task_family: northrays-runner
             ecr_repository: northrays/runner
+          # The registry the api re-pushes sandbox base images into. It carries
+          # no schema of its own, so its position in the matrix is arbitrary --
+          # but it must roll with the rest or the api ends up pointed at a
+          # registry running an older build.
+          - service: snapshot-manager
+            ecs_service: northrays-snapshot-manager
+            task_family: northrays-snapshot-manager
+            ecr_repository: northrays/snapshot-manager
     steps:
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4

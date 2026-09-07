@@ -60,23 +60,25 @@ output "ecr_registry" {
 output "ecs_service_names" {
   description = "Map of logical service name to ECS service name."
   value = {
-    api         = module.api.service_name
-    dashboard   = module.dashboard.service_name
-    proxy       = module.proxy.service_name
-    ssh-gateway = module.ssh_gateway.service_name
-    runner      = module.runner.service_name
+    api              = module.api.service_name
+    dashboard        = module.dashboard.service_name
+    proxy            = module.proxy.service_name
+    ssh-gateway      = module.ssh_gateway.service_name
+    runner           = module.runner.service_name
+    snapshot-manager = module.snapshot_manager.service_name
   }
 }
 
 output "task_definition_families" {
   description = "Map of logical service name to task definition family, including the one-shot migration task."
   value = {
-    api         = module.api.task_definition_family
-    dashboard   = module.dashboard.task_definition_family
-    proxy       = module.proxy.task_definition_family
-    ssh-gateway = module.ssh_gateway.task_definition_family
-    runner      = module.runner.task_definition_family
-    migrations  = aws_ecs_task_definition.migrations.family
+    api              = module.api.task_definition_family
+    dashboard        = module.dashboard.task_definition_family
+    proxy            = module.proxy.task_definition_family
+    ssh-gateway      = module.ssh_gateway.task_definition_family
+    runner           = module.runner.task_definition_family
+    snapshot-manager = module.snapshot_manager.task_definition_family
+    migrations       = aws_ecs_task_definition.migrations.family
   }
 }
 
@@ -150,6 +152,21 @@ output "artifact_bucket" {
 output "backup_bucket" {
   description = "Bucket backing the runner's AWS_DEFAULT_BUCKET."
   value       = module.data.backup_bucket_name
+}
+
+output "snapshot_manager_bucket" {
+  description = "Bucket backing the internal snapshot registry's blob store. Deliberately separate from the backup bucket, whose lifecycle rule expires every key after 90 days."
+  value       = aws_s3_bucket.snapshot_manager.bucket
+}
+
+output "internal_registry_url" {
+  description = <<-EOT
+    URL the api seeds into its INTERNAL, TRANSIENT and BACKUP DockerRegistry
+    rows. Worth knowing during incidents: the api reads the row, not this value,
+    so changing it has no effect until the existing row is deleted and the api
+    restarted.
+  EOT
+  value       = local.snapshot_manager_registry_url
 }
 
 output "runner_internal_url" {

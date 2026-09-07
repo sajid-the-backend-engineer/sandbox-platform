@@ -203,23 +203,31 @@ module "api" {
     POSTHOG_HOST        = "https://us.i.posthog.com"
     POSTHOG_ENVIRONMENT = var.environment
 
-    # Container registries for sandbox snapshot images. The platform expects a
-    # basic-auth registry (upstream ran Harbor); none is provisioned yet, and
-    # none is needed until the runner builds its first snapshot -- the runner is
-    # scaled to zero today. These values let the api boot and honestly name the
-    # ECR registry, but pushing snapshots needs a real registry decision first:
-    # either the ECR credential broker path or a small Harbor/registry:2
-    # deployment. Tracked in the README.
-    TRANSIENT_REGISTRY_URL        = "https://${local.account_id}.dkr.ecr.${local.region}.amazonaws.com"
-    TRANSIENT_REGISTRY_ADMIN      = "AWS"
+    # Container registries for sandbox snapshot images, pointed at the
+    # in-cluster snapshot-manager (snapshot_manager.tf).
+    #
+    # These previously named ECR with a placeholder password, which could never
+    # have worked in either direction. The placeholder failed the push outright
+    # ("denied: Your Authorization Token is invalid"), and a real ECR token
+    # would have failed twelve hours later:
+    # docker-registry.service.ts resolveCredentials() short-circuits on
+    # `!registry.organizationId`, and internal/transient/backup rows are seeded
+    # with no organization, so an ECR token is never refreshed once it lands in
+    # the DockerRegistry row.
+    #
+    # The api reads these at boot and writes them into DockerRegistry rows ONLY
+    # when no such row exists (app.service.ts initializeInternalRegistry /
+    # initializeBackupRegistry). Changing a value here does NOT update an
+    # already-seeded row -- the row must be deleted for the reseed to run.
+    TRANSIENT_REGISTRY_URL        = local.snapshot_manager_registry_url
+    TRANSIENT_REGISTRY_ADMIN      = var.internal_registry_username
     TRANSIENT_REGISTRY_PROJECT_ID = "northrays-transient"
-    INTERNAL_REGISTRY_URL         = "https://${local.account_id}.dkr.ecr.${local.region}.amazonaws.com"
-    INTERNAL_REGISTRY_ADMIN       = "AWS"
+    INTERNAL_REGISTRY_URL         = local.snapshot_manager_registry_url
+    INTERNAL_REGISTRY_ADMIN       = var.internal_registry_username
     INTERNAL_REGISTRY_PROJECT_ID  = "northrays"
-    # Deliberately not real credentials and not in Secrets Manager: nothing can
-    # authenticate with these, which is the point until a registry exists.
-    TRANSIENT_REGISTRY_PASSWORD = "registry-not-provisioned"
-    INTERNAL_REGISTRY_PASSWORD  = "registry-not-provisioned"
+    # The passwords are NOT here. They are real credentials now, so they come
+    # through the ECS secrets block below rather than sitting in plaintext in a
+    # task definition anyone with ecs:DescribeTaskDefinition can read.
 
     # How long a stopped sandbox may sit before it is archived off the runner.
     # The application default is 30 days, which suits people who return to a
@@ -266,6 +274,14 @@ module "api" {
     # s3_static_credentials.tf for why the task role alone is not enough.
     S3_ACCESS_KEY = aws_secretsmanager_secret.s3_access_key.arn
     S3_SECRET_KEY = aws_secretsmanager_secret.s3_secret_key.arn
+
+    # Basic-auth password for the snapshot-manager registry. Both names point at
+    # the ONE secret the registry itself reads as
+    # SNAPSHOT_MANAGER_AUTH_PASSWORD, so the two sides cannot drift -- and the
+    # transient and internal registries are the same registry, distinguished
+    # only by their project prefix.
+    INTERNAL_REGISTRY_PASSWORD  = module.secrets.secret_arns["INTERNAL_REGISTRY_PASSWORD"]
+    TRANSIENT_REGISTRY_PASSWORD = module.secrets.secret_arns["INTERNAL_REGISTRY_PASSWORD"]
   }
 
   ingress_security_group_ids = [module.alb.security_group_id]

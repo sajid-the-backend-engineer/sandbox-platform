@@ -66,6 +66,25 @@ variable "subject_alternative_names" {
   default     = []
 }
 
+variable "extra_alias_hostnames" {
+  description = <<-EOT
+    Additional single-label hostnames under domain_name that should alias to this
+    load balancer, given as bare labels: ["registry"] produces an A-alias for
+    registry.<domain>.
+
+    The default certificate already carries *.<domain>, so a name added here is
+    covered by it without re-issuing anything. Ignored entirely when no domain is
+    configured.
+  EOT
+  type        = list(string)
+  default     = []
+
+  validation {
+    condition     = alltrue([for label in var.extra_alias_hostnames : can(regex("^[a-z0-9]([a-z0-9-]*[a-z0-9])?$", label))])
+    error_message = "extra_alias_hostnames must be bare DNS labels (no dots, no wildcards) -- the domain is appended for you."
+  }
+}
+
 variable "internal" {
   description = "Place the load balancer on private subnets instead. Only useful if something else terminates public traffic in front of it."
   type        = bool

@@ -1,7 +1,7 @@
 # Copyright © 2026 Northrays Private Limited
 # SPDX-License-Identifier: AGPL-3.0
 
-# Container registries for the five Northrays service images.
+# Container registries for the Northrays service images.
 #
 # Note on ordering: these repositories must exist before the first CI build runs,
 # and the ECS task definitions reference image URIs from them. On a green-field
