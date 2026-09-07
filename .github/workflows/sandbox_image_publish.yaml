@@ -1,0 +1,118 @@
+# Copyright © 2026 Northrays Private Limited
+# SPDX-License-Identifier: AGPL-3.0
+
+# ---------------------------------------------------------------------------
+# Builds the sandbox BASE image and publishes it to the platform's own
+# snapshot registry.
+#
+# This is separate from deploy.yaml on purpose. Service images change on every
+# commit; the sandbox base image changes when the tooling inside a sandbox
+# changes, which is rare, and each version must stay available for as long as
+# a snapshot references it. So it is versioned explicitly and published on
+# demand rather than on push.
+#
+# Where it goes, and why not ECR: the runner pulls the base image using the
+# credentials of whichever registry row matches the image name
+# (docker-registry.service.ts findRegistryByUrlMatch). ECR cannot fill that
+# role -- its 12-hour tokens are never refreshed for internal registries -- so
+# the image is pushed to the snapshot-manager registry, whose basic-auth row
+# the api seeds at boot. The image name then resolves credentials by prefix,
+# and the same registry receives the re-pushed snapshot afterwards.
+#
+# The registry password is read from Secrets Manager at run time via the OIDC
+# deploy role. It is never stored as a GitHub secret.
+# ---------------------------------------------------------------------------
+
+name: Publish sandbox image
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Image version, e.g. 0.1.0. Becomes the tag <version>-slim.'
+        required: true
+      registry_host:
+        description: 'Snapshot registry hostname.'
+        required: false
+        default: 'registry.sandbox.aadml.com'
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: sandbox-image-${{ inputs.version }}
+  cancel-in-progress: false
+
+env:
+  AWS_REGION: ${{ vars.AWS_REGION || 'us-west-1' }}
+  REGISTRY_PASSWORD_SECRET: northrays/production/internal-registry-password
+  REGISTRY_USERNAME: northrays
+  IMAGE_REPOSITORY: northrays/sandbox
+
+jobs:
+  publish:
+    name: Build & publish sandbox-slim ${{ inputs.version }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Validate version
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          # Conservative: the value is interpolated into an image tag.
+          if ! printf '%s' "$VERSION" | grep -Eq '^[0-9]+\.[0-9]+\.[0-9]+([.-][A-Za-z0-9]+)*$'; then
+            echo "::error::version '$VERSION' is not a plain semantic version."
+            exit 1
+          fi
+
+      - name: Checkout
+        uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+          role-session-name: gha-sandbox-image-${{ github.run_id }}
+
+      - name: Log in to the snapshot registry
+        env:
+          REGISTRY_HOST: ${{ inputs.registry_host }}
+        run: |
+          set -euo pipefail
+          password=$(aws secretsmanager get-secret-value \
+            --secret-id "$REGISTRY_PASSWORD_SECRET" \
+            --query SecretString --output text)
+          # --password-stdin keeps the value out of the process list and the log.
+          printf '%s' "$password" | docker login "$REGISTRY_HOST" \
+            --username "$REGISTRY_USERNAME" --password-stdin
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: images/sandbox-slim/Dockerfile
+          platforms: linux/amd64
+          push: true
+          provenance: false
+          tags: |
+            ${{ inputs.registry_host }}/${{ env.IMAGE_REPOSITORY }}:${{ inputs.version }}-slim
+          cache-from: type=gha,scope=sandbox-slim
+          cache-to: type=gha,scope=sandbox-slim,mode=max
+
+      - name: Verify the manifest is served
+        env:
+          REGISTRY_HOST: ${{ inputs.registry_host }}
+          VERSION: ${{ inputs.version }}
+        run: |
+          set -euo pipefail
+          # A push that "succeeded" but is not retrievable is worse than a failed
+          # one: the api would create a snapshot pointing at nothing.
+          docker manifest inspect "$REGISTRY_HOST/$IMAGE_REPOSITORY:$VERSION-slim" > /dev/null
+          echo "Published $REGISTRY_HOST/$IMAGE_REPOSITORY:$VERSION-slim"
+          echo "Set DEFAULT_SNAPSHOT (terraform default_snapshot) to that name and roll the api." >> "$GITHUB_STEP_SUMMARY"

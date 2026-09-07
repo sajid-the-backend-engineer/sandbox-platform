@@ -167,6 +167,17 @@ data "aws_iam_policy_document" "github_deploy" {
     ]
     resources = ["arn:aws:logs:${local.region}:${local.account_id}:log-group:/ecs/${var.cluster_name}*"]
   }
+
+  # The sandbox-image workflow pushes to the snapshot registry, whose password
+  # lives only in Secrets Manager. Scoped to that one secret: the deploy role
+  # has no business reading the database or encryption keys, and a broader
+  # grant would make any workflow on any permitted ref able to.
+  statement {
+    sid       = "ReadSnapshotRegistryPassword"
+    effect    = "Allow"
+    actions   = ["secretsmanager:GetSecretValue"]
+    resources = [module.secrets.secret_arns["INTERNAL_REGISTRY_PASSWORD"]]
+  }
 }
 
 resource "aws_iam_role_policy" "github_deploy" {
