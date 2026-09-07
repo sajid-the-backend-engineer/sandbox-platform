@@ -270,11 +270,15 @@ jobs:
           if [ -n "${OVERRIDE_SUBNETS:-}" ]; then
             subnets=$(printf '%s' "$OVERRIDE_SUBNETS" | jq -Rc 'split(",") | map(gsub("^\\s+|\\s+$";"")) | map(select(length > 0))')
           else
+            # jq -c is required, not cosmetic: `aws --output json` pretty-prints
+            # across lines, and a multi-line value written to $GITHUB_OUTPUT
+            # fails the step with "Invalid format". The security-group branch
+            # below already compacts for the same reason.
             subnets=$(aws ecs describe-services \
               --cluster "$ECS_CLUSTER" \
               --services "$NETWORK_REFERENCE_SERVICE" \
               --query 'services[0].networkConfiguration.awsvpcConfiguration.subnets' \
-              --output json)
+              --output json | jq -c '.')
             if [ -z "$subnets" ] || [ "$subnets" = "null" ]; then
               echo "::error::Could not read subnets from service '$NETWORK_REFERENCE_SERVICE'. Set vars.ECS_SUBNET_IDS instead."
               exit 1
