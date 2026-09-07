@@ -281,6 +281,14 @@ jobs:
   migrate-pre:
     name: Migrations (init + pre-deploy)
     needs: [prepare, verify-images]
+    # always() is what makes redeploying an existing image work at all. Passing
+    # image_tag skips `build`, and GitHub propagates a skip TRANSITIVELY: every
+    # downstream job without always() is skipped too, even though verify-images
+    # itself succeeded. Without this the documented rollback -- re-run with a
+    # previously built SHA -- silently rolls nothing and still reports failure.
+    # The explicit result checks are therefore load-bearing: always() alone
+    # would also run this after a genuine build failure.
+    if: always() && needs.prepare.result == 'success' && needs['verify-images'].result == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 60
     outputs:
@@ -499,6 +507,9 @@ jobs:
   deploy:
     name: Deploy ${{ matrix.service }}
     needs: [prepare, migrate-pre]
+    # See migrate-pre: a skipped `build` (image_tag redeploy) would otherwise
+    # skip this too. Rolling still requires the migrations to have succeeded.
+    if: always() && needs.prepare.result == 'success' && needs['migrate-pre'].result == 'success'
     runs-on: ubuntu-latest
     # Headroom for SERVICE_STABLE_RETRIES (3) x the ~10 min services-stable waiter.
     timeout-minutes: 60
@@ -619,6 +630,10 @@ jobs:
   migrate-post:
     name: Migrations (post-deploy)
     needs: [prepare, migrate-pre, deploy]
+    # Same transitive-skip reason. The contract stands: post-deploy contracts
+    # the schema, so it must not run unless every service is on the new
+    # revision.
+    if: always() && needs.prepare.result == 'success' && needs['migrate-pre'].result == 'success' && needs.deploy.result == 'success'
     runs-on: ubuntu-latest
     timeout-minutes: 60
     steps:
