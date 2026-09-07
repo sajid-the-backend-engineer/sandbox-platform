@@ -94,10 +94,75 @@ locals {
     #!/bin/bash
     set -euo pipefail
 
-    # Backing directory for the runner's own Docker daemon. ECS creates a
-    # missing host_path itself, but it creates it root-owned with default
-    # permissions at task start, which races the daemon's own initialisation.
-    mkdir -p ${var.docker_state_host_path}
+    # ------------------------------------------------------------------------
+    # Data volume for the runner's own Docker daemon: XFS with project quotas.
+    #
+    # The runner enforces per-sandbox disk limits with --storage-opt size=,
+    # which overlay2 honours only on XFS mounted with prjquota. Without it every
+    # sandbox start fails with "--storage-opt is supported only for overlay over
+    # xfs with 'pquota' mount option". The root volume is XFS but mounted
+    # noquota, and quota cannot be enabled by remount, so the state directory
+    # lives on its own volume instead.
+    #
+    # ECS_CLUSTER is written LAST, after the mount is verified. If anything here
+    # fails the host never joins the cluster, rather than running sandboxes on
+    # an unquota'd directory and failing at first use in a way that looks like a
+    # runner bug.
+    # ------------------------------------------------------------------------
+    MOUNT_POINT="${var.docker_state_host_path}"
+
+    # 1. Identify the data disk: the one EBS disk that is not the root disk.
+    #    Device names are not stable on Nitro (/dev/xvdb appears as /dev/nvme1n1
+    #    or similar), so it is found by elimination rather than by name.
+    ROOT_DISK=$(lsblk -no PKNAME "$(findmnt -no SOURCE /)" | head -n1)
+    CANDIDATES=()
+    for i in $(seq 1 30); do
+      CANDIDATES=()
+      while read -r name type; do
+        [ "$type" = "disk" ] || continue
+        [ "$name" = "$ROOT_DISK" ] && continue
+        CANDIDATES+=("/dev/$name")
+      done < <(lsblk -dno NAME,TYPE)
+      [ "$${#CANDIDATES[@]}" -ge 1 ] && break
+      echo "data disk not visible yet; waiting"
+      sleep 5
+    done
+    if [ "$${#CANDIDATES[@]}" -ne 1 ]; then
+      echo "FATAL: expected exactly one non-root disk, found: $${CANDIDATES[*]:-none}" >&2
+      exit 1
+    fi
+    DEV="$${CANDIDATES[0]}"
+
+    # 2. Format only if provably blank. A wrong guess here reformats a disk that
+    #    may hold data, so anything ambiguous is a hard stop.
+    FSTYPE=$(lsblk -no FSTYPE "$DEV" | head -n1 | tr -d '[:space:]')
+    if [ "$FSTYPE" = "xfs" ]; then
+      echo "$DEV already XFS; reusing"
+    elif [ -n "$FSTYPE" ]; then
+      echo "FATAL: $DEV carries filesystem '$FSTYPE', refusing to reformat" >&2
+      exit 1
+    elif blkid "$DEV" >/dev/null 2>&1; then
+      echo "FATAL: blkid reports a signature on $DEV that lsblk did not name" >&2
+      exit 1
+    else
+      mkfs -t xfs "$DEV"
+    fi
+
+    # 3. Mount with project quotas, by UUID so a device rename cannot point
+    #    fstab at the wrong disk.
+    mkdir -p "$MOUNT_POINT"
+    UUID=$(blkid -s UUID -o value "$DEV")
+    if ! grep -q "$UUID" /etc/fstab; then
+      echo "UUID=$UUID $MOUNT_POINT xfs defaults,prjquota,nofail 0 2" >> /etc/fstab
+    fi
+    mountpoint -q "$MOUNT_POINT" || mount "$MOUNT_POINT"
+
+    # 4. Verify the property the runner actually depends on before joining.
+    if ! findmnt -no OPTIONS "$MOUNT_POINT" | grep -qE '(^|,)prjquota(,|$)'; then
+      echo "FATAL: $MOUNT_POINT mounted without prjquota: $(findmnt -no OPTIONS "$MOUNT_POINT")" >&2
+      exit 1
+    fi
+    echo "$MOUNT_POINT: $(findmnt -no SOURCE,FSTYPE,OPTIONS "$MOUNT_POINT")"
 
     cat <<'ECSCONFIG' >> /etc/ecs/ecs.config
     ECS_CLUSTER=${var.cluster_name}
@@ -136,6 +201,23 @@ resource "aws_launch_template" "this" {
 
     ebs {
       volume_size           = var.root_volume_size
+      volume_type           = var.root_volume_type
+      iops                  = var.root_volume_type == "gp3" ? var.root_volume_iops : null
+      throughput            = var.root_volume_type == "gp3" ? var.root_volume_throughput : null
+      encrypted             = true
+      delete_on_termination = true
+    }
+  }
+
+  # Sandbox data volume. Formatted XFS and mounted with prjquota by user-data;
+  # see data_volume_size for why it cannot be the root volume. Named /dev/xvdb
+  # here, but Nitro exposes it as an nvme device, so user-data finds it by
+  # elimination rather than by this name.
+  block_device_mappings {
+    device_name = "/dev/xvdb"
+
+    ebs {
+      volume_size           = var.data_volume_size
       volume_type           = var.root_volume_type
       iops                  = var.root_volume_type == "gp3" ? var.root_volume_iops : null
       throughput            = var.root_volume_type == "gp3" ? var.root_volume_throughput : null

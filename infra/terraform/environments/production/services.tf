@@ -531,6 +531,7 @@ module "runner" {
   asg_max_size         = var.runner_asg_max_size
   asg_desired_capacity = var.runner_asg_desired_capacity
   root_volume_size     = var.runner_root_volume_size
+  data_volume_size     = var.runner_data_volume_size
   desired_count        = var.runner_desired_count
 
   execution_role_arn = module.iam.execution_role_arn

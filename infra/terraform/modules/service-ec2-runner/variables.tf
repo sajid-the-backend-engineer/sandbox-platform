@@ -79,6 +79,29 @@ variable "root_volume_size" {
   default     = 200
 }
 
+variable "data_volume_size" {
+  description = <<-EOT
+    Size in GiB of the dedicated volume backing the runner's own Docker daemon:
+    every sandbox image layer, build cache and container filesystem lands here,
+    not on the root volume.
+
+    It is a separate volume, formatted XFS and mounted with project quotas
+    (prjquota), because the runner enforces per-sandbox disk limits through
+    Docker's --storage-opt size=, and overlay2 implements that only on XFS with
+    project quotas. The ECS-optimised AMI's root is XFS but mounted noquota, and
+    XFS quota cannot be switched on by remount, so the root volume cannot serve
+    this role without a kernel-argument-and-reboot detour.
+
+    Running it out of space does not fail cleanly: the daemon errors mid-build
+    and the ECS agent reports the instance unhealthy for reasons that look
+    unrelated. Keep it comfortably above default_runner_disk plus image cache.
+    Deleted with the instance: sandbox state is transient by design, and
+    anything durable is in the snapshot registry or S3.
+  EOT
+  type        = number
+  default     = 300
+}
+
 variable "root_volume_type" {
   description = "Root EBS volume type. gp3 gives baseline 3000 IOPS regardless of size, unlike gp2 which scales IOPS with capacity."
   type        = string

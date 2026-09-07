@@ -447,9 +447,20 @@ variable "runner_asg_desired_capacity" {
 }
 
 variable "runner_root_volume_size" {
-  description = "Root EBS volume size in GiB on runner hosts. Holds every sandbox image layer and container filesystem."
+  description = "Root EBS volume size in GiB on runner hosts. OS, host Docker daemon and the runner image only; sandbox data is on runner_data_volume_size."
   type        = number
-  default     = 200
+  default     = 50
+}
+
+variable "runner_data_volume_size" {
+  description = <<-EOT
+    Dedicated XFS+prjquota volume in GiB backing the runner's Docker daemon --
+    every sandbox image layer and container filesystem. Must exceed
+    default_runner_disk plus image cache. See the module variable for why this
+    cannot be the root volume.
+  EOT
+  type        = number
+  default     = 300
 }
 
 variable "runner_desired_count" {
