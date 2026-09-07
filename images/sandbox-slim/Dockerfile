@@ -57,6 +57,16 @@ RUN source $NVM_DIR/nvm.sh \
 ENV NODE_PATH=$NVM_DIR/v$NODE_VERSION/lib/node_modules
 ENV PATH=$NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
 
+# ENV PATH covers normal shells, but a LOGIN shell (bash -l, which npm scripts,
+# build tooling and `su -` commonly use) re-derives PATH from /etc/profile and
+# drops it, so `node` is silently absent there while working everywhere else.
+# This puts it back for login shells too, and the build fails if it does not.
+RUN echo "export NVM_DIR=$NVM_DIR" > /etc/profile.d/node.sh && \
+    echo "export NODE_PATH=$NVM_DIR/versions/node/v$NODE_VERSION/lib/node_modules" >> /etc/profile.d/node.sh && \
+    echo "export PATH=$NVM_DIR/versions/node/v$NODE_VERSION/bin:\$PATH" >> /etc/profile.d/node.sh && \
+    chmod 0644 /etc/profile.d/node.sh && \
+    bash -lc 'node --version && npm --version'
+
 RUN npm install -g ts-node@10.9.2 typescript@5.9.3 typescript-language-server@5.1.3
 
 # Switch to Northrays user
