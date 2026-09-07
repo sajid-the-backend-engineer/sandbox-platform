@@ -69,6 +69,24 @@ RUN echo "export NVM_DIR=$NVM_DIR" > /etc/profile.d/node.sh && \
 
 RUN npm install -g ts-node@10.9.2 typescript@5.9.3 typescript-language-server@5.1.3
 
+# Clients address a sandbox at <home>/workspace, and the daemon takes its
+# working directory from the image WORKDIR (os.Getwd() in cmd/daemon/main.go).
+# Neither existed: there was no WORKDIR, so the runner fell back to $HOME, and
+# no workspace directory was ever created. Every exec that asked for one failed
+# with "fork/exec /usr/bin/bash: no such file or directory" -- Go reports a
+# missing cmd.Dir against the binary it was about to run, so the message blames
+# the shell (which is present at both /bin/bash and /usr/bin/bash) instead of
+# the missing directory.
+#
+# /home/daytona is a compatibility symlink for clients still using the upstream
+# home path. It is a filesystem alias, not branding, and can be dropped once
+# callers address /home/northrays/workspace.
+RUN mkdir -p /home/northrays/workspace && \
+    chown -R northrays:northrays /home/northrays && \
+    ln -s /home/northrays /home/daytona
+
+WORKDIR /home/northrays/workspace
+
 # Switch to Northrays user
 USER northrays
 
