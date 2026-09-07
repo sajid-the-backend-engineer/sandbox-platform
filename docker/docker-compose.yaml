@@ -30,8 +30,8 @@ services:
       - OIDC_MANAGEMENT_API_AUDIENCE=
       - DASHBOARD_URL=http://localhost:3000/dashboard
       - DASHBOARD_BASE_API_URL=http://localhost:3000
-      - POSTHOG_API_KEY=phc_bYtEsdMDrNLydXPD4tufkBrHKgfO2zbycM30LOowYNv
-      - POSTHOG_HOST=https://d18ag4dodbta3l.cloudfront.net
+      - POSTHOG_API_KEY=
+      - POSTHOG_HOST=
       - POSTHOG_ENVIRONMENT=local
       - TRANSIENT_REGISTRY_URL=http://registry:6000
       - TRANSIENT_REGISTRY_ADMIN=admin

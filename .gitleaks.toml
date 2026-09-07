@@ -1,0 +1,124 @@
+# Copyright © 2026 Northrays Private Limited
+# SPDX-License-Identifier: AGPL-3.0
+#
+# Secret-scanning configuration for gitleaks (https://github.com/gitleaks/gitleaks).
+# Enforced by the `secret-scan` job in .github/workflows/ci.yaml and runnable
+# locally (see "Secret scanning" in README.md).
+#
+# This repository deliberately tracks several `.env` files that hold FAKE
+# development fixture values, plus two throwaway dev SSH keys. The gate has to
+# accept those fixtures while still catching a real secret typed into the same
+# files, so every allowlist entry below matches a specific VALUE (or a
+# clearly-fake placeholder shape), never a whole file. Do not add path-only
+# allowlists for `.env` files or docker/ -- that would silently exempt exactly
+# the mistake this gate exists to catch.
+#
+# Adding an entry: put the exact fixture value (regex-escaped, anchored) in the
+# right group and write a one-line comment saying what it is and where it lives.
+
+[extend]
+useDefault = true
+
+# ---------------------------------------------------------------------------
+# 1. Clearly-fake placeholder shapes (documentation and example files).
+# ---------------------------------------------------------------------------
+[[allowlists]]
+description = "Placeholder shapes that cannot be real credentials"
+regexTarget = "secret"
+regexes = [
+  # apps/docs curl examples: `Authorization: Bearer YOUR_API_KEY`, YOUR_JWT_TOKEN, YOUR_SECRET_API_KEY, ...
+  '''^YOUR_[A-Z_]+$''',
+  # apps/docs/vpn-connections.mdx: PEM block whose body is the literal placeholder <YOUR_OPENVPN_CLIENT_PRIVATE_KEY>
+  '''-----BEGIN[ A-Z0-9_-]*PRIVATE KEY-----\s*<YOUR_[A-Z_]+>\s*-----END''',
+  # guides/**/.env.example: an empty `FOO_KEY=` line makes gitleaks read the NEXT line's variable name (e.g. `ANTHROPIC_API_KEY=`) as the value
+  '''^[A-Z][A-Z0-9_]+=$''',
+]
+
+# ---------------------------------------------------------------------------
+# 2. Fixed example values baked into docs, OpenAPI examples and unit tests.
+# ---------------------------------------------------------------------------
+[[allowlists]]
+description = "Documentation / OpenAPI / test example values"
+regexTarget = "secret"
+regexes = [
+  # apps/docs bring-your-own-compute.mdx and generated OpenAPI `apiKey` example
+  '''^dtn_1234567890$''',
+  # apps/api is-safe-string.validator.spec.ts: obviously sequential sample key
+  '''^sk-1234567890abcdef$''',
+  # apps/docs preview.mdx (en + ja): example x-northrays-preview-token value
+  '''^vg5c0ylmcimr8b_v1ne0u6mdnvit6gc0$''',
+  # libs/api-client-*/openapi.yaml: DTO `example:` values copied from apps/api swagger decorators
+  '''^api-key-xyz123$''',
+  '''^ul67qtv-jl6wb9z5o3eii-ljqt9qed6l$''',
+  '''^jl6wb9z5o3eii$''',
+  '''^abc123def456ghi789jkl012mno345pqr678stu901vwx234yz$''',
+  '''^(?:eyJ|abc)hbGciOiJIUzI1NiIs\.\.\.$''',
+  # guides/typescript/openclaw/README.md: sample console output showing a throwaway sandbox Control UI link
+  '''^7e38c7347437c5642c57bc769f630e53fe118e001d7b6c6c$''',
+]
+
+# ---------------------------------------------------------------------------
+# 3. Tracked development-fixture values in the committed .env files and
+#    docker/docker-compose.yaml. Every entry is the exact fake string; a real
+#    secret typed into the same variable will NOT match and WILL be reported.
+# ---------------------------------------------------------------------------
+[[allowlists]]
+description = "Known fake dev/e2e fixture values from tracked .env files"
+regexTarget = "secret"
+regexes = [
+  # apps/api/.env, apps/northrays-e2e/.env: ENCRYPTION_KEY / HEALTH_CHECK_API_KEY / ADMIN_API_KEY / NORTHRAYS_API_KEY
+  '''^supersecret(?:key|salt)?$''',
+  # apps/api/.env, apps/proxy/.env: PROXY_API_KEY
+  '''^super_secret_key$''',
+  # apps/api/.env, apps/runner/.env: DEFAULT_RUNNER_API_KEY / API_TOKEN
+  '''^secret_api_token$''',
+  # apps/api/.env, apps/ssh-gateway/.env, docker-compose: SSH_GATEWAY_API_KEY / API_KEY
+  '''^ssh_secret_api_token$''',
+  # apps/api/.env: OTEL_COLLECTOR_API_KEY
+  '''^otel_collector_api_key$''',
+  # apps/api/.env, apps/runner/.env, .env.e2e: MinIO default credentials (S3_*_KEY, AWS_*_KEY)
+  '''^minioadmin$''',
+  # apps/api/.env, .env.e2e: DB_PASSWORD / *_REGISTRY_PASSWORD
+  '''^pass(?:word)?$''',
+  # apps/northrays-e2e/.env.e2e: e2e-only fixture keys (ENCRYPTION_KEY, ENCRYPTION_SALT, PROXY_API_KEY, SSH_GATEWAY_API_KEY, *_RUNNER_TOKEN, ADMIN_API_KEY, HEALTH_CHECK_API_KEY)
+  '''^e2e_(?:encryption_key_32ch|encryption_salt_val|proxy_api_key|ssh_gateway_key|runner_token|admin_api_key|health_check_key)$''',
+]
+
+# ---------------------------------------------------------------------------
+# 4. Throwaway dev SSH keys for the local ssh-gateway. They are committed as
+#    base64-wrapped OpenSSH PEM blocks; gitleaks decodes them and reports the
+#    decoded PEM, so each regex pins one full 70-column PEM line that carries
+#    the key-specific RSA modulus (public material: it is the same modulus
+#    published in SSH_GATEWAY_PUBLIC_KEY). They live in apps/ssh-gateway/.env
+#    and docker/docker-compose.yaml (and, in git history, apps/ssh-gateway/
+#    Dockerfile). Deliberately NOT path-scoped: with gitleaks 8.30.1 a
+#    `paths` + condition = "AND" version of this entry was observed to also
+#    accept a different key placed in those files, so the match is by key
+#    material only. Verified: a different key in apps/ssh-gateway/.env is
+#    still reported.
+# ---------------------------------------------------------------------------
+[[allowlists]]
+description = "Throwaway local ssh-gateway dev keys (matched by key material)"
+regexTarget = "secret"
+regexes = [
+  # SSH_PRIVATE_KEY: dev client key (RSA-3072), second PEM line of the decoded key
+  '''NhAAAAAwEAAQAAAYEA3ioaVjWl1OiUdq1sxuelSMyvq5PrWfqflEZdsmsqnYHYep7jf0pl''',
+  # SSH_HOST_KEY: dev host key (RSA-2048), second PEM line of the decoded key
+  '''NhAAAAAwEAAQAAAQEAu\+LJyt/Kv6ViaZB6jnJPS57FpZ2Fj7V4f/5qKa65SypDZWYPsOci''',
+]
+
+# ---------------------------------------------------------------------------
+# 5. Git-history-only entries. These values are gone from the working tree but
+#    live in upstream Daytona commits that cannot be rewritten. Matched by a
+#    stable prefix of the exact value so a full-history `gitleaks detect` is
+#    clean without exempting anything else.
+# ---------------------------------------------------------------------------
+[[allowlists]]
+description = "Upstream Daytona public PostHog project tokens (history only)"
+regexTarget = "secret"
+regexes = [
+  # apps/api/Dockerfile (2025-06) and docker/docker-compose.yaml (2026-02 .. 2026-09): upstream's client-side PostHog project token (phc_* keys are public write-only analytics keys); blanked in the tree
+  '''^phc_bYtEsdMDrNLydXPD4tufk[A-Za-z0-9]{22}$''',
+  # internal/posthog.go (2024-07, original Daytona CLI era): older upstream PostHog project token, file no longer exists
+  '''^phc_BJyojq[A-Za-z0-9]{37}$''',
+]

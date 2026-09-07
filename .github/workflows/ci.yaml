@@ -226,6 +226,39 @@ jobs:
           config: .licenserc-clients.yaml
           mode: 'check'
 
+  secret-scan:
+    name: Secret scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
+          # Full history so the action can scan every commit in the PR/push range.
+          fetch-depth: 0
+
+      # Scans the commits introduced by this PR/push. Fails the job on any finding.
+      # Config: .gitleaks.toml (value-specific allowlist for the tracked dev fixtures).
+      - name: Scan commits (gitleaks)
+        uses: gitleaks/gitleaks-action@ff98106e4c7b2bc287b24eaf42907196329070c7 # v2.3.9
+        env:
+          # Needed only to look up the repository owner type; no license is
+          # required for a repository owned by a user account.
+          GITHUB_TOKEN: ${{ github.token }}
+          # Pinned to the version the allowlist was validated against locally.
+          GITLEAKS_VERSION: 8.30.1
+          GITLEAKS_ENABLE_UPLOAD_ARTIFACT: false
+          # PR comments would need pull-requests:write; findings are in the job summary instead.
+          GITLEAKS_ENABLE_COMMENTS: false
+
+      # Also scan the checked-out tree as a whole, so a secret that reached
+      # main outside the scanned commit range (merge commit, force-push) is
+      # still caught. The action above puts the pinned gitleaks binary on PATH.
+      - name: Scan working tree (gitleaks)
+        if: ${{ !cancelled() }}
+        run: |
+          gitleaks dir . --config .gitleaks.toml --redact --verbose --exit-code 1 \
+            --report-format sarif --report-path gitleaks-tree.sarif
+
   yarnrc-lint:
     name: Yarnrc integrity check
     runs-on: ubuntu-latest

@@ -98,6 +98,12 @@ yarn install
 yarn nx run-many -t build
 ```
 
+## Secret scanning
+
+CI runs [gitleaks](https://github.com/gitleaks/gitleaks) (`secret-scan` job) over the commits of every PR/push and over the whole tree, using [`.gitleaks.toml`](.gitleaks.toml); any finding fails the build. The tracked dev `.env` files hold fake fixture values that are allowlisted by exact value, not by path, so a real secret typed into them is still caught. Run it locally with
+`docker run --rm -v "$PWD:/repo" zricethezav/gitleaks:v8.30.1 dir /repo --config /repo/.gitleaks.toml --redact -v`
+(add `detect --source /repo` instead of `dir /repo` to scan git history). To allowlist a new fixture, add its exact value as an anchored regex in the matching group of `.gitleaks.toml` with a one-line comment saying what it is -- never a bare path.
+
 ## License
 
 Licensed under the **GNU Affero General Public License v3.0**. See [LICENSE](LICENSE).
