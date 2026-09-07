@@ -389,6 +389,34 @@ variable "github_deploy_refs" {
   default     = ["*"]
 }
 
+variable "codeartifact_region" {
+  description = <<-EOT
+    Region for the CodeArtifact domain and repositories in codeartifact.tf.
+
+    Separate from aws_region because CodeArtifact is not offered in every
+    region -- notably not in us-west-1, this stack's default. IAM is global,
+    so nothing else cares; but every `aws codeartifact` call (the publish
+    workflow, and consumers running `aws codeartifact login`) must pass this
+    region. The workflow reads it from the repository variable
+    AWS_CODEARTIFACT_REGION.
+
+    Validated against the regions listed on the CodeArtifact endpoints page
+    (docs.aws.amazon.com/general/latest/gr/codeartifact.html) as of September
+    2026. Extend the list if AWS adds one you need.
+  EOT
+  type        = string
+  default     = "us-west-2"
+
+  validation {
+    condition = contains([
+      "us-east-1", "us-east-2", "us-west-2",
+      "ap-south-1", "ap-southeast-1", "ap-southeast-2", "ap-northeast-1",
+      "eu-central-1", "eu-west-1", "eu-west-2", "eu-west-3", "eu-south-1", "eu-north-1",
+    ], var.codeartifact_region)
+    error_message = "codeartifact_region must be a region where AWS CodeArtifact is available (us-west-1 is not one of them)."
+  }
+}
+
 variable "skip_user_email_verification" {
   description = <<-EOT
     Allow organization actions without a verified email address.

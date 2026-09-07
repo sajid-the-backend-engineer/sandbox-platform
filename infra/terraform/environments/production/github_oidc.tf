@@ -189,6 +189,56 @@ data "aws_iam_policy_document" "github_deploy" {
   # GitHub-hosted runner; the registry is no longer reachable from there, and
   # the password now goes only to the in-VPC image-mirror task through the ECS
   # secrets block. No CI principal can read it any more.
+
+  # The Python SDK publish workflow (sdk_publish_python.yaml) uploads wheels to
+  # the CodeArtifact repository in codeartifact.tf and then pip-downloads them
+  # back to prove the index serves what was pushed. Scoped to that one domain
+  # and repository; the token comes from OIDC at run time, so there is no
+  # CodeArtifact credential in GitHub.
+  statement {
+    sid       = "CodeArtifactToken"
+    effect    = "Allow"
+    actions   = ["codeartifact:GetAuthorizationToken"]
+    resources = [aws_codeartifact_domain.northrays.arn]
+  }
+
+  statement {
+    sid    = "CodeArtifactRead"
+    effect = "Allow"
+    actions = [
+      "codeartifact:GetRepositoryEndpoint",
+      "codeartifact:ReadFromRepository",
+    ]
+    resources = [
+      aws_codeartifact_repository.python.arn,
+      aws_codeartifact_repository.pypi_upstream.arn,
+    ]
+  }
+
+  # Publishing is a package-level permission, hence the package ARN pattern
+  # rather than the repository ARN. Only the pypi format in northrays-python.
+  statement {
+    sid    = "CodeArtifactPublish"
+    effect = "Allow"
+    actions = [
+      "codeartifact:PublishPackageVersion",
+      "codeartifact:PutPackageMetadata",
+    ]
+    resources = [local.codeartifact_pypi_package_arn]
+  }
+
+  statement {
+    sid       = "CodeArtifactBearerToken"
+    effect    = "Allow"
+    actions   = ["sts:GetServiceBearerToken"]
+    resources = ["*"]
+
+    condition {
+      test     = "StringEquals"
+      variable = "sts:AWSServiceName"
+      values   = ["codeartifact.amazonaws.com"]
+    }
+  }
 }
 
 resource "aws_iam_role_policy" "github_deploy" {

@@ -238,3 +238,37 @@ output "github_deploy_role_arn" {
   description = "Role ARN for the GitHub Actions deploy workflow. Set as the repository variable AWS_DEPLOY_ROLE_ARN."
   value       = try(aws_iam_role.github_deploy[0].arn, "")
 }
+
+# ---------------------------------------------------------------------------
+# Python package index (CodeArtifact)
+# ---------------------------------------------------------------------------
+
+output "codeartifact_domain" {
+  description = "CodeArtifact domain holding the Python package repository. The --domain argument to `aws codeartifact login`."
+  value       = aws_codeartifact_domain.northrays.domain
+}
+
+output "codeartifact_repository" {
+  description = "CodeArtifact repository the Python SDK is published to and installed from. The --repository argument to `aws codeartifact login`."
+  value       = aws_codeartifact_repository.python.repository
+}
+
+output "codeartifact_region" {
+  description = "Region the CodeArtifact resources live in. Pass as --region to every `aws codeartifact` call; set as the repository variable AWS_CODEARTIFACT_REGION."
+  value       = var.codeartifact_region
+}
+
+output "python_index_url" {
+  description = <<-EOT
+    pip index URL for the Northrays Python packages, i.e. what
+    `aws codeartifact login --tool pip` writes into pip's config. Requires an
+    authorization token: for a one-off, embed it as
+    https://aws:<token>@<host>/pypi/northrays-python/simple/.
+  EOT
+  value       = "${data.aws_codeartifact_repository_endpoint.python_pypi.repository_endpoint}simple/"
+}
+
+output "python_index_read_policy_arn" {
+  description = "Read-only IAM policy for machines that pip install the SDK. Attach it to the EC2 instance role (or user) of the agent host."
+  value       = aws_iam_policy.python_index_read.arn
+}
