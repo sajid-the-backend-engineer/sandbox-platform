@@ -140,10 +140,15 @@ data "aws_iam_policy_document" "github_deploy" {
     }
   }
 
-  # Registering a task definition means handing these roles to ECS, which
-  # requires PassRole. Scoped to exactly the roles this stack created: without
-  # the constraint the deploy role could attach any role in the account to a
-  # task it controls, which is a privilege escalation path.
+  # Registering a task definition or running a task means handing these roles
+  # to ECS, which requires PassRole. Scoped to exactly the roles this stack
+  # created: without the constraint the deploy role could attach any role in
+  # the account to a task it controls, which is a privilege escalation path.
+  #
+  # task_role_arns is every role module.iam minted, which includes the
+  # image-mirror task's (it is in extra_service_names in main.tf). That is what
+  # lets the sandbox-image workflow `run-task` northrays-image-mirror, whose
+  # task definition names that role and the shared execution role.
   statement {
     sid       = "PassTaskRoles"
     effect    = "Allow"
@@ -157,9 +162,10 @@ data "aws_iam_policy_document" "github_deploy" {
     }
   }
 
-  # The deploy workflow tails migration task logs to surface failures.
+  # The workflows tail one-off task logs -- migrations, the image mirror -- to
+  # surface failures in the job output.
   statement {
-    sid    = "ReadMigrationLogs"
+    sid    = "ReadOneOffTaskLogs"
     effect = "Allow"
     actions = [
       "logs:GetLogEvents",
@@ -168,66 +174,21 @@ data "aws_iam_policy_document" "github_deploy" {
     resources = ["arn:aws:logs:${local.region}:${local.account_id}:log-group:/ecs/${var.cluster_name}*"]
   }
 
-  # The sandbox-image workflow pushes to the snapshot registry, whose password
-  # lives only in Secrets Manager. Scoped to that one secret: the deploy role
-  # has no business reading the database or encryption keys, and a broader
-  # grant would make any workflow on any permitted ref able to.
+  # The sandbox-image workflow finds the image-mirror task's security group by
+  # its Name tag rather than carrying the id as a repository variable that goes
+  # stale when the group is replaced. Describe calls cannot be resource-scoped.
   statement {
-    sid       = "ReadSnapshotRegistryPassword"
+    sid       = "DescribeSecurityGroupsForRunTask"
     effect    = "Allow"
-    actions   = ["secretsmanager:GetSecretValue"]
-    resources = [module.secrets.secret_arns["INTERNAL_REGISTRY_PASSWORD"]]
-  }
-
-  # The Python SDK publish workflow (sdk_publish_python.yaml) uploads wheels to
-  # the CodeArtifact repository in codeartifact.tf and then pip-downloads them
-  # back to prove the index serves what was pushed. Scoped to that one domain
-  # and repository; the token comes from OIDC at run time, so there is no
-  # CodeArtifact credential in GitHub.
-  statement {
-    sid       = "CodeArtifactToken"
-    effect    = "Allow"
-    actions   = ["codeartifact:GetAuthorizationToken"]
-    resources = [aws_codeartifact_domain.northrays.arn]
-  }
-
-  statement {
-    sid    = "CodeArtifactRead"
-    effect = "Allow"
-    actions = [
-      "codeartifact:GetRepositoryEndpoint",
-      "codeartifact:ReadFromRepository",
-    ]
-    resources = [
-      aws_codeartifact_repository.python.arn,
-      aws_codeartifact_repository.pypi_upstream.arn,
-    ]
-  }
-
-  # Publishing is a package-level permission, hence the package ARN pattern
-  # rather than the repository ARN. Only the pypi format in northrays-python.
-  statement {
-    sid    = "CodeArtifactPublish"
-    effect = "Allow"
-    actions = [
-      "codeartifact:PublishPackageVersion",
-      "codeartifact:PutPackageMetadata",
-    ]
-    resources = [local.codeartifact_pypi_package_arn]
-  }
-
-  statement {
-    sid       = "CodeArtifactBearerToken"
-    effect    = "Allow"
-    actions   = ["sts:GetServiceBearerToken"]
+    actions   = ["ec2:DescribeSecurityGroups"]
     resources = ["*"]
-
-    condition {
-      test     = "StringEquals"
-      variable = "sts:AWSServiceName"
-      values   = ["codeartifact.amazonaws.com"]
-    }
   }
+
+  # Deliberately absent: secretsmanager:GetSecretValue on the registry
+  # password. The sandbox-image workflow used to read it to docker-login from a
+  # GitHub-hosted runner; the registry is no longer reachable from there, and
+  # the password now goes only to the in-VPC image-mirror task through the ECS
+  # secrets block. No CI principal can read it any more.
 }
 
 resource "aws_iam_role_policy" "github_deploy" {

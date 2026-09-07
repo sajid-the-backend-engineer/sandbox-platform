@@ -50,6 +50,20 @@ locals {
     ssh-gateway = module.ssh_gateway.security_group_id
     runner      = module.runner.security_group_id
   }
+
+  # Everything that pulls from or pushes to the snapshot registry through its
+  # internal balancer: the runner (pulls base images, pushes snapshots), the api
+  # (registry API calls against the seeded DockerRegistry rows) and the one-off
+  # task that copies the sandbox base image in from ECR. Nothing else, and no
+  # CIDR: an address in the VPC is not a client, a named workload is.
+  #
+  # Empty without a domain, when the internal balancer does not exist; guarded
+  # by the same configuration-only local the balancer's count reduces to.
+  internal_registry_clients = local.snapshot_manager_internal_path ? {
+    api          = module.api.security_group_id
+    runner       = module.runner.security_group_id
+    image-mirror = aws_security_group.image_mirror.id
+  } : {}
 }
 
 # ---------------------------------------------------------------------------
@@ -176,6 +190,37 @@ resource "aws_vpc_security_group_ingress_rule" "runner_self" {
   description                  = "Inter-sandbox traffic between runner hosts"
   referenced_security_group_id = module.runner.security_group_id
   ip_protocol                  = "-1"
+}
+
+# ---------------------------------------------------------------------------
+# Snapshot registry, internal path
+#
+# Two hops: client -> internal balancer on 443, balancer -> registry task on
+# 5000. The public balancer's hop onto the task is declared by the service
+# module itself and exists only while the public path does.
+# ---------------------------------------------------------------------------
+
+resource "aws_vpc_security_group_ingress_rule" "internal_registry_from_clients" {
+  for_each = local.internal_registry_clients
+
+  # Safe to index: the map is non-empty exactly when the balancer exists.
+  security_group_id            = module.internal_alb[0].security_group_id
+  description                  = "Registry HTTPS from ${each.key}"
+  referenced_security_group_id = each.value
+  from_port                    = 443
+  to_port                      = 443
+  ip_protocol                  = "tcp"
+}
+
+resource "aws_vpc_security_group_ingress_rule" "snapshot_manager_from_internal_alb" {
+  count = local.snapshot_manager_internal_path ? 1 : 0
+
+  security_group_id            = module.snapshot_manager.security_group_id
+  description                  = "Registry port from the internal load balancer"
+  referenced_security_group_id = module.internal_alb[0].security_group_id
+  from_port                    = local.ports.snapshot_manager
+  to_port                      = local.ports.snapshot_manager
+  ip_protocol                  = "tcp"
 }
 
 # ---------------------------------------------------------------------------

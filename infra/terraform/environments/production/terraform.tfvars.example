@@ -84,14 +84,25 @@ ssh_gateway_memory        = 512
 ssh_gateway_desired_count = 2
 
 # The internal snapshot registry (apps/snapshot-manager). Served on
-# <label>.<domain_name> through the existing ALB, whose certificate already
-# carries *.<domain_name>. The password half of the credential lives in the
-# INTERNAL_REGISTRY_PASSWORD secret and is populated out-of-band.
+# <label>.<domain_name> through an INTERNAL load balancer and a private hosted
+# zone, using the public ALB's certificate (it already carries *.<domain_name>).
+# The password half of the credential lives in the INTERNAL_REGISTRY_PASSWORD
+# secret and is populated out-of-band.
 snapshot_manager_cpu            = 256
 snapshot_manager_memory         = 512
 snapshot_manager_desired_count  = 2
 snapshot_manager_hostname_label = "registry"
 internal_registry_username      = "northrays"
+
+# Transition switch. true keeps the registry ALSO reachable through the public
+# ALB, as it was before the internal path existed. Apply with true, verify the
+# internal path from inside the VPC (see the README runbook), then set false
+# and apply again to take the registry off the internet.
+snapshot_manager_public_ingress = true
+
+# One-off task that copies the sandbox base image from ECR into the registry.
+# Pinned krane release with busybox; bump deliberately.
+# image_mirror_image = "gcr.io/go-containerregistry/krane/debug:v0.22.1"
 
 # ---------------------------------------------------------------------------
 # Runner

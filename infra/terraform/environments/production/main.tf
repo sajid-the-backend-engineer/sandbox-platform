@@ -91,17 +91,35 @@ locals {
   # refreshed. apps/snapshot-manager is a real distribution registry with S3
   # storage and basic auth, so it is deployed here instead.
   #
-  # It is reached over the PUBLIC ALB on registry.<domain>, because
+  # It is served on registry.<domain> over real TLS, because
   # docker-registry.service.ts:547 forces https:// onto any registry URL without
-  # a scheme and Docker refuses plain-HTTP registries -- so it needs real TLS,
-  # and the ALB's existing ACM certificate already covers *.<domain>.
+  # a scheme and Docker refuses plain-HTTP registries.
   #
-  # SECURITY: this makes the registry internet-reachable, protected only by basic
-  # auth over TLS. The hardening path is a second, internal-scheme ALB in the
-  # private subnets with its own certificate, reached over Cloud Map from the api
-  # and the runner; that is a strictly larger change (a private hosted zone and a
-  # certificate for a name that never resolves publicly) and is not done here.
+  # HOW IT IS REACHED. Two paths exist for that one hostname:
+  #
+  #   internal  An internal-scheme ALB in the private subnets (module.internal_alb)
+  #             plus a PRIVATE hosted zone for exactly registry.<domain>, so that
+  #             inside the VPC the name resolves to the internal balancer. The
+  #             listener carries the public ALB's own ACM certificate: ACM
+  #             validated it through the public zone, and a certificate does
+  #             not care which balancer presents it. See snapshot_manager.tf.
+  #
+  #   public    The original path, a host rule on the public ALB and a public
+  #             alias record. Kept ONLY while var.snapshot_manager_public_ingress
+  #             is true, so the internal path can be applied and verified before
+  #             the public one is removed. Once it is false the registry is not
+  #             reachable from the internet at all.
+  #
+  # The hostname is the same on both paths on purpose: the api seeds it into
+  # DockerRegistry rows at first boot and never rewrites them, so switching
+  # paths must not mean a different URL.
   snapshot_manager_host = var.domain_name != "" ? "${var.snapshot_manager_hostname_label}.${var.domain_name}" : ""
+
+  # Which paths exist. Pure functions of variables, for the reason given above
+  # postgres_in_cluster: they drive count, for_each and null-vs-object switches.
+  # Both need a domain, since neither has anything to serve without TLS.
+  snapshot_manager_internal_path = var.domain_name != ""
+  snapshot_manager_public_path   = var.domain_name != "" && var.snapshot_manager_public_ingress
 
   # The value seeded into the api's DockerRegistry rows. Without a domain there
   # is no HTTPS name to hand out; the Cloud Map address is the honest fallback
@@ -152,10 +170,10 @@ module "ecs_cluster" {
   vpc_id             = module.network.vpc_id
   log_retention_days = var.log_retention_days
 
-  # snapshot-manager is always present; the Postgres pair only when Postgres
-  # runs in the cluster, so RDS deployments get exactly the log groups they had
-  # before plus the registry's.
-  extra_log_group_services = concat(local.postgres_workloads, ["snapshot-manager"])
+  # snapshot-manager and the image-mirror task are always present; the Postgres
+  # pair only when Postgres runs in the cluster, so RDS deployments get exactly
+  # the log groups they had before plus those two.
+  extra_log_group_services = concat(local.postgres_workloads, ["snapshot-manager", "image-mirror"])
 
   tags = local.common_tags
 }
@@ -211,15 +229,19 @@ module "iam" {
 
   name = local.name
 
-  # Task roles beyond the five defaults: the snapshot-manager registry always,
-  # and the in-cluster Postgres service plus its backup task only when RDS is
-  # not in use.
+  # Task roles beyond the five defaults: the snapshot-manager registry and the
+  # image-mirror task always, and the in-cluster Postgres service plus its
+  # backup task only when RDS is not in use.
   #
   # The snapshot-manager's role carries nothing but the baseline logging and
   # ecs-exec grants. Its S3 access does NOT come from this role -- the
   # application reads static keys out of the environment and never consults the
   # SDK credential chain. See snapshot_manager.tf.
-  extra_service_names = concat(local.postgres_workloads, ["snapshot-manager"])
+  #
+  # The image-mirror role gets its ECR read grant in image_mirror.tf. Listing it
+  # here also puts it in task_role_arns, which is what the GitHub deploy role's
+  # PassRole statement is built from (github_oidc.tf).
+  extra_service_names = concat(local.postgres_workloads, ["snapshot-manager", "image-mirror"])
 
   ecr_repository_arns = module.ecr.repository_arn_list
   # The execution role grant is this explicit ARN list, not a name-prefix
@@ -305,11 +327,40 @@ module "alb" {
   route53_zone_id     = local.route53_zone_id
   lookup_zone_by_name = local.lookup_zone_by_name
 
-  # registry.<domain> for the snapshot-manager. The existing certificate already
-  # carries *.<domain>, so this adds an alias record and nothing else -- no
-  # re-issue, no revalidation. A bare label from a variable, so the record's map
-  # key is known at plan time.
-  extra_alias_hostnames = [var.snapshot_manager_hostname_label]
+  # The PUBLIC registry.<domain> record, part of the transitional public path.
+  # Gone once snapshot_manager_public_ingress is false: the name then exists
+  # only in the private hosted zone (snapshot_manager.tf) and resolves to
+  # nothing from outside the VPC. A bare label from a variable behind a
+  # variable-driven switch, so the record's map key is known at plan time.
+  extra_alias_hostnames = local.snapshot_manager_public_path ? [var.snapshot_manager_hostname_label] : []
+
+  tags = local.common_tags
+}
+
+# The registry's private front door. Only the snapshot-manager sits behind it;
+# every other service keeps talking to the api over Cloud Map, and to each
+# other's public names through the public ALB, exactly as before.
+#
+# Certificate: the public ALB's, reused. ACM DNS validation only ever needed
+# the validation CNAME in the public zone, which is there and stays there for
+# renewals; the certificate covers *.<domain>, which includes registry.<domain>;
+# and one ACM certificate may be attached to any number of listeners in the
+# region. Issuing a second certificate for the same name would mean a second
+# validation record to keep and nothing gained.
+module "internal_alb" {
+  source = "../../modules/internal-alb"
+  count  = local.snapshot_manager_internal_path ? 1 : 0
+
+  # 28 characters. "<name>-registry-alb" would be 33 and AWS caps ALB names at 32.
+  name               = "${local.name}-int-alb"
+  vpc_id             = module.network.vpc_id
+  private_subnet_ids = module.network.private_subnet_ids
+
+  certificate_arn = module.alb.certificate_arn
+
+  # No CIDR ingress. The clients are named in security.tf, one rule per task
+  # security group, alongside every other service-to-service rule.
+  ingress_cidr_blocks = []
 
   tags = local.common_tags
 }

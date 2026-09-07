@@ -238,6 +238,46 @@ variable "snapshot_manager_hostname_label" {
   }
 }
 
+variable "snapshot_manager_public_ingress" {
+  description = <<-EOT
+    Keep serving the snapshot registry on the PUBLIC load balancer as well as
+    the internal one.
+
+    This is a transition switch, not a feature. The registry has an internal
+    path -- a private-scheme ALB plus a split-horizon private hosted zone -- that
+    is created regardless of this value. While this is true the public listener
+    rule and the public registry.<domain> record also exist, exactly as before
+    the internal path was added, so an apply that introduces the internal path
+    changes nothing about how the runner and the api reach the registry today.
+
+    Flip it to false ONLY after verifying, from inside the VPC, that
+    registry.<domain> resolves to the internal balancer and that a sandbox can
+    still be created. That second apply removes the public rule and record, and
+    from then on the registry is unreachable from the internet.
+
+    Read directly from configuration and never derived from a resource
+    attribute: it drives `count`, `for_each` and a null-vs-object switch, all of
+    which must be decidable at plan time.
+  EOT
+  type        = bool
+  default     = true
+}
+
+variable "image_mirror_image" {
+  description = <<-EOT
+    Container image for the one-off task that copies the sandbox base image from
+    ECR into the internal snapshot registry.
+
+    krane, not crane: krane is the same CLI with cloud credential helpers
+    compiled in, so it reads the task role's credentials from the ECS
+    container-credentials endpoint and authenticates to ECR with no
+    `get-login-password` dance. The /debug variant carries busybox, which the
+    entrypoint script needs. Pinned to a release; bump deliberately.
+  EOT
+  type        = string
+  default     = "gcr.io/go-containerregistry/krane/debug:v0.22.1"
+}
+
 variable "snapshot_manager_s3_root_directory" {
   description = <<-EOT
     Key prefix inside the registry bucket that all registry data is stored
@@ -347,34 +387,6 @@ variable "github_deploy_refs" {
   EOT
   type        = list(string)
   default     = ["*"]
-}
-
-variable "codeartifact_region" {
-  description = <<-EOT
-    Region for the CodeArtifact domain and repositories in codeartifact.tf.
-
-    Separate from aws_region because CodeArtifact is not offered in every
-    region -- notably not in us-west-1, this stack's default. IAM is global,
-    so nothing else cares; but every `aws codeartifact` call (the publish
-    workflow, and consumers running `aws codeartifact login`) must pass this
-    region. The workflow reads it from the repository variable
-    AWS_CODEARTIFACT_REGION.
-
-    Validated against the regions listed on the CodeArtifact endpoints page
-    (docs.aws.amazon.com/general/latest/gr/codeartifact.html) as of September
-    2026. Extend the list if AWS adds one you need.
-  EOT
-  type        = string
-  default     = "us-west-2"
-
-  validation {
-    condition = contains([
-      "us-east-1", "us-east-2", "us-west-2",
-      "ap-south-1", "ap-southeast-1", "ap-southeast-2", "ap-northeast-1",
-      "eu-central-1", "eu-west-1", "eu-west-2", "eu-west-3", "eu-south-1", "eu-north-1",
-    ], var.codeartifact_region)
-    error_message = "codeartifact_region must be a region where AWS CodeArtifact is available (us-west-1 is not one of them)."
-  }
 }
 
 variable "skip_user_email_verification" {

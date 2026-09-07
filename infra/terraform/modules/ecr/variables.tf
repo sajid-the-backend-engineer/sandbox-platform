@@ -15,6 +15,11 @@ variable "repository_names" {
     "northrays/runner",
     "northrays/ssh-gateway",
     "northrays/snapshot-manager",
+    # Staging area for the sandbox BASE image, not a service. CI pushes the
+    # built image here from the public internet, and an in-VPC task copies it
+    # into the private snapshot registry -- which is not reachable from GitHub's
+    # runners at all. See environments/production/image_mirror.tf.
+    "northrays/sandbox",
   ]
 }
 

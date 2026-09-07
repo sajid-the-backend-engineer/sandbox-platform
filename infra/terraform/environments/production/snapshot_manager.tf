@@ -22,8 +22,10 @@
 # is the only shape the application supports for this role, which is exactly
 # what snapshot-manager provides.
 #
-# See main.tf's snapshot_manager_* locals for the TLS/exposure decision and the
-# note on why this is internet-reachable behind basic auth.
+# See main.tf's snapshot_manager_* locals for how the registry is reached. The
+# internal path -- private hosted zone, internal target group and listener
+# rule -- is at the bottom of this file. The sandbox base image gets INTO the
+# registry through image_mirror.tf, since nothing outside the VPC can push.
 
 # ---------------------------------------------------------------------------
 # Storage
@@ -303,12 +305,18 @@ module "snapshot_manager" {
     SNAPSHOT_MANAGER_STORAGE_S3_SECRETKEY = aws_secretsmanager_secret.snapshot_manager_s3_secret_key.arn
   }
 
-  ingress_security_group_ids = [module.alb.security_group_id]
+  # The PUBLIC balancer's group, and only while the public path exists. The
+  # internal balancer's ingress is declared in security.tf with the other
+  # named-source rules, so removing the public path deletes exactly one rule
+  # here and touches nothing else.
+  ingress_security_group_ids = local.snapshot_manager_public_path ? [module.alb.security_group_id] : []
 
-  # Null without a domain: the listener rule would need a host header that does
-  # not exist, and the module's own precondition rejects a rule matching
-  # nothing. A registry with no HTTPS name is unusable to Docker regardless.
-  alb = var.domain_name != "" ? {
+  # The transitional PUBLIC path: a host rule on the public listener. Null once
+  # snapshot_manager_public_ingress is false, which removes the public target
+  # group and rule; null without a domain too, since the rule would need a host
+  # header that does not exist and the module's precondition rejects a rule
+  # matching nothing.
+  alb = local.snapshot_manager_public_path ? {
     listener_arn = module.alb.listener_arn
 
     # Between the api (100) and the proxy (200); the dashboard's catch-all is
@@ -325,8 +333,140 @@ module "snapshot_manager" {
     deregistration_delay = 120
   } : null
 
+  # The INTERNAL path's target group, which the service registers into as well.
+  #
+  # Referenced through the listener rule's forward action rather than the
+  # target group resource directly. ECS refuses to register a service into a
+  # target group that no load balancer has claimed yet, and the rule is what
+  # claims it; taking the ARN from the rule makes that ordering an implicit
+  # dependency without a module-level depends_on, which would defer every data
+  # source in the module to apply time and litter plans with "known after
+  # apply" on a service that is otherwise unchanged.
+  #
+  # Adding a load_balancer entry to a running service is an in-place update
+  # (provider >= 4.6.0), rolled out as a normal deployment: new tasks register
+  # in both groups, old ones drain. It is not a replacement.
+  external_target_group_arns = local.snapshot_manager_internal_path ? [
+    aws_lb_listener_rule.snapshot_manager_internal[0].action[0].target_group_arn
+  ] : []
+
   service_discovery_namespace_id = module.ecs_cluster.namespace_id
   service_discovery_name         = "snapshot-manager"
 
   tags = local.common_tags
+}
+
+# ---------------------------------------------------------------------------
+# The internal path
+#
+# Three pieces: a target group on the internal balancer, the rule that routes
+# registry.<domain> to it, and a private hosted zone that makes registry.<domain>
+# resolve to that balancer from inside the VPC.
+#
+# WHY THE PRIVATE ZONE IS EXACTLY registry.<domain> AND NOT <domain>.
+#
+# Route53 answers a query from an associated VPC out of the most specific
+# private hosted zone that contains the name, and a private zone that matches
+# takes precedence over public DNS for EVERY name under it -- a name the
+# private zone does not hold does not fall through to the public zone, it is
+# NXDOMAIN. A private zone for <domain> would therefore have to replicate the
+# apex, api., proxy., *.proxy. and ssh. records, and keep them in step with the
+# public zone forever, or the proxy and api -- which call each other and the
+# dashboard by their public names from inside the VPC -- would stop resolving
+# the moment the zone was created. A hosted zone can be a single leaf name, so
+# the private zone is scoped to the one name that must differ inside the VPC,
+# and every other name keeps resolving publicly exactly as it does today.
+#
+# The api's TRANSIENT/INTERNAL registry rows, the runner's pulls and the
+# image-mirror task all use the same hostname they always did; only the answer
+# changes.
+# ---------------------------------------------------------------------------
+
+resource "aws_route53_zone" "snapshot_manager_private" {
+  count = local.snapshot_manager_internal_path ? 1 : 0
+
+  name    = local.snapshot_manager_host
+  comment = "Split-horizon zone for the Northrays ${var.environment} snapshot registry. Holds exactly one name; see snapshot_manager.tf."
+
+  vpc {
+    vpc_id = module.network.vpc_id
+  }
+
+  tags = merge(local.common_tags, { Name = local.snapshot_manager_host })
+}
+
+resource "aws_route53_record" "snapshot_manager_private" {
+  count = local.snapshot_manager_internal_path ? 1 : 0
+
+  zone_id = aws_route53_zone.snapshot_manager_private[0].zone_id
+  # The zone apex: the zone IS this one name.
+  name = local.snapshot_manager_host
+  type = "A"
+
+  alias {
+    name                   = module.internal_alb[0].alb_dns_name
+    zone_id                = module.internal_alb[0].alb_zone_id
+    evaluate_target_health = true
+  }
+}
+
+resource "aws_lb_target_group" "snapshot_manager_internal" {
+  count = local.snapshot_manager_internal_path ? 1 : 0
+
+  # name_prefix for the same reason the service module uses it: a replacement
+  # has to be created under a different name before the original is torn down.
+  # Six characters is the AWS cap.
+  name_prefix = "regint"
+  port        = local.ports.snapshot_manager
+  protocol    = "HTTP"
+  target_type = "ip"
+  vpc_id      = module.network.vpc_id
+
+  # Same as the public target group: a layer upload in flight during a deploy
+  # must not be cut off by a 30s drain.
+  deregistration_delay = 120
+
+  health_check {
+    enabled             = true
+    path                = "/healthz"
+    matcher             = "200-399"
+    interval            = 30
+    timeout             = 5
+    healthy_threshold   = 2
+    unhealthy_threshold = 3
+    protocol            = "HTTP"
+    port                = "traffic-port"
+  }
+
+  tags = merge(local.common_tags, { Name = "northrays-snapshot-manager-internal-tg" })
+
+  lifecycle {
+    create_before_destroy = true
+  }
+}
+
+resource "aws_lb_listener_rule" "snapshot_manager_internal" {
+  count = local.snapshot_manager_internal_path ? 1 : 0
+
+  listener_arn = module.internal_alb[0].listener_arn
+  # The only rule on this listener. A number rather than the default so a
+  # second internal service, if one ever appears, has an ordering to slot into.
+  priority = 100
+
+  action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.snapshot_manager_internal[0].arn
+  }
+
+  # Host-matched even though nothing else is served here: the balancer's DNS
+  # name is not on the certificate, so a request by that name would fail TLS
+  # before reaching a rule, and a request that does arrive should be for the
+  # registry's own name.
+  condition {
+    host_header {
+      values = [local.snapshot_manager_host]
+    }
+  }
+
+  tags = merge(local.common_tags, { Name = "northrays-snapshot-manager-internal-rule" })
 }

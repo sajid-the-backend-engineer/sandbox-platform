@@ -22,12 +22,15 @@ infra/terraform/
     secrets/             Secrets Manager entries (containers only, never values)
     iam/                 Task execution role, per-service task roles, broker roles
     alb/                 Public ALB, ACM certificate, listeners, Route53 records
+    internal-alb/        Internal ALB + HTTPS listener for the snapshot registry
     nlb-ssh/             Public NLB on TCP 2222 for the ssh-gateway
     ecs-cluster/         ECS cluster, Cloud Map namespace, log groups
     service-fargate/     One reusable service module, instantiated four times
     service-ec2-runner/  EC2 ASG, capacity provider, and the runner service
   environments/
     production/          Wires the modules together
+      snapshot_manager.tf The snapshot registry, its bucket, and its private path
+      image_mirror.tf     One-off task that copies the sandbox image ECR -> registry
       postgres.tf        Optional in-cluster Postgres (use_rds = false)
       postgres_backup.tf Its scheduled pg_dump to S3
 ```
@@ -148,9 +151,11 @@ terraform apply tfplan
 ### 5. Push images
 
 The ECR repositories are created empty. Services will not reach a steady state
-until CI has pushed at least one image to each of the five repositories — expect
-the first apply to finish with services still stabilising, which is normal and
-resolves once images exist.
+until CI has pushed at least one image to each of the service repositories —
+expect the first apply to finish with services still stabilising, which is
+normal and resolves once images exist. The `northrays/sandbox` repository is
+not a service image; it is the staging area the sandbox base image passes
+through on its way into the snapshot registry (see "Snapshot registry").
 
 ### 6. Run migrations
 
@@ -236,7 +241,143 @@ for bootstrapping, not production:
 
 With a domain set, the stack provisions an ACM certificate, an HTTPS listener,
 an HTTP→HTTPS redirect, and Route53 records for the apex, `api.`, `proxy.`,
-`*.proxy.` and `ssh.`.
+`*.proxy.` and `ssh.`. The snapshot registry's `registry.` name is different:
+it lives in a private hosted zone and resolves only inside the VPC — see
+"Snapshot registry" below.
+
+## Snapshot registry
+
+`apps/snapshot-manager` is a Docker registry (distribution v3, S3 storage,
+basic auth) that the api pushes sandbox snapshots into and the runner pulls
+from. It is served as `https://registry.<domain>` and that URL is seeded into
+the api's DockerRegistry rows at first boot, so it must not change.
+
+### How it is reached
+
+Inside the VPC only. A second, `internal`-scheme ALB sits in the private
+subnets with an HTTPS listener, and a **private hosted zone for exactly
+`registry.<domain>`** is associated with the VPC, holding one alias record to
+that balancer. From inside the VPC the name resolves to a private address; from
+outside, the public zone no longer has the name at all.
+
+Two decisions worth knowing before touching this:
+
+- **The certificate is the public ALB's, reused.** ACM validated it through the
+  public zone (the validation CNAME is there and stays there for renewals), it
+  covers `*.<domain>`, and one certificate can be attached to any number of
+  listeners. The name it serves never needs a public A record.
+- **The private zone is the single leaf name, not `<domain>`.** A private zone
+  takes precedence over public DNS for *every* name under it, and a name it
+  does not hold is NXDOMAIN, not a fall-through. A private zone for `<domain>`
+  would have had to replicate `api.`, `proxy.`, `*.proxy.`, `ssh.` and the
+  apex — which the proxy and api call by their public names from inside the
+  VPC — and keep them in step forever. Scoping the zone to the one name that
+  must differ leaves everything else resolving exactly as before.
+
+Who may reach the balancer is in `security.tf`: the api, the runner and the
+image-mirror task, by security group. There is no CIDR rule.
+
+### Getting the sandbox base image in
+
+Nothing outside the VPC can push, so the `Publish sandbox image` workflow
+builds the image, pushes it to the ECR staging repository `northrays/sandbox`,
+and then runs the one-off Fargate task `northrays-image-mirror`
+(`image_mirror.tf`) inside the VPC. That task pulls from ECR with its task role
+and pushes to the registry with the `INTERNAL_REGISTRY_PASSWORD` secret ECS
+injects; the workflow polls it to `STOPPED` and fails unless it exited 0. The
+GitHub deploy role has no permission to read the registry password.
+
+To run the mirror by hand for a tag that is already in ECR:
+
+```bash
+NETCFG=$(terraform output -json image_mirror_task_network_configuration)
+SUBNETS=$(echo "$NETCFG" | jq -r '.subnets | join(",")')
+SGS=$(echo "$NETCFG" | jq -r '.security_groups | join(",")')
+
+aws ecs run-task --cluster northrays-production \
+  --task-definition northrays-image-mirror --launch-type FARGATE \
+  --network-configuration "awsvpcConfiguration={subnets=[$SUBNETS],securityGroups=[$SGS],assignPublicIp=DISABLED}" \
+  --overrides '{"containerOverrides":[{"name":"image-mirror","environment":[{"name":"IMAGE_TAG","value":"0.1.0-slim"}]}]}'
+```
+
+### Taking the registry off the internet (one-time runbook)
+
+The registry was originally served through the public ALB. The internal path
+is added alongside it, not instead of it, and the public path is removed by a
+second apply once the internal one is verified. `snapshot_manager_public_ingress`
+is that switch; it defaults to `true`, which is today's behaviour.
+
+1. Apply the internal path with the public one still in place:
+
+   ```bash
+   cd infra/terraform/environments/production
+   terraform init
+   terraform plan -out=tfplan
+   ```
+
+   Read the plan. Expected: an internal ALB, its listener, security group and
+   rules; a private hosted zone and one record; a target group and listener
+   rule; the `northrays/sandbox` ECR repository; the image-mirror task
+   definition, role policy, security group and log group; and
+   `module.snapshot_manager.aws_ecs_service.this` **updated in place** with a
+   second `load_balancer` entry. Nothing is destroyed. If the plan shows the
+   registry service being *replaced*, stop — that is not expected.
+
+   ```bash
+   terraform apply tfplan
+   ```
+
+   The registry service rolls once so its tasks register in both target groups.
+
+2. Verify from inside the VPC, using an api task (it has `curl`):
+
+   ```bash
+   TASK=$(aws ecs list-tasks --cluster northrays-production --service-name northrays-api \
+     --query 'taskArns[0]' --output text)
+   aws ecs execute-command --cluster northrays-production --task "$TASK" \
+     --container api --interactive \
+     --command "sh -c 'getent hosts registry.sandbox.aadml.com; curl -sS -o /dev/null -w \"%{http_code}\n\" https://registry.sandbox.aadml.com/healthz; curl -sS -o /dev/null -w \"%{http_code}\n\" https://registry.sandbox.aadml.com/v2/'"
+   ```
+
+   Expected: an address inside the VPC CIDR (10.20.x.x, the internal ALB, not
+   a public IP), `200` from `/healthz`, and `401` from `/v2/` (basic auth is
+   required; a 401 proves TLS validated and the request reached the registry).
+
+3. Publish the sandbox image through the new path: run the `Publish sandbox
+   image` workflow with a version. Its `mirror` job must succeed, which proves
+   the in-VPC push path end to end. Then create a sandbox from that snapshot
+   (the smoke test does this) to prove the runner's pull path.
+
+4. Flip the switch and apply again:
+
+   ```bash
+   # terraform.tfvars
+   snapshot_manager_public_ingress = false
+   ```
+
+   ```bash
+   terraform plan -out=tfplan
+   ```
+
+   Expected: destroy the public listener rule, the public target group, the
+   public `registry.<domain>` alias record and the public-ALB ingress rule on
+   the registry tasks; the registry service **updated in place** again to drop
+   the public target group. Nothing else changes.
+
+   ```bash
+   terraform apply tfplan
+   ```
+
+5. Confirm from outside the VPC:
+
+   ```bash
+   dig +short registry.sandbox.aadml.com @1.1.1.1     # prints nothing
+   curl -sS https://registry.sandbox.aadml.com/v2/    # fails to resolve
+   ```
+
+   and repeat step 2 from inside, which must still succeed. The api's
+   DockerRegistry rows need no change: the hostname is the same, only the
+   answer differs.
 
 ## Day-to-day
 

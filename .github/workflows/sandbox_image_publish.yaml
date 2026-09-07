@@ -11,16 +11,26 @@
 # a snapshot references it. So it is versioned explicitly and published on
 # demand rather than on push.
 #
-# Where it goes, and why not ECR: the runner pulls the base image using the
+# Where it ends up, and why not ECR: the runner pulls the base image using the
 # credentials of whichever registry row matches the image name
 # (docker-registry.service.ts findRegistryByUrlMatch). ECR cannot fill that
 # role -- its 12-hour tokens are never refreshed for internal registries -- so
-# the image is pushed to the snapshot-manager registry, whose basic-auth row
-# the api seeds at boot. The image name then resolves credentials by prefix,
-# and the same registry receives the re-pushed snapshot afterwards.
+# the image has to land in the snapshot-manager registry, whose basic-auth row
+# the api seeds at boot.
 #
-# The registry password is read from Secrets Manager at run time via the OIDC
-# deploy role. It is never stored as a GitHub secret.
+# How it gets there: that registry is reachable ONLY from inside the VPC, so a
+# GitHub-hosted runner cannot push to it. Two stages instead:
+#
+#   build    Build here and push to the ECR repository northrays/sandbox, which
+#            is only a staging area -- nothing runs from it.
+#   mirror   `run-task` the northrays-image-mirror task definition (Fargate, in
+#            a private subnet; infra/terraform/.../image_mirror.tf). It pulls
+#            from ECR with its task role and pushes to the registry with a
+#            password injected by ECS. This job waits for it to STOP and fails
+#            unless the container exited 0.
+#
+# The registry password is never read by this workflow, and the deploy role has
+# no permission to read it.
 # ---------------------------------------------------------------------------
 
 name: Publish sandbox image
@@ -31,10 +41,6 @@ on:
       version:
         description: 'Image version, e.g. 0.1.0. Becomes the tag <version>-slim.'
         required: true
-      registry_host:
-        description: 'Snapshot registry hostname.'
-        required: false
-        default: 'registry.sandbox.aadml.com'
 
 permissions:
   contents: read
@@ -46,17 +52,27 @@ concurrency:
 
 env:
   AWS_REGION: ${{ vars.AWS_REGION || 'us-west-1' }}
-  REGISTRY_PASSWORD_SECRET: northrays/production/internal-registry-password
-  REGISTRY_USERNAME: northrays
-  IMAGE_REPOSITORY: northrays/sandbox
+  ECS_CLUSTER: northrays-production
+  ECR_REPOSITORY: northrays/sandbox
+  IMAGE_MIRROR_TASK_FAMILY: northrays-image-mirror
+  IMAGE_MIRROR_CONTAINER_NAME: ${{ vars.IMAGE_MIRROR_CONTAINER_NAME || 'image-mirror' }}
+  # Name tag on the security group Terraform creates for the mirror task.
+  IMAGE_MIRROR_SECURITY_GROUP_NAME: northrays-image-mirror-task
+  # Service whose private subnets the mirror task borrows. It has its own
+  # security group; only the subnet list is read from here.
+  NETWORK_REFERENCE_SERVICE: northrays-api
 
 jobs:
-  publish:
-    name: Build & publish sandbox-slim ${{ inputs.version }}
+  # -------------------------------------------------------------------------
+  build:
+    name: Build & push sandbox-slim ${{ inputs.version }} to ECR
     runs-on: ubuntu-latest
     timeout-minutes: 60
+    outputs:
+      image_tag: ${{ steps.tag.outputs.image_tag }}
     steps:
       - name: Validate version
+        id: tag
         env:
           VERSION: ${{ inputs.version }}
         run: |
@@ -66,33 +82,28 @@ jobs:
             echo "::error::version '$VERSION' is not a plain semantic version."
             exit 1
           fi
+          echo "image_tag=${VERSION}-slim" >> "$GITHUB_OUTPUT"
 
       - name: Checkout
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
 
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
           role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
           aws-region: ${{ env.AWS_REGION }}
-          role-session-name: gha-sandbox-image-${{ github.run_id }}
+          role-session-name: gha-sandbox-image-build-${{ github.run_id }}
 
-      - name: Log in to the snapshot registry
-        env:
-          REGISTRY_HOST: ${{ inputs.registry_host }}
-        run: |
-          set -euo pipefail
-          password=$(aws secretsmanager get-secret-value \
-            --secret-id "$REGISTRY_PASSWORD_SECRET" \
-            --query SecretString --output text)
-          # --password-stdin keeps the value out of the process list and the log.
-          printf '%s' "$password" | docker login "$REGISTRY_HOST" \
-            --username "$REGISTRY_USERNAME" --password-stdin
+      - name: Log in to Amazon ECR
+        id: ecr-login
+        uses: aws-actions/amazon-ecr-login@v2
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
 
-      - name: Build and push
+      - name: Build and push to ECR
         uses: docker/build-push-action@v6
         with:
           context: .
@@ -101,18 +112,211 @@ jobs:
           push: true
           provenance: false
           tags: |
-            ${{ inputs.registry_host }}/${{ env.IMAGE_REPOSITORY }}:${{ inputs.version }}-slim
+            ${{ steps.ecr-login.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ steps.tag.outputs.image_tag }}
           cache-from: type=gha,scope=sandbox-slim
           cache-to: type=gha,scope=sandbox-slim,mode=max
 
-      - name: Verify the manifest is served
+      - name: Verify the image is in ECR
         env:
-          REGISTRY_HOST: ${{ inputs.registry_host }}
-          VERSION: ${{ inputs.version }}
+          IMAGE_TAG: ${{ steps.tag.outputs.image_tag }}
         run: |
           set -euo pipefail
-          # A push that "succeeded" but is not retrievable is worse than a failed
-          # one: the api would create a snapshot pointing at nothing.
-          docker manifest inspect "$REGISTRY_HOST/$IMAGE_REPOSITORY:$VERSION-slim" > /dev/null
-          echo "Published $REGISTRY_HOST/$IMAGE_REPOSITORY:$VERSION-slim"
-          echo "Set DEFAULT_SNAPSHOT (terraform default_snapshot) to that name and roll the api." >> "$GITHUB_STEP_SUMMARY"
+          aws ecr describe-images \
+            --repository-name "$ECR_REPOSITORY" \
+            --image-ids "imageTag=$IMAGE_TAG" \
+            --query 'imageDetails[0].imageDigest' --output text
+          echo "Staged $ECR_REPOSITORY:$IMAGE_TAG in ECR."
+
+  # -------------------------------------------------------------------------
+  mirror:
+    name: Copy into the snapshot registry
+    needs: build
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+          role-session-name: gha-sandbox-image-mirror-${{ github.run_id }}
+
+      - name: Install ECS one-off task runner
+        # Same shape as deploy.yaml's migration runner, written to RUNNER_TEMP
+        # for the same reason: .licenserc.yaml globs '**/*.sh' with no .github
+        # exemption, so a checked-in helper would fail the license-header job.
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/bin"
+          cat > "$RUNNER_TEMP/bin/run-mirror.sh" <<'SCRIPT'
+          #!/usr/bin/env bash
+          # Run the image-mirror task once for one tag, wait for it to stop, and
+          # fail unless the container exited 0.
+          set -euo pipefail
+
+          IMAGE_TAG="${1:?usage: run-mirror.sh <image-tag>}"
+          TIMEOUT_SECONDS="${MIRROR_TIMEOUT_SECONDS:-1800}"
+          POLL_SECONDS=10
+
+          : "${ECS_CLUSTER:?}" "${IMAGE_MIRROR_CONTAINER_NAME:?}" "${TASK_DEFINITION:?}"
+          : "${ECS_SUBNETS:?}" "${ECS_SECURITY_GROUPS:?}"
+
+          echo "::group::run-task $TASK_DEFINITION ($IMAGE_TAG)"
+
+          # containerOverrides cannot change the image, and does not need to:
+          # the task definition pins the tool image and reads the tag to copy
+          # from IMAGE_TAG.
+          overrides=$(jq -nc \
+            --arg name "$IMAGE_MIRROR_CONTAINER_NAME" \
+            --arg tag "$IMAGE_TAG" \
+            '{containerOverrides: [{name: $name, environment: [{name: "IMAGE_TAG", value: $tag}]}]}')
+
+          network=$(jq -nc \
+            --argjson subnets "$ECS_SUBNETS" \
+            --argjson groups "$ECS_SECURITY_GROUPS" \
+            '{awsvpcConfiguration: {subnets: $subnets, securityGroups: $groups, assignPublicIp: "DISABLED"}}')
+
+          run_output=$(aws ecs run-task \
+            --cluster "$ECS_CLUSTER" \
+            --task-definition "$TASK_DEFINITION" \
+            --launch-type FARGATE \
+            --count 1 \
+            --started-by "gha-${GITHUB_RUN_ID:-manual}" \
+            --network-configuration "$network" \
+            --overrides "$overrides" \
+            --output json)
+
+          failures=$(printf '%s' "$run_output" | jq -r '.failures // [] | length')
+          if [ "$failures" != "0" ]; then
+            echo "::error::ECS refused to start the image-mirror task:"
+            printf '%s' "$run_output" | jq '.failures'
+            exit 1
+          fi
+
+          task_arn=$(printf '%s' "$run_output" | jq -r '.tasks[0].taskArn')
+          if [ -z "$task_arn" ] || [ "$task_arn" = "null" ]; then
+            echo "::error::run-task returned no taskArn."
+            printf '%s' "$run_output"
+            exit 1
+          fi
+          task_id="${task_arn##*/}"
+          echo "task: $task_arn"
+          echo "::endgroup::"
+
+          # Poll rather than `aws ecs wait tasks-stopped`: the waiter caps out at
+          # ~10 minutes, which a large image over NAT can legitimately exceed.
+          deadline=$(( SECONDS + TIMEOUT_SECONDS ))
+          status=""
+          while [ "$SECONDS" -lt "$deadline" ]; do
+            status=$(aws ecs describe-tasks --cluster "$ECS_CLUSTER" --tasks "$task_arn" \
+              --query 'tasks[0].lastStatus' --output text)
+            if [ "$status" = "STOPPED" ]; then
+              break
+            fi
+            echo "  mirror $IMAGE_TAG: $status ..."
+            sleep "$POLL_SECONDS"
+          done
+
+          if [ "$status" != "STOPPED" ]; then
+            echo "::error::Image-mirror task did not stop within ${TIMEOUT_SECONDS}s (last status: $status). Stopping it."
+            aws ecs stop-task --cluster "$ECS_CLUSTER" --task "$task_arn" \
+              --reason "timed out in GitHub Actions" >/dev/null || true
+            exit 1
+          fi
+
+          task_json=$(aws ecs describe-tasks --cluster "$ECS_CLUSTER" --tasks "$task_arn" --output json)
+          exit_code=$(printf '%s' "$task_json" \
+            | jq -r --arg name "$IMAGE_MIRROR_CONTAINER_NAME" \
+                '.tasks[0].containers[] | select(.name == $name) | .exitCode // "null"')
+          stopped_reason=$(printf '%s' "$task_json" | jq -r '.tasks[0].stoppedReason // "unknown"')
+
+          # Best-effort log tail -- never let a logging problem mask the real result.
+          log_group=$(aws ecs describe-task-definition --task-definition "$TASK_DEFINITION" \
+            --query "taskDefinition.containerDefinitions[?name=='$IMAGE_MIRROR_CONTAINER_NAME'].logConfiguration.options.\"awslogs-group\" | [0]" \
+            --output text 2>/dev/null || echo "None")
+          log_prefix=$(aws ecs describe-task-definition --task-definition "$TASK_DEFINITION" \
+            --query "taskDefinition.containerDefinitions[?name=='$IMAGE_MIRROR_CONTAINER_NAME'].logConfiguration.options.\"awslogs-stream-prefix\" | [0]" \
+            --output text 2>/dev/null || echo "None")
+          if [ "$log_group" != "None" ] && [ "$log_prefix" != "None" ]; then
+            echo "::group::logs image-mirror $IMAGE_TAG"
+            aws logs get-log-events \
+              --log-group-name "$log_group" \
+              --log-stream-name "${log_prefix}/${IMAGE_MIRROR_CONTAINER_NAME}/${task_id}" \
+              --limit 500 --no-start-from-head \
+              --query 'events[].message' --output text 2>/dev/null || echo "(logs unavailable)"
+            echo "::endgroup::"
+          fi
+
+          if [ "$exit_code" != "0" ]; then
+            echo "::error::Image-mirror task failed (container exit code: $exit_code, stoppedReason: $stopped_reason)."
+            exit 1
+          fi
+
+          echo "Image-mirror task for '$IMAGE_TAG' completed successfully."
+          SCRIPT
+          chmod +x "$RUNNER_TEMP/bin/run-mirror.sh"
+
+      - name: Discover mirror task networking
+        id: network
+        # Subnets: the api service's private subnets, unless pinned via repo
+        # variables. Security group: the mirror task's OWN group, found by the
+        # Name tag Terraform puts on it -- not the api's, which would make the
+        # task indistinguishable from the api to every security group rule.
+        env:
+          OVERRIDE_SUBNETS: ${{ vars.ECS_SUBNET_IDS }}
+          OVERRIDE_SECURITY_GROUPS: ${{ vars.IMAGE_MIRROR_SECURITY_GROUP_IDS }}
+        run: |
+          set -euo pipefail
+          if [ -n "${OVERRIDE_SUBNETS:-}" ]; then
+            subnets=$(printf '%s' "$OVERRIDE_SUBNETS" | jq -Rc 'split(",") | map(gsub("^\\s+|\\s+$";"")) | map(select(length > 0))')
+          else
+            subnets=$(aws ecs describe-services \
+              --cluster "$ECS_CLUSTER" \
+              --services "$NETWORK_REFERENCE_SERVICE" \
+              --query 'services[0].networkConfiguration.awsvpcConfiguration.subnets' \
+              --output json)
+            if [ -z "$subnets" ] || [ "$subnets" = "null" ]; then
+              echo "::error::Could not read subnets from service '$NETWORK_REFERENCE_SERVICE'. Set vars.ECS_SUBNET_IDS instead."
+              exit 1
+            fi
+          fi
+
+          if [ -n "${OVERRIDE_SECURITY_GROUPS:-}" ]; then
+            groups=$(printf '%s' "$OVERRIDE_SECURITY_GROUPS" | jq -Rc 'split(",") | map(gsub("^\\s+|\\s+$";"")) | map(select(length > 0))')
+          else
+            groups=$(aws ec2 describe-security-groups \
+              --filters "Name=tag:Name,Values=$IMAGE_MIRROR_SECURITY_GROUP_NAME" \
+              --query 'SecurityGroups[].GroupId' --output json | jq -c '.')
+            count=$(printf '%s' "$groups" | jq 'length')
+            if [ "$count" != "1" ]; then
+              echo "::error::Expected exactly one security group tagged Name=$IMAGE_MIRROR_SECURITY_GROUP_NAME, found $count: $groups. Set vars.IMAGE_MIRROR_SECURITY_GROUP_IDS to pin one."
+              exit 1
+            fi
+          fi
+
+          echo "subnets=$subnets" >> "$GITHUB_OUTPUT"
+          echo "security_groups=$groups" >> "$GITHUB_OUTPUT"
+          echo "subnets: $subnets"
+          echo "securityGroups: $groups"
+
+      - name: Run the image-mirror task
+        env:
+          TASK_DEFINITION: ${{ env.IMAGE_MIRROR_TASK_FAMILY }}
+          ECS_SUBNETS: ${{ steps.network.outputs.subnets }}
+          ECS_SECURITY_GROUPS: ${{ steps.network.outputs.security_groups }}
+          IMAGE_TAG: ${{ needs.build.outputs.image_tag }}
+        run: |
+          bash "$RUNNER_TEMP/bin/run-mirror.sh" "$IMAGE_TAG"
+
+      - name: Summary
+        env:
+          IMAGE_TAG: ${{ needs.build.outputs.image_tag }}
+        run: |
+          set -euo pipefail
+          {
+            echo "### Sandbox image published"
+            echo
+            echo "Copied \`$ECR_REPOSITORY:$IMAGE_TAG\` from ECR into the snapshot registry as \`northrays/sandbox:$IMAGE_TAG\`."
+            echo
+            echo "Set \`default_snapshot\` (Terraform) / \`DEFAULT_SNAPSHOT\` to that name and roll the api."
+          } >> "$GITHUB_STEP_SUMMARY"

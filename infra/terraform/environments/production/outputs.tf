@@ -79,6 +79,19 @@ output "task_definition_families" {
     runner           = module.runner.task_definition_family
     snapshot-manager = module.snapshot_manager.task_definition_family
     migrations       = aws_ecs_task_definition.migrations.family
+    image-mirror     = aws_ecs_task_definition.image_mirror.family
+  }
+}
+
+output "image_mirror_task_network_configuration" {
+  description = <<-EOT
+    Network configuration for `aws ecs run-task` when invoking the image-mirror
+    task by hand. The sandbox-image workflow discovers the same values itself.
+  EOT
+  value = {
+    subnets          = module.network.private_subnet_ids
+    security_groups  = [aws_security_group.image_mirror.id]
+    assign_public_ip = "DISABLED"
   }
 }
 
@@ -169,6 +182,21 @@ output "internal_registry_url" {
   value       = local.snapshot_manager_registry_url
 }
 
+output "internal_registry_alb_dns_name" {
+  description = "DNS name of the internal balancer registry.<domain> resolves to inside the VPC. Private addresses only; empty without a domain."
+  value       = one(module.internal_alb[*].alb_dns_name) != null ? one(module.internal_alb[*].alb_dns_name) : ""
+}
+
+output "internal_registry_private_zone_id" {
+  description = "Private hosted zone holding the single registry.<domain> record. Empty without a domain."
+  value       = one(aws_route53_zone.snapshot_manager_private[*].zone_id) != null ? one(aws_route53_zone.snapshot_manager_private[*].zone_id) : ""
+}
+
+output "snapshot_manager_public_ingress" {
+  description = "Whether the registry is still ALSO served on the public balancer. True is the transitional state; false is the hardened one."
+  value       = var.snapshot_manager_public_ingress
+}
+
 output "runner_internal_url" {
   description = <<-EOT
     Internal URL the api seeds into its runner row as DEFAULT_RUNNER_API_URL.
@@ -209,38 +237,4 @@ output "route53_zone_id_effective" {
 output "github_deploy_role_arn" {
   description = "Role ARN for the GitHub Actions deploy workflow. Set as the repository variable AWS_DEPLOY_ROLE_ARN."
   value       = try(aws_iam_role.github_deploy[0].arn, "")
-}
-
-# ---------------------------------------------------------------------------
-# Python package index (CodeArtifact)
-# ---------------------------------------------------------------------------
-
-output "codeartifact_domain" {
-  description = "CodeArtifact domain holding the Python package repository. The --domain argument to `aws codeartifact login`."
-  value       = aws_codeartifact_domain.northrays.domain
-}
-
-output "codeartifact_repository" {
-  description = "CodeArtifact repository the Python SDK is published to and installed from. The --repository argument to `aws codeartifact login`."
-  value       = aws_codeartifact_repository.python.repository
-}
-
-output "codeartifact_region" {
-  description = "Region the CodeArtifact resources live in. Pass as --region to every `aws codeartifact` call; set as the repository variable AWS_CODEARTIFACT_REGION."
-  value       = var.codeartifact_region
-}
-
-output "python_index_url" {
-  description = <<-EOT
-    pip index URL for the Northrays Python packages, i.e. what
-    `aws codeartifact login --tool pip` writes into pip's config. Requires an
-    authorization token: for a one-off, embed it as
-    https://aws:<token>@<host>/pypi/northrays-python/simple/.
-  EOT
-  value       = "${data.aws_codeartifact_repository_endpoint.python_pypi.repository_endpoint}simple/"
-}
-
-output "python_index_read_policy_arn" {
-  description = "Read-only IAM policy for machines that pip install the SDK. Attach it to the EC2 instance role (or user) of the agent host."
-  value       = aws_iam_policy.python_index_read.arn
 }
