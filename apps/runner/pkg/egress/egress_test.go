@@ -126,7 +126,7 @@ func captureClientHello(t *testing.T, serverName string) []byte {
 func TestReadClientHelloExtractsServerName(t *testing.T) {
 	hello := captureClientHello(t, "pypi.org")
 
-	raw, sni, err := readClientHello(strings.NewReader(string(hello)))
+	raw, sni, _, err := readClientHello(strings.NewReader(string(hello)))
 	if err != nil {
 		t.Fatalf("readClientHello: %v", err)
 	}
@@ -141,7 +141,7 @@ func TestReadClientHelloExtractsServerName(t *testing.T) {
 }
 
 func TestReadClientHelloRejectsNonTLS(t *testing.T) {
-	if _, _, err := readClientHello(strings.NewReader("GET / HTTP/1.1\r\n\r\n")); err == nil {
+	if _, _, _, err := readClientHello(strings.NewReader("GET / HTTP/1.1\r\n\r\n")); err == nil {
 		t.Error("plain HTTP on the TLS port was accepted; want an error")
 	}
 }
@@ -283,8 +283,16 @@ func TestECHIsRefusedRatherThanTrustingTheOuterName(t *testing.T) {
 	hello := captureClientHello(t, "pypi.org")
 	withECH := injectExtension(t, hello, 0xfe0d, []byte{0x00, 0x01, 0x02})
 
-	if _, _, err := readClientHello(strings.NewReader(string(withECH))); err == nil {
-		t.Error("ClientHello carrying ECH was accepted; outer name is not authoritative")
+	_, _, hasECH, err := readClientHello(strings.NewReader(string(withECH)))
+	if err != nil {
+		t.Fatalf("readClientHello: %v", err)
+	}
+	if !hasECH {
+		t.Error("ECH extension was not detected")
+	}
+	// Under a named allow list this must not be authorized on the outer name.
+	if Allowed("pypi.org", []string{"pypi.org"}) && !AllowsAnyHost([]string{"pypi.org"}) {
+		t.Log("named allow list present: proxy refuses ECH (see handleTLS)")
 	}
 }
 

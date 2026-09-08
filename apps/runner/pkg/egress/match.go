@@ -46,6 +46,26 @@ func normalizeHost(host string) string {
 	return strings.TrimSuffix(h, ".")
 }
 
+// AnyHost is the pattern that means "any public hostname".
+//
+// It is what separates a sandbox that may browse the internet from one confined to a
+// named list, WITHOUT giving up the rest of the machinery. A sandbox on this pattern
+// still goes through the proxy and the resolver, so it still cannot reach a private
+// address, the metadata service, a runner service or a neighbouring sandbox -- those
+// are refused when the resolved address is vetted, not by the name check. It is
+// "everything public", not "everything".
+const AnyHost = "*"
+
+// AllowsAnyHost reports whether a pattern list is the public-internet posture.
+func AllowsAnyHost(patterns []string) bool {
+	for _, p := range patterns {
+		if strings.TrimSpace(p) == AnyHost {
+			return true
+		}
+	}
+	return false
+}
+
 // Allowed reports whether host is permitted by patterns.
 //
 // A bare entry ("pypi.org") matches that name and nothing else -- NOT its
@@ -69,6 +89,13 @@ func Allowed(host string, patterns []string) bool {
 	h := normalizeHost(host)
 	if h == "" {
 		return false
+	}
+
+	// Public-internet posture: any hostname passes the NAME check. The address the
+	// name resolves to is still vetted before anything is dialled, which is where
+	// internal infrastructure is kept out of reach.
+	if AllowsAnyHost(patterns) {
+		return true
 	}
 
 	for _, pattern := range patterns {
@@ -99,6 +126,12 @@ func Allowed(host string, patterns []string) bool {
 func ParseAllowList(list string) []string {
 	var patterns []string
 	for _, entry := range strings.Split(list, ",") {
+		// normalizeHost would strip "*" of nothing but is not meant to judge it, so
+		// the any-host token is recognised before the hostname rules apply.
+		if strings.TrimSpace(entry) == AnyHost {
+			patterns = append(patterns, AnyHost)
+			continue
+		}
 		if e := normalizeHost(entry); e != "" {
 			patterns = append(patterns, e)
 		}

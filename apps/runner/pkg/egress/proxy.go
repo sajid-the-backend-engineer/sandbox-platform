@@ -171,10 +171,22 @@ func (p *Proxy) handleTLS(client net.Conn, sandboxIP string, policy Policy) {
 		return
 	}
 
-	hello, host, err := readClientHello(client)
+	hello, host, hasECH, err := readClientHello(client)
 	if err != nil {
 		p.log.Warn("Egress denied: unreadable TLS destination",
 			"sandboxIp", sandboxIP, "reason", err.Error())
+		return
+	}
+
+	// Encrypted ClientHello hides the real destination behind a public outer name.
+	// That is a bypass ONLY where a named allow list is being enforced -- if every
+	// public host is permitted, there is nothing for a hidden name to evade. So it
+	// is refused for allow-list policies and accepted for public-internet ones,
+	// which is also what keeps browsers working: Chrome and Firefox send GREASE ECH
+	// by default, and refusing it unconditionally would break ordinary browsing.
+	if hasECH && !AllowsAnyHost(policy.Patterns) {
+		p.log.Warn("Egress denied: Encrypted ClientHello under a named allow list",
+			"sandboxIp", sandboxIP, "outerHost", host, "revision", policy.Revision)
 		return
 	}
 

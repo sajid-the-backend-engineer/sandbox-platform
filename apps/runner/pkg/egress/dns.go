@@ -220,6 +220,10 @@ func (r *Resolver) answer(query []byte, sandboxIP string) []byte {
 		return errorResponse(query, rcodeRefused)
 	}
 
+	// A public-internet policy resolves any name, but the answer still buys nothing
+	// on its own: connections are dialled by the proxy, which vets the resolved
+	// address. Resolution and reachability are separate gates on purpose.
+
 	resp, err := r.forward(query)
 	if err != nil {
 		r.log.Info("DNS upstream failed",

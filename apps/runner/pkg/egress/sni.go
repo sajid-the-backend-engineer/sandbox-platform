@@ -49,31 +49,38 @@ const (
 // on the name, dials the real host, and replays this ClientHello verbatim so the
 // handshake the client started completes with the server it asked for. Anything less
 // faithful than a byte-for-byte replay would be a downgrade the client cannot see.
-func readClientHello(r io.Reader) ([]byte, string, error) {
+func readClientHello(r io.Reader) ([]byte, string, bool, error) {
 	header := make([]byte, 5)
 	if _, err := io.ReadFull(r, header); err != nil {
-		return nil, "", fmt.Errorf("read TLS record header: %w", err)
+		return nil, "", false, fmt.Errorf("read TLS record header: %w", err)
 	}
 
 	// 0x16 is the handshake content type. Anything else on a port we redirected as
 	// HTTPS is not TLS, and we will not guess at it.
 	if header[0] != 0x16 {
-		return header, "", fmt.Errorf("not a TLS handshake (content type 0x%02x)", header[0])
+		return header, "", false, fmt.Errorf("not a TLS handshake (content type 0x%02x)", header[0])
 	}
 
 	length := int(binary.BigEndian.Uint16(header[3:5]))
 	if length == 0 || length > maxClientHello {
-		return header, "", fmt.Errorf("TLS record length %d out of range", length)
+		return header, "", false, fmt.Errorf("TLS record length %d out of range", length)
 	}
 
 	record := make([]byte, 5+length)
 	copy(record, header)
 	if _, err := io.ReadFull(r, record[5:]); err != nil {
-		return record, "", fmt.Errorf("read TLS record body: %w", err)
+		return record, "", false, fmt.Errorf("read TLS record body: %w", err)
 	}
 
 	sni, err := parseSNI(record[5:])
-	return record, sni, err
+	if errors.Is(err, errECH) {
+		// Reported rather than refused here. Whether an encrypted inner name matters
+		// depends on the policy: it is a bypass when a named allow list is being
+		// enforced, and irrelevant when every public host is permitted anyway. The
+		// caller knows which, this function does not.
+		return record, sni, true, nil
+	}
+	return record, sni, false, err
 }
 
 // cursor is a bounds-checked reader over a byte slice. Every field in a ClientHello
@@ -130,6 +137,7 @@ func (c *cursor) skipVector(lenBytes int) error {
 // server_name extension (RFC 6066).
 func parseSNI(handshake []byte) (string, error) {
 	var serverName string
+	var sawECH bool
 	c := &cursor{buf: handshake}
 
 	msgType, err := c.u8()
@@ -180,7 +188,8 @@ func parseSNI(handshake []byte) (string, error) {
 		}
 
 		if extType == extECH {
-			return "", errECH
+			sawECH = true
+			continue
 		}
 		if extType != extServerName {
 			continue
@@ -220,6 +229,11 @@ func parseSNI(handshake []byte) (string, error) {
 		}
 	}
 
+	if sawECH {
+		// The outer name is returned alongside the flag so a public-internet policy
+		// can still log where the connection went.
+		return serverName, errECH
+	}
 	if serverName == "" {
 		return "", errNoSNI
 	}
