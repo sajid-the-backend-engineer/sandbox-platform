@@ -20,7 +20,7 @@ func TestEveryRequestOnAKeepAliveConnectionIsAuthorized(t *testing.T) {
 	// reachable by any client that wants it.
 	upstream := echoServer(t)
 	p, httpAddr, _ := startProxy(t, upstream)
-	p.Register("127.0.0.1", []string{"pypi.org"})
+	p.registry.Register("127.0.0.1", Policy{Patterns: []string{"pypi.org"}, Revision: "test"})
 
 	conn, err := net.Dial("tcp", httpAddr)
 	if err != nil {
@@ -68,7 +68,7 @@ func TestTunnelsAndUpgradesAreRefused(t *testing.T) {
 	// half-supported, because a half-supported tunnel is an unchecked one.
 	upstream := echoServer(t)
 	p, httpAddr, _ := startProxy(t, upstream)
-	p.Register("127.0.0.1", []string{"pypi.org"})
+	p.registry.Register("127.0.0.1", Policy{Patterns: []string{"pypi.org"}, Revision: "test"})
 
 	for name, raw := range map[string]string{
 		"connect": "CONNECT pypi.org:443 HTTP/1.1\r\nHost: pypi.org\r\n\r\n",

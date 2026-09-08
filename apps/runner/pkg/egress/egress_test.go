@@ -211,7 +211,7 @@ func echoServer(t *testing.T) net.Listener {
 func TestProxyForwardsAnAllowedHost(t *testing.T) {
 	upstream := echoServer(t)
 	p, httpAddr, _ := startProxy(t, upstream)
-	p.Register("127.0.0.1", []string{"pypi.org"})
+	p.registry.Register("127.0.0.1", Policy{Patterns: []string{"pypi.org"}, Revision: "test"})
 
 	conn, err := net.Dial("tcp", httpAddr)
 	if err != nil {
@@ -241,7 +241,7 @@ func TestProxyRefusesAHostNotOnTheList(t *testing.T) {
 	// pypi.org and reached example.com anyway.
 	upstream := echoServer(t)
 	p, httpAddr, _ := startProxy(t, upstream)
-	p.Register("127.0.0.1", []string{"pypi.org"})
+	p.registry.Register("127.0.0.1", Policy{Patterns: []string{"pypi.org"}, Revision: "test"})
 
 	conn, err := net.Dial("tcp", httpAddr)
 	if err != nil {
@@ -315,7 +315,7 @@ func TestProxyRefusesASandboxWithNoPolicy(t *testing.T) {
 func TestProxyDecidesTLSOnTheServerName(t *testing.T) {
 	upstream := echoServer(t)
 	p, _, httpsAddr := startProxy(t, upstream)
-	p.Register("127.0.0.1", []string{"pypi.org"})
+	p.registry.Register("127.0.0.1", Policy{Patterns: []string{"pypi.org"}, Revision: "test"})
 
 	for _, tc := range []struct {
 		name       string
@@ -353,8 +353,8 @@ func TestProxyDecidesTLSOnTheServerName(t *testing.T) {
 func TestUnregisterFailsClosed(t *testing.T) {
 	upstream := echoServer(t)
 	p, httpAddr, _ := startProxy(t, upstream)
-	p.Register("127.0.0.1", []string{"pypi.org"})
-	p.Unregister("127.0.0.1")
+	p.registry.Register("127.0.0.1", Policy{Patterns: []string{"pypi.org"}, Revision: "test"})
+	p.registry.Unregister("127.0.0.1")
 
 	conn, err := net.Dial("tcp", httpAddr)
 	if err != nil {
