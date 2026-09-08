@@ -37,6 +37,7 @@ type DockerClientConfig struct {
 	EgressProxyHTTPSPort         int
 	EgressProxyDNSPort           int
 	EgressDefaultDeny            bool
+	SandboxSubnet                string
 	ResourceLimitsDisabled       bool
 	DaemonStartTimeoutSec        int
 	SandboxStartTimeoutSec       int
@@ -160,6 +161,7 @@ func NewDockerClient(ctx context.Context, config DockerClientConfig) (*DockerCli
 		egressProxyHTTPSPort:         config.EgressProxyHTTPSPort,
 		egressProxyDNSPort:           config.EgressProxyDNSPort,
 		egressDefaultDeny:            config.EgressDefaultDeny,
+		sandboxSubnet:                config.SandboxSubnet,
 		resourceLimitsDisabled:       config.ResourceLimitsDisabled,
 		daemonStartTimeoutSec:        config.DaemonStartTimeoutSec,
 		sandboxStartTimeoutSec:       config.SandboxStartTimeoutSec,
@@ -222,6 +224,7 @@ type DockerClient struct {
 	egressProxyHTTPSPort         int
 	egressProxyDNSPort           int
 	egressDefaultDeny            bool
+	sandboxSubnet                string
 	resourceLimitsDisabled       bool
 	daemonStartTimeoutSec        int
 	sandboxStartTimeoutSec       int

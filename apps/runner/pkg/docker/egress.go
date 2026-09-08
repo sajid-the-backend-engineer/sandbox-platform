@@ -5,17 +5,26 @@ package docker
 
 import (
 	"errors"
+	"fmt"
 
 	"github.com/northrays/runner/pkg/egress"
 )
 
 // applyDomainAllowList puts a sandbox under name-based egress control.
 //
-// ORDER MATTERS. The policy is registered with the proxy and resolver BEFORE the
-// redirect is installed. Done the other way round, there is a window in which
-// packets arrive at components that do not yet know the sandbox -- and since an
-// unknown source is refused, that window is an outage. Registering first makes the
-// window harmless: the components are ready for traffic that cannot reach them yet.
+// ORDER MATTERS, twice over.
+//
+// The baseline is verified FIRST. A restricted sandbox depends on it: without the
+// baseline, the gap between Docker starting the container and these rules landing is
+// unfiltered, and a sandbox built from a customer image can use that gap from its
+// entrypoint. The check reads the kernel rather than the runner's configuration,
+// because the failure this guards against is precisely a setting that was supposed to
+// be on and is not.
+//
+// Then the policy is registered with the proxy and resolver BEFORE the redirect is
+// installed. The other order leaves a window in which packets arrive at components
+// that do not yet know the sandbox -- and an unknown source is refused, so that window
+// is an outage.
 func (d *DockerClient) applyDomainAllowList(containerShortId string, ipAddress string, domainAllowList string) error {
 	if d.egressRegistry == nil {
 		// Refuse rather than fall through to an unfiltered sandbox. A policy the
@@ -23,6 +32,16 @@ func (d *DockerClient) applyDomainAllowList(containerShortId string, ipAddress s
 		// create time -- the alternative is a sandbox that reports a domain allow
 		// list while having none, which is the exact defect this replaces.
 		return errors.New("domain allow list requested but egress enforcement is not running")
+	}
+
+	active, err := d.netRulesManager.BaselineActive(d.sandboxSubnet)
+	if err != nil {
+		return fmt.Errorf("cannot verify baseline egress deny: %w", err)
+	}
+	if !active {
+		return fmt.Errorf(
+			"refusing to provision a restricted sandbox: baseline egress deny is not installed for %s "+
+				"(set EGRESS_DEFAULT_DENY=true on the runner)", d.sandboxSubnet)
 	}
 
 	patterns := egress.ParseAllowList(domainAllowList)
@@ -52,9 +71,12 @@ func (d *DockerClient) applyDomainAllowList(containerShortId string, ipAddress s
 }
 
 // clearDomainAllowList removes both halves when a sandbox goes away or its policy is
-// lifted. Rules are dropped before the registration, mirroring applyDomainAllowList:
-// at no point is there a redirect pointing at components that have forgotten the
-// policy.
+// lifted.
+//
+// Rules are dropped before the registration, mirroring applyDomainAllowList: at no
+// point is there a redirect pointing at components that have forgotten the policy.
+// With the baseline in force, a sandbox whose policy is revoked lands on the baseline
+// and is denied -- revocation removes access, it does not restore it.
 func (d *DockerClient) clearDomainAllowList(containerShortId string, ipAddress string) error {
 	if err := d.netRulesManager.DeleteDomainRules(containerShortId); err != nil {
 		return err

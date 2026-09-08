@@ -453,10 +453,10 @@ func TestBaselineDenyClosesTheStartupWindow(t *testing.T) {
 	}
 	t.Logf("sandbox subnet: %s", subnet)
 
-	if err := h.rules.EnsureBaselineDeny(subnet); err != nil {
+	if err := h.rules.SetBaselineDeny(subnet); err != nil {
 		t.Fatalf("EnsureBaselineDeny: %v", err)
 	}
-	t.Cleanup(func() { _ = h.rules.RemoveBaselineDeny() })
+	t.Cleanup(func() { _ = h.rules.RemoveBaselineDeny(subnet) })
 
 	// A container that tries to reach the network from its very first instruction,
 	// with no rules of its own installed at any point.
@@ -516,10 +516,10 @@ func TestBaselineAllowsAnExplicitlyUnrestrictedSandbox(t *testing.T) {
 	if err != nil {
 		t.Fatalf("discover subnet: %v", err)
 	}
-	if err := h.rules.EnsureBaselineDeny(subnet); err != nil {
+	if err := h.rules.SetBaselineDeny(subnet); err != nil {
 		t.Fatalf("EnsureBaselineDeny: %v", err)
 	}
-	t.Cleanup(func() { _ = h.rules.RemoveBaselineDeny() })
+	t.Cleanup(func() { _ = h.rules.RemoveBaselineDeny(subnet) })
 
 	id, ip := h.startProbe("egress-unrestricted")
 
@@ -528,10 +528,10 @@ func TestBaselineAllowsAnExplicitlyUnrestrictedSandbox(t *testing.T) {
 		t.Error("baseline did not deny an unclaimed sandbox")
 	}
 
-	if err := h.rules.AllowUnrestricted(id[:12], ip); err != nil {
+	if err := h.rules.BypassBaseline(ip); err != nil {
 		t.Fatalf("AllowUnrestricted: %v", err)
 	}
-	t.Cleanup(func() { _ = h.rules.DeleteDomainRules(id[:12]) })
+	t.Cleanup(func() { _ = h.rules.RemoveBypass(ip) })
 
 	out, code := h.exec(id, "wget", "-q", "-T", "20", "-O", "/dev/null", "https://"+deniedHost+"/")
 	if code != 0 {
@@ -551,4 +551,157 @@ func bridgeSubnet(ctx context.Context, cli *client.Client) (string, string, erro
 		}
 	}
 	return "", "", fmt.Errorf("bridge has no gateway and subnet")
+}
+
+// TestUnrestrictedSandboxKeepsDockerIsolation is the test that distinguishes the
+// working fix from the one that merely looked like it worked.
+//
+// An earlier version let an unrestricted sandbox out with ACCEPT in DOCKER-USER.
+// That terminates filter traversal, so DOCKER-ISOLATION-STAGE-1 never ran and the
+// sandbox could reach containers on OTHER Docker networks. The bypass now uses
+// RETURN from our dispatch chain, which skips only our baseline and leaves Docker's
+// isolation ahead of it. This test fails against the ACCEPT version.
+func TestUnrestrictedSandboxKeepsDockerIsolation(t *testing.T) {
+	h := setup(t)
+
+	_, subnet, err := bridgeSubnet(h.ctx, h.cli)
+	if err != nil {
+		t.Fatalf("discover subnet: %v", err)
+	}
+	if err := h.rules.SetBaselineDeny(subnet); err != nil {
+		t.Fatalf("SetBaselineDeny: %v", err)
+	}
+	t.Cleanup(func() { _ = h.rules.RemoveBaselineDeny(subnet) })
+
+	// A separate Docker network with a listener on it: the thing isolation is
+	// supposed to keep out of reach.
+	netName := "egress-othernet"
+	_ = h.cli.NetworkRemove(h.ctx, netName)
+	created, err := h.cli.NetworkCreate(h.ctx, netName, network.CreateOptions{Driver: "bridge"})
+	if err != nil {
+		t.Fatalf("create network: %v", err)
+	}
+	t.Cleanup(func() { _ = h.cli.NetworkRemove(context.Background(), created.ID) })
+
+	victim, err := h.cli.ContainerCreate(h.ctx,
+		&container.Config{
+			Image: probeImage,
+			Cmd:   []string{"sh", "-c", "while true; do echo -e 'HTTP/1.1 200 OK\r\nContent-Length: 2\r\n\r\nhi' | nc -l -p 8080; done"},
+		},
+		&container.HostConfig{NetworkMode: container.NetworkMode(netName)}, nil, nil, "egress-othernet-victim")
+	if err != nil {
+		t.Fatalf("create victim: %v", err)
+	}
+	t.Cleanup(func() {
+		_ = h.cli.ContainerRemove(context.Background(), victim.ID, container.RemoveOptions{Force: true})
+	})
+	if err := h.cli.ContainerStart(h.ctx, victim.ID, container.StartOptions{}); err != nil {
+		t.Fatalf("start victim: %v", err)
+	}
+
+	info, err := h.cli.ContainerInspect(h.ctx, victim.ID)
+	if err != nil {
+		t.Fatalf("inspect victim: %v", err)
+	}
+	victimIP := info.NetworkSettings.Networks[netName].IPAddress
+	t.Logf("victim on %s at %s", netName, victimIP)
+
+	id, ip := h.startProbe("egress-isolation-probe")
+	if err := h.rules.BypassBaseline(ip); err != nil {
+		t.Fatalf("BypassBaseline: %v", err)
+	}
+	t.Cleanup(func() { _ = h.rules.RemoveBypass(ip) })
+
+	// The bypass must restore ordinary internet access...
+	if out, code := h.exec(id, "wget", "-q", "-T", "20", "-O", "/dev/null", "https://"+deniedHost+"/"); code != 0 {
+		t.Errorf("bypassed sandbox lost internet access (exit %d): %s", code, out)
+	}
+
+	// ...without also handing it the other network.
+	out, code := h.exec(id, "wget", "-q", "-T", "8", "-O", "/dev/null", "http://"+victimIP+":8080/")
+	if code == 0 {
+		t.Errorf("ISOLATION BYPASSED: reached %s on %s from the default bridge: %s",
+			victimIP, netName, out)
+	} else {
+		t.Logf("cross-network access denied by Docker isolation, as it should be (exit %d)", code)
+	}
+}
+
+// TestRevokingPolicyDeniesARunningWorkload covers the lifecycle case that a fixture
+// teardown can accidentally paper over: removing a restricted sandbox's policy while
+// its workload keeps running must leave that workload DENIED, not restored.
+func TestRevokingPolicyDeniesARunningWorkload(t *testing.T) {
+	h := setup(t)
+
+	_, subnet, err := bridgeSubnet(h.ctx, h.cli)
+	if err != nil {
+		t.Fatalf("discover subnet: %v", err)
+	}
+	if err := h.rules.SetBaselineDeny(subnet); err != nil {
+		t.Fatalf("SetBaselineDeny: %v", err)
+	}
+	t.Cleanup(func() { _ = h.rules.RemoveBaselineDeny(subnet) })
+
+	id, ip := h.startProbe("egress-revoke")
+	h.applyPolicy(id[:12], ip, []string{allowedHost})
+
+	if _, code := h.exec(id, "wget", "-q", "-T", "20", "-O", "/dev/null", "https://"+allowedHost+"/"); code != 0 {
+		t.Fatal("allowed host unreachable before revocation")
+	}
+
+	// Revoke exactly as the runner does on an update or delete.
+	if err := h.rules.DeleteDomainRules(id[:12]); err != nil {
+		t.Fatalf("DeleteDomainRules: %v", err)
+	}
+	h.registry.Unregister(ip)
+
+	out, code := h.exec(id, "wget", "-q", "-T", "10", "-O", "/dev/null", "https://"+allowedHost+"/")
+	if code == 0 {
+		t.Errorf("revocation RESTORED access instead of removing it: %s", out)
+	} else {
+		t.Logf("revoked sandbox denied, as required (exit %d)", code)
+	}
+}
+
+// TestProxyFailureLeavesTrafficDenied checks the crash case. If the proxy dies, the
+// redirect is still in place and there is nothing listening -- which must read as
+// denied, never as a fallback to direct egress.
+func TestProxyFailureLeavesTrafficDenied(t *testing.T) {
+	h := setup(t)
+
+	id, ip := h.startProbe("egress-proxy-crash")
+	h.applyPolicy(id[:12], ip, []string{allowedHost})
+
+	if _, code := h.exec(id, "wget", "-q", "-T", "20", "-O", "/dev/null", "https://"+allowedHost+"/"); code != 0 {
+		t.Fatal("allowed host unreachable before the proxy was stopped")
+	}
+
+	h.proxy.Stop()
+
+	out, code := h.exec(id, "wget", "-q", "-T", "10", "-O", "/dev/null", "https://"+allowedHost+"/")
+	if code == 0 {
+		t.Errorf("traffic flowed after the proxy stopped: %s", out)
+	} else {
+		t.Logf("proxy down => denied, not bypassed (exit %d)", code)
+	}
+}
+
+// TestSandboxCapabilities records what a workload actually holds, so claims about
+// spoofing rest on measurement rather than on Docker's defaults being assumed.
+func TestSandboxCapabilities(t *testing.T) {
+	h := setup(t)
+	id, _ := h.startProbe("egress-caps")
+
+	out, _ := h.exec(id, "sh", "-c", "grep -E 'CapEff|CapBnd|CapPrm' /proc/self/status")
+	t.Logf("capabilities:\n%s", strings.TrimSpace(out))
+
+	// CAP_NET_RAW is bit 13 (0x2000); CAP_NET_ADMIN is bit 12 (0x1000).
+	for _, probe := range []struct{ name, cmd string }{
+		{"add address (needs NET_ADMIN)", "ip addr add 10.99.99.99/32 dev eth0"},
+		{"set link down (needs NET_ADMIN)", "ip link set eth0 down"},
+		{"raw socket ping (needs NET_RAW)", "ping -c1 -W2 127.0.0.1"},
+	} {
+		out, code := h.exec(id, "sh", "-c", probe.cmd+" 2>&1 | head -2")
+		t.Logf("%-34s exit=%d out=%s", probe.name, code, strings.TrimSpace(out))
+	}
 }

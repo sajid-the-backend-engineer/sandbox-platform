@@ -107,7 +107,13 @@ func (manager *NetRulesManager) SetDomainRules(name string, sourceIp string, htt
 		"-j", "REJECT", "--reject-with", "icmp-port-unreachable"); err != nil {
 		return err
 	}
-	if err := manager.ipt.InsertUnique("filter", "DOCKER-USER", 1,
+	// Hooked from the dispatch chain rather than DOCKER-USER directly, so this
+	// decision sits above the baseline deny and below nothing else that matters.
+	// See dispatch.go for why the ordering has to work that way.
+	if err := manager.ensureDispatchLocked(); err != nil {
+		return err
+	}
+	if err := manager.ipt.InsertUnique("filter", DispatchChainName, 1,
 		"-j", chainName, "-s", sourceIp, "-p", "all"); err != nil {
 		return err
 	}
@@ -129,7 +135,7 @@ func (manager *NetRulesManager) DeleteDomainRules(name string) error {
 	if err := manager.unlinkAndDelete("nat", "PREROUTING", chainName); err != nil {
 		return err
 	}
-	return manager.unlinkAndDelete("filter", "DOCKER-USER", chainName)
+	return manager.unlinkAndDelete("filter", DispatchChainName, chainName)
 }
 
 // unlinkAndDelete removes every jump to chainName from the given hook chain, then

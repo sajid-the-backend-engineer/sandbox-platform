@@ -194,12 +194,32 @@ func run() int {
 	// sandbox with no network. The second is the safer default for untrusted code and
 	// the riskier one for availability, so switching it on is a deliberate act that
 	// wants a canary behind it.
+	if err = netRulesManager.EnsureDispatchChain(); err != nil {
+		logger.Error("Failed to install egress dispatch chain", "error", err)
+		return 2
+	}
 	if cfg.EgressDefaultDeny {
-		if err = netRulesManager.EnsureBaselineDeny(sandboxSubnet); err != nil {
+		if err = netRulesManager.SetBaselineDeny(sandboxSubnet); err != nil {
 			logger.Error("Failed to install baseline egress deny", "error", err)
 			return 2
 		}
-		logger.Info("Baseline egress deny installed", "sandboxSubnet", sandboxSubnet)
+	}
+	// Reported from the kernel, not from the flag, because the two can disagree and
+	// the kernel is the one that decides what happens to packets. Provisioning a
+	// restricted sandbox checks the same way and refuses when this is false.
+	baselineActive, err := netRulesManager.BaselineActive(sandboxSubnet)
+	if err != nil {
+		logger.Error("Failed to verify baseline egress deny", "error", err)
+		return 2
+	}
+	logger.Info("Egress enforcement ready",
+		"sandboxSubnet", sandboxSubnet,
+		"requestedDefaultDeny", cfg.EgressDefaultDeny,
+		"effectiveDefaultDeny", baselineActive,
+		"restrictedProvisioningAvailable", baselineActive)
+	if cfg.EgressDefaultDeny && !baselineActive {
+		logger.Error("Baseline egress deny was requested but is not in force")
+		return 2
 	}
 
 	daemonPath, err := daemon.WriteStaticBinary("daemon-amd64")
@@ -232,6 +252,7 @@ func run() int {
 		EgressProxyHTTPSPort:         cfg.EgressProxyHTTPSPort,
 		EgressProxyDNSPort:           cfg.EgressProxyDNSPort,
 		EgressDefaultDeny:            cfg.EgressDefaultDeny,
+		SandboxSubnet:                sandboxSubnet,
 		ResourceLimitsDisabled:       cfg.ResourceLimitsDisabled,
 		DaemonStartTimeoutSec:        cfg.DaemonStartTimeoutSec,
 		SandboxStartTimeoutSec:       cfg.SandboxStartTimeoutSec,

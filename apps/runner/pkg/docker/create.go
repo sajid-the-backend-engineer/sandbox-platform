@@ -271,7 +271,10 @@ func (d *DockerClient) Create(ctx context.Context, sandboxDto dto.CreateSandboxD
 		// fatal on error: the baseline means the failure mode here is a sandbox with
 		// no network, and returning that as an error is far kinder than handing back
 		// a sandbox that looks healthy and cannot reach anything.
-		if err := d.netRulesManager.AllowUnrestricted(containerShortId, ip); err != nil {
+		//
+		// A bypass, not an accept: this lets the sandbox out of our dispatch chain
+		// while leaving Docker's own isolation stages ahead of it.
+		if err := d.netRulesManager.BypassBaseline(ip); err != nil {
 			d.logger.ErrorContext(ctx, "Failed to grant unrestricted egress", "error", err)
 			return "", "", err
 		}
