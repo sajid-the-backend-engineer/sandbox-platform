@@ -217,7 +217,8 @@ func (d *DockerClient) getContainerHostConfig(sandboxDto dto.CreateSandboxDTO, v
 	// needs privileged cannot also have an enforced domain policy. Between "the
 	// policy is enforceable" and "the policy is decorative", enforceable wins --
 	// a sandbox is asking for restriction precisely because its code is not trusted.
-	restrictedEgress := sandboxDto.DomainAllowList != nil && *sandboxDto.DomainAllowList != ""
+	restrictedEgress := RestrictedEgress(
+		sandboxDto.NetworkBlockAll, sandboxDto.NetworkAllowList, sandboxDto.DomainAllowList)
 
 	hostConfig := &container.HostConfig{
 		// Privileged mode exposes every /dev/nvidia* node and bypasses the

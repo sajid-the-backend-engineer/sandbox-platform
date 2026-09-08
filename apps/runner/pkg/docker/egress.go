@@ -4,11 +4,72 @@
 package docker
 
 import (
+	"context"
 	"errors"
 	"fmt"
+	"strings"
 
+	"github.com/northrays/runner/pkg/api/dto"
 	"github.com/northrays/runner/pkg/egress"
 )
+
+// RestrictedEgress reports whether a sandbox is asking for ANY restricted network
+// mode, not just a domain allow list.
+//
+// All three modes make the same promise -- that this workload is confined to what the
+// operator permitted -- so all three need the same footing: enforcement verified
+// before the workload runs, and a container that cannot rewrite its own network
+// identity. Treating only domainAllowList as "restricted" would leave block-all and
+// CIDR sandboxes privileged, able to change their address, and therefore able to step
+// out of the very policy they were given.
+func RestrictedEgress(blockAll *bool, networkAllowList *string, domainAllowList *string) bool {
+	if blockAll != nil && *blockAll {
+		return true
+	}
+	if networkAllowList != nil && strings.TrimSpace(*networkAllowList) != "" {
+		return true
+	}
+	if domainAllowList != nil && strings.TrimSpace(*domainAllowList) != "" {
+		return true
+	}
+	return false
+}
+
+// verifyRestrictedProvisioningAllowed is the gate that runs BEFORE any container is
+// created or started.
+//
+// The check used to live inside applyDomainAllowList, which is called after
+// d.Start(). That is too late by exactly the margin that matters: the workload is
+// already executing, and a sandbox built from a customer image runs whatever its
+// entrypoint says the moment it starts. Refusing afterwards refuses nothing.
+//
+// It reads the kernel rather than the runner's own configuration, because the
+// failure being guarded against is precisely a setting that was meant to be on and
+// is not.
+func (d *DockerClient) verifyRestrictedProvisioningAllowed(ctx context.Context, sandboxDto dto.CreateSandboxDTO) error {
+	if !RestrictedEgress(sandboxDto.NetworkBlockAll, sandboxDto.NetworkAllowList, sandboxDto.DomainAllowList) {
+		return nil
+	}
+
+	if d.netRulesManager == nil {
+		return errors.New("restricted sandbox requested but network rules are unavailable")
+	}
+
+	active, err := d.netRulesManager.BaselineActive(d.sandboxSubnet)
+	if err != nil {
+		return fmt.Errorf("cannot verify baseline egress deny: %w", err)
+	}
+	if !active {
+		d.logger.ErrorContext(ctx,
+			"Refusing restricted sandbox: baseline egress deny is not in force",
+			"sandboxSubnet", d.sandboxSubnet)
+		return fmt.Errorf(
+			"this runner cannot provision restricted sandboxes: baseline egress deny is not "+
+				"installed for %s (EGRESS_DEFAULT_DENY must be true)", d.sandboxSubnet)
+	}
+	return nil
+}
+
 
 // applyDomainAllowList puts a sandbox under name-based egress control.
 //

@@ -7,6 +7,7 @@ package docker
 import (
 	"context"
 	"errors"
+	"fmt"
 	"strings"
 
 	"github.com/northrays/runner/pkg/api/dto"
@@ -38,6 +39,25 @@ func (d *DockerClient) UpdateNetworkSettings(ctx context.Context, containerId st
 	if updateNetworkSettingsDto.DomainAllowList != nil {
 		domainListTrimmed = strings.TrimSpace(*updateNetworkSettingsDto.DomainAllowList)
 		hasDomainList = domainListTrimmed != ""
+	}
+
+	// A privileged container cannot be made restricted in place.
+	//
+	// Restriction is enforced on the source address the runner assigned, and a
+	// privileged container holds CAP_NET_ADMIN and can reassign it -- measured in the
+	// disposable environment, where `ip addr add <neighbour>` returned 0 from a
+	// privileged sandbox. Privileges are fixed at creation; Docker offers no way to
+	// drop them from a running container. Reporting this transition as successful
+	// would label a sandbox restricted while leaving it able to step outside that
+	// restriction, so it is refused with an error the caller can act on rather than
+	// applied and quietly hoped over.
+	if RestrictedEgress(updateNetworkSettingsDto.NetworkBlockAll,
+		updateNetworkSettingsDto.NetworkAllowList, updateNetworkSettingsDto.DomainAllowList) &&
+		info.HostConfig != nil && info.HostConfig.Privileged {
+		return fmt.Errorf(
+			"sandbox %s is privileged and cannot be restricted in place: recreate it so it "+
+				"starts unprivileged (privileges cannot be dropped from a running container)",
+			containerId)
 	}
 
 	// Any change of posture tears down the previous one first. The postures use

@@ -35,6 +35,13 @@ func (d *DockerClient) Create(ctx context.Context, sandboxDto dto.CreateSandboxD
 		}
 	}()
 
+	// BEFORE anything is created or started. A restricted sandbox depends on the
+	// baseline deny being in force, and every later check happens after the workload
+	// is already running.
+	if err := d.verifyRestrictedProvisioningAllowed(ctx, sandboxDto); err != nil {
+		return "", "", err
+	}
+
 	state, err := d.GetSandboxState(ctx, sandboxDto.Id)
 	if err != nil && state == enums.SandboxStateError {
 		return "", "", err
