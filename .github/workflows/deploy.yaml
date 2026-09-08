@@ -201,14 +201,36 @@ jobs:
           install-swag: 'false'
           run-poetry-install: 'false'
 
+      - name: Install computer-use build dependencies
+        if: matrix.needs_computer_use == 'true'
+        # robotgo, which computer-use links, is a cgo package that needs the X11 and
+        # xkb development headers. A GitHub runner does not have them.
+        #
+        # This was invisible until it wasn't: nx caches the build keyed on its inputs,
+        # and the cache had been warm for long enough that the underlying build was
+        # never actually exercised here. Editing one of those inputs invalidated the
+        # key, the real build ran for the first time in a while, and it failed
+        # immediately. Installing the dependencies makes the build genuinely work
+        # rather than depend on a cache entry nobody can see.
+        run: |
+          set -euo pipefail
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends \
+            libx11-dev libxtst-dev libxinerama-dev libxkbcommon-dev \
+            libxcursor-dev xorg-dev xsel xclip
+
       - name: Build computer-use binary
         if: matrix.needs_computer_use == 'true'
         # apps/runner/Dockerfile does `COPY dist/libs/computer-use-amd64 ...`,
         # which nx produces outside Docker (.dockerignore un-ignores that path).
+        #
+        # --verbose so a failure shows the compiler's own message. nx swallows the
+        # output of a failed run-commands target, which turned a one-line cgo error
+        # into "exit code 1" and a log with nothing in it.
         run: |
           set -euo pipefail
           mkdir -p dist/libs
-          yarn nx run computer-use:build-amd64
+          yarn nx run computer-use:build-amd64 --verbose
           test -f dist/libs/computer-use-amd64
 
       - name: Configure AWS credentials (OIDC)
