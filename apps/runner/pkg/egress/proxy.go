@@ -272,14 +272,22 @@ func (p *Proxy) handleHTTP(client net.Conn, sandboxIP string, policy Policy) {
 	// connection is ever shared between two sandboxes or survives a policy change.
 	defer transport.CloseIdleConnections()
 
-	reader := bufio.NewReader(client)
+	// http.ReadRequest has no header ceiling of its own -- MaxHeaderBytes belongs to
+	// http.Server, which is not in this path. Without a bound, a sandbox can hold the
+	// proxy's memory by sending headers and never a blank line; the read deadline
+	// limits how LONG it can do that, not how much it can send meanwhile. The limiter
+	// is armed only while a request head is being read, so bodies still stream.
+	limiter := &headLimiter{src: client}
+	reader := bufio.NewReader(limiter)
 
 	for {
 		if err := client.SetReadDeadline(time.Now().Add(idleTimeout)); err != nil {
 			return
 		}
 
+		limiter.arm(maxHTTPHead)
 		req, err := http.ReadRequest(reader)
+		limiter.disarm()
 		if err != nil {
 			if !errors.Is(err, io.EOF) {
 				p.log.Info("Egress HTTP read failed", "sandboxIp", sandboxIP, "reason", err.Error())

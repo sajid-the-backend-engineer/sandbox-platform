@@ -18,7 +18,47 @@ const maxClientHello = 16 * 1024
 // maxHTTPHead caps the request head we buffer while looking for the Host header,
 // for the same reason. Anything past this without a blank line is not a request we
 // are willing to reason about.
+//
+// Enforced by headLimiter in proxy.go. It was declared here and left unwired when the
+// hand-rolled HTTP path was replaced by net/http, and net/http does not bring a limit
+// with it -- MaxHeaderBytes is a property of http.Server, which this path does not use.
 const maxHTTPHead = 8 * 1024
+
+// errHeadTooLarge marks a request head that ran past maxHTTPHead. It is a client
+// error, not an upstream one, so it is reported separately from a transport failure.
+var errHeadTooLarge = errors.New("request head exceeds the permitted size")
+
+// headLimiter bounds how much a sandbox can make the proxy buffer before it has
+// produced a complete request head.
+//
+// It sits UNDER the bufio.Reader, so the bound covers what is actually read from the
+// socket rather than what the parser chose to ask for. Arming is per request, so a
+// keep-alive connection gets a fresh budget for each one and a large body never
+// consumes another request's allowance.
+type headLimiter struct {
+	src     io.Reader
+	left    int
+	limited bool
+}
+
+func (h *headLimiter) arm(n int) { h.limited, h.left = true, n }
+
+func (h *headLimiter) disarm() { h.limited = false }
+
+func (h *headLimiter) Read(p []byte) (int, error) {
+	if !h.limited {
+		return h.src.Read(p)
+	}
+	if h.left <= 0 {
+		return 0, errHeadTooLarge
+	}
+	if len(p) > h.left {
+		p = p[:h.left]
+	}
+	n, err := h.src.Read(p)
+	h.left -= n
+	return n, err
+}
 
 var errNoSNI = errors.New("no server name in ClientHello")
 

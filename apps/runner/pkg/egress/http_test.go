@@ -97,3 +97,62 @@ func TestTunnelsAndUpgradesAreRefused(t *testing.T) {
 		})
 	}
 }
+
+// TestAnOversizedRequestHeadIsRefused covers the ceiling that was declared and never
+// applied.
+//
+// maxHTTPHead existed from the first version of this proxy, but the switch from a
+// hand-rolled parser to net/http dropped the only code that used it -- and net/http
+// brought no replacement, because MaxHeaderBytes belongs to http.Server and this path
+// speaks http.ReadRequest directly. A sandbox could therefore make the proxy buffer
+// without limit by sending headers and never a blank line. The read deadline bounds
+// how long that lasts, not how much arrives in the meantime.
+func TestAnOversizedRequestHeadIsRefused(t *testing.T) {
+	client, server := net.Pipe()
+	defer client.Close()
+
+	registry := NewRegistry(discardLogger())
+	registry.Register("10.9.9.9", Policy{Patterns: []string{"allowed.test"}})
+	proxy := New(discardLogger(), registry, "127.0.0.1", 0, 0)
+
+	done := make(chan struct{})
+	go func() {
+		defer close(done)
+		// Closed when the handler gives up, so the writes below fail immediately
+		// instead of blocking on an unbuffered pipe with no reader. Without this the
+		// test measures its own write deadline and passes whether or not the ceiling
+		// is applied.
+		defer server.Close()
+		proxy.handleHTTP(server, "10.9.9.9", Policy{Patterns: []string{"allowed.test"}})
+	}()
+
+	// A request head that never ends. Written in chunks so the test does not depend
+	// on any single write reaching the proxy.
+	_, _ = client.Write([]byte("GET / HTTP/1.1\r\nHost: allowed.test\r\n"))
+	padding := "X-Pad: " + strings.Repeat("a", 1024) + "\r\n"
+
+	var written int
+	writeErr := error(nil)
+	_ = client.SetWriteDeadline(time.Now().Add(10 * time.Second))
+	for written < 64*1024 && writeErr == nil {
+		var n int
+		n, writeErr = client.Write([]byte(padding))
+		written += n
+	}
+
+	// The proxy must give up rather than keep buffering. Either it closed the
+	// connection on us mid-write, or it returned once the budget was spent.
+	select {
+	case <-done:
+	case <-time.After(10 * time.Second):
+		t.Fatalf("the proxy was still buffering after %d bytes of headers", written)
+	}
+
+	// The proxy has to stop near the ceiling, not merely stop eventually. The slack
+	// covers the bufio read-ahead sitting above the limiter.
+	if written > maxHTTPHead+8*1024 {
+		t.Errorf("buffered %d bytes of request head; the %d-byte ceiling was not applied",
+			written, maxHTTPHead)
+	}
+	t.Logf("the proxy gave up after %d bytes against a %d-byte ceiling", written, maxHTTPHead)
+}
