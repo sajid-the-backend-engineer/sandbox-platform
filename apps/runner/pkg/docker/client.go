@@ -14,6 +14,7 @@ import (
 	"github.com/northrays/common-go/pkg/utils"
 	"github.com/northrays/runner/pkg/cache"
 	"github.com/northrays/runner/pkg/common"
+	"github.com/northrays/runner/pkg/egress"
 	"github.com/northrays/runner/pkg/netrules"
 	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/api/types/system"
@@ -31,6 +32,9 @@ type DockerClientConfig struct {
 	DaemonPath                   string
 	ComputerUsePluginPath        string
 	NetRulesManager              *netrules.NetRulesManager
+	EgressProxy                  *egress.Proxy
+	EgressProxyHTTPPort          int
+	EgressProxyHTTPSPort         int
 	ResourceLimitsDisabled       bool
 	DaemonStartTimeoutSec        int
 	SandboxStartTimeoutSec       int
@@ -149,6 +153,9 @@ func NewDockerClient(ctx context.Context, config DockerClientConfig) (*DockerCli
 		daemonPath:                   config.DaemonPath,
 		computerUsePluginPath:        config.ComputerUsePluginPath,
 		netRulesManager:              config.NetRulesManager,
+		egressProxy:                  config.EgressProxy,
+		egressProxyHTTPPort:          config.EgressProxyHTTPPort,
+		egressProxyHTTPSPort:         config.EgressProxyHTTPSPort,
 		resourceLimitsDisabled:       config.ResourceLimitsDisabled,
 		daemonStartTimeoutSec:        config.DaemonStartTimeoutSec,
 		sandboxStartTimeoutSec:       config.SandboxStartTimeoutSec,
@@ -206,6 +213,9 @@ type DockerClient struct {
 	daemonPath                   string
 	computerUsePluginPath        string
 	netRulesManager              *netrules.NetRulesManager
+	egressProxy                  *egress.Proxy
+	egressProxyHTTPPort          int
+	egressProxyHTTPSPort         int
 	resourceLimitsDisabled       bool
 	daemonStartTimeoutSec        int
 	sandboxStartTimeoutSec       int

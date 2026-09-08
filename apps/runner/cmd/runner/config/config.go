@@ -34,6 +34,12 @@ type Config struct {
 	ContainerRuntime                   string        `envconfig:"CONTAINER_RUNTIME"`
 	ContainerNetwork                   string        `envconfig:"CONTAINER_NETWORK"`
 	InterSandboxNetworkEnabled         bool          `envconfig:"INTER_SANDBOX_NETWORK_ENABLED" default:"true"`
+	// Ports the egress proxy listens on for sandboxes carrying a domain allow
+	// list. They are internal to the runner -- sandboxes are redirected here by
+	// iptables and never address them directly -- so the defaults only need to
+	// avoid colliding with the runner API and the daemon.
+	EgressProxyHTTPPort                int           `envconfig:"EGRESS_PROXY_HTTP_PORT" default:"18080"`
+	EgressProxyHTTPSPort               int           `envconfig:"EGRESS_PROXY_HTTPS_PORT" default:"18443"`
 	GpuEnabled                         bool          `envconfig:"GPU_ENABLED" default:"false"`
 	LogFilePath                        string        `envconfig:"LOG_FILE_PATH"`
 	AWSRegion                          string        `envconfig:"AWS_REGION"`

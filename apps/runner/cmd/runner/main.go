@@ -21,6 +21,7 @@ import (
 	"github.com/northrays/runner/pkg/cache"
 	"github.com/northrays/runner/pkg/daemon"
 	"github.com/northrays/runner/pkg/docker"
+	"github.com/northrays/runner/pkg/egress"
 	"github.com/northrays/runner/pkg/netrules"
 	"github.com/northrays/runner/pkg/runner"
 	"github.com/northrays/runner/pkg/runner/v2/executor"
@@ -128,6 +129,32 @@ func run() int {
 	}
 	defer netRulesManager.Stop()
 
+	// The egress proxy is what makes a domain allow list mean anything: iptables
+	// redirects a policied sandbox's HTTP and HTTPS here so the destination host can
+	// be read off the connection and checked by name.
+	//
+	// Its bind address is the gateway of the network sandboxes actually run on,
+	// discovered from Docker rather than assumed. Runners differ -- CONTAINER_NETWORK
+	// may name a dedicated bridge, and where it does not, Docker's default bridge is
+	// used -- and a hardcoded subnet would bind the wrong interface on any runner
+	// that is not the one it was written against. Binding the gateway rather than
+	// the wildcard also keeps the listener off the runner's VPC interface, where it
+	// would be a needlessly reachable forwarder.
+	egressBindAddr, err := docker.SandboxNetworkGateway(ctx, cli, cfg.ContainerNetwork)
+	if err != nil {
+		logger.Error("Failed to determine egress proxy bind address", "error", err)
+		return 2
+	}
+
+	egressProxy := egress.New(logger, egressBindAddr, cfg.EgressProxyHTTPPort, cfg.EgressProxyHTTPSPort)
+	// Binding fails fast because a sandbox redirected to a proxy that is not
+	// listening has no egress at all.
+	if err = egressProxy.Start(); err != nil {
+		logger.Error("Failed to start egress proxy", "error", err)
+		return 2
+	}
+	defer egressProxy.Stop()
+
 	daemonPath, err := daemon.WriteStaticBinary("daemon-amd64")
 	if err != nil {
 		logger.Error("Error writing daemon binary", "error", err)
@@ -153,6 +180,9 @@ func run() int {
 		DaemonPath:                   daemonPath,
 		ComputerUsePluginPath:        pluginPath,
 		NetRulesManager:              netRulesManager,
+		EgressProxy:                  egressProxy,
+		EgressProxyHTTPPort:          cfg.EgressProxyHTTPPort,
+		EgressProxyHTTPSPort:         cfg.EgressProxyHTTPSPort,
 		ResourceLimitsDisabled:       cfg.ResourceLimitsDisabled,
 		DaemonStartTimeoutSec:        cfg.DaemonStartTimeoutSec,
 		SandboxStartTimeoutSec:       cfg.SandboxStartTimeoutSec,

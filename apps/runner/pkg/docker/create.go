@@ -247,6 +247,17 @@ func (d *DockerClient) Create(ctx context.Context, sandboxDto dto.CreateSandboxD
 				d.logger.ErrorContext(ctx, "Failed to update sandbox network settings", "error", err)
 			}
 		}()
+	} else if sandboxDto.DomainAllowList != nil && *sandboxDto.DomainAllowList != "" {
+		// Applied synchronously, unlike the branches around it. Those install a
+		// deny rule -- if one is slow the sandbox is briefly MORE restricted than
+		// asked, which is safe. This one gates traffic on a proxy registration, and
+		// racing it against a sandbox that has already begun making requests would
+		// mean the opposite: unfiltered egress for as long as the goroutine took to
+		// be scheduled. An error here fails the create.
+		if err := d.applyDomainAllowList(containerShortId, ip, *sandboxDto.DomainAllowList); err != nil {
+			d.logger.ErrorContext(ctx, "Failed to apply sandbox domain allow list", "error", err)
+			return "", "", err
+		}
 	} else if sandboxDto.NetworkAllowList != nil && *sandboxDto.NetworkAllowList != "" {
 		go func() {
 			err = d.netRulesManager.SetNetworkRules(containerShortId, ip, *sandboxDto.NetworkAllowList)

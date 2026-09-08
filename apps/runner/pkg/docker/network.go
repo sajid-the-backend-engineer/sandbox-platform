@@ -33,10 +33,28 @@ func (d *DockerClient) UpdateNetworkSettings(ctx context.Context, containerId st
 		allowListTrimmed = strings.TrimSpace(*updateNetworkSettingsDto.NetworkAllowList)
 		hasAllowList = allowListTrimmed != ""
 	}
+	var domainListTrimmed string
+	hasDomainList := false
+	if updateNetworkSettingsDto.DomainAllowList != nil {
+		domainListTrimmed = strings.TrimSpace(*updateNetworkSettingsDto.DomainAllowList)
+		hasDomainList = domainListTrimmed != ""
+	}
+
+	// Any change of posture tears down the previous one first. The postures use
+	// different tables -- a domain list installs nat redirects, a CIDR list does not
+	// -- so switching between them without clearing would leave the old table's
+	// rules in place underneath the new policy.
+	if err := d.clearDomainAllowList(containerShortId, ipAddress); err != nil {
+		return err
+	}
 
 	switch {
 	case blockAll:
 		err = d.netRulesManager.SetNetworkRules(containerShortId, ipAddress, "")
+	case hasDomainList:
+		// Checked before the CIDR list: a caller that sends both is asking for
+		// hosts by name, and the name-based path is the stricter of the two.
+		err = d.applyDomainAllowList(containerShortId, ipAddress, domainListTrimmed)
 	case hasAllowList:
 		err = d.netRulesManager.SetNetworkRules(containerShortId, ipAddress, allowListTrimmed)
 	case updateNetworkSettingsDto.NetworkBlockAll != nil && !*updateNetworkSettingsDto.NetworkBlockAll && !hasAllowList:
@@ -44,6 +62,9 @@ func (d *DockerClient) UpdateNetworkSettings(ctx context.Context, containerId st
 		err = d.netRulesManager.DeleteNetworkRules(containerShortId)
 	case updateNetworkSettingsDto.NetworkAllowList != nil && !hasAllowList:
 		// Explicit empty allow list: treat as open network
+		err = d.netRulesManager.DeleteNetworkRules(containerShortId)
+	case updateNetworkSettingsDto.DomainAllowList != nil && !hasDomainList:
+		// Explicit empty domain list: treat as open network
 		err = d.netRulesManager.DeleteNetworkRules(containerShortId)
 	default:
 		// No applicable filter change
