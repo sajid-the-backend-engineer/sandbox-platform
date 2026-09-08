@@ -208,6 +208,94 @@ func (d *DockerClient) ReconcileSandboxNetwork(ctx context.Context, containerId 
 	return nil
 }
 
+// EnsureEgressInfrastructure re-asserts the rules that are not per-sandbox: the
+// dispatch hook, the baseline deny, and the guard on the runner's own services.
+//
+// WHY THIS HAS TO REPEAT. Those three were installed once, at startup, and then
+// trusted. They are ordinary iptables chains in a namespace shared with a Docker
+// daemon that rewrites its own rules whenever it restarts or rebuilds a bridge -- so
+// "installed once" was never the same as "still there". When they went missing, the
+// runner kept running and kept believing it was enforcing, and the only visible
+// symptom was sandbox creation refusing with "baseline egress deny is not installed".
+//
+// The refusal was correct: it is the fail-closed guard doing its job. But refusing
+// every sandbox until a human redeploys is not a repair, and the condition is trivially
+// repairable -- so the same sweep that reconciles sandboxes now repairs the floor they
+// stand on. A repair is logged loudly, because rules vanishing underneath us is worth
+// knowing about even when it self-corrects.
+func (d *DockerClient) EnsureEgressInfrastructure(ctx context.Context) {
+	if d.netRulesManager == nil || d.sandboxSubnet == "" {
+		return
+	}
+
+	if d.egressDefaultDeny {
+		active, err := d.netRulesManager.BaselineActive(d.sandboxSubnet)
+		if err != nil {
+			d.logger.ErrorContext(ctx, "Could not check baseline egress deny", "error", err)
+		} else if !active {
+			d.logger.WarnContext(ctx, "Baseline egress deny was missing; reinstalling",
+				"sandboxSubnet", d.sandboxSubnet)
+			if err := d.netRulesManager.SetBaselineDeny(d.sandboxSubnet); err != nil {
+				d.logger.ErrorContext(ctx, "Could not reinstall baseline egress deny", "error", err)
+			} else {
+				d.logger.InfoContext(ctx, "Baseline egress deny restored",
+					"sandboxSubnet", d.sandboxSubnet)
+			}
+		}
+	}
+
+	guarded, err := d.netRulesManager.InputGuardActive(d.sandboxSubnet)
+	if err != nil {
+		d.logger.ErrorContext(ctx, "Could not check runner-service protection", "error", err)
+		return
+	}
+	if guarded {
+		return
+	}
+
+	d.logger.WarnContext(ctx, "Runner-service protection was missing; reinstalling",
+		"sandboxSubnet", d.sandboxSubnet)
+	if err := d.netRulesManager.SetInputGuard(d.sandboxSubnet,
+		d.egressProxyHTTPPort, d.egressProxyHTTPSPort, d.egressProxyDNSPort); err != nil {
+		d.logger.ErrorContext(ctx, "Could not reinstall runner-service protection", "error", err)
+		return
+	}
+	d.logger.InfoContext(ctx, "Runner-service protection restored", "sandboxSubnet", d.sandboxSubnet)
+}
+
+// EgressEnforcementReady reports whether the floor is in place: the baseline (when it
+// is meant to be on) and the runner-service guard.
+//
+// Read from the kernel, not from configuration, because the two disagreeing is exactly
+// the condition worth reporting. This is what a readiness endpoint should answer with,
+// so the platform can route sandboxes away from a runner that cannot enforce rather
+// than sending them and having each one refused.
+func (d *DockerClient) EgressEnforcementReady(ctx context.Context) (bool, string) {
+	if d.netRulesManager == nil || d.sandboxSubnet == "" {
+		return true, ""
+	}
+
+	if d.egressDefaultDeny {
+		active, err := d.netRulesManager.BaselineActive(d.sandboxSubnet)
+		if err != nil {
+			return false, fmt.Sprintf("cannot verify baseline egress deny: %v", err)
+		}
+		if !active {
+			return false, fmt.Sprintf("baseline egress deny is not installed for %s", d.sandboxSubnet)
+		}
+	}
+
+	guarded, err := d.netRulesManager.InputGuardActive(d.sandboxSubnet)
+	if err != nil {
+		return false, fmt.Sprintf("cannot verify runner-service protection: %v", err)
+	}
+	if !guarded {
+		return false, fmt.Sprintf("runner-service protection is not installed for %s", d.sandboxSubnet)
+	}
+
+	return true, ""
+}
+
 // ReconcileAllSandboxNetworks re-applies policy to every sandbox the runner can see.
 //
 // Events are not enough on their own. Docker keeps a bounded event history, so a
@@ -219,6 +307,10 @@ func (d *DockerClient) ReconcileAllSandboxNetworks(ctx context.Context) {
 	if d.netRulesManager == nil {
 		return
 	}
+
+	// The floor first. Re-applying a sandbox's policy on top of a missing baseline
+	// would put the rules back in an order that no longer denies anything.
+	d.EnsureEgressInfrastructure(ctx)
 
 	containers, err := d.apiClient.ContainerList(ctx, container.ListOptions{All: true})
 	if err != nil {
