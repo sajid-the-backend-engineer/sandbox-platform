@@ -140,6 +140,13 @@ func run() int {
 	// that is not the one it was written against. Binding the gateway rather than
 	// the wildcard also keeps the listener off the runner's VPC interface, where it
 	// would be a needlessly reachable forwarder.
+	// dockerd is started by this container's own entrypoint, in parallel with this
+	// process, so it is normal for it to be absent for the first few seconds.
+	if err = docker.WaitForDaemon(ctx, cli, 3*time.Minute); err != nil {
+		logger.Error("Docker daemon did not become ready", "error", err)
+		return 2
+	}
+
 	egressBindAddr, sandboxSubnet, err := docker.SandboxNetworkInfo(ctx, cli, cfg.ContainerNetwork)
 	if err != nil {
 		logger.Error("Failed to determine sandbox network details", "error", err)
