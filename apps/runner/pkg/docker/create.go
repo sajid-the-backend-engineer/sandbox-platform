@@ -265,6 +265,16 @@ func (d *DockerClient) Create(ctx context.Context, sandboxDto dto.CreateSandboxD
 				d.logger.ErrorContext(ctx, "Failed to update sandbox network settings", "error", err)
 			}
 		}()
+	} else if d.egressDefaultDeny {
+		// This sandbox asked for no restriction, but the baseline deny is in force,
+		// so open egress has to be granted rather than assumed. Synchronous and
+		// fatal on error: the baseline means the failure mode here is a sandbox with
+		// no network, and returning that as an error is far kinder than handing back
+		// a sandbox that looks healthy and cannot reach anything.
+		if err := d.netRulesManager.AllowUnrestricted(containerShortId, ip); err != nil {
+			d.logger.ErrorContext(ctx, "Failed to grant unrestricted egress", "error", err)
+			return "", "", err
+		}
 	}
 
 	if sandboxDto.Metadata != nil && sandboxDto.Metadata["limitNetworkEgress"] == "true" {

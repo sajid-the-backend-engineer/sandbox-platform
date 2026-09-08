@@ -41,6 +41,7 @@ type Config struct {
 	EgressProxyHTTPPort                int           `envconfig:"EGRESS_PROXY_HTTP_PORT" default:"18080"`
 	EgressProxyHTTPSPort               int           `envconfig:"EGRESS_PROXY_HTTPS_PORT" default:"18443"`
 	EgressProxyDNSPort                 int           `envconfig:"EGRESS_PROXY_DNS_PORT" default:"15353"`
+	EgressDefaultDeny                  bool          `envconfig:"EGRESS_DEFAULT_DENY" default:"false"`
 	GpuEnabled                         bool          `envconfig:"GPU_ENABLED" default:"false"`
 	LogFilePath                        string        `envconfig:"LOG_FILE_PATH"`
 	AWSRegion                          string        `envconfig:"AWS_REGION"`

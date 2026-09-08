@@ -140,9 +140,9 @@ func run() int {
 	// that is not the one it was written against. Binding the gateway rather than
 	// the wildcard also keeps the listener off the runner's VPC interface, where it
 	// would be a needlessly reachable forwarder.
-	egressBindAddr, err := docker.SandboxNetworkGateway(ctx, cli, cfg.ContainerNetwork)
+	egressBindAddr, sandboxSubnet, err := docker.SandboxNetworkInfo(ctx, cli, cfg.ContainerNetwork)
 	if err != nil {
-		logger.Error("Failed to determine egress proxy bind address", "error", err)
+		logger.Error("Failed to determine sandbox network details", "error", err)
 		return 2
 	}
 
@@ -184,6 +184,24 @@ func run() int {
 	}
 	defer egressResolver.Stop()
 
+	// Optional, and off unless an operator turns it on. It makes a sandbox with no
+	// rules yet DENIED rather than open, which is the only way to close the window
+	// between a container starting and its policy landing -- Docker does not assign
+	// an address until start, so there is no earlier moment to write rules for.
+	//
+	// It is opt-in because the failure mode flips with it: without the baseline a
+	// missing rule means an unrestricted sandbox, and with it a missing rule means a
+	// sandbox with no network. The second is the safer default for untrusted code and
+	// the riskier one for availability, so switching it on is a deliberate act that
+	// wants a canary behind it.
+	if cfg.EgressDefaultDeny {
+		if err = netRulesManager.EnsureBaselineDeny(sandboxSubnet); err != nil {
+			logger.Error("Failed to install baseline egress deny", "error", err)
+			return 2
+		}
+		logger.Info("Baseline egress deny installed", "sandboxSubnet", sandboxSubnet)
+	}
+
 	daemonPath, err := daemon.WriteStaticBinary("daemon-amd64")
 	if err != nil {
 		logger.Error("Error writing daemon binary", "error", err)
@@ -213,6 +231,7 @@ func run() int {
 		EgressProxyHTTPPort:          cfg.EgressProxyHTTPPort,
 		EgressProxyHTTPSPort:         cfg.EgressProxyHTTPSPort,
 		EgressProxyDNSPort:           cfg.EgressProxyDNSPort,
+		EgressDefaultDeny:            cfg.EgressDefaultDeny,
 		ResourceLimitsDisabled:       cfg.ResourceLimitsDisabled,
 		DaemonStartTimeoutSec:        cfg.DaemonStartTimeoutSec,
 		SandboxStartTimeoutSec:       cfg.SandboxStartTimeoutSec,

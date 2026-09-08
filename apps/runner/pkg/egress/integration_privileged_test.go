@@ -436,3 +436,119 @@ func TestReusedAddressDoesNotInheritPolicy(t *testing.T) {
 		t.Error("policy survived teardown; a reused address would inherit it")
 	}
 }
+
+// TestBaselineDenyClosesTheStartupWindow proves the property the baseline exists for:
+// a container whose entrypoint reaches for the network on its first instruction gets
+// nothing, because enforcement is already in place before it starts.
+//
+// The probe used here is deliberately hostile -- it starts connecting immediately,
+// not after a delay -- because a test that waits before probing would pass even on
+// the unsafe ordering it is meant to catch.
+func TestBaselineDenyClosesTheStartupWindow(t *testing.T) {
+	h := setup(t)
+
+	_, subnet, err := bridgeSubnet(h.ctx, h.cli)
+	if err != nil {
+		t.Fatalf("discover subnet: %v", err)
+	}
+	t.Logf("sandbox subnet: %s", subnet)
+
+	if err := h.rules.EnsureBaselineDeny(subnet); err != nil {
+		t.Fatalf("EnsureBaselineDeny: %v", err)
+	}
+	t.Cleanup(func() { _ = h.rules.RemoveBaselineDeny() })
+
+	// A container that tries to reach the network from its very first instruction,
+	// with no rules of its own installed at any point.
+	created, err := h.cli.ContainerCreate(h.ctx,
+		&container.Config{
+			Image: probeImage,
+			Cmd: []string{"sh", "-c",
+				"wget -q -T 8 -O /dev/null https://" + deniedHost + "/ && echo REACHED || echo BLOCKED"},
+		},
+		&container.HostConfig{}, nil, nil, "egress-startup-race")
+	if err != nil {
+		t.Fatalf("create: %v", err)
+	}
+	t.Cleanup(func() {
+		_ = h.cli.ContainerRemove(context.Background(), created.ID, container.RemoveOptions{Force: true})
+	})
+
+	if err := h.cli.ContainerStart(h.ctx, created.ID, container.StartOptions{}); err != nil {
+		t.Fatalf("start: %v", err)
+	}
+
+	statusCh, errCh := h.cli.ContainerWait(h.ctx, created.ID, container.WaitConditionNotRunning)
+	select {
+	case err := <-errCh:
+		t.Fatalf("wait: %v", err)
+	case <-statusCh:
+	case <-time.After(60 * time.Second):
+		t.Fatal("probe did not finish")
+	}
+
+	logs, err := h.cli.ContainerLogs(h.ctx, created.ID, container.LogsOptions{ShowStdout: true, ShowStderr: true})
+	if err != nil {
+		t.Fatalf("logs: %v", err)
+	}
+	defer logs.Close()
+
+	var out bytes.Buffer
+	_, _ = stdcopy.StdCopy(&out, &out, logs)
+	result := strings.TrimSpace(out.String())
+	t.Logf("startup probe said: %s", result)
+
+	if strings.Contains(result, "REACHED") {
+		t.Error("a container with no policy reached the network: the startup window is open")
+	}
+	if !strings.Contains(result, "BLOCKED") {
+		t.Errorf("probe produced no verdict: %q", result)
+	}
+}
+
+// TestBaselineAllowsAnExplicitlyUnrestrictedSandbox is the other half of the
+// contract: with the baseline in force, open egress must still be grantable, or
+// every unrestricted sandbox on the runner goes dark.
+func TestBaselineAllowsAnExplicitlyUnrestrictedSandbox(t *testing.T) {
+	h := setup(t)
+
+	_, subnet, err := bridgeSubnet(h.ctx, h.cli)
+	if err != nil {
+		t.Fatalf("discover subnet: %v", err)
+	}
+	if err := h.rules.EnsureBaselineDeny(subnet); err != nil {
+		t.Fatalf("EnsureBaselineDeny: %v", err)
+	}
+	t.Cleanup(func() { _ = h.rules.RemoveBaselineDeny() })
+
+	id, ip := h.startProbe("egress-unrestricted")
+
+	// Denied while only the baseline applies.
+	if _, code := h.exec(id, "wget", "-q", "-T", "8", "-O", "/dev/null", "https://"+deniedHost+"/"); code == 0 {
+		t.Error("baseline did not deny an unclaimed sandbox")
+	}
+
+	if err := h.rules.AllowUnrestricted(id[:12], ip); err != nil {
+		t.Fatalf("AllowUnrestricted: %v", err)
+	}
+	t.Cleanup(func() { _ = h.rules.DeleteDomainRules(id[:12]) })
+
+	out, code := h.exec(id, "wget", "-q", "-T", "20", "-O", "/dev/null", "https://"+deniedHost+"/")
+	if code != 0 {
+		t.Errorf("explicitly unrestricted sandbox still denied (exit %d): %s", code, out)
+	}
+}
+
+// bridgeSubnet reports the sandbox network's subnet, discovered rather than assumed.
+func bridgeSubnet(ctx context.Context, cli *client.Client) (string, string, error) {
+	inspect, err := cli.NetworkInspect(ctx, "bridge", network.InspectOptions{})
+	if err != nil {
+		return "", "", err
+	}
+	for _, cfg := range inspect.IPAM.Config {
+		if cfg.Gateway != "" && cfg.Subnet != "" {
+			return cfg.Gateway, cfg.Subnet, nil
+		}
+	}
+	return "", "", fmt.Errorf("bridge has no gateway and subnet")
+}
