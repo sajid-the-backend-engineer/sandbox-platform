@@ -81,6 +81,20 @@ func (manager *NetRulesManager) RemoveBaselineDeny() error {
 // would fall through to the baseline and be denied. It is a per-sandbox chain like
 // any other, inserted above the baseline, so removing it returns that sandbox to
 // denied rather than to open.
+//
+// ACCEPT, not RETURN, and the distinction is not cosmetic -- the integration test
+// caught it. RETURN hands the packet back to DOCKER-USER and evaluation CONTINUES
+// down the chain, which means it walks straight into the baseline reject sitting at
+// the bottom and the sandbox stays denied. ACCEPT is the only verdict that ends
+// traversal.
+//
+// The cost of that, stated because it is a real one: ACCEPT in DOCKER-USER also skips
+// Docker's own DOCKER-ISOLATION stages, so a sandbox allowed this way is not subject
+// to Docker's inter-network isolation. On this deployment every sandbox shares one
+// bridge, but linked-sandbox networks do exist, so an operator turning the baseline on
+// is also accepting that explicitly-unrestricted sandboxes lose that isolation. A
+// sandbox carrying a domain policy is unaffected -- its chain rejects terminally and
+// never reaches either the baseline or this exception.
 func (manager *NetRulesManager) AllowUnrestricted(name string, sourceIp string) error {
 	chainName := formatChainName(name)
 
@@ -94,7 +108,7 @@ func (manager *NetRulesManager) AllowUnrestricted(name string, sourceIp string) 
 	if err := manager.ipt.ClearChain("filter", chainName); err != nil {
 		return err
 	}
-	if err := manager.ipt.AppendUnique("filter", chainName, "-j", "RETURN", "-p", "all"); err != nil {
+	if err := manager.ipt.AppendUnique("filter", chainName, "-j", "ACCEPT", "-p", "all"); err != nil {
 		return err
 	}
 
