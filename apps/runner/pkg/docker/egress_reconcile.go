@@ -228,19 +228,34 @@ func (d *DockerClient) EnsureEgressInfrastructure(ctx context.Context) {
 		return
 	}
 
-	if d.egressDefaultDeny {
-		active, err := d.netRulesManager.BaselineActive(d.sandboxSubnet)
-		if err != nil {
-			d.logger.ErrorContext(ctx, "Could not check baseline egress deny", "error", err)
-		} else if !active {
-			d.logger.WarnContext(ctx, "Baseline egress deny was missing; reinstalling",
+	// The sweep converges the kernel on the CONFIGURATION, in both directions.
+	//
+	// Only the install half used to exist, which made the feature flag one-way: a
+	// runner that had ever run with the baseline on kept denying by default even after
+	// it was turned off, because nothing removed what was already in the kernel. The
+	// off switch is the lever an operator reaches for during an incident, so it has to
+	// take effect on the next sweep rather than on the next redeploy.
+	active, err := d.netRulesManager.BaselineActive(d.sandboxSubnet)
+	switch {
+	case err != nil:
+		d.logger.ErrorContext(ctx, "Could not check baseline egress deny", "error", err)
+	case d.egressDefaultDeny && !active:
+		d.logger.WarnContext(ctx, "Baseline egress deny was missing; reinstalling",
+			"sandboxSubnet", d.sandboxSubnet)
+		if err := d.netRulesManager.SetBaselineDeny(d.sandboxSubnet); err != nil {
+			d.logger.ErrorContext(ctx, "Could not reinstall baseline egress deny", "error", err)
+		} else {
+			d.logger.InfoContext(ctx, "Baseline egress deny restored",
 				"sandboxSubnet", d.sandboxSubnet)
-			if err := d.netRulesManager.SetBaselineDeny(d.sandboxSubnet); err != nil {
-				d.logger.ErrorContext(ctx, "Could not reinstall baseline egress deny", "error", err)
-			} else {
-				d.logger.InfoContext(ctx, "Baseline egress deny restored",
-					"sandboxSubnet", d.sandboxSubnet)
-			}
+		}
+	case !d.egressDefaultDeny && active:
+		d.logger.WarnContext(ctx, "Baseline egress deny is off but still installed; removing",
+			"sandboxSubnet", d.sandboxSubnet)
+		if err := d.netRulesManager.RemoveBaselineDeny(d.sandboxSubnet); err != nil {
+			d.logger.ErrorContext(ctx, "Could not remove baseline egress deny", "error", err)
+		} else {
+			d.logger.InfoContext(ctx, "Baseline egress deny removed",
+				"sandboxSubnet", d.sandboxSubnet)
 		}
 	}
 

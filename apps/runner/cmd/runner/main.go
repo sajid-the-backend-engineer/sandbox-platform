@@ -210,6 +210,21 @@ func run() int {
 			logger.Error("Failed to install baseline egress deny", "error", err)
 			return 2
 		}
+	} else if err = netRulesManager.RemoveBaselineDeny(sandboxSubnet); err != nil {
+		// Turning it OFF has to actually turn it off.
+		//
+		// The flag used to be install-only: with it false, startup skipped the install
+		// and left whatever was already in the kernel. iptables rules outlive the
+		// process that wrote them, so a runner that had once run with the baseline on
+		// kept denying by default forever afterwards -- and the log said
+		// requestedDefaultDeny=false while every sandbox went dark.
+		//
+		// That made the one lever available during an incident useless: flipping the
+		// flag and redeploying changed nothing, and a rollback to a build without this
+		// code cannot clean up after itself either. The switch is only a switch if it
+		// works in both directions.
+		logger.Error("Failed to remove baseline egress deny", "error", err)
+		return 2
 	}
 	// Reported from the kernel, not from the flag, because the two can disagree and
 	// the kernel is the one that decides what happens to packets. Provisioning a
@@ -226,6 +241,11 @@ func run() int {
 		"restrictedProvisioningAvailable", baselineActive)
 	if cfg.EgressDefaultDeny && !baselineActive {
 		logger.Error("Baseline egress deny was requested but is not in force")
+		return 2
+	}
+	if !cfg.EgressDefaultDeny && baselineActive {
+		logger.Error("Baseline egress deny was turned off but is still in force",
+			"sandboxSubnet", sandboxSubnet)
 		return 2
 	}
 

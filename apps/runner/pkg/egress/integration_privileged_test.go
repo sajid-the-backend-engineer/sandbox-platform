@@ -124,6 +124,17 @@ func setup(t *testing.T) *harness {
 	// caveat about needing a fresh machine.
 	pruneOrphanedRules(t, rules)
 
+	// Infrastructure rules from an earlier run go too. They embed the PORT NUMBERS of
+	// the run that installed them, and every run picks fresh ones -- so a leftover
+	// input guard permits ports nothing is listening on and denies the ports this run
+	// uses. Every test then fails at once, looking like enforcement is broken rather
+	// than like the previous run tidied up badly. Each test here installs whatever
+	// floor it needs, so starting from none is the honest baseline.
+	if _, subnet, err := bridgeSubnet(ctx, cli); err == nil {
+		_ = rules.RemoveInputGuard(subnet)
+		_ = rules.RemoveBaselineDeny(subnet)
+	}
+
 	return &harness{
 		t: t, ctx: ctx, cli: cli, registry: registry,
 		proxy: proxy, resolver: resolver, rules: rules,

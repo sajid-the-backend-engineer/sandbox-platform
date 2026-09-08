@@ -73,10 +73,22 @@ func (manager *NetRulesManager) ensureDispatchLocked() error {
 		!strings.Contains(err.Error(), "Chain already exists") {
 		return err
 	}
-	// Appended, not inserted: the legacy per-sandbox chains from SetNetworkRules
-	// insert themselves at the top of DOCKER-USER, and they are terminal, so they
-	// must keep getting their say first.
-	return manager.ipt.AppendUnique("filter", "DOCKER-USER", "-j", DispatchChainName)
+	// Last, but BEFORE Docker's terminator.
+	//
+	// This used to be a plain append, on the reasoning that the legacy per-sandbox
+	// chains insert themselves at the top of DOCKER-USER and must keep getting their
+	// say first. That half was right. What it missed is that Docker creates DOCKER-USER
+	// with a terminal "-j RETURN" of its own, so appending landed the dispatch jump
+	// AFTER it -- present in the table, correct in every listing, and never reached.
+	//
+	// The chain therefore held a perfectly-formed baseline that no packet ever
+	// traversed, and every check that asked "is the rule there?" answered yes. An
+	// unclaimed sandbox had full network access on a runner reporting default-deny.
+	//
+	// insertDockerUserBeforeReturn keeps the intended order -- after the per-sandbox
+	// chains, before the terminator -- and falls back to appending when Docker has not
+	// installed a terminator.
+	return manager.insertDockerUserBeforeReturn("-j", DispatchChainName)
 }
 
 // SetBaselineDeny makes "no rule yet" mean "no network" for the sandbox subnet.
@@ -151,7 +163,15 @@ func (manager *NetRulesManager) BaselineActive(sandboxSubnet string) (bool, erro
 		return false, nil
 	}
 
-	hooked, err := manager.ipt.Exists("filter", "DOCKER-USER", "-j", DispatchChainName)
+	// REACHABLE, not merely present.
+	//
+	// This asked ipt.Exists, which answers "is this rule in the chain" and says nothing
+	// about whether traffic ever gets to it. With the jump sitting after Docker's
+	// terminal RETURN, that question returned true while the baseline enforced nothing
+	// -- so the readiness check, the provisioning gate and the self-heal sweep all
+	// agreed the floor was in place, and it was not. A check that cannot fail is not a
+	// check.
+	hooked, err := manager.dispatchHookReachable()
 	if err != nil {
 		return false, err
 	}
@@ -169,6 +189,32 @@ func (manager *NetRulesManager) BaselineActive(sandboxSubnet string) (bool, erro
 		}
 	}
 	return true, nil
+}
+
+// dispatchHookReachable reports whether the jump into the dispatch chain is somewhere
+// a packet actually arrives: present in DOCKER-USER, and ahead of the terminal RETURN
+// that Docker installs there by default.
+//
+// Callers must hold manager.mu.
+func (manager *NetRulesManager) dispatchHookReachable() (bool, error) {
+	rules, err := manager.ipt.List("filter", "DOCKER-USER")
+	if err != nil {
+		return false, err
+	}
+	for _, rule := range rules {
+		if !strings.HasPrefix(rule, "-A ") {
+			continue
+		}
+		if strings.HasSuffix(rule, "-j "+DispatchChainName) {
+			return true, nil
+		}
+		// Anything past the terminator is unreachable, so stop looking here rather
+		// than reporting a rule that exists but never runs.
+		if rule == "-A DOCKER-USER -j RETURN" {
+			return false, nil
+		}
+	}
+	return false, nil
 }
 
 func baselineRules(sandboxSubnet string) [][]string {
