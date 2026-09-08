@@ -124,6 +124,18 @@ func (d *DockerClient) getContainerCreateConfig(sandboxDto dto.CreateSandboxDTO,
 		labels[GpuIndexLabel] = strconv.Itoa(*gpuIndex)
 	}
 
+	// The requested egress policy, recorded on the container itself.
+	//
+	// It has to outlive the address it was applied to. A sandbox that stops and starts
+	// comes back on a different IP, and the runner keeps no database -- so without
+	// this, a resume had nothing to re-apply and the policy stayed bound to an address
+	// the container no longer held. Docker hands these back on inspect, so they
+	// survive a resume, a runner restart and a Docker restart alike.
+	for k, v := range EgressLabels(
+		sandboxDto.NetworkBlockAll, sandboxDto.NetworkAllowList, sandboxDto.DomainAllowList) {
+		labels[k] = v
+	}
+
 	// Android-device sandboxes run the image's native entrypoint (e.g. the docker-android
 	// emulator bootstrap) and never host the northrays daemon. We mark the container with a
 	// label so the Start path can detect this later without needing the original DTO.
@@ -228,14 +240,6 @@ func (d *DockerClient) getContainerHostConfig(sandboxDto dto.CreateSandboxDTO, v
 		// which privileged mode would let them escape.
 		Privileged: gpuIndex == nil && !restrictedEgress,
 		Binds:      binds,
-	}
-
-	// Recorded on the container so a resume, a runner restart or a Docker restart can
-	// put the same policy back. The address it is applied to changes; the policy does
-	// not, and the container outlives both.
-	for k, v := range EgressLabels(
-		sandboxDto.NetworkBlockAll, sandboxDto.NetworkAllowList, sandboxDto.DomainAllowList) {
-		labels[k] = v
 	}
 
 	if restrictedEgress {
