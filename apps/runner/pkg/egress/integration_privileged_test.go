@@ -36,6 +36,7 @@ import (
 	"github.com/docker/docker/client"
 	"github.com/docker/docker/pkg/stdcopy"
 
+	"github.com/northrays/runner/pkg/docker"
 	"github.com/northrays/runner/pkg/netrules"
 )
 
@@ -867,4 +868,130 @@ func capsOf(t *testing.T, status string, field string) string {
 		}
 	}
 	return ""
+}
+
+// TestBaselineActiveReflectsTheKernelNotTheConfig is what the provisioning gate
+// depends on. The runner refuses restricted sandboxes when this reports false, so it
+// has to answer from the rules that actually exist rather than from the flag that was
+// supposed to install them.
+func TestBaselineActiveReflectsTheKernelNotTheConfig(t *testing.T) {
+	h := setup(t)
+
+	_, subnet, err := bridgeSubnet(h.ctx, h.cli)
+	if err != nil {
+		t.Fatalf("discover subnet: %v", err)
+	}
+
+	// Start from a known-clean state.
+	_ = h.rules.RemoveBaselineDeny(subnet)
+
+	active, err := h.rules.BaselineActive(subnet)
+	if err != nil {
+		t.Fatalf("BaselineActive: %v", err)
+	}
+	if active {
+		t.Fatal("baseline reported active before it was installed")
+	}
+
+	if err := h.rules.SetBaselineDeny(subnet); err != nil {
+		t.Fatalf("SetBaselineDeny: %v", err)
+	}
+	t.Cleanup(func() { _ = h.rules.RemoveBaselineDeny(subnet) })
+
+	active, err = h.rules.BaselineActive(subnet)
+	if err != nil {
+		t.Fatalf("BaselineActive: %v", err)
+	}
+	if !active {
+		t.Error("baseline reported inactive after installation")
+	}
+
+	// Simulate the rules being removed underneath a running runner -- a manual
+	// iptables flush, a Docker restart that rebuilt the chains. The gate must notice.
+	if err := h.rules.RemoveBaselineDeny(subnet); err != nil {
+		t.Fatalf("RemoveBaselineDeny: %v", err)
+	}
+	active, err = h.rules.BaselineActive(subnet)
+	if err != nil {
+		t.Fatalf("BaselineActive: %v", err)
+	}
+	if active {
+		t.Error("baseline still reported active after its rules were removed")
+	}
+}
+
+// TestPartialInstallLeavesTheSandboxDenied injects a failure into the real rule
+// installation and checks the two things that must hold afterwards: no window of
+// unrestricted access, and no policy left registered for a sandbox whose rules did
+// not land.
+func TestPartialInstallLeavesTheSandboxDenied(t *testing.T) {
+	h := setup(t)
+
+	_, subnet, err := bridgeSubnet(h.ctx, h.cli)
+	if err != nil {
+		t.Fatalf("discover subnet: %v", err)
+	}
+	if err := h.rules.SetBaselineDeny(subnet); err != nil {
+		t.Fatalf("SetBaselineDeny: %v", err)
+	}
+	t.Cleanup(func() { _ = h.rules.RemoveBaselineDeny(subnet) })
+
+	id, ip := h.startProbe("egress-partial")
+
+	// An impossible redirect port makes the real SetDomainRules fail partway --
+	// after the chain exists, before the rule set is complete.
+	patterns := []string{allowedHost}
+	h.registry.Register(ip, Policy{Patterns: patterns, Revision: Revision(patterns)})
+	err = h.rules.SetDomainRules(id[:12], ip, 18080, 18443, 999999)
+	if err == nil {
+		t.Fatal("expected the invalid port to fail rule installation")
+	}
+	t.Logf("rule installation failed as intended: %v", err)
+
+	// Mirror what the runner does on that error path.
+	h.registry.Unregister(ip)
+	_ = h.rules.DeleteDomainRules(id[:12])
+
+	if _, ok := h.registry.For(ip); ok {
+		t.Error("policy remained registered after a failed installation")
+	}
+
+	out, code := h.exec(id, "wget", "-q", "-T", "10", "-O", "/dev/null", "https://"+deniedHost+"/")
+	if code == 0 {
+		t.Errorf("a partially provisioned sandbox reached the network: %s", out)
+	} else {
+		t.Logf("partial install left the sandbox denied by the baseline (exit %d)", code)
+	}
+}
+
+// TestRestrictedEgressCoversEveryMode guards the classification the privilege and
+// pre-flight decisions both key off. Miss a mode here and that mode silently keeps
+// privileged mode and skips the baseline gate.
+func TestRestrictedEgressCoversEveryMode(t *testing.T) {
+	yes := true
+	no := false
+	list := "10.0.0.0/8"
+	domains := "pypi.org"
+	empty := ""
+
+	cases := []struct {
+		name     string
+		blockAll *bool
+		cidr     *string
+		domains  *string
+		want     bool
+	}{
+		{"block all", &yes, nil, nil, true},
+		{"cidr allow list", nil, &list, nil, true},
+		{"domain allow list", nil, nil, &domains, true},
+		{"explicitly unrestricted", &no, nil, nil, false},
+		{"empty strings are not policies", nil, &empty, &empty, false},
+		{"nothing requested", nil, nil, nil, false},
+	}
+
+	for _, tc := range cases {
+		if got := docker.RestrictedEgress(tc.blockAll, tc.cidr, tc.domains); got != tc.want {
+			t.Errorf("%s: RestrictedEgress = %v, want %v", tc.name, got, tc.want)
+		}
+	}
 }
