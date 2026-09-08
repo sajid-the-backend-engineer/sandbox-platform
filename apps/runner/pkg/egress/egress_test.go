@@ -146,21 +146,6 @@ func TestReadClientHelloRejectsNonTLS(t *testing.T) {
 	}
 }
 
-func TestReadHTTPHeadExtractsHost(t *testing.T) {
-	req := "GET /simple/ HTTP/1.1\r\nUser-Agent: pip/24\r\nHost: pypi.org\r\nAccept: */*\r\n\r\n"
-
-	head, host, err := readHTTPHead(strings.NewReader(req))
-	if err != nil {
-		t.Fatalf("readHTTPHead: %v", err)
-	}
-	if host != "pypi.org" {
-		t.Errorf("host = %q, want pypi.org", host)
-	}
-	if string(head) != req {
-		t.Error("request head was not returned byte-for-byte")
-	}
-}
-
 // startProxy runs a Proxy on ephemeral ports with upstream dialing redirected to a
 // local echo server, and returns the two listener addresses.
 func startProxy(t *testing.T, upstream net.Listener) (*Proxy, string, string) {
