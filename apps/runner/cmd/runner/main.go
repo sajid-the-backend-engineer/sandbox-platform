@@ -5,13 +5,16 @@
 package main
 
 import (
-	"os"
 	"context"
 	"log/slog"
+	"os"
 	"os/signal"
 	"syscall"
 	"time"
 
+	"github.com/docker/docker/client"
+	"github.com/lmittmann/tint"
+	"github.com/mattn/go-isatty"
 	"github.com/northrays/common-go/pkg/log"
 	"github.com/northrays/common-go/pkg/telemetry"
 	"github.com/northrays/runner/cmd/runner/config"
@@ -30,9 +33,6 @@ import (
 	"github.com/northrays/runner/pkg/services"
 	"github.com/northrays/runner/pkg/sshgateway"
 	"github.com/northrays/runner/pkg/telemetry/filters"
-	"github.com/docker/docker/client"
-	"github.com/lmittmann/tint"
-	"github.com/mattn/go-isatty"
 	"go.opentelemetry.io/otel"
 )
 
