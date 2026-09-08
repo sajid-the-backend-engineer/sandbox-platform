@@ -705,3 +705,81 @@ func TestSandboxCapabilities(t *testing.T) {
 		t.Logf("%-34s exit=%d out=%s", probe.name, code, strings.TrimSpace(out))
 	}
 }
+
+// startPrivilegedProbe creates a container the way the RUNNER actually creates a
+// non-GPU sandbox: privileged.
+//
+// This exists because the first spoofing test measured the wrong thing. It used a
+// default container, saw "ip addr add: Operation not permitted", and concluded source
+// identity was safe. Real sandboxes are created with Privileged:true
+// (container_configs.go), which grants CAP_NET_ADMIN and makes that conclusion
+// invalid. A security test that does not reproduce production's capabilities is
+// evidence about a container nobody runs.
+func (h *harness) startPrivilegedProbe(name string) (string, string) {
+	h.t.Helper()
+
+	created, err := h.cli.ContainerCreate(h.ctx,
+		&container.Config{Image: probeImage, Cmd: []string{"sleep", "600"}},
+		&container.HostConfig{Privileged: true}, nil, nil, name)
+	if err != nil {
+		h.t.Fatalf("create %s: %v", name, err)
+	}
+	h.t.Cleanup(func() {
+		_ = h.cli.ContainerRemove(context.Background(), created.ID, container.RemoveOptions{Force: true})
+	})
+	if err := h.cli.ContainerStart(h.ctx, created.ID, container.StartOptions{}); err != nil {
+		h.t.Fatalf("start %s: %v", name, err)
+	}
+
+	info, err := h.cli.ContainerInspect(h.ctx, created.ID)
+	if err != nil {
+		h.t.Fatalf("inspect %s: %v", name, err)
+	}
+	return created.ID, info.NetworkSettings.IPAddress
+}
+
+// TestPrivilegedSandboxCannotForgeSourceAddress is the source-identity test done
+// against production's real container configuration.
+//
+// Policy is selected by source address. If a sandbox can put a neighbour's address on
+// its own interface, it inherits the neighbour's allow list and every other decision
+// in this package becomes advisory. A privileged container holds CAP_NET_ADMIN, so
+// this is not hypothetical.
+func TestPrivilegedSandboxCannotForgeSourceAddress(t *testing.T) {
+	h := setup(t)
+
+	victimID, victimIP := h.startPrivilegedProbe("egress-priv-victim")
+	attackerID, attackerIP := h.startPrivilegedProbe("egress-priv-attacker")
+	t.Logf("victim %s, attacker %s (both privileged, as production creates them)", victimIP, attackerIP)
+
+	h.applyPolicy(victimID[:12], victimIP, []string{allowedHost})
+	h.applyPolicy(attackerID[:12], attackerIP, []string{"nothing.invalid"})
+
+	out, _ := h.exec(attackerID, "sh", "-c", "grep CapEff /proc/self/status")
+	t.Logf("privileged sandbox capabilities: %s", strings.TrimSpace(out))
+
+	// Baseline: on its own address the attacker reaches nothing.
+	if _, code := h.exec(attackerID, "wget", "-q", "-T", "10", "-O", "/dev/null", "https://"+allowedHost+"/"); code == 0 {
+		t.Fatal("attacker reached the allowed host on its own policy; test cannot distinguish")
+	}
+
+	// Take the victim's address.
+	addOut, _ := h.exec(attackerID, "sh", "-c",
+		"ip addr add "+victimIP+"/16 dev eth0 2>&1; echo rc=$?")
+	t.Logf("ip addr add %s: %s", victimIP, strings.TrimSpace(addOut))
+
+	if !strings.Contains(addOut, "rc=0") {
+		t.Log("could not assign the victim address; source identity is protected at the capability layer")
+		return
+	}
+
+	// The address was taken. Does it buy the victim's policy?
+	stolen, code := h.exec(attackerID, "wget", "-q", "-T", "15", "-O", "/dev/null",
+		"--bind-address="+victimIP, "https://"+allowedHost+"/")
+	if code == 0 {
+		t.Errorf("SOURCE FORGERY SUCCEEDED: attacker bound %s and reached %s, "+
+			"inheriting a policy that is not its own: %s", victimIP, allowedHost, stolen)
+	} else {
+		t.Logf("forged source did not inherit the victim policy (exit %d)", code)
+	}
+}
