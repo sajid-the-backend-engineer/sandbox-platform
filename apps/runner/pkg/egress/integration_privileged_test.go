@@ -833,11 +833,38 @@ func TestRestrictedSandboxCannotForgeSourceAddress(t *testing.T) {
 		t.Error("restricted sandbox assigned a neighbour address; CAP_NET_ADMIN was not removed")
 	}
 
-	rawOut, _ := h.exec(attackerID, "sh", "-c", "ping -c1 -W2 127.0.0.1 2>&1 | head -2; echo rc=$?")
-	t.Logf("raw socket attempt: %s", strings.TrimSpace(rawOut))
+	// NOTE ON PING. busybox ping still succeeds here, and that is NOT evidence that
+	// CAP_NET_RAW survived: Linux lets unprivileged processes open ICMP *datagram*
+	// sockets (net.ipv4.ping_group_range), which need no capability at all. The
+	// capability masks above are the real evidence -- CapEff/CapBnd drop from
+	// a80425fb to a80405fb, and 0x2000 is CAP_NET_RAW.
+	rawOut, _ := h.exec(attackerID, "sh", "-c", "ping -c1 -W2 127.0.0.1 2>&1 | head -1; echo rc=$?")
+	t.Logf("icmp datagram socket (not a NET_RAW probe): %s", strings.TrimSpace(rawOut))
+
+	const capNetRaw = 0x2000
+	var eff uint64
+	if _, err := fmt.Sscanf(capsOf(t, out, "CapEff"), "%x", &eff); err == nil {
+		if eff&capNetRaw != 0 {
+			t.Errorf("CAP_NET_RAW still present in CapEff %016x", eff)
+		} else {
+			t.Logf("CAP_NET_RAW absent from CapEff %016x, as intended", eff)
+		}
+	}
 
 	stolen, code := h.exec(attackerID, "wget", "-q", "-T", "10", "-O", "/dev/null", "https://"+allowedHost+"/")
 	if code == 0 {
 		t.Errorf("attacker reached the victim's allowed host: %s", stolen)
 	}
+}
+
+// capsOf pulls one capability mask out of /proc/self/status output.
+func capsOf(t *testing.T, status string, field string) string {
+	t.Helper()
+	for _, line := range strings.Split(status, "\n") {
+		if strings.HasPrefix(strings.TrimSpace(line), field+":") {
+			parts := strings.Fields(line)
+			return parts[len(parts)-1]
+		}
+	}
+	return ""
 }

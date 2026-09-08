@@ -587,6 +587,27 @@ module "runner" {
 
     INTER_SANDBOX_NETWORK_ENABLED = "true"
 
+    # Sandbox egress is denied until the runner explicitly allows it.
+    #
+    # This is what makes a domain allow list enforceable rather than advisory. A
+    # sandbox's address does not exist until Docker starts its container, so there
+    # is no earlier moment at which per-sandbox rules could be written; without a
+    # default deny, the gap between "container running" and "rules installed" is
+    # unfiltered, and a sandbox built from a customer image can use that gap from
+    # its entrypoint.
+    #
+    # It is set here, in versioned configuration, rather than left to whoever last
+    # edited the task definition -- and the runner does not merely trust it. It
+    # verifies the rules against the kernel at startup and REFUSES to provision a
+    # restricted sandbox when they are missing, so a value lost in a future edit
+    # fails loudly instead of silently restoring the exposure.
+    #
+    # Consequence to keep in mind when changing this: with the deny in force, a
+    # sandbox the runner does not explicitly allow has no network at all. That is
+    # the correct posture for untrusted code and it is also an availability risk,
+    # which is why the rollout drains the runner first.
+    EGRESS_DEFAULT_DENY = "true"
+
     SSH_GATEWAY_ENABLE = "true"
     SSH_GATEWAY_PORT   = tostring(local.ports.runner_ssh)
 

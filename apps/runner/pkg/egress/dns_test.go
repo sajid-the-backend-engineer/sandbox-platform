@@ -8,6 +8,7 @@ import (
 	"net"
 	"strconv"
 	"strings"
+	"sync"
 	"testing"
 	"time"
 )
@@ -195,5 +196,82 @@ func TestRevisionIsStableUnderReordering(t *testing.T) {
 	}
 	if a == Revision([]string{"pypi.org"}) {
 		t.Error("revision did not change when the policy did")
+	}
+}
+
+// TestDeniedNamesNeverReachTheUpstreamResolver is the DNS property that matters, and
+// it is not the same as blocking alternate resolvers.
+//
+// Blocking 1.1.1.1 only proves a sandbox cannot pick its own server. It says nothing
+// about what our own resolver does with a name the policy refuses -- and a resolver
+// that forwards first and refuses afterwards has already leaked the query, which is
+// the exfiltration channel DNS filtering exists to close. So the upstream here
+// records every query it receives, and the assertion is about what never arrived.
+func TestDeniedNamesNeverReachTheUpstreamResolver(t *testing.T) {
+	var mu sync.Mutex
+	var forwarded []string
+
+	up, err := net.ListenPacket("udp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer up.Close()
+
+	go func() {
+		buf := make([]byte, maxDNSMessage)
+		for {
+			n, from, err := up.ReadFrom(buf)
+			if err != nil {
+				return
+			}
+			if name, err := questionName(buf[:n]); err == nil {
+				mu.Lock()
+				forwarded = append(forwarded, name)
+				mu.Unlock()
+			}
+			resp := make([]byte, n)
+			copy(resp, buf[:n])
+			resp[2] |= 0x80
+			resp[3] &^= 0x0f
+			_, _ = up.WriteTo(resp, from)
+		}
+	}()
+
+	reg := NewRegistry(discardLogger())
+	reg.Register("127.0.0.1", Policy{Patterns: []string{"pypi.org"}, Revision: "test"})
+
+	l, err := net.Listen("tcp", "127.0.0.1:0")
+	if err != nil {
+		t.Fatal(err)
+	}
+	port := l.Addr().(*net.TCPAddr).Port
+	_ = l.Close()
+
+	r := NewResolver(discardLogger(), reg, "127.0.0.1", port, up.LocalAddr().String())
+	if err := r.Start(); err != nil {
+		t.Fatalf("resolver start: %v", err)
+	}
+	defer r.Stop()
+
+	addr := net.JoinHostPort("127.0.0.1", strconv.Itoa(port))
+
+	if got := rcodeOf(t, askUDP(t, addr, dnsQuery("pypi.org"))); got != 0 {
+		t.Fatalf("allowed name rcode = %d, want 0", got)
+	}
+	if got := rcodeOf(t, askUDP(t, addr, dnsQuery("exfil.attacker.test"))); got != rcodeRefused {
+		t.Fatalf("denied name rcode = %d, want %d", got, rcodeRefused)
+	}
+
+	mu.Lock()
+	defer mu.Unlock()
+	t.Logf("queries that reached upstream: %v", forwarded)
+
+	for _, name := range forwarded {
+		if name == "exfil.attacker.test" {
+			t.Error("a denied name was forwarded upstream: the query leaked before the refusal")
+		}
+	}
+	if len(forwarded) != 1 || forwarded[0] != "pypi.org" {
+		t.Errorf("upstream saw %v, want exactly [pypi.org]", forwarded)
 	}
 }
