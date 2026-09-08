@@ -355,3 +355,84 @@ func TestEgressEnforcement(t *testing.T) {
 		h.applyPolicy(shortID, ip, []string{allowedHost})
 	})
 }
+
+// TestSandboxCannotAdoptAnotherSandboxPolicy checks the assumption the whole design
+// rests on: that the source address the proxy and resolver key policy from is one
+// the runner assigned, not one the workload chose.
+//
+// If a sandbox can put a neighbour's address on its packets, it inherits the
+// neighbour's allow list, and every decision above becomes advisory.
+func TestSandboxCannotAdoptAnotherSandboxPolicy(t *testing.T) {
+	h := setup(t)
+
+	victimID, victimIP := h.startProbe("egress-victim")
+	attackerID, attackerIP := h.startProbe("egress-attacker")
+	t.Logf("victim %s, attacker %s", victimIP, attackerIP)
+
+	// The victim may reach the allowed host; the attacker may reach nothing.
+	h.applyPolicy(victimID[:12], victimIP, []string{allowedHost})
+	h.applyPolicy(attackerID[:12], attackerIP, []string{"nothing.invalid"})
+
+	t.Run("capabilities", func(t *testing.T) {
+		// Raw sockets are what a spoofing attempt needs. Record what the sandbox
+		// actually has rather than assuming Docker's defaults.
+		out, _ := h.exec(attackerID, "sh", "-c", "grep CapEff /proc/self/status")
+		t.Logf("attacker effective capabilities: %s", strings.TrimSpace(out))
+	})
+
+	t.Run("attacker_cannot_reach_allowed_host", func(t *testing.T) {
+		out, code := h.exec(attackerID, "wget", "-q", "-T", "10", "-O", "/dev/null",
+			"https://"+allowedHost+"/")
+		if code == 0 {
+			t.Errorf("attacker reached a host only the victim is allowed: %s", out)
+		}
+	})
+
+	t.Run("spoofed_source_does_not_inherit_policy", func(t *testing.T) {
+		// Try to send with the victim's address. busybox ip/route manipulation is
+		// the accessible way in an alpine probe; if the sandbox cannot even set it,
+		// that is itself the answer and is recorded as such.
+		out, code := h.exec(attackerID, "sh", "-c",
+			"ip addr add "+victimIP+"/16 dev eth0 2>&1; echo rc=$?")
+		t.Logf("attempt to add victim address: %s (exit %d)", strings.TrimSpace(out), code)
+
+		if strings.Contains(out, "rc=0") {
+			// The address was added. Now see whether it buys the victim's policy.
+			out2, code2 := h.exec(attackerID, "wget", "-q", "-T", "10", "-O", "/dev/null",
+				"--bind-address="+victimIP, "https://"+allowedHost+"/")
+			if code2 == 0 {
+				t.Errorf("SPOOFING WORKS: attacker used %s and reached %s: %s",
+					victimIP, allowedHost, out2)
+			} else {
+				t.Logf("spoofed source did not inherit the victim policy (exit %d)", code2)
+			}
+		} else {
+			t.Log("sandbox could not assign another address; spoofing blocked at the capability layer")
+		}
+	})
+}
+
+// TestReusedAddressDoesNotInheritPolicy covers the lifecycle hazard: Docker hands
+// addresses out again, and a new sandbox must not receive the previous tenant's
+// authorization along with its IP.
+func TestReusedAddressDoesNotInheritPolicy(t *testing.T) {
+	h := setup(t)
+
+	firstID, firstIP := h.startProbe("egress-reuse-first")
+	h.applyPolicy(firstID[:12], firstIP, []string{allowedHost})
+
+	if _, code := h.exec(firstID, "wget", "-q", "-T", "15", "-O", "/dev/null", "https://"+allowedHost+"/"); code != 0 {
+		t.Fatalf("first sandbox could not reach its allowed host")
+	}
+
+	// Tear the first one down the way the runner does, then confirm the registry no
+	// longer answers for that address.
+	if err := h.rules.DeleteDomainRules(firstID[:12]); err != nil {
+		t.Fatalf("DeleteDomainRules: %v", err)
+	}
+	h.registry.Unregister(firstIP)
+
+	if _, ok := h.registry.For(firstIP); ok {
+		t.Error("policy survived teardown; a reused address would inherit it")
+	}
+}
