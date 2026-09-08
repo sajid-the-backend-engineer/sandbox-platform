@@ -243,8 +243,25 @@ func (dm *DockerMonitor) reconcileNetworkRules(table string, chain string) {
 		// Inspect the container to get its current IP
 		container, err := dm.apiClient.ContainerInspect(dm.ctx, containerID)
 		if err != nil {
-			dm.log.Error("Error inspecting container", "containerID", containerID, "error", err)
-			// Container doesn't exist, unassign the rules
+			// The container is gone. Remove the WHOLE policy, not just the piece in
+			// DOCKER-USER.
+			//
+			// A domain policy spans three places: a jump in the dispatch chain, a
+			// REDIRECT in nat PREROUTING, and the per-sandbox chains behind them.
+			// UnassignNetworkRules only ever knew about DOCKER-USER, so the nat
+			// redirect survived -- and because it matches on SOURCE ADDRESS, the next
+			// sandbox handed that recycled address had its DNS captured for a policy
+			// that was not its own. Measured on the live runner: two redirects still
+			// present with zero sandboxes running, and still present a full
+			// reconciliation cycle later.
+			//
+			// DeleteDomainRules unlinks both tables before deleting the chains, which
+			// also fixes the second half: reconcileChains could not delete a chain
+			// that a nat rule still referenced.
+			if derr := dm.netRulesManager.DeleteDomainRules(containerID); derr != nil {
+				dm.log.Error("Error removing egress rules for non-existent container",
+					"containerID", containerID, "error", derr)
+			}
 			if err := dm.netRulesManager.UnassignNetworkRules(containerID); err != nil {
 				dm.log.Error("Error unassigning rules for non-existent container", "containerID", containerID, "error", err)
 			} else {
@@ -296,6 +313,15 @@ func (dm *DockerMonitor) reconcileChains(table string) {
 		_, err := dm.apiClient.ContainerInspect(dm.ctx, containerID)
 		if err != nil {
 			dm.log.Info("Container does not exist, deleting chain", "containerID", containerID, "chain", chain)
+
+			// Unlink first. A chain that is still referenced cannot be deleted, and
+			// the jumps live in nat PREROUTING and the dispatch chain -- neither of
+			// which this loop knew about, so every delete here failed with "chain
+			// busy" and the orphan stayed forever.
+			if derr := dm.netRulesManager.DeleteDomainRules(containerID); derr != nil {
+				dm.log.Error("Error unlinking orphaned egress rules",
+					"containerID", containerID, "error", derr)
+			}
 
 			// Delete the orphaned chain
 			if err := dm.netRulesManager.ClearAndDeleteChain(table, chain); err != nil {

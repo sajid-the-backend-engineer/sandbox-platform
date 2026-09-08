@@ -76,8 +76,13 @@ func (d *DockerClient) Destroy(ctx context.Context, containerId string) error {
 	// teardown fails, and the failure is logged rather than swallowed. The baseline
 	// deny covers the address in the meantime, because a policy-less source is
 	// refused rather than allowed.
+	// ct.ID, not containerId. Destroy is called with a SANDBOX id, which is a UUID,
+	// while every chain is named after the twelve-character DOCKER container id. Using
+	// the caller's argument built a chain name that never existed, so this cleanup
+	// silently removed nothing and left the rules for the reconciler -- which had its
+	// own gap. Two "safety nets" that both missed is how the orphans survived.
 	if ip := GetContainerIpAddress(ctx, ct); ip != "" {
-		if err := d.clearDomainAllowList(containerId[:min(12, len(containerId))], ip); err != nil {
+		if err := d.clearDomainAllowList(ct.ID[:min(12, len(ct.ID))], ip); err != nil {
 			d.logger.WarnContext(ctx, "Failed to revoke sandbox egress policy on destroy",
 				"sandboxId", containerId, "ip", ip, "error", err)
 		}
