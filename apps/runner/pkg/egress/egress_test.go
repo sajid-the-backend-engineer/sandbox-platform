@@ -172,7 +172,6 @@ func startProxy(t *testing.T, upstream net.Listener) (*Proxy, string, string) {
 	}
 	t.Cleanup(p.Stop)
 
-	p.registry = reg
 	return p, fmt.Sprintf("127.0.0.1:%d", ports[0]), fmt.Sprintf("127.0.0.1:%d", ports[1])
 }
 
