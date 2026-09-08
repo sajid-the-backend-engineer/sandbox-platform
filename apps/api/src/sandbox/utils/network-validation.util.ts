@@ -39,12 +39,38 @@ export function validateNetworkAllowList(networkAllowList: string): void {
 }
 
 /**
+ * The public-internet posture: any public hostname is permitted by NAME.
+ *
+ * This is not "unrestricted". The runner still places such a sandbox behind its
+ * egress proxy and resolver, still runs it unprivileged, and still vets the address
+ * each hostname resolves to before dialling — so cloud metadata, private ranges,
+ * runner services and other tenants remain unreachable. Permitting every name does
+ * not affect a check made on the address.
+ */
+export const ANY_HOST = '*'
+
+/**
  * Validates domain allow list to ensure valid domain names are allowed
- * @param domainAllowList - Comma-separated string of domains (optionally prefixed with a `*.` wildcard)
+ * @param domainAllowList - Comma-separated string of domains (optionally prefixed with a `*.` wildcard),
+ *                          or the single token `*` for the public-internet posture
  * @throws Error if any domain is invalid or the list is too long
  */
 export function validateDomainAllowList(domainAllowList: string): void {
   const domains = domainAllowList.split(',').map((domain: string) => domain.trim())
+
+  // `*` on its own is the public-internet posture and is accepted as the WHOLE list.
+  // It is deliberately not accepted alongside named entries: "everything, plus these
+  // in particular" reads as though the named ones were doing something, and a policy
+  // that looks narrower than it is, is worse than one that is plainly broad.
+  const meaningful = domains.filter((domain) => domain !== '')
+  if (meaningful.length === 1 && meaningful[0] === ANY_HOST) {
+    return
+  }
+  if (meaningful.includes(ANY_HOST)) {
+    throw new Error(
+      `Invalid domain allow list: "${ANY_HOST}" permits every host and cannot be combined with named domains`,
+    )
+  }
 
   // Hostname label format, optionally prefixed with a single `*.` wildcard (e.g. "*.northrays.com")
   const domainRegex = /^(\*\.)?([a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?\.)+[a-zA-Z]{2,}$/
