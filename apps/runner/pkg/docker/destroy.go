@@ -56,6 +56,33 @@ func (d *DockerClient) Destroy(ctx context.Context, containerId string) error {
 		return err
 	}
 
+	// Revoke this sandbox's egress authorization before its address goes back into
+	// Docker's pool.
+	//
+	// THIS WAS A REAL CROSS-TENANT LEAK, caught in production rather than in a test.
+	// Destroy did not clear the policy, so the registration outlived the sandbox --
+	// and Docker hands addresses out again quickly. Observed on the live runner:
+	//
+	//   10:08  172.17.0.2 registered [pypi.org files.pythonhosted.org]   (python sandbox)
+	//   10:09  172.17.0.2 registered [registry.npmjs.org github.com ...]  (node sandbox)
+	//   10:15  172.17.0.2 judged against the NODE policy                  (browser sandbox)
+	//
+	// The third sandbox was a different profile belonging to a later request, and it
+	// was authorized against a policy that was never its own. The package-level test
+	// asserted that Unregister works; nothing asserted that destroy calls it, which
+	// is the gap between a passing unit test and a correct system.
+	//
+	// Deliberately best-effort: a sandbox must still be destroyable when rule
+	// teardown fails, and the failure is logged rather than swallowed. The baseline
+	// deny covers the address in the meantime, because a policy-less source is
+	// refused rather than allowed.
+	if ip := GetContainerIpAddress(ctx, &ct); ip != "" {
+		if err := d.clearDomainAllowList(containerId[:min(12, len(containerId))], ip); err != nil {
+			d.logger.WarnContext(ctx, "Failed to revoke sandbox egress policy on destroy",
+				"sandboxId", containerId, "ip", ip, "error", err)
+		}
+	}
+
 	// Ignore err because we want to destroy the container even if it exited
 	state, _ := d.getSandboxState(ct)
 	if state == enums.SandboxStateDestroyed || state == enums.SandboxStateDestroying {
