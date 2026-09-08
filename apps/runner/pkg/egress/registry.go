@@ -33,6 +33,17 @@ type Registry struct {
 
 // Policy is one sandbox's effective egress rules.
 type Policy struct {
+	// Owner is the container this policy belongs to, and it is what makes stale
+	// cleanup safe.
+	//
+	// Addresses are recycled: a sandbox that stops and starts comes back on a
+	// different IP, and the one it vacated is handed to somebody else within
+	// seconds. Cleanup that removed "the old IP" without asking who holds it now
+	// would delete the new tenant's authorization -- the sandbox would go dark and
+	// nothing in its own logs would explain why. Every removal checks ownership
+	// first.
+	Owner string
+
 	// Patterns is the normalized allow list. Empty means deny everything, which is
 	// not the same as absent: an allow list that parses to nothing is still an
 	// allow list, and permits nothing.
@@ -56,14 +67,14 @@ func (r *Registry) Register(sandboxIP string, policy Policy) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	r.policies[sandboxIP] = policy
-	r.log.Info("Egress policy registered",
-		"sandboxIp", sandboxIP, "revision", policy.Revision, "allowed", policy.Patterns)
+	r.log.Info("Egress policy registered", "sandboxIp", sandboxIP,
+		"owner", policy.Owner, "revision", policy.Revision, "allowed", policy.Patterns)
 }
 
-// Unregister drops a sandbox's policy.
+// Unregister drops a sandbox's policy unconditionally.
 //
-// This is what stops an address handed to a new sandbox from inheriting the previous
-// tenant's authorization, so it runs on teardown before the IP can be reused.
+// Use UnregisterOwned wherever an owner is known -- this one cannot tell whether the
+// address has since been handed to somebody else.
 func (r *Registry) Unregister(sandboxIP string) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -71,6 +82,52 @@ func (r *Registry) Unregister(sandboxIP string) {
 		delete(r.policies, sandboxIP)
 		r.log.Info("Egress policy removed", "sandboxIp", sandboxIP)
 	}
+}
+
+// UnregisterOwned drops a policy only if it still belongs to owner.
+//
+// The safe form of the same operation, and the one every lifecycle path should use.
+// A sandbox that resumed on a new address leaves its old one behind; by the time the
+// cleanup runs, that address may already be another sandbox's. Removing it then would
+// take away an authorization that was never ours to remove.
+func (r *Registry) UnregisterOwned(sandboxIP string, owner string) bool {
+	if sandboxIP == "" || owner == "" {
+		return false
+	}
+
+	r.mu.Lock()
+	defer r.mu.Unlock()
+
+	existing, ok := r.policies[sandboxIP]
+	if !ok {
+		return false
+	}
+	if existing.Owner != owner {
+		r.log.Info("Egress policy left in place: address now belongs to another sandbox",
+			"sandboxIp", sandboxIP, "requestedBy", owner, "currentOwner", existing.Owner)
+		return false
+	}
+
+	delete(r.policies, sandboxIP)
+	r.log.Info("Egress policy removed", "sandboxIp", sandboxIP, "owner", owner)
+	return true
+}
+
+// AddressesOwnedBy lists every address currently registered to owner.
+//
+// Reconciliation uses this to find the bindings a sandbox left on addresses it no
+// longer holds, without having to remember what those addresses were.
+func (r *Registry) AddressesOwnedBy(owner string) []string {
+	r.mu.RLock()
+	defer r.mu.RUnlock()
+
+	var out []string
+	for ip, policy := range r.policies {
+		if policy.Owner == owner {
+			out = append(out, ip)
+		}
+	}
+	return out
 }
 
 // For returns the policy for an address. The second result distinguishes "this

@@ -32,6 +32,17 @@ func (d *DockerClient) Start(ctx context.Context, containerId string, authToken 
 		return nil, "", err
 	}
 
+	// Whatever happens below, the sandbox's policy is put back before this returns.
+	// A resume gives the container a NEW address, and nothing here used to notice:
+	// the policy stayed bound to the address it had before the stop, so the sandbox
+	// came back reporting healthy with its DNS refused and no way to tell why.
+	defer func() {
+		if rerr := d.ReconcileSandboxNetwork(ctx, containerId); rerr != nil {
+			d.logger.ErrorContext(ctx, "Failed to restore sandbox egress policy on start",
+				"sandboxId", containerId, "error", rerr)
+		}
+	}()
+
 	if c.State.Running {
 		containerIP := GetContainerIpAddress(ctx, c)
 		if containerIP == "" {

@@ -247,44 +247,18 @@ func (d *DockerClient) Create(ctx context.Context, sandboxDto dto.CreateSandboxD
 	containerShortId := runningContainer.ID[:12]
 
 	ip := GetContainerIpAddress(ctx, runningContainer)
-	if sandboxDto.NetworkBlockAll != nil && *sandboxDto.NetworkBlockAll {
-		go func() {
-			err = d.netRulesManager.SetNetworkRules(containerShortId, ip, "")
-			if err != nil {
-				d.logger.ErrorContext(ctx, "Failed to update sandbox network settings", "error", err)
-			}
-		}()
-	} else if sandboxDto.DomainAllowList != nil && *sandboxDto.DomainAllowList != "" {
-		// Applied synchronously, unlike the branches around it. Those install a
-		// deny rule -- if one is slow the sandbox is briefly MORE restricted than
-		// asked, which is safe. This one gates traffic on a proxy registration, and
-		// racing it against a sandbox that has already begun making requests would
-		// mean the opposite: unfiltered egress for as long as the goroutine took to
-		// be scheduled. An error here fails the create.
-		if err := d.applyDomainAllowList(containerShortId, ip, *sandboxDto.DomainAllowList); err != nil {
-			d.logger.ErrorContext(ctx, "Failed to apply sandbox domain allow list", "error", err)
-			return "", "", err
-		}
-	} else if sandboxDto.NetworkAllowList != nil && *sandboxDto.NetworkAllowList != "" {
-		go func() {
-			err = d.netRulesManager.SetNetworkRules(containerShortId, ip, *sandboxDto.NetworkAllowList)
-			if err != nil {
-				d.logger.ErrorContext(ctx, "Failed to update sandbox network settings", "error", err)
-			}
-		}()
-	} else if d.egressDefaultDeny {
-		// This sandbox asked for no restriction, but the baseline deny is in force,
-		// so open egress has to be granted rather than assumed. Synchronous and
-		// fatal on error: the baseline means the failure mode here is a sandbox with
-		// no network, and returning that as an error is far kinder than handing back
-		// a sandbox that looks healthy and cannot reach anything.
-		//
-		// A bypass, not an accept: this lets the sandbox out of our dispatch chain
-		// while leaving Docker's own isolation stages ahead of it.
-		if err := d.netRulesManager.BypassBaseline(ip); err != nil {
-			d.logger.ErrorContext(ctx, "Failed to grant unrestricted egress", "error", err)
-			return "", "", err
-		}
+
+	// ONE path for every mode and every lifecycle event.
+	//
+	// This used to be four branches that only create ever ran, and that asymmetry was
+	// the bug: a sandbox that stopped and started came back on a different address
+	// with its policy still bound to the old one, so it reported healthy while its
+	// DNS was refused. Applied synchronously and fatal on error -- a sandbox whose
+	// policy did not install must not be handed back looking ready.
+	if err := d.ReconcileSandboxNetwork(ctx, runningContainer.ID); err != nil {
+		d.logger.ErrorContext(ctx, "Failed to apply sandbox egress policy",
+			"sandboxId", containerShortId, "error", err)
+		return "", "", err
 	}
 
 	if sandboxDto.Metadata != nil && sandboxDto.Metadata["limitNetworkEgress"] == "true" {

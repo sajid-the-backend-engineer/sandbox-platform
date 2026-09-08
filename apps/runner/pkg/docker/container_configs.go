@@ -230,6 +230,14 @@ func (d *DockerClient) getContainerHostConfig(sandboxDto dto.CreateSandboxDTO, v
 		Binds:      binds,
 	}
 
+	// Recorded on the container so a resume, a runner restart or a Docker restart can
+	// put the same policy back. The address it is applied to changes; the policy does
+	// not, and the container outlives both.
+	for k, v := range EgressLabels(
+		sandboxDto.NetworkBlockAll, sandboxDto.NetworkAllowList, sandboxDto.DomainAllowList) {
+		labels[k] = v
+	}
+
 	if restrictedEgress {
 		// Belt and braces for the non-privileged path: NET_ADMIN is what rewrites
 		// addresses and routes, NET_RAW is what crafts packets with a source the
