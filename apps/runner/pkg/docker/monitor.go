@@ -318,6 +318,16 @@ func (dm *DockerMonitor) reconcilerLoop() {
 			return
 		case <-ticker.C:
 			dm.log.Debug("Reconciling network rules")
+			// nat FIRST, and it is not an afterthought.
+			//
+			// A domain policy installs TWO things: a filter rule that denies, and a nat
+			// REDIRECT that captures DNS and HTTP. Only the filter side was ever
+			// reconciled, so a redirect belonging to a departed container could sit in
+			// PREROUTING indefinitely -- and because it matches on SOURCE ADDRESS, the
+			// next container handed that address had its DNS captured for a policy that
+			// was not its own. The symptom is a sandbox reporting "bad address" for
+			// every lookup while nothing in the filter table looks wrong.
+			dm.reconcileNetworkRules("nat", "PREROUTING")
 			dm.reconcileNetworkRules("filter", "DOCKER-USER")
 			// Per-sandbox egress jumps moved into the dispatch chain, so reconciling
 			// only DOCKER-USER would leave a stale rule for a departed container in
@@ -326,6 +336,7 @@ func (dm *DockerMonitor) reconcilerLoop() {
 			dm.reconcileNetworkRules("mangle", "PREROUTING")
 			dm.reconcileChains("filter")
 			dm.reconcileChains("mangle")
+			dm.reconcileChains("nat")
 
 			// Events alone cannot carry recovery. Docker keeps a bounded event
 			// history, so a runner that was down while a container restarted never

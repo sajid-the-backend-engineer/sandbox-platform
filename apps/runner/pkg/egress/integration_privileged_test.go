@@ -996,8 +996,16 @@ func pruneOrphanedRules(t *testing.T, rules *netrules.NetRulesManager) {
 		}
 	}
 
-	for _, hook := range []string{"DOCKER-USER", "INPUT"} {
-		stale, err := rules.ListNorthraysRules("filter", hook)
+	// nat as well as filter. The nat REDIRECT is what captures a sandbox's DNS, so a
+	// stale one silently hands the next holder of that address to a policy that is not
+	// its own -- which looks like "bad address" on every lookup and nothing wrong in
+	// the filter table.
+	for _, scope := range []struct{ table, hook string }{
+		{"filter", "DOCKER-USER"},
+		{"filter", "INPUT"},
+		{"nat", "PREROUTING"},
+	} {
+		stale, err := rules.ListNorthraysRules(scope.table, scope.hook)
 		if err != nil {
 			continue
 		}
@@ -1006,23 +1014,25 @@ func pruneOrphanedRules(t *testing.T, rules *netrules.NetRulesManager) {
 				strings.Contains(rule, netrules.InputGuardChainName) {
 				continue // infrastructure, not a sandbox
 			}
-			if err := rules.DeleteChainRule("filter", hook, rule); err != nil {
-				t.Logf("prune: could not remove %s rule %q: %v", hook, rule, err)
+			if err := rules.DeleteChainRule(scope.table, scope.hook, rule); err != nil {
+				t.Logf("prune: could not remove %s/%s rule %q: %v", scope.table, scope.hook, rule, err)
 			}
 		}
 	}
 
-	chains, err := rules.ListNorthraysChains("filter")
-	if err != nil {
-		return
-	}
 	pruned := 0
-	for _, chain := range chains {
-		if chain == netrules.DispatchChainName || chain == netrules.InputGuardChainName {
+	for _, table := range []string{"filter", "nat"} {
+		chains, err := rules.ListNorthraysChains(table)
+		if err != nil {
 			continue
 		}
-		if err := rules.ClearAndDeleteChain("filter", chain); err == nil {
-			pruned++
+		for _, chain := range chains {
+			if chain == netrules.DispatchChainName || chain == netrules.InputGuardChainName {
+				continue
+			}
+			if err := rules.ClearAndDeleteChain(table, chain); err == nil {
+				pruned++
+			}
 		}
 	}
 	if pruned > 0 {
