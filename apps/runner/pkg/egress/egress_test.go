@@ -11,7 +11,6 @@ import (
 	"encoding/binary"
 	"log/slog"
 	"net"
-	"net/http"
 	"strings"
 	"testing"
 	"time"
