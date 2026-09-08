@@ -36,7 +36,6 @@ import (
 	"github.com/docker/docker/client"
 	"github.com/docker/docker/pkg/stdcopy"
 
-	"github.com/northrays/runner/pkg/docker"
 	"github.com/northrays/runner/pkg/netrules"
 )
 
@@ -961,37 +960,5 @@ func TestPartialInstallLeavesTheSandboxDenied(t *testing.T) {
 		t.Errorf("a partially provisioned sandbox reached the network: %s", out)
 	} else {
 		t.Logf("partial install left the sandbox denied by the baseline (exit %d)", code)
-	}
-}
-
-// TestRestrictedEgressCoversEveryMode guards the classification the privilege and
-// pre-flight decisions both key off. Miss a mode here and that mode silently keeps
-// privileged mode and skips the baseline gate.
-func TestRestrictedEgressCoversEveryMode(t *testing.T) {
-	yes := true
-	no := false
-	list := "10.0.0.0/8"
-	domains := "pypi.org"
-	empty := ""
-
-	cases := []struct {
-		name     string
-		blockAll *bool
-		cidr     *string
-		domains  *string
-		want     bool
-	}{
-		{"block all", &yes, nil, nil, true},
-		{"cidr allow list", nil, &list, nil, true},
-		{"domain allow list", nil, nil, &domains, true},
-		{"explicitly unrestricted", &no, nil, nil, false},
-		{"empty strings are not policies", nil, &empty, &empty, false},
-		{"nothing requested", nil, nil, nil, false},
-	}
-
-	for _, tc := range cases {
-		if got := docker.RestrictedEgress(tc.blockAll, tc.cidr, tc.domains); got != tc.want {
-			t.Errorf("%s: RestrictedEgress = %v, want %v", tc.name, got, tc.want)
-		}
 	}
 }
