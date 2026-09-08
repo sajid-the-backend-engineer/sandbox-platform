@@ -98,9 +98,24 @@ func (manager *NetRulesManager) SetInputGuard(sandboxSubnet string, allowedPorts
 }
 
 // InputGuardActive reports whether the guard is installed for a subnet.
+//
+// A MISSING CHAIN IS "not active", NOT AN ERROR, and the distinction is the whole
+// point: iptables fails a rule check that names a chain which does not exist, so the
+// obvious implementation returns an error in exactly the situation the caller most
+// needs a plain "no". The repair path treats an error as "cannot tell" and backs off,
+// which meant the guard could never heal the one condition it exists to heal. Caught
+// by the self-heal test rather than in production, which is where it belongs.
 func (manager *NetRulesManager) InputGuardActive(sandboxSubnet string) (bool, error) {
 	manager.mu.Lock()
 	defer manager.mu.Unlock()
+
+	exists, err := manager.ipt.ChainExists("filter", InputGuardChainName)
+	if err != nil {
+		return false, err
+	}
+	if !exists {
+		return false, nil
+	}
 
 	return manager.ipt.Exists("filter", "INPUT", "-s", sandboxSubnet, "-j", InputGuardChainName)
 }

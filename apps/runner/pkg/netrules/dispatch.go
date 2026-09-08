@@ -139,6 +139,18 @@ func (manager *NetRulesManager) BaselineActive(sandboxSubnet string) (bool, erro
 	manager.mu.Lock()
 	defer manager.mu.Unlock()
 
+	// Checked before anything references it: iptables fails a rule check naming a
+	// chain that does not exist, and an error here reads to the caller as "cannot
+	// tell" rather than "not installed" -- which is the difference between repairing
+	// the problem and backing away from it.
+	present, err := manager.ipt.ChainExists("filter", DispatchChainName)
+	if err != nil {
+		return false, err
+	}
+	if !present {
+		return false, nil
+	}
+
 	hooked, err := manager.ipt.Exists("filter", "DOCKER-USER", "-j", DispatchChainName)
 	if err != nil {
 		return false, err
