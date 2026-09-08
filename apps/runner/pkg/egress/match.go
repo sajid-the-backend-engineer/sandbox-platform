@@ -56,6 +56,13 @@ func normalizeHost(host string) string {
 // "everything public", not "everything".
 const AnyHost = "*"
 
+// DenyPrefix marks a pattern as a refusal rather than a permission.
+//
+// One wire field carries both, gitignore-style: "*,!ads.example.com" is "the public internet, except
+// that". A second field would have meant a schema change on the API, the entity, the runner DTO and every
+// caller, to express something a prefix already says unambiguously.
+const DenyPrefix = "!"
+
 // AllowsAnyHost reports whether a pattern list is the public-internet posture.
 func AllowsAnyHost(patterns []string) bool {
 	for _, p := range patterns {
@@ -64,6 +71,23 @@ func AllowsAnyHost(patterns []string) bool {
 		}
 	}
 	return false
+}
+
+// matches reports whether host satisfies a single pattern.
+//
+// A bare entry is exact; a leading "*." is a subtree that does NOT include the parent. Both rules are the
+// same ones the allow list has always used -- factored out so a denial is evaluated exactly the way a
+// permission is, rather than by a second implementation that could disagree with it.
+func matches(host, pattern string) bool {
+	p := normalizeHost(pattern)
+	if p == "" {
+		return false
+	}
+	if strings.HasPrefix(p, "*.") {
+		suffix := p[1:]
+		return strings.HasSuffix(host, suffix) && len(host) > len(suffix)
+	}
+	return host == p
 }
 
 // Allowed reports whether host is permitted by patterns.
@@ -91,6 +115,19 @@ func Allowed(host string, patterns []string) bool {
 		return false
 	}
 
+	// DENIALS FIRST, and they are final. An administrator writing "the public internet
+	// except this host" has to be able to rely on the exception, and any other ordering
+	// makes the answer depend on which rule happened to be checked first.
+	for _, pattern := range patterns {
+		entry := strings.TrimSpace(pattern)
+		if !strings.HasPrefix(entry, DenyPrefix) {
+			continue
+		}
+		if matches(h, strings.TrimPrefix(entry, DenyPrefix)) {
+			return false
+		}
+	}
+
 	// Public-internet posture: any hostname passes the NAME check. The address the
 	// name resolves to is still vetted before anything is dialled, which is where
 	// internal infrastructure is kept out of reach.
@@ -99,20 +136,11 @@ func Allowed(host string, patterns []string) bool {
 	}
 
 	for _, pattern := range patterns {
-		p := normalizeHost(pattern)
-		if p == "" {
-			continue
+		entry := strings.TrimSpace(pattern)
+		if strings.HasPrefix(entry, DenyPrefix) {
+			continue // already considered above
 		}
-
-		if strings.HasPrefix(p, "*.") {
-			// Match any deeper label under the parent, but not the parent itself.
-			if suffix := p[1:]; strings.HasSuffix(h, suffix) && len(h) > len(suffix) {
-				return true
-			}
-			continue
-		}
-
-		if h == p {
+		if matches(h, entry) {
 			return true
 		}
 	}
@@ -128,11 +156,18 @@ func ParseAllowList(list string) []string {
 	for _, entry := range strings.Split(list, ",") {
 		// normalizeHost would strip "*" of nothing but is not meant to judge it, so
 		// the any-host token is recognised before the hostname rules apply.
-		if strings.TrimSpace(entry) == AnyHost {
+		trimmed := strings.TrimSpace(entry)
+		if trimmed == AnyHost {
 			patterns = append(patterns, AnyHost)
 			continue
 		}
-		if e := normalizeHost(entry); e != "" {
+		if strings.HasPrefix(trimmed, DenyPrefix) {
+			if e := normalizeHost(strings.TrimPrefix(trimmed, DenyPrefix)); e != "" {
+				patterns = append(patterns, DenyPrefix+e)
+			}
+			continue
+		}
+		if e := normalizeHost(trimmed); e != "" {
 			patterns = append(patterns, e)
 		}
 	}

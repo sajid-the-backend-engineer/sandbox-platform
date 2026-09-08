@@ -63,10 +63,19 @@ export function validateDomainAllowList(domainAllowList: string): void {
   // in particular" reads as though the named ones were doing something, and a policy
   // that looks narrower than it is, is worse than one that is plainly broad.
   const meaningful = domains.filter((domain) => domain !== '')
-  if (meaningful.length === 1 && meaningful[0] === ANY_HOST) {
+  const positives = meaningful.filter((domain) => !domain.startsWith('!'))
+
+  // `*` is the whole positive side of the list; denials may accompany it, which is exactly how
+  // "public internet except these" is expressed.
+  if (positives.length === 1 && positives[0] === ANY_HOST) {
+    for (const denial of meaningful.filter((domain) => domain.startsWith('!'))) {
+      if (!/^![a-zA-Z0-9*.-]+$/.test(denial)) {
+        throw new Error(`Invalid denied domain: "${denial}"`)
+      }
+    }
     return
   }
-  if (meaningful.includes(ANY_HOST)) {
+  if (positives.includes(ANY_HOST)) {
     throw new Error(
       `Invalid domain allow list: "${ANY_HOST}" permits every host and cannot be combined with named domains`,
     )
@@ -78,7 +87,11 @@ export function validateDomainAllowList(domainAllowList: string): void {
   for (const domain of domains) {
     if (!domain) continue // Skip empty entries
 
-    if (!domainRegex.test(domain)) {
+    // A leading "!" marks a refusal ("*,!ads.example.com" = the public internet except that host). The
+    // name after it has to be a valid domain like any other, so only the marker is stripped here.
+    const name = domain.startsWith('!') ? domain.slice(1) : domain
+
+    if (!domainRegex.test(name)) {
       throw new Error(`Invalid domain: "${domain}". Must be a valid domain name`)
     }
   }
