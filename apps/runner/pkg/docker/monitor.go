@@ -19,6 +19,15 @@ import (
 
 type MonitorOptions struct {
 	OnDestroyEvent func(ctx context.Context)
+
+	// ReconcileSandboxNetwork re-applies one sandbox's egress policy;
+	// ReconcileAllSandboxNetworks re-applies every sandbox's.
+	//
+	// Passed in rather than reached for: the monitor watches Docker, and the policy
+	// belongs to the client that installed it. Both are optional, so a monitor built
+	// without them (as the existing tests do) simply does not reconcile.
+	ReconcileSandboxNetwork     func(ctx context.Context, containerId string) error
+	ReconcileAllSandboxNetworks func(ctx context.Context)
 }
 
 type DockerMonitor struct {
@@ -139,7 +148,25 @@ func (dm *DockerMonitor) handleContainerEvent(event events.Message) {
 	action := event.Action
 
 	switch action {
-	case "start":
+	case "start", "restart", "unpause":
+		// EVERY path back to running, not just the first one.
+		//
+		// A resumed container gets a NEW address from Docker while its egress policy
+		// is still bound to the address it had before the stop. Nothing here used to
+		// notice, so the sandbox came back reporting healthy with its DNS refused and
+		// nothing in its own logs to explain it. Reconciling on each of these events
+		// is what re-binds the policy to the address the container actually holds.
+		if dm.opts.ReconcileSandboxNetwork != nil {
+			if err := dm.opts.ReconcileSandboxNetwork(dm.ctx, containerID); err != nil {
+				dm.log.Error("Failed to reconcile sandbox egress policy",
+					"action", action, "containerId", containerID, "error", err)
+			}
+		}
+
+		if action != "start" {
+			return
+		}
+
 		ct, err := dm.apiClient.ContainerInspect(dm.ctx, containerID)
 		if err != nil {
 			dm.log.Error("Error inspecting container", "error", err)
@@ -299,6 +326,15 @@ func (dm *DockerMonitor) reconcilerLoop() {
 			dm.reconcileNetworkRules("mangle", "PREROUTING")
 			dm.reconcileChains("filter")
 			dm.reconcileChains("mangle")
+
+			// Events alone cannot carry recovery. Docker keeps a bounded event
+			// history, so a runner that was down while a container restarted never
+			// hears about it -- and the consequence is a sandbox bound to an address
+			// it no longer holds. A sweep makes restoration independent of whether
+			// the event survived.
+			if dm.opts.ReconcileAllSandboxNetworks != nil {
+				dm.opts.ReconcileAllSandboxNetworks(dm.ctx)
+			}
 		}
 	}
 }

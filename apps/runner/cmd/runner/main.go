@@ -229,6 +229,22 @@ func run() int {
 		return 2
 	}
 
+	// Protect the runner's OWN services. DOCKER-USER only sees forwarded traffic; a
+	// packet a sandbox addresses to this host is delivered locally and traverses INPUT,
+	// where none of the rules above apply. Only the proxy and resolver ports are
+	// permitted, because the redirect makes them the only way out.
+	if err = netRulesManager.SetInputGuard(sandboxSubnet,
+		cfg.EgressProxyHTTPPort, cfg.EgressProxyHTTPSPort, cfg.EgressProxyDNSPort); err != nil {
+		logger.Error("Failed to install runner-service protection", "error", err)
+		return 2
+	}
+	inputGuarded, err := netRulesManager.InputGuardActive(sandboxSubnet)
+	if err != nil || !inputGuarded {
+		logger.Error("Runner-service protection is not in force", "error", err)
+		return 2
+	}
+	logger.Info("Runner-service protection installed", "sandboxSubnet", sandboxSubnet)
+
 	daemonPath, err := daemon.WriteStaticBinary("daemon-amd64")
 	if err != nil {
 		logger.Error("Error writing daemon binary", "error", err)
@@ -289,6 +305,14 @@ func run() int {
 			dockerClient.CleanupOrphanedVolumeMounts(ctx)
 		},
 	}
+	// The monitor reconciles on container events; the client owns the policy.
+	monitorOpts.ReconcileSandboxNetwork = dockerClient.ReconcileSandboxNetwork
+	monitorOpts.ReconcileAllSandboxNetworks = dockerClient.ReconcileAllSandboxNetworks
+
+	// Restore every policy the runner already owns BEFORE serving anything. A restart
+	// used to forget them all, leaving running sandboxes bound to nothing.
+	dockerClient.ReconcileAllSandboxNetworks(ctx)
+
 	monitor := docker.NewDockerMonitor(logger, cli, netRulesManager, monitorOpts)
 	monitorErrChan := make(chan error)
 	go func() {
