@@ -17,6 +17,30 @@ import (
 	"time"
 )
 
+// Why a connection was refused, kept apart because the four causes need four
+// different actions from whoever is reading.
+//
+// They were all reported as "502 upstream request failed", which is the least useful
+// thing that could be said: an operator seeing it could not tell whether the policy
+// worked, whether the policy was missing, or whether the site was simply down. A
+// probe against the metadata endpoint and a probe against a genuinely broken host
+// produced identical output, so neither proved anything.
+var (
+	// The name resolved to an address a sandbox may not reach -- private space, cloud
+	// metadata, a runner service, a neighbouring sandbox. A POLICY decision, and
+	// reported as one even though it was made after the name check passed.
+	errAddressNotPermitted = errors.New("destination address is not permitted by policy")
+
+	// A connection aimed at a bare IP. There is no name for the allow list to have
+	// approved, so this is a policy answer rather than a failure.
+	errNotAHostname = errors.New("destination is an address, not a hostname")
+
+	// The name was permitted and DNS could not answer. Not a policy decision, and
+	// must not be reported as one -- somebody debugging a broken site should not be
+	// sent looking for a rule that refused it.
+	errResolveFailed = errors.New("could not resolve destination")
+)
+
 const (
 	// handshakeTimeout bounds how long a sandbox may take to tell us where it wants
 	// to go. A connection that opens and says nothing holds a goroutine and a socket,
@@ -202,8 +226,12 @@ func (p *Proxy) handleTLS(client net.Conn, sandboxIP string, policy Policy) {
 
 	upstream, err := p.dialFor(host, 443)
 	if err != nil {
-		p.log.Info("Egress allowed but upstream unreachable",
-			"sandboxIp", sandboxIP, "host", host, "reason", err.Error())
+		// TLS cannot carry an explanation before the handshake completes, so the
+		// classification is recorded here instead of sent. Without it the log said
+		// only "unreachable", which is indistinguishable from the site being down.
+		_, _, outcome := classify(err, host)
+		p.log.Warn("Egress connection not completed", "sandboxIp", sandboxIP, "host", host,
+			"proto", "tls", "outcome", outcome, "revision", policy.Revision, "reason", err.Error())
 		return
 	}
 	defer upstream.Close()
@@ -294,9 +322,10 @@ func (p *Proxy) handleHTTP(client net.Conn, sandboxIP string, policy Policy) {
 
 		resp, err := transport.RoundTrip(req)
 		if err != nil {
-			p.log.Info("Egress allowed but upstream failed",
-				"sandboxIp", sandboxIP, "host", host, "reason", err.Error())
-			writeStatus(client, http.StatusBadGateway, "upstream request failed")
+			status, reason, outcome := classify(err, host)
+			p.log.Info("Egress request not completed", "sandboxIp", sandboxIP, "host", host,
+				"outcome", outcome, "revision", policy.Revision, "reason", err.Error())
+			writeStatus(client, status, reason)
 			return
 		}
 
@@ -309,6 +338,38 @@ func (p *Proxy) handleHTTP(client net.Conn, sandboxIP string, policy Policy) {
 		if writeErr != nil || closeAfter {
 			return
 		}
+	}
+}
+
+// classify turns a dial or round-trip failure into the status, the message the caller
+// sees, and a stable label for the log.
+//
+// The distinction that matters most: a POLICY denial and an upstream failure are
+// different events with different owners. Reporting both as 502 sent people looking
+// for network faults that did not exist, and let a genuine denial pass for one.
+func classify(err error, host string) (status int, message string, outcome string) {
+	switch {
+	case errors.Is(err, errNotAHostname):
+		return http.StatusForbidden,
+			"egress policy: connections to a bare IP address are not permitted; use a hostname (" + host + ")",
+			"policy-denied-ip-literal"
+
+	case errors.Is(err, errAddressNotPermitted):
+		return http.StatusForbidden,
+			"egress policy: " + host + " resolves to an address this sandbox may not reach " +
+				"(private, metadata, runner or another tenant)",
+			"policy-denied-address"
+
+	case errors.Is(err, errResolveFailed):
+		return http.StatusBadGateway,
+			"dns: could not resolve " + host + " (this is a name-resolution failure, not a policy denial)",
+			"upstream-dns-failed"
+
+	default:
+		return http.StatusBadGateway,
+			"upstream: could not complete the request to " + host +
+				" (this is an upstream failure, not a policy denial)",
+			"upstream-failed"
 	}
 }
 
@@ -356,12 +417,12 @@ func (p *Proxy) dial(host string, port int) (net.Conn, error) {
 	if ip := net.ParseIP(host); ip != nil {
 		// An IP literal names no host, so there is nothing the allow list could have
 		// approved. Refused even if the literal somehow matched a pattern.
-		return nil, fmt.Errorf("destination %q is an address, not a hostname", host)
+		return nil, fmt.Errorf("%w: %s", errNotAHostname, host)
 	}
 
 	addrs, err := net.LookupIP(host)
 	if err != nil {
-		return nil, fmt.Errorf("resolve %s: %w", host, err)
+		return nil, fmt.Errorf("%w: %s: %v", errResolveFailed, host, err)
 	}
 
 	var lastErr error
@@ -373,7 +434,7 @@ func (p *Proxy) dial(host string, port int) (net.Conn, error) {
 			// naming a public host. DNS is attacker-influenced, so the check is
 			// against the resolved address, and it runs on every new connection so a
 			// rebinding answer cannot slip through on a later dial.
-			lastErr = fmt.Errorf("%s resolves to non-public address %s", host, ip)
+			lastErr = fmt.Errorf("%w: %s resolves to %s", errAddressNotPermitted, host, ip)
 			continue
 		}
 

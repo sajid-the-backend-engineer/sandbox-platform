@@ -111,6 +111,19 @@ func setup(t *testing.T) *harness {
 		t.Fatalf("netrules: %v", err)
 	}
 
+	// Start from a known state.
+	//
+	// Per-sandbox rules are keyed to an ADDRESS, and Docker reuses addresses freely --
+	// so a rule left behind by a container that no longer exists will deny whichever
+	// container is handed that address next. Running this suite twice in one
+	// environment used to fail for exactly that reason: the second run's probe
+	// inherited a REJECT written for a container from the first.
+	//
+	// In production the runner's reconciler prunes those orphans every minute. This
+	// binary has no reconciler, so it does the equivalent here rather than leaving a
+	// caveat about needing a fresh machine.
+	pruneOrphanedRules(t, rules)
+
 	return &harness{
 		t: t, ctx: ctx, cli: cli, registry: registry,
 		proxy: proxy, resolver: resolver, rules: rules,
@@ -960,5 +973,59 @@ func TestPartialInstallLeavesTheSandboxDenied(t *testing.T) {
 		t.Errorf("a partially provisioned sandbox reached the network: %s", out)
 	} else {
 		t.Logf("partial install left the sandbox denied by the baseline (exit %d)", code)
+	}
+}
+
+// pruneOrphanedRules removes every per-sandbox chain and the jumps that reference it.
+//
+// The suite creates its own sandboxes and installs its own policies, so anything
+// already present belongs to a previous run and is stale by definition. Deleting it is
+// what the runner's reconciler does for containers that no longer exist.
+func pruneOrphanedRules(t *testing.T, rules *netrules.NetRulesManager) {
+	t.Helper()
+
+	// Jumps first: a chain still referenced cannot be deleted.
+	if dispatch, err := rules.DispatchRules(); err == nil {
+		for _, rule := range dispatch {
+			if !strings.Contains(rule, netrules.ChainPrefix) {
+				continue
+			}
+			if err := rules.DeleteChainRule("filter", netrules.DispatchChainName, rule); err != nil {
+				t.Logf("prune: could not remove dispatch rule %q: %v", rule, err)
+			}
+		}
+	}
+
+	for _, hook := range []string{"DOCKER-USER", "INPUT"} {
+		stale, err := rules.ListNorthraysRules("filter", hook)
+		if err != nil {
+			continue
+		}
+		for _, rule := range stale {
+			if strings.Contains(rule, netrules.DispatchChainName) ||
+				strings.Contains(rule, netrules.InputGuardChainName) {
+				continue // infrastructure, not a sandbox
+			}
+			if err := rules.DeleteChainRule("filter", hook, rule); err != nil {
+				t.Logf("prune: could not remove %s rule %q: %v", hook, rule, err)
+			}
+		}
+	}
+
+	chains, err := rules.ListNorthraysChains("filter")
+	if err != nil {
+		return
+	}
+	pruned := 0
+	for _, chain := range chains {
+		if chain == netrules.DispatchChainName || chain == netrules.InputGuardChainName {
+			continue
+		}
+		if err := rules.ClearAndDeleteChain("filter", chain); err == nil {
+			pruned++
+		}
+	}
+	if pruned > 0 {
+		t.Logf("pruned %d stale per-sandbox chain(s) from a previous run", pruned)
 	}
 }
