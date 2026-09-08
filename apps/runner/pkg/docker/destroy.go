@@ -76,7 +76,7 @@ func (d *DockerClient) Destroy(ctx context.Context, containerId string) error {
 	// teardown fails, and the failure is logged rather than swallowed. The baseline
 	// deny covers the address in the meantime, because a policy-less source is
 	// refused rather than allowed.
-	if ip := GetContainerIpAddress(ctx, &ct); ip != "" {
+	if ip := GetContainerIpAddress(ctx, ct); ip != "" {
 		if err := d.clearDomainAllowList(containerId[:min(12, len(containerId))], ip); err != nil {
 			d.logger.WarnContext(ctx, "Failed to revoke sandbox egress policy on destroy",
 				"sandboxId", containerId, "ip", ip, "error", err)
