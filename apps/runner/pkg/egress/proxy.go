@@ -50,12 +50,10 @@ const (
 // Anything without a readable destination name is refused rather than guessed at.
 type Proxy struct {
 	log       *slog.Logger
+	registry  *Registry
 	bindAddr  string
 	httpPort  int
 	httpsPort int
-
-	mu       sync.RWMutex
-	policies map[string][]string
 
 	listeners []net.Listener
 	closeOnce sync.Once
@@ -78,41 +76,15 @@ type Proxy struct {
 // reachable by anything that can route to the runner -- it applies whatever policy
 // is registered for the *source address*, so a neighbour arriving from off-box would
 // be refused, but exposing the listener at all is a needless attack surface.
-func New(logger *slog.Logger, bindAddr string, httpPort, httpsPort int) *Proxy {
+func New(logger *slog.Logger, registry *Registry, bindAddr string, httpPort, httpsPort int) *Proxy {
 	return &Proxy{
 		log:       logger.With(slog.String("component", "egress_proxy")),
+		registry:  registry,
 		bindAddr:  bindAddr,
 		httpPort:  httpPort,
 		httpsPort: httpsPort,
-		policies:  make(map[string][]string),
 		closed:    make(chan struct{}),
 	}
-}
-
-// Register installs the allow list for a sandbox address. Re-registering replaces
-// the policy, which is what an allow-list update must do.
-func (p *Proxy) Register(sandboxIP string, patterns []string) {
-	p.mu.Lock()
-	defer p.mu.Unlock()
-	p.policies[sandboxIP] = patterns
-	p.log.Info("Egress policy registered", "sandboxIp", sandboxIP, "allowed", patterns)
-}
-
-// Unregister drops a sandbox's policy. A connection from an address with no policy
-// is refused, so forgetting to call this fails closed rather than open. It matters
-// on address reuse too: the next sandbox to be handed this IP must not inherit the
-// previous tenant's authorization.
-func (p *Proxy) Unregister(sandboxIP string) {
-	p.mu.Lock()
-	defer p.mu.Unlock()
-	delete(p.policies, sandboxIP)
-}
-
-func (p *Proxy) policyFor(sandboxIP string) ([]string, bool) {
-	p.mu.RLock()
-	defer p.mu.RUnlock()
-	patterns, ok := p.policies[sandboxIP]
-	return patterns, ok
 }
 
 // Start binds both listeners and serves them until Stop.
@@ -176,7 +148,7 @@ func (p *Proxy) handle(client net.Conn, isTLS bool) {
 		return
 	}
 
-	patterns, ok := p.policyFor(sandboxIP)
+	policy, ok := p.registry.For(sandboxIP)
 	if !ok {
 		// Redirected here without a policy. That should be impossible -- the
 		// iptables redirect and the policy are installed together -- so it means
@@ -187,14 +159,14 @@ func (p *Proxy) handle(client net.Conn, isTLS bool) {
 	}
 
 	if isTLS {
-		p.handleTLS(client, sandboxIP, patterns)
+		p.handleTLS(client, sandboxIP, policy)
 		return
 	}
-	p.handleHTTP(client, sandboxIP, patterns)
+	p.handleHTTP(client, sandboxIP, policy)
 }
 
 // handleTLS authorizes on the TLS server name and then forwards bytes untouched.
-func (p *Proxy) handleTLS(client net.Conn, sandboxIP string, patterns []string) {
+func (p *Proxy) handleTLS(client net.Conn, sandboxIP string, policy Policy) {
 	if err := client.SetReadDeadline(time.Now().Add(handshakeTimeout)); err != nil {
 		return
 	}
@@ -207,12 +179,12 @@ func (p *Proxy) handleTLS(client net.Conn, sandboxIP string, patterns []string) 
 	}
 
 	host = normalizeHost(host)
-	if !Allowed(host, patterns) {
+	if !Allowed(host, policy.Patterns) {
 		// TLS cannot carry a policy explanation before the handshake completes, so
 		// the denial is recorded here and the client only sees the connection go
 		// away. That asymmetry with HTTP (which does get a 403) is inherent.
-		p.log.Warn("Egress denied by allow list",
-			"sandboxIp", sandboxIP, "host", host, "proto", "tls", "allowed", patterns)
+		p.log.Warn("Egress denied by allow list", "sandboxIp", sandboxIP, "host", host,
+			"proto", "tls", "revision", policy.Revision, "allowed", policy.Patterns)
 		return
 	}
 
@@ -244,7 +216,7 @@ func (p *Proxy) handleTLS(client net.Conn, sandboxIP string, patterns []string) 
 // The request is therefore parsed with net/http -- which owns framing, and rejects
 // the ambiguous Content-Length/Transfer-Encoding combinations that request smuggling
 // relies on -- and each one is checked before it is forwarded.
-func (p *Proxy) handleHTTP(client net.Conn, sandboxIP string, patterns []string) {
+func (p *Proxy) handleHTTP(client net.Conn, sandboxIP string, policy Policy) {
 	transport := &http.Transport{
 		// Explicitly nil: net/http would otherwise consult HTTP_PROXY from the
 		// runner's environment and hand our egress to an upstream proxy that is no
@@ -288,9 +260,9 @@ func (p *Proxy) handleHTTP(client net.Conn, sandboxIP string, patterns []string)
 		}
 
 		host := normalizeHost(req.Host)
-		if !Allowed(host, patterns) {
-			p.log.Warn("Egress denied by allow list",
-				"sandboxIp", sandboxIP, "host", host, "proto", "http", "allowed", patterns)
+		if !Allowed(host, policy.Patterns) {
+			p.log.Warn("Egress denied by allow list", "sandboxIp", sandboxIP, "host", host,
+				"proto", "http", "revision", policy.Revision, "allowed", policy.Patterns)
 			// A policy denial is reported as a policy denial, so the caller can tell
 			// it apart from a DNS failure or an unreachable host.
 			writeStatus(client, http.StatusForbidden, "host not permitted by egress policy: "+host)

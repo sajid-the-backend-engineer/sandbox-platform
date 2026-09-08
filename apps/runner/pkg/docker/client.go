@@ -32,9 +32,10 @@ type DockerClientConfig struct {
 	DaemonPath                   string
 	ComputerUsePluginPath        string
 	NetRulesManager              *netrules.NetRulesManager
-	EgressProxy                  *egress.Proxy
+	EgressRegistry               *egress.Registry
 	EgressProxyHTTPPort          int
 	EgressProxyHTTPSPort         int
+	EgressProxyDNSPort           int
 	ResourceLimitsDisabled       bool
 	DaemonStartTimeoutSec        int
 	SandboxStartTimeoutSec       int
@@ -153,9 +154,10 @@ func NewDockerClient(ctx context.Context, config DockerClientConfig) (*DockerCli
 		daemonPath:                   config.DaemonPath,
 		computerUsePluginPath:        config.ComputerUsePluginPath,
 		netRulesManager:              config.NetRulesManager,
-		egressProxy:                  config.EgressProxy,
+		egressRegistry:               config.EgressRegistry,
 		egressProxyHTTPPort:          config.EgressProxyHTTPPort,
 		egressProxyHTTPSPort:         config.EgressProxyHTTPSPort,
+		egressProxyDNSPort:           config.EgressProxyDNSPort,
 		resourceLimitsDisabled:       config.ResourceLimitsDisabled,
 		daemonStartTimeoutSec:        config.DaemonStartTimeoutSec,
 		sandboxStartTimeoutSec:       config.SandboxStartTimeoutSec,
@@ -213,9 +215,10 @@ type DockerClient struct {
 	daemonPath                   string
 	computerUsePluginPath        string
 	netRulesManager              *netrules.NetRulesManager
-	egressProxy                  *egress.Proxy
+	egressRegistry               *egress.Registry
 	egressProxyHTTPPort          int
 	egressProxyHTTPSPort         int
+	egressProxyDNSPort           int
 	resourceLimitsDisabled       bool
 	daemonStartTimeoutSec        int
 	sandboxStartTimeoutSec       int

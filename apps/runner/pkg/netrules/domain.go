@@ -27,7 +27,7 @@ import (
 // to TCP, which is the path we can inspect), or use any protocol without a hostname
 // in it. Those are refusals, not gaps: a domain allow list is not expressible over a
 // connection that never names a domain.
-func (manager *NetRulesManager) SetDomainRules(name string, sourceIp string, httpPort int, httpsPort int) error {
+func (manager *NetRulesManager) SetDomainRules(name string, sourceIp string, httpPort int, httpsPort int, dnsPort int) error {
 	chainName := formatChainName(name)
 
 	manager.mu.Lock()
@@ -40,6 +40,17 @@ func (manager *NetRulesManager) SetDomainRules(name string, sourceIp string, htt
 	}
 	if err := manager.ipt.ClearChain("nat", chainName); err != nil {
 		return err
+	}
+
+	// DNS first. Every query is captured regardless of which resolver the workload
+	// aims at, so editing /etc/resolv.conf inside the sandbox changes nothing: the
+	// packet is redirected to the policy-aware resolver either way.
+	for _, proto := range []string{"udp", "tcp"} {
+		if err := manager.ipt.AppendUnique("nat", chainName,
+			"-p", proto, "--dport", "53",
+			"-j", "REDIRECT", "--to-ports", strconv.Itoa(dnsPort)); err != nil {
+			return err
+		}
 	}
 
 	for _, redirect := range []struct {
@@ -56,17 +67,22 @@ func (manager *NetRulesManager) SetDomainRules(name string, sourceIp string, htt
 		}
 	}
 
+	// Hooked for all protocols, not just tcp: the DNS redirect above covers udp.
 	if err := manager.ipt.InsertUnique("nat", "PREROUTING", 1,
-		"-s", sourceIp, "-p", "tcp", "-j", chainName); err != nil {
+		"-s", sourceIp, "-j", chainName); err != nil {
 		return err
 	}
 
 	// --- filter: nothing else leaves -------------------------------------------
 	//
-	// Sandbox DNS is not affected by this. Sandboxes sit on a user-defined bridge,
-	// so Docker gives them its embedded resolver at 127.0.0.11; dockerd answers
-	// inside the sandbox's own namespace and queries upstream using the runner's
-	// network, so name resolution never crosses FORWARD and never meets this drop.
+	// DNS survives this drop because it was redirected above, not because it is
+	// exempted here. That distinction was worth getting right: an earlier version of
+	// this code assumed Docker's embedded resolver at 127.0.0.11 answered inside the
+	// sandbox namespace, so DNS never crossed FORWARD and needed no rule. Measured on
+	// the production runner, that is false -- the embedded resolver exists only on
+	// user-defined networks, and these sandboxes run on the DEFAULT bridge, where the
+	// host's nameserver is copied into the container and queried directly. Without
+	// the redirect, this rule would have broken every lookup.
 	if err := manager.ipt.NewChain("filter", chainName); err != nil &&
 		!strings.Contains(err.Error(), "Chain already exists") {
 		return err

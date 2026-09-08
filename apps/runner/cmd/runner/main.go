@@ -5,9 +5,9 @@
 package main
 
 import (
+	"os"
 	"context"
 	"log/slog"
-	"os"
 	"os/signal"
 	"syscall"
 	"time"
@@ -146,7 +146,12 @@ func run() int {
 		return 2
 	}
 
-	egressProxy := egress.New(logger, egressBindAddr, cfg.EgressProxyHTTPPort, cfg.EgressProxyHTTPSPort)
+	// One registry, shared by the proxy and the resolver. Two stores would be two
+	// things to keep in step, and their disagreeing is the worst failure available:
+	// a name one allows and the other refuses looks like a network fault.
+	egressRegistry := egress.NewRegistry(logger)
+
+	egressProxy := egress.New(logger, egressRegistry, egressBindAddr, cfg.EgressProxyHTTPPort, cfg.EgressProxyHTTPSPort)
 	// Binding fails fast because a sandbox redirected to a proxy that is not
 	// listening has no egress at all.
 	if err = egressProxy.Start(); err != nil {
@@ -154,6 +159,30 @@ func run() int {
 		return 2
 	}
 	defer egressProxy.Stop()
+
+	// Sandbox DNS is redirected to a policy-aware resolver rather than allowed out.
+	// On this deployment sandboxes sit on Docker's default bridge, where the host's
+	// nameserver is copied into the container and queried directly -- so DNS is
+	// ordinary forwarded traffic that the default-deny rule would otherwise break,
+	// and letting it through unexamined would hand back a channel that resolves any
+	// name the allow list refuses.
+	resolvConf, err := os.ReadFile("/etc/resolv.conf")
+	if err != nil {
+		logger.Error("Failed to read resolv.conf for egress resolver", "error", err)
+		return 2
+	}
+	dnsUpstream, err := egress.UpstreamFromResolvConf(string(resolvConf))
+	if err != nil {
+		logger.Error("Failed to determine upstream resolver", "error", err)
+		return 2
+	}
+
+	egressResolver := egress.NewResolver(logger, egressRegistry, egressBindAddr, cfg.EgressProxyDNSPort, dnsUpstream)
+	if err = egressResolver.Start(); err != nil {
+		logger.Error("Failed to start egress resolver", "error", err)
+		return 2
+	}
+	defer egressResolver.Stop()
 
 	daemonPath, err := daemon.WriteStaticBinary("daemon-amd64")
 	if err != nil {
@@ -180,9 +209,10 @@ func run() int {
 		DaemonPath:                   daemonPath,
 		ComputerUsePluginPath:        pluginPath,
 		NetRulesManager:              netRulesManager,
-		EgressProxy:                  egressProxy,
+		EgressRegistry:               egressRegistry,
 		EgressProxyHTTPPort:          cfg.EgressProxyHTTPPort,
 		EgressProxyHTTPSPort:         cfg.EgressProxyHTTPSPort,
+		EgressProxyDNSPort:           cfg.EgressProxyDNSPort,
 		ResourceLimitsDisabled:       cfg.ResourceLimitsDisabled,
 		DaemonStartTimeoutSec:        cfg.DaemonStartTimeoutSec,
 		SandboxStartTimeoutSec:       cfg.SandboxStartTimeoutSec,

@@ -162,7 +162,8 @@ func startProxy(t *testing.T, upstream net.Listener) (*Proxy, string, string) {
 		_ = l.Close()
 	}
 
-	p := New(discardLogger(), "127.0.0.1", ports[0], ports[1])
+	reg := NewRegistry(discardLogger())
+	p := New(discardLogger(), reg, "127.0.0.1", ports[0], ports[1])
 	p.dialUpstream = func(host string, port int) (net.Conn, error) {
 		return net.Dial("tcp", upstream.Addr().String())
 	}
@@ -171,6 +172,7 @@ func startProxy(t *testing.T, upstream net.Listener) (*Proxy, string, string) {
 	}
 	t.Cleanup(p.Stop)
 
+	p.registry = reg
 	return p, fmt.Sprintf("127.0.0.1:%d", ports[0]), fmt.Sprintf("127.0.0.1:%d", ports[1])
 }
 
@@ -270,7 +272,7 @@ func TestProxyRefusesAHostNotOnTheList(t *testing.T) {
 func TestIPLiteralDestinationsAreRefused(t *testing.T) {
 	// SNI is client-supplied routing information. A client can open a socket to any
 	// address and name whatever it likes; dialing must go to the approved NAME.
-	p := New(discardLogger(), "127.0.0.1", 0, 0)
+	p := New(discardLogger(), NewRegistry(discardLogger()), "127.0.0.1", 0, 0)
 	if _, err := p.dial("93.184.216.34", 443); err == nil {
 		t.Error("dial accepted an IP literal as a hostname")
 	}
