@@ -292,6 +292,10 @@ func (dm *DockerMonitor) reconcilerLoop() {
 		case <-ticker.C:
 			dm.log.Debug("Reconciling network rules")
 			dm.reconcileNetworkRules("filter", "DOCKER-USER")
+			// Per-sandbox egress jumps moved into the dispatch chain, so reconciling
+			// only DOCKER-USER would leave a stale rule for a departed container in
+			// place -- and a later sandbox reusing that address would inherit it.
+			dm.reconcileNetworkRules("filter", netrules.DispatchChainName)
 			dm.reconcileNetworkRules("mangle", "PREROUTING")
 			dm.reconcileChains("filter")
 			dm.reconcileChains("mangle")

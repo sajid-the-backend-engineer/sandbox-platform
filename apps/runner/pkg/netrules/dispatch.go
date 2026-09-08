@@ -11,7 +11,15 @@ import (
 const (
 	// DispatchChainName holds every sandbox egress decision, in one place and in a
 	// defined order.
-	DispatchChainName = ChainPrefix + "DISPATCH"
+	//
+	// Deliberately NOT under ChainPrefix. That prefix marks per-sandbox chains, and
+	// the reconciler treats everything carrying it as "NORTHRAYS-SB-<container id>":
+	// it strips the prefix, looks the container up, and clears the chain when there
+	// is none. Named NORTHRAYS-SB-DISPATCH, this chain was therefore emptied roughly
+	// a minute after every runner start -- enforcement silently switched itself off,
+	// and only the provisioning gate noticed. A chain that is not per-sandbox must
+	// not look per-sandbox.
+	DispatchChainName = "NORTHRAYS-EGRESS-DISPATCH"
 )
 
 // WHY A DISPATCH CHAIN EXISTS, AND WHY ACCEPT WAS THE WRONG ANSWER.
