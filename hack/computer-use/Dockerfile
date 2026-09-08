@@ -19,13 +19,18 @@ RUN apt-get update && apt-get install -y \
 
 WORKDIR /app
 
-RUN echo "go 1.25.4\n\nuse (\n  ./libs/computer-use\n   ./apps/daemon\n     ./libs/common-go\n)" > /app/go.work
+# api-client-go joined the daemon's dependency graph after this file was written,
+# so the workspace and the build context both have to know about it -- without it
+# the build fails resolving a replace directive pointing at a directory that was
+# never copied in.
+RUN echo "go 1.25.4\n\nuse (\n  ./libs/computer-use\n   ./apps/daemon\n     ./libs/common-go\n     ./libs/api-client-go\n)" > /app/go.work
 
 COPY go.work.sum /app/go.work.sum
 
 COPY ./apps/daemon /app/apps/daemon
 COPY ./libs/common-go /app/libs/common-go
 COPY ./libs/computer-use /app/libs/computer-use
+COPY ./libs/api-client-go /app/libs/api-client-go
 
 # Build the application with optimizations
 RUN cd /app/libs/computer-use && \
