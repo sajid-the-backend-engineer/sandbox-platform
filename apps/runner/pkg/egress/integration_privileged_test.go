@@ -783,3 +783,62 @@ func TestPrivilegedSandboxCannotForgeSourceAddress(t *testing.T) {
 		t.Logf("forged source did not inherit the victim policy (exit %d)", code)
 	}
 }
+
+// startRestrictedProbe creates a container with the configuration the runner now
+// gives a domain-restricted sandbox: not privileged, NET_ADMIN and NET_RAW dropped.
+func (h *harness) startRestrictedProbe(name string) (string, string) {
+	h.t.Helper()
+
+	created, err := h.cli.ContainerCreate(h.ctx,
+		&container.Config{Image: probeImage, Cmd: []string{"sleep", "600"}},
+		&container.HostConfig{Privileged: false, CapDrop: []string{"NET_ADMIN", "NET_RAW"}},
+		nil, nil, name)
+	if err != nil {
+		h.t.Fatalf("create %s: %v", name, err)
+	}
+	h.t.Cleanup(func() {
+		_ = h.cli.ContainerRemove(context.Background(), created.ID, container.RemoveOptions{Force: true})
+	})
+	if err := h.cli.ContainerStart(h.ctx, created.ID, container.StartOptions{}); err != nil {
+		h.t.Fatalf("start %s: %v", name, err)
+	}
+	info, err := h.cli.ContainerInspect(h.ctx, created.ID)
+	if err != nil {
+		h.t.Fatalf("inspect %s: %v", name, err)
+	}
+	return created.ID, info.NetworkSettings.IPAddress
+}
+
+// TestRestrictedSandboxCannotForgeSourceAddress repeats the forgery attempt against
+// the configuration restricted sandboxes now get. Here the protection is a control
+// rather than an accident: without CAP_NET_ADMIN the address cannot be assigned at
+// all, so there is no forged packet and no return path to argue about.
+func TestRestrictedSandboxCannotForgeSourceAddress(t *testing.T) {
+	h := setup(t)
+
+	victimID, victimIP := h.startRestrictedProbe("egress-restricted-victim")
+	attackerID, attackerIP := h.startRestrictedProbe("egress-restricted-attacker")
+	t.Logf("victim %s, attacker %s (restricted config)", victimIP, attackerIP)
+
+	h.applyPolicy(victimID[:12], victimIP, []string{allowedHost})
+	h.applyPolicy(attackerID[:12], attackerIP, []string{"nothing.invalid"})
+
+	out, _ := h.exec(attackerID, "sh", "-c", "grep -E 'CapEff|CapBnd' /proc/self/status")
+	t.Logf("restricted sandbox capabilities:
+%s", strings.TrimSpace(out))
+
+	addOut, _ := h.exec(attackerID, "sh", "-c",
+		"ip addr add "+victimIP+"/16 dev eth0 2>&1; echo rc=$?")
+	t.Logf("ip addr add %s: %s", victimIP, strings.TrimSpace(addOut))
+	if strings.Contains(addOut, "rc=0") {
+		t.Error("restricted sandbox assigned a neighbour address; CAP_NET_ADMIN was not removed")
+	}
+
+	rawOut, _ := h.exec(attackerID, "sh", "-c", "ping -c1 -W2 127.0.0.1 2>&1 | head -2; echo rc=$?")
+	t.Logf("raw socket attempt: %s", strings.TrimSpace(rawOut))
+
+	stolen, code := h.exec(attackerID, "wget", "-q", "-T", "10", "-O", "/dev/null", "https://"+allowedHost+"/")
+	if code == 0 {
+		t.Errorf("attacker reached the victim's allowed host: %s", stolen)
+	}
+}

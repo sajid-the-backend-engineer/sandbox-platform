@@ -198,13 +198,44 @@ func (d *DockerClient) getContainerHostConfig(sandboxDto dto.CreateSandboxDTO, v
 		binds = append(binds, volumeMountPathBinds...)
 	}
 
+	// A sandbox carrying a domain allow list cannot also be privileged.
+	//
+	// Egress policy is selected by source address, and the runner assigns that
+	// address -- an assumption that holds only while the workload cannot change it.
+	// A privileged container holds every capability (measured: CapEff
+	// 0x000001ffffffffff), CAP_NET_ADMIN among them, and can put a neighbour's
+	// address on its own interface. In the disposable environment it did exactly
+	// that: `ip addr add <neighbour>/16 dev eth0` returned 0.
+	//
+	// The forged connection then failed, but for the wrong reason -- two interfaces
+	// claiming one address break the return path, so the attacker never saw a reply.
+	// That is an accident of ARP, not a control, and a patient attacker owns the
+	// return path by answering for it. Relying on it would be relying on a bug.
+	//
+	// So restricted sandboxes give up privileged mode and the two capabilities that
+	// matter here. The trade-off is real and worth naming: a workload that genuinely
+	// needs privileged cannot also have an enforced domain policy. Between "the
+	// policy is enforceable" and "the policy is decorative", enforceable wins --
+	// a sandbox is asking for restriction precisely because its code is not trusted.
+	restrictedEgress := sandboxDto.DomainAllowList != nil && *sandboxDto.DomainAllowList != ""
+
 	hostConfig := &container.HostConfig{
 		// Privileged mode exposes every /dev/nvidia* node and bypasses the
 		// CDI cgroup rules, so GPU sandboxes have to opt out to keep their
 		// allocated card isolated. Non-GPU sandboxes still need privileged
-		// for their current workloads.
-		Privileged: gpuIndex == nil,
+		// for their current workloads -- unless they are under a domain policy,
+		// which privileged mode would let them escape.
+		Privileged: gpuIndex == nil && !restrictedEgress,
 		Binds:      binds,
+	}
+
+	if restrictedEgress {
+		// Belt and braces for the non-privileged path: NET_ADMIN is what rewrites
+		// addresses and routes, NET_RAW is what crafts packets with a source the
+		// kernel would not otherwise send. Neither is droppable while Privileged is
+		// true -- privileged mode ignores the drop list -- which is the other reason
+		// the flag above has to come off.
+		hostConfig.CapDrop = append(hostConfig.CapDrop, "NET_ADMIN", "NET_RAW")
 	}
 
 	if sandboxDto.OtelEndpoint != nil && strings.Contains(*sandboxDto.OtelEndpoint, "host.docker.internal") {
