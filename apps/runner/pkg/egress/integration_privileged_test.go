@@ -824,8 +824,7 @@ func TestRestrictedSandboxCannotForgeSourceAddress(t *testing.T) {
 	h.applyPolicy(attackerID[:12], attackerIP, []string{"nothing.invalid"})
 
 	out, _ := h.exec(attackerID, "sh", "-c", "grep -E 'CapEff|CapBnd' /proc/self/status")
-	t.Logf("restricted sandbox capabilities:
-%s", strings.TrimSpace(out))
+	t.Logf("restricted sandbox capabilities: %s", strings.TrimSpace(out))
 
 	addOut, _ := h.exec(attackerID, "sh", "-c",
 		"ip addr add "+victimIP+"/16 dev eth0 2>&1; echo rc=$?")
