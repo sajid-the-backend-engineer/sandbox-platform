@@ -121,6 +121,26 @@ runs:
         key: yarn-${{ runner.os }}-${{ runner.arch }}-${{ hashFiles('yarn.lock') }}
         restore-keys: yarn-${{ runner.os }}-${{ runner.arch }}-
 
+    # node-gyp needs distutils, and Python 3.12 removed it.
+    #
+    # yarn install compiles sqlite3 from source when its build artifact is not
+    # already cached. sqlite3@5.1.7 bundles node-gyp 8.4.1, whose gyp does
+    # `from distutils.version import StrictVersion` -- a stdlib module deleted in
+    # Python 3.12. The runner image now ships 3.12, so that import fails and the
+    # whole install fails with it.
+    #
+    # It only shows up on a cold build cache, which is why this passed for weeks and
+    # then failed on a run that changed three unrelated Python files: the earlier
+    # runs reused a cached artifact and never compiled anything.
+    #
+    # setuptools restores an importable distutils (via its distutils-precedence
+    # hook), which is the supported way to keep 3.12 working with build tooling that
+    # has not moved off it yet.
+    - name: Ensure distutils is available for node-gyp
+      if: inputs.run-yarn-install == 'true'
+      shell: bash
+      run: python3 -m pip install --upgrade setuptools
+
     - name: Yarn install
       if: inputs.run-yarn-install == 'true'
       shell: bash
