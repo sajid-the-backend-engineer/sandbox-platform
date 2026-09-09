@@ -310,7 +310,6 @@
     "prettier-plugin-astro": "^0.14.1",
     "run-script-webpack-plugin": "^0.2.2",
     "sass": "^1.89.2",
-    "sqlite3": "^5.1.7",
     "storybook": "8",
     "tailwindcss": "^4.3.0",
     "ts-jest": "29.4.1",

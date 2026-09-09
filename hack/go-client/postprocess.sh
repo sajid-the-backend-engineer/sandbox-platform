@@ -30,4 +30,16 @@ EOF
 grep -q 'UserAgent:.*"[^"]*"' "$PROJECT_ROOT/configuration.go" || { echo "ERROR: UserAgent string not found in configuration.go" >&2; exit 1; }
 sed -i "s|UserAgent: *\"[^\"]*\"|UserAgent:        \"${CLIENT_NAME}/\" + ClientVersion|" "$PROJECT_ROOT/configuration.go"
 
-echo "Postprocessed Go client at $PROJECT_ROOT"
+# The generator does not emit gofmt-clean Go.
+#
+# Its output has misaligned struct tags and things like `toSerialize,err :=`, and the
+# sed above rewrites a line without regard for alignment. None of that is caught at
+# generation time, so it lands in the repository and surfaces later as a CI failure in
+# a job nobody associates with regenerating a client -- 300-odd files across the two Go
+# clients had drifted this way.
+#
+# Formatting here means the committed output is already what `go fmt ./...` would
+# produce, so the check that runs in CI has nothing left to find.
+gofmt -w "$PROJECT_ROOT"
+
+echo "Postprocessed and formatted Go client at $PROJECT_ROOT"
