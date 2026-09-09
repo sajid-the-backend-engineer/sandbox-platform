@@ -78,7 +78,7 @@ def set_pyproject_version(path: Path, version: str) -> None:
     # Only the [project] table carries a version here. Guard against a second
     # `version =` line (e.g. a future [tool.poetry] table) being rewritten too.
     text = replace_exactly_once(PYPROJECT_VERSION_RE, text, rf'\g<1>"{version}"', f"{path}: [project].version")
-    path.write_text(text, encoding="utf-8")
+    _ = path.write_text(text, encoding="utf-8")
 
     parsed = tomllib.loads(text)
     if parsed.get("project", {}).get("version") != version:
@@ -95,7 +95,7 @@ def set_setup_py_version(path: Path, version: str) -> None:
         return
     text = path.read_text(encoding="utf-8")
     text = replace_exactly_once(SETUP_PY_VERSION_RE, text, rf'\g<1>"{version}"', f"{path}: VERSION")
-    path.write_text(text, encoding="utf-8")
+    _ = path.write_text(text, encoding="utf-8")
     print(f"  {path}: VERSION = {version}")
 
 
@@ -123,7 +123,7 @@ def pin_sdk_clients(path: Path, version: str) -> None:
     missing = wanted - seen
     if missing:
         fail(f"{path}: no dependency entry found for {sorted(missing)}")
-    path.write_text(text, encoding="utf-8")
+    _ = path.write_text(text, encoding="utf-8")
 
     deps = tomllib.loads(text)["project"]["dependencies"]
     pinned = {normalise(d.split("==")[0]) for d in deps if "==" in d}
@@ -136,8 +136,12 @@ def pin_sdk_clients(path: Path, version: str) -> None:
 
 def main() -> None:
     parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    parser.add_argument("version", help="version to stamp, e.g. 0.1.0 or 0.2.0rc1")
-    parser.add_argument(
+    # The `_ =` assignments here and on the write_text calls above are deliberate:
+    # basedpyright reports a discarded return value, and binding it to `_` is how that
+    # diagnostic asks to be told the discard is intentional. add_argument returns the
+    # Action it created and write_text returns a character count; neither is wanted.
+    _ = parser.add_argument("version", help="version to stamp, e.g. 0.1.0 or 0.2.0rc1")
+    _ = parser.add_argument(
         "--root",
         type=Path,
         default=Path(__file__).resolve().parent.parent,

@@ -138,7 +138,10 @@ _EXTERNAL_IMPORTS: dict[str, tuple[str, str]] = {
         "northrays_api_client.models.sandbox_list_sort_direction",
         "SandboxListSortDirection",
     ),
-    "SessionExecuteResponse": ("northrays_toolbox_api_client.models.session_execute_response", "SessionExecuteResponse"),
+    "SessionExecuteResponse": (
+        "northrays_toolbox_api_client.models.session_execute_response",
+        "SessionExecuteResponse",
+    ),
 }
 
 # Mapping of symbol name -> relative submodule path (within the northrays package)
