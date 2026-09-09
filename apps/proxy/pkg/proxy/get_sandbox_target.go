@@ -14,10 +14,10 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	common_errors "github.com/northrays/common-go/pkg/errors"
 	"github.com/northrays/common-go/pkg/utils"
 	apiclient "github.com/northrays/sandbox-platform/libs/api-client-go"
-	"github.com/gin-gonic/gin"
 
 	log "github.com/sirupsen/logrus"
 )
@@ -118,7 +118,7 @@ func (p *Proxy) GetProxyTarget(ctx *gin.Context) (*url.URL, map[string]string, e
 
 	return target, map[string]string{
 		"X-Northrays-Authorization": fmt.Sprintf("Bearer %s", runnerInfo.ApiKey),
-		"X-Forwarded-Host":        ctx.Request.Host,
+		"X-Forwarded-Host":          ctx.Request.Host,
 	}, nil
 }
 

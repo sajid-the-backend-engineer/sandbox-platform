@@ -10,9 +10,9 @@ import (
 	"time"
 
 	"github.com/containerd/errdefs"
+	"github.com/docker/docker/api/types/container"
 	"github.com/northrays/runner/pkg/common"
 	"github.com/northrays/runner/pkg/models/enums"
-	"github.com/docker/docker/api/types/container"
 
 	common_errors "github.com/northrays/common-go/pkg/errors"
 	"github.com/northrays/common-go/pkg/utils"

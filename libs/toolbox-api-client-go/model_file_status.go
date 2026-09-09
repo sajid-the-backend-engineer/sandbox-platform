@@ -20,10 +20,10 @@ var _ MappedNullable = &FileStatus{}
 
 // FileStatus struct for FileStatus
 type FileStatus struct {
-	Extra string `json:"extra"`
-	Name string `json:"name"`
-	Staging Status `json:"staging"`
-	Worktree Status `json:"worktree"`
+	Extra                string `json:"extra"`
+	Name                 string `json:"name"`
+	Staging              Status `json:"staging"`
+	Worktree             Status `json:"worktree"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -147,7 +147,7 @@ func (o *FileStatus) SetWorktree(v Status) {
 }
 
 func (o FileStatus) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -184,10 +184,10 @@ func (o *FileStatus) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}
@@ -251,5 +251,3 @@ func (v *NullableFileStatus) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

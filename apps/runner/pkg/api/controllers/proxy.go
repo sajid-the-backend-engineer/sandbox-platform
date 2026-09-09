@@ -13,11 +13,11 @@ import (
 	"strings"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	common_errors "github.com/northrays/common-go/pkg/errors"
 	proxy "github.com/northrays/common-go/pkg/proxy"
 	"github.com/northrays/common-go/pkg/utils"
 	"github.com/northrays/runner/pkg/runner"
-	"github.com/gin-gonic/gin"
 )
 
 // ProxyRequest handles proxying requests to a sandbox's container

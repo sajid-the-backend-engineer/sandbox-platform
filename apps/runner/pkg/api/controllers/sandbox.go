@@ -9,11 +9,11 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/gin-gonic/gin"
 	"github.com/northrays/runner/pkg/api/dto"
 	"github.com/northrays/runner/pkg/common"
 	"github.com/northrays/runner/pkg/models/enums"
 	"github.com/northrays/runner/pkg/runner"
-	"github.com/gin-gonic/gin"
 
 	common_errors "github.com/northrays/common-go/pkg/errors"
 )

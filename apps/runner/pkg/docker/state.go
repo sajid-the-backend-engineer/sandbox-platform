@@ -9,8 +9,8 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/northrays/runner/pkg/models/enums"
 	"github.com/docker/docker/api/types/container"
+	"github.com/northrays/runner/pkg/models/enums"
 
 	common_errors "github.com/northrays/common-go/pkg/errors"
 )

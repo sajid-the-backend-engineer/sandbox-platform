@@ -19,14 +19,14 @@ var _ MappedNullable = &FindAccessibilityNodesRequest{}
 
 // FindAccessibilityNodesRequest struct for FindAccessibilityNodesRequest
 type FindAccessibilityNodesRequest struct {
-	Limit *int32 `json:"limit,omitempty"`
-	Name *string `json:"name,omitempty"`
+	Limit *int32  `json:"limit,omitempty"`
+	Name  *string `json:"name,omitempty"`
 	// \"exact\" | \"substring\" | \"regex\"
-	NameMatch *string `json:"nameMatch,omitempty"`
-	Pid *int32 `json:"pid,omitempty"`
-	Role *string `json:"role,omitempty"`
-	Scope *string `json:"scope,omitempty"`
-	States []string `json:"states,omitempty"`
+	NameMatch            *string  `json:"nameMatch,omitempty"`
+	Pid                  *int32   `json:"pid,omitempty"`
+	Role                 *string  `json:"role,omitempty"`
+	Scope                *string  `json:"scope,omitempty"`
+	States               []string `json:"states,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -274,7 +274,7 @@ func (o *FindAccessibilityNodesRequest) SetStates(v []string) {
 }
 
 func (o FindAccessibilityNodesRequest) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -374,5 +374,3 @@ func (v *NullableFindAccessibilityNodesRequest) UnmarshalJSON(src []byte) error 
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

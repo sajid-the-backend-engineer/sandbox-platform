@@ -14,10 +14,10 @@ import (
 
 	"bytes"
 
+	"github.com/gorilla/websocket"
 	"github.com/northrays/sandbox-platform/libs/sdk-go/pkg/options"
 	"github.com/northrays/sandbox-platform/libs/sdk-go/pkg/types"
 	toolbox "github.com/northrays/sandbox-platform/libs/toolbox-api-client-go"
-	"github.com/gorilla/websocket"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )

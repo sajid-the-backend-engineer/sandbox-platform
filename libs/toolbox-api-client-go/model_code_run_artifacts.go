@@ -19,7 +19,7 @@ var _ MappedNullable = &CodeRunArtifacts{}
 
 // CodeRunArtifacts struct for CodeRunArtifacts
 type CodeRunArtifacts struct {
-	Charts []Chart `json:"charts,omitempty"`
+	Charts               []Chart `json:"charts,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -75,7 +75,7 @@ func (o *CodeRunArtifacts) SetCharts(v []Chart) {
 }
 
 func (o CodeRunArtifacts) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -151,5 +151,3 @@ func (v *NullableCodeRunArtifacts) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

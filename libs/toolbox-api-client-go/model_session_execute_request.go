@@ -20,10 +20,10 @@ var _ MappedNullable = &SessionExecuteRequest{}
 
 // SessionExecuteRequest struct for SessionExecuteRequest
 type SessionExecuteRequest struct {
-	Async *bool `json:"async,omitempty"`
-	Command string `json:"command"`
-	RunAsync *bool `json:"runAsync,omitempty"`
-	SuppressInputEcho *bool `json:"suppressInputEcho,omitempty"`
+	Async                *bool  `json:"async,omitempty"`
+	Command              string `json:"command"`
+	RunAsync             *bool  `json:"runAsync,omitempty"`
+	SuppressInputEcho    *bool  `json:"suppressInputEcho,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -168,7 +168,7 @@ func (o *SessionExecuteRequest) SetSuppressInputEcho(v bool) {
 }
 
 func (o SessionExecuteRequest) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -208,10 +208,10 @@ func (o *SessionExecuteRequest) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}
@@ -275,5 +275,3 @@ func (v *NullableSessionExecuteRequest) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

@@ -20,8 +20,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/northrays/daemon/pkg/common"
 	"github.com/gin-gonic/gin"
+	"github.com/northrays/daemon/pkg/common"
 )
 
 // Wraps an io.Writer and aborts writes if the context is canceled.

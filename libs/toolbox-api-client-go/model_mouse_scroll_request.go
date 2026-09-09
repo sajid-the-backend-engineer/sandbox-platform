@@ -21,9 +21,9 @@ var _ MappedNullable = &MouseScrollRequest{}
 type MouseScrollRequest struct {
 	Amount *int32 `json:"amount,omitempty"`
 	// up, down
-	Direction *string `json:"direction,omitempty"`
-	X *int32 `json:"x,omitempty"`
-	Y *int32 `json:"y,omitempty"`
+	Direction            *string `json:"direction,omitempty"`
+	X                    *int32  `json:"x,omitempty"`
+	Y                    *int32  `json:"y,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -175,7 +175,7 @@ func (o *MouseScrollRequest) SetY(v int32) {
 }
 
 func (o MouseScrollRequest) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -263,5 +263,3 @@ func (v *NullableMouseScrollRequest) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

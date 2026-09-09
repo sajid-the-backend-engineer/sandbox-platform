@@ -7,11 +7,11 @@ package controllers
 import (
 	"net/http"
 
+	"github.com/gin-gonic/gin"
 	"github.com/northrays/runner/internal"
 	"github.com/northrays/runner/pkg/api/dto"
 	"github.com/northrays/runner/pkg/models"
 	"github.com/northrays/runner/pkg/runner"
-	"github.com/gin-gonic/gin"
 )
 
 // RunnerInfo 			godoc

@@ -21,15 +21,15 @@ var _ MappedNullable = &FileInfo{}
 // FileInfo struct for FileInfo
 type FileInfo struct {
 	Group string `json:"group"`
-	IsDir bool `json:"isDir"`
+	IsDir bool   `json:"isDir"`
 	// Deprecated: ModTime uses Go's time.String() layout which is not a standard format. Use ModifiedAt instead, which is serialized as ISO 8601 / RFC 3339.
-	ModTime string `json:"modTime"`
-	Mode string `json:"mode"`
-	ModifiedAt string `json:"modifiedAt"`
-	Name string `json:"name"`
-	Owner string `json:"owner"`
-	Permissions string `json:"permissions"`
-	Size int32 `json:"size"`
+	ModTime              string `json:"modTime"`
+	Mode                 string `json:"mode"`
+	ModifiedAt           string `json:"modifiedAt"`
+	Name                 string `json:"name"`
+	Owner                string `json:"owner"`
+	Permissions          string `json:"permissions"`
+	Size                 int32  `json:"size"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -278,7 +278,7 @@ func (o *FileInfo) SetSize(v int32) {
 }
 
 func (o FileInfo) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -325,10 +325,10 @@ func (o *FileInfo) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}
@@ -397,5 +397,3 @@ func (v *NullableFileInfo) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

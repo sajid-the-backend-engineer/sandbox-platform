@@ -21,22 +21,22 @@ var _ MappedNullable = &RegionQuota{}
 
 // RegionQuota struct for RegionQuota
 type RegionQuota struct {
-	OrganizationId string `json:"organizationId"`
-	RegionId string `json:"regionId"`
-	SandboxClass SandboxClass `json:"sandboxClass"`
-	TotalCpuQuota float32 `json:"totalCpuQuota"`
-	TotalMemoryQuota float32 `json:"totalMemoryQuota"`
-	TotalDiskQuota float32 `json:"totalDiskQuota"`
-	TotalGpuQuota float32 `json:"totalGpuQuota"`
-	AllowedGpuTypes []GpuType `json:"allowedGpuTypes,omitempty"`
-	MaxCpuPerSandbox NullableFloat32 `json:"maxCpuPerSandbox"`
-	MaxMemoryPerSandbox NullableFloat32 `json:"maxMemoryPerSandbox"`
-	MaxDiskPerSandbox NullableFloat32 `json:"maxDiskPerSandbox"`
+	OrganizationId                string          `json:"organizationId"`
+	RegionId                      string          `json:"regionId"`
+	SandboxClass                  SandboxClass    `json:"sandboxClass"`
+	TotalCpuQuota                 float32         `json:"totalCpuQuota"`
+	TotalMemoryQuota              float32         `json:"totalMemoryQuota"`
+	TotalDiskQuota                float32         `json:"totalDiskQuota"`
+	TotalGpuQuota                 float32         `json:"totalGpuQuota"`
+	AllowedGpuTypes               []GpuType       `json:"allowedGpuTypes,omitempty"`
+	MaxCpuPerSandbox              NullableFloat32 `json:"maxCpuPerSandbox"`
+	MaxMemoryPerSandbox           NullableFloat32 `json:"maxMemoryPerSandbox"`
+	MaxDiskPerSandbox             NullableFloat32 `json:"maxDiskPerSandbox"`
 	MaxDiskPerNonEphemeralSandbox NullableFloat32 `json:"maxDiskPerNonEphemeralSandbox"`
-	MaxCpuPerGpuSandbox NullableFloat32 `json:"maxCpuPerGpuSandbox"`
-	MaxMemoryPerGpuSandbox NullableFloat32 `json:"maxMemoryPerGpuSandbox"`
-	MaxDiskPerGpuSandbox NullableFloat32 `json:"maxDiskPerGpuSandbox"`
-	AdditionalProperties map[string]interface{}
+	MaxCpuPerGpuSandbox           NullableFloat32 `json:"maxCpuPerGpuSandbox"`
+	MaxMemoryPerGpuSandbox        NullableFloat32 `json:"maxMemoryPerGpuSandbox"`
+	MaxDiskPerGpuSandbox          NullableFloat32 `json:"maxDiskPerGpuSandbox"`
+	AdditionalProperties          map[string]interface{}
 }
 
 type _RegionQuota RegionQuota
@@ -455,7 +455,7 @@ func (o *RegionQuota) SetMaxDiskPerGpuSandbox(v float32) {
 }
 
 func (o RegionQuota) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -515,10 +515,10 @@ func (o *RegionQuota) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}
@@ -593,5 +593,3 @@ func (v *NullableRegionQuota) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

@@ -14,11 +14,11 @@ import (
 	"time"
 
 	"github.com/containerd/errdefs"
+	"github.com/docker/docker/api/types/image"
 	"github.com/northrays/common-go/pkg/timer"
 	"github.com/northrays/runner/pkg/api/dto"
 	"github.com/northrays/runner/pkg/common"
 	"github.com/northrays/runner/pkg/models/enums"
-	"github.com/docker/docker/api/types/image"
 	v1 "github.com/opencontainers/image-spec/specs-go/v1"
 
 	common_errors "github.com/northrays/common-go/pkg/errors"

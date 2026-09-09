@@ -19,9 +19,9 @@ var _ MappedNullable = &CodeRunResponse{}
 
 // CodeRunResponse struct for CodeRunResponse
 type CodeRunResponse struct {
-	Artifacts *CodeRunArtifacts `json:"artifacts,omitempty"`
-	ExitCode *int32 `json:"exitCode,omitempty"`
-	Result *string `json:"result,omitempty"`
+	Artifacts            *CodeRunArtifacts `json:"artifacts,omitempty"`
+	ExitCode             *int32            `json:"exitCode,omitempty"`
+	Result               *string           `json:"result,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -141,7 +141,7 @@ func (o *CodeRunResponse) SetResult(v string) {
 }
 
 func (o CodeRunResponse) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -225,5 +225,3 @@ func (v *NullableCodeRunResponse) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

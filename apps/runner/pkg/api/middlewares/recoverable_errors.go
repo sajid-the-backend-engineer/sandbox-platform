@@ -8,9 +8,9 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/gin-gonic/gin"
 	common_errors "github.com/northrays/common-go/pkg/errors"
 	"github.com/northrays/runner/pkg/common"
-	"github.com/gin-gonic/gin"
 )
 
 func RecoverableErrorsMiddleware() gin.HandlerFunc {

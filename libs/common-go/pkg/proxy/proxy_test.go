@@ -10,8 +10,8 @@ import (
 	"net/url"
 	"testing"
 
-	"github.com/northrays/common-go/pkg/proxy"
 	"github.com/gin-gonic/gin"
+	"github.com/northrays/common-go/pkg/proxy"
 )
 
 func init() {

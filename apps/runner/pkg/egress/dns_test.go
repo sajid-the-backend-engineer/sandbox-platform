@@ -24,9 +24,9 @@ func dnsQuery(name string) []byte {
 		msg = append(msg, byte(len(label)))
 		msg = append(msg, label...)
 	}
-	msg = append(msg, 0)                          // root label
-	msg = binary.BigEndian.AppendUint16(msg, 1)   // QTYPE A
-	msg = binary.BigEndian.AppendUint16(msg, 1)   // QCLASS IN
+	msg = append(msg, 0)                        // root label
+	msg = binary.BigEndian.AppendUint16(msg, 1) // QTYPE A
+	msg = binary.BigEndian.AppendUint16(msg, 1) // QCLASS IN
 	return msg
 }
 

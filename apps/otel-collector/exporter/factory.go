@@ -16,8 +16,8 @@ import (
 	"go.opentelemetry.io/collector/exporter/exporterhelper"
 
 	common_cache "github.com/northrays/common-go/pkg/cache"
-	apiclient "github.com/northrays/sandbox-platform/libs/api-client-go"
 	"github.com/northrays/otel-collector/exporter/internal/config"
+	apiclient "github.com/northrays/sandbox-platform/libs/api-client-go"
 )
 
 const (

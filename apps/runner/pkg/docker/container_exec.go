@@ -9,9 +9,9 @@ import (
 	"context"
 	"io"
 
-	"github.com/northrays/common-go/pkg/log"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/pkg/stdcopy"
+	"github.com/northrays/common-go/pkg/log"
 )
 
 type ExecResult struct {

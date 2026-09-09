@@ -14,8 +14,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/northrays/daemon/internal/util"
 	"github.com/gorilla/websocket"
+	"github.com/northrays/daemon/internal/util"
 
 	common_errors "github.com/northrays/common-go/pkg/errors"
 	"github.com/northrays/common-go/pkg/log"

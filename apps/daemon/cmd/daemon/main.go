@@ -16,6 +16,8 @@ import (
 
 	golog "log"
 
+	"github.com/lmittmann/tint"
+	"github.com/mattn/go-isatty"
 	"github.com/northrays/common-go/pkg/log"
 	"github.com/northrays/daemon/cmd/daemon/config"
 	"github.com/northrays/daemon/internal/util"
@@ -26,8 +28,6 @@ import (
 	"github.com/northrays/daemon/pkg/ssh"
 	"github.com/northrays/daemon/pkg/terminal"
 	"github.com/northrays/daemon/pkg/toolbox"
-	"github.com/lmittmann/tint"
-	"github.com/mattn/go-isatty"
 	"gopkg.in/natefinch/lumberjack.v2"
 )
 

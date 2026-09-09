@@ -8,9 +8,9 @@ import (
 	"context"
 	"fmt"
 
+	"github.com/docker/docker/api/types/container"
 	"github.com/northrays/common-go/pkg/utils"
 	"github.com/northrays/runner/pkg/models/enums"
-	"github.com/docker/docker/api/types/container"
 )
 
 func (d *DockerClient) Stop(ctx context.Context, containerId string, force bool) error {

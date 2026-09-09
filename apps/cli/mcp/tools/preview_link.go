@@ -10,9 +10,9 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/mark3labs/mcp-go/mcp"
 	apiclient_cli "github.com/northrays/sandbox-platform/cli/apiclient"
 	apiclient "github.com/northrays/sandbox-platform/libs/api-client-go"
-	"github.com/mark3labs/mcp-go/mcp"
 
 	log "github.com/sirupsen/logrus"
 )

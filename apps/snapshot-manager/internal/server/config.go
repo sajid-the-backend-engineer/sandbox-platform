@@ -11,8 +11,8 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/northrays/snapshot-manager/internal/config"
 	"github.com/distribution/distribution/v3/configuration"
+	"github.com/northrays/snapshot-manager/internal/config"
 	"golang.org/x/crypto/bcrypt"
 )
 

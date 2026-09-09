@@ -10,9 +10,9 @@ import (
 	"context"
 	"fmt"
 
-	apiclient "github.com/northrays/sandbox-platform/libs/api-client-go"
 	"github.com/northrays/runner/pkg/api/dto"
 	"github.com/northrays/runner/pkg/common"
+	apiclient "github.com/northrays/sandbox-platform/libs/api-client-go"
 )
 
 func (e *Executor) createSandbox(ctx context.Context, job *apiclient.Job) (any, error) {

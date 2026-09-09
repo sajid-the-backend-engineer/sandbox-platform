@@ -6,7 +6,7 @@ package internal
 
 var (
 	Version           = "v0.0.0-dev"
-	NorthraysApiUrl     = ""
+	NorthraysApiUrl   = ""
 	Auth0Domain       = ""
 	Auth0ClientId     = ""
 	Auth0ClientSecret = ""

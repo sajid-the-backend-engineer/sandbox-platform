@@ -70,7 +70,6 @@ func (d *DockerClient) verifyRestrictedProvisioningAllowed(ctx context.Context, 
 	return nil
 }
 
-
 // applyDomainAllowList puts a sandbox under name-based egress control.
 //
 // ORDER MATTERS, twice over.

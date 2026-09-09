@@ -11,8 +11,8 @@ import (
 	"io"
 	"path/filepath"
 
-	"github.com/northrays/sandbox-platform/cli/apiclient"
 	"github.com/mark3labs/mcp-go/mcp"
+	"github.com/northrays/sandbox-platform/cli/apiclient"
 )
 
 type FileDownloadArgs struct {

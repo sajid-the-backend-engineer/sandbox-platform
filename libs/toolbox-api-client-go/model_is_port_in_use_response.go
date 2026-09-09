@@ -19,7 +19,7 @@ var _ MappedNullable = &IsPortInUseResponse{}
 
 // IsPortInUseResponse struct for IsPortInUseResponse
 type IsPortInUseResponse struct {
-	IsInUse *bool `json:"isInUse,omitempty"`
+	IsInUse              *bool `json:"isInUse,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -75,7 +75,7 @@ func (o *IsPortInUseResponse) SetIsInUse(v bool) {
 }
 
 func (o IsPortInUseResponse) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -151,5 +151,3 @@ func (v *NullableIsPortInUseResponse) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

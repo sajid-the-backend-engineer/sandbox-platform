@@ -11,14 +11,14 @@ import (
 	"sync"
 	"time"
 
+	"github.com/docker/docker/api/types/network"
+	"github.com/docker/docker/api/types/system"
+	"github.com/docker/docker/client"
 	"github.com/northrays/common-go/pkg/utils"
 	"github.com/northrays/runner/pkg/cache"
 	"github.com/northrays/runner/pkg/common"
 	"github.com/northrays/runner/pkg/egress"
 	"github.com/northrays/runner/pkg/netrules"
-	"github.com/docker/docker/api/types/network"
-	"github.com/docker/docker/api/types/system"
-	"github.com/docker/docker/client"
 )
 
 type DockerClientConfig struct {

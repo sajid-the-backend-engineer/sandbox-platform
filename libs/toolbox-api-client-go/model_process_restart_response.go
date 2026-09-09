@@ -19,8 +19,8 @@ var _ MappedNullable = &ProcessRestartResponse{}
 
 // ProcessRestartResponse struct for ProcessRestartResponse
 type ProcessRestartResponse struct {
-	Message *string `json:"message,omitempty"`
-	ProcessName *string `json:"processName,omitempty"`
+	Message              *string `json:"message,omitempty"`
+	ProcessName          *string `json:"processName,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -108,7 +108,7 @@ func (o *ProcessRestartResponse) SetProcessName(v string) {
 }
 
 func (o ProcessRestartResponse) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -188,5 +188,3 @@ func (v *NullableProcessRestartResponse) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

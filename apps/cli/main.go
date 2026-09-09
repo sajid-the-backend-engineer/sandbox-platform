@@ -9,6 +9,7 @@ import (
 
 	log "github.com/sirupsen/logrus"
 
+	"github.com/joho/godotenv"
 	"github.com/northrays/sandbox-platform/cli/cmd"
 	"github.com/northrays/sandbox-platform/cli/cmd/auth"
 	"github.com/northrays/sandbox-platform/cli/cmd/mcp"
@@ -17,7 +18,6 @@ import (
 	"github.com/northrays/sandbox-platform/cli/cmd/snapshot"
 	"github.com/northrays/sandbox-platform/cli/cmd/volume"
 	"github.com/northrays/sandbox-platform/cli/internal"
-	"github.com/joho/godotenv"
 	"github.com/spf13/cobra"
 )
 

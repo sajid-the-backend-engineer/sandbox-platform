@@ -19,8 +19,8 @@ var _ MappedNullable = &MousePositionResponse{}
 
 // MousePositionResponse struct for MousePositionResponse
 type MousePositionResponse struct {
-	X *int32 `json:"x,omitempty"`
-	Y *int32 `json:"y,omitempty"`
+	X                    *int32 `json:"x,omitempty"`
+	Y                    *int32 `json:"y,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -108,7 +108,7 @@ func (o *MousePositionResponse) SetY(v int32) {
 }
 
 func (o MousePositionResponse) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -188,5 +188,3 @@ func (v *NullableMousePositionResponse) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

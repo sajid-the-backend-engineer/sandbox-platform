@@ -21,14 +21,13 @@ import (
 	"time"
 )
 
-
 type AdminAPI interface {
 
 	/*
-	AdminCanCleanupImage Check if an image can be cleaned up
+		AdminCanCleanupImage Check if an image can be cleaned up
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@return AdminAPIAdminCanCleanupImageRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@return AdminAPIAdminCanCleanupImageRequest
 	*/
 	AdminCanCleanupImage(ctx context.Context) AdminAPIAdminCanCleanupImageRequest
 
@@ -37,12 +36,12 @@ type AdminAPI interface {
 	AdminCanCleanupImageExecute(r AdminAPIAdminCanCleanupImageRequest) (bool, *http.Response, error)
 
 	/*
-	AdminCreateOrganizationRegionQuota Create organization region quota
+		AdminCreateOrganizationRegionQuota Create organization region quota
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param organizationId Organization ID
-	@param regionId ID of the region the new quota applies to
-	@return AdminAPIAdminCreateOrganizationRegionQuotaRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@param organizationId Organization ID
+		@param regionId ID of the region the new quota applies to
+		@return AdminAPIAdminCreateOrganizationRegionQuotaRequest
 	*/
 	AdminCreateOrganizationRegionQuota(ctx context.Context, organizationId string, regionId string) AdminAPIAdminCreateOrganizationRegionQuotaRequest
 
@@ -51,10 +50,10 @@ type AdminAPI interface {
 	AdminCreateOrganizationRegionQuotaExecute(r AdminAPIAdminCreateOrganizationRegionQuotaRequest) (*RegionQuota, *http.Response, error)
 
 	/*
-	AdminCreateRunner Create runner
+		AdminCreateRunner Create runner
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@return AdminAPIAdminCreateRunnerRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@return AdminAPIAdminCreateRunnerRequest
 	*/
 	AdminCreateRunner(ctx context.Context) AdminAPIAdminCreateRunnerRequest
 
@@ -63,10 +62,10 @@ type AdminAPI interface {
 	AdminCreateRunnerExecute(r AdminAPIAdminCreateRunnerRequest) (*CreateRunnerResponse, *http.Response, error)
 
 	/*
-	AdminCreateUser Create user
+		AdminCreateUser Create user
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@return AdminAPIAdminCreateUserRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@return AdminAPIAdminCreateUserRequest
 	*/
 	AdminCreateUser(ctx context.Context) AdminAPIAdminCreateUserRequest
 
@@ -74,13 +73,13 @@ type AdminAPI interface {
 	AdminCreateUserExecute(r AdminAPIAdminCreateUserRequest) (*http.Response, error)
 
 	/*
-	AdminDeleteOrganizationRegionQuota Delete organization region quota
+		AdminDeleteOrganizationRegionQuota Delete organization region quota
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param organizationId Organization ID
-	@param regionId Region ID
-	@param sandboxClass Sandbox class
-	@return AdminAPIAdminDeleteOrganizationRegionQuotaRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@param organizationId Organization ID
+		@param regionId Region ID
+		@param sandboxClass Sandbox class
+		@return AdminAPIAdminDeleteOrganizationRegionQuotaRequest
 	*/
 	AdminDeleteOrganizationRegionQuota(ctx context.Context, organizationId string, regionId string, sandboxClass SandboxClass) AdminAPIAdminDeleteOrganizationRegionQuotaRequest
 
@@ -88,11 +87,11 @@ type AdminAPI interface {
 	AdminDeleteOrganizationRegionQuotaExecute(r AdminAPIAdminDeleteOrganizationRegionQuotaRequest) (*http.Response, error)
 
 	/*
-	AdminDeleteRunner Delete runner
+		AdminDeleteRunner Delete runner
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param id Runner ID
-	@return AdminAPIAdminDeleteRunnerRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@param id Runner ID
+		@return AdminAPIAdminDeleteRunnerRequest
 	*/
 	AdminDeleteRunner(ctx context.Context, id string) AdminAPIAdminDeleteRunnerRequest
 
@@ -100,10 +99,10 @@ type AdminAPI interface {
 	AdminDeleteRunnerExecute(r AdminAPIAdminDeleteRunnerRequest) (*http.Response, error)
 
 	/*
-	AdminGetAllAuditLogs Get all audit logs
+		AdminGetAllAuditLogs Get all audit logs
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@return AdminAPIAdminGetAllAuditLogsRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@return AdminAPIAdminGetAllAuditLogsRequest
 	*/
 	AdminGetAllAuditLogs(ctx context.Context) AdminAPIAdminGetAllAuditLogsRequest
 
@@ -112,12 +111,12 @@ type AdminAPI interface {
 	AdminGetAllAuditLogsExecute(r AdminAPIAdminGetAllAuditLogsRequest) (*PaginatedAuditLogs, *http.Response, error)
 
 	/*
-	AdminGetMessageAttempts Get delivery attempts for a webhook message
+		AdminGetMessageAttempts Get delivery attempts for a webhook message
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param organizationId
-	@param messageId
-	@return AdminAPIAdminGetMessageAttemptsRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@param organizationId
+		@param messageId
+		@return AdminAPIAdminGetMessageAttemptsRequest
 	*/
 	AdminGetMessageAttempts(ctx context.Context, organizationId string, messageId string) AdminAPIAdminGetMessageAttemptsRequest
 
@@ -126,13 +125,13 @@ type AdminAPI interface {
 	AdminGetMessageAttemptsExecute(r AdminAPIAdminGetMessageAttemptsRequest) ([]map[string]interface{}, *http.Response, error)
 
 	/*
-	AdminGetOrganizationRegionQuota Get organization region quota
+		AdminGetOrganizationRegionQuota Get organization region quota
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param organizationId Organization ID
-	@param regionId Region ID
-	@param sandboxClass Sandbox class
-	@return AdminAPIAdminGetOrganizationRegionQuotaRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@param organizationId Organization ID
+		@param regionId Region ID
+		@param sandboxClass Sandbox class
+		@return AdminAPIAdminGetOrganizationRegionQuotaRequest
 	*/
 	AdminGetOrganizationRegionQuota(ctx context.Context, organizationId string, regionId string, sandboxClass SandboxClass) AdminAPIAdminGetOrganizationRegionQuotaRequest
 
@@ -141,11 +140,11 @@ type AdminAPI interface {
 	AdminGetOrganizationRegionQuotaExecute(r AdminAPIAdminGetOrganizationRegionQuotaRequest) (*RegionQuota, *http.Response, error)
 
 	/*
-	AdminGetRunnerById Get runner by ID
+		AdminGetRunnerById Get runner by ID
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param id Runner ID
-	@return AdminAPIAdminGetRunnerByIdRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@param id Runner ID
+		@return AdminAPIAdminGetRunnerByIdRequest
 	*/
 	AdminGetRunnerById(ctx context.Context, id string) AdminAPIAdminGetRunnerByIdRequest
 
@@ -154,11 +153,11 @@ type AdminAPI interface {
 	AdminGetRunnerByIdExecute(r AdminAPIAdminGetRunnerByIdRequest) (*RunnerFull, *http.Response, error)
 
 	/*
-	AdminGetUser Get user by ID
+		AdminGetUser Get user by ID
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param id
-	@return AdminAPIAdminGetUserRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@param id
+		@return AdminAPIAdminGetUserRequest
 	*/
 	AdminGetUser(ctx context.Context, id string) AdminAPIAdminGetUserRequest
 
@@ -167,10 +166,10 @@ type AdminAPI interface {
 	AdminGetUserExecute(r AdminAPIAdminGetUserRequest) (*User, *http.Response, error)
 
 	/*
-	AdminGetWebhookStatus Get webhook service status
+		AdminGetWebhookStatus Get webhook service status
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@return AdminAPIAdminGetWebhookStatusRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@return AdminAPIAdminGetWebhookStatusRequest
 	*/
 	AdminGetWebhookStatus(ctx context.Context) AdminAPIAdminGetWebhookStatusRequest
 
@@ -179,11 +178,11 @@ type AdminAPI interface {
 	AdminGetWebhookStatusExecute(r AdminAPIAdminGetWebhookStatusRequest) (*AdminGetWebhookStatus200Response, *http.Response, error)
 
 	/*
-	AdminInitializeWebhooks Initialize webhooks for an organization
+		AdminInitializeWebhooks Initialize webhooks for an organization
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param organizationId
-	@return AdminAPIAdminInitializeWebhooksRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@param organizationId
+		@return AdminAPIAdminInitializeWebhooksRequest
 	*/
 	AdminInitializeWebhooks(ctx context.Context, organizationId string) AdminAPIAdminInitializeWebhooksRequest
 
@@ -191,10 +190,10 @@ type AdminAPI interface {
 	AdminInitializeWebhooksExecute(r AdminAPIAdminInitializeWebhooksRequest) (*http.Response, error)
 
 	/*
-	AdminListRunners List all runners
+		AdminListRunners List all runners
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@return AdminAPIAdminListRunnersRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@return AdminAPIAdminListRunnersRequest
 	*/
 	AdminListRunners(ctx context.Context) AdminAPIAdminListRunnersRequest
 
@@ -203,10 +202,10 @@ type AdminAPI interface {
 	AdminListRunnersExecute(r AdminAPIAdminListRunnersRequest) ([]RunnerFull, *http.Response, error)
 
 	/*
-	AdminListUsers List all users
+		AdminListUsers List all users
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@return AdminAPIAdminListUsersRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@return AdminAPIAdminListUsersRequest
 	*/
 	AdminListUsers(ctx context.Context) AdminAPIAdminListUsersRequest
 
@@ -214,11 +213,11 @@ type AdminAPI interface {
 	AdminListUsersExecute(r AdminAPIAdminListUsersRequest) (*http.Response, error)
 
 	/*
-	AdminRecoverSandbox Recover sandbox from error state as an admin
+		AdminRecoverSandbox Recover sandbox from error state as an admin
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param sandboxId ID of the sandbox
-	@return AdminAPIAdminRecoverSandboxRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@param sandboxId ID of the sandbox
+		@return AdminAPIAdminRecoverSandboxRequest
 	*/
 	AdminRecoverSandbox(ctx context.Context, sandboxId string) AdminAPIAdminRecoverSandboxRequest
 
@@ -227,11 +226,11 @@ type AdminAPI interface {
 	AdminRecoverSandboxExecute(r AdminAPIAdminRecoverSandboxRequest) (*Sandbox, *http.Response, error)
 
 	/*
-	AdminRegenerateKeyPair Regenerate user key pair
+		AdminRegenerateKeyPair Regenerate user key pair
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param id
-	@return AdminAPIAdminRegenerateKeyPairRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@param id
+		@return AdminAPIAdminRegenerateKeyPairRequest
 	*/
 	AdminRegenerateKeyPair(ctx context.Context, id string) AdminAPIAdminRegenerateKeyPairRequest
 
@@ -239,11 +238,11 @@ type AdminAPI interface {
 	AdminRegenerateKeyPairExecute(r AdminAPIAdminRegenerateKeyPairRequest) (*http.Response, error)
 
 	/*
-	AdminSendWebhook Send a webhook message to an organization
+		AdminSendWebhook Send a webhook message to an organization
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param organizationId
-	@return AdminAPIAdminSendWebhookRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@param organizationId
+		@return AdminAPIAdminSendWebhookRequest
 	*/
 	AdminSendWebhook(ctx context.Context, organizationId string) AdminAPIAdminSendWebhookRequest
 
@@ -251,11 +250,11 @@ type AdminAPI interface {
 	AdminSendWebhookExecute(r AdminAPIAdminSendWebhookRequest) (*http.Response, error)
 
 	/*
-	AdminSetDefaultRegistry Set default registry
+		AdminSetDefaultRegistry Set default registry
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param id ID of the docker registry
-	@return AdminAPIAdminSetDefaultRegistryRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@param id ID of the docker registry
+		@return AdminAPIAdminSetDefaultRegistryRequest
 	*/
 	AdminSetDefaultRegistry(ctx context.Context, id string) AdminAPIAdminSetDefaultRegistryRequest
 
@@ -264,11 +263,11 @@ type AdminAPI interface {
 	AdminSetDefaultRegistryExecute(r AdminAPIAdminSetDefaultRegistryRequest) (*DockerRegistry, *http.Response, error)
 
 	/*
-	AdminSetSnapshotGeneralStatus Set snapshot general status
+		AdminSetSnapshotGeneralStatus Set snapshot general status
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param id Snapshot ID
-	@return AdminAPIAdminSetSnapshotGeneralStatusRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@param id Snapshot ID
+		@return AdminAPIAdminSetSnapshotGeneralStatusRequest
 	*/
 	AdminSetSnapshotGeneralStatus(ctx context.Context, id string) AdminAPIAdminSetSnapshotGeneralStatusRequest
 
@@ -277,12 +276,12 @@ type AdminAPI interface {
 	AdminSetSnapshotGeneralStatusExecute(r AdminAPIAdminSetSnapshotGeneralStatusRequest) (*SnapshotDto, *http.Response, error)
 
 	/*
-	AdminUpdateOrganizationRegionQuota Update organization region quota
+		AdminUpdateOrganizationRegionQuota Update organization region quota
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param organizationId Organization ID
-	@param regionId Region ID
-	@return AdminAPIAdminUpdateOrganizationRegionQuotaRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@param organizationId Organization ID
+		@param regionId Region ID
+		@return AdminAPIAdminUpdateOrganizationRegionQuotaRequest
 	*/
 	AdminUpdateOrganizationRegionQuota(ctx context.Context, organizationId string, regionId string) AdminAPIAdminUpdateOrganizationRegionQuotaRequest
 
@@ -290,11 +289,11 @@ type AdminAPI interface {
 	AdminUpdateOrganizationRegionQuotaExecute(r AdminAPIAdminUpdateOrganizationRegionQuotaRequest) (*http.Response, error)
 
 	/*
-	AdminUpdateRunnerScheduling Update runner scheduling status
+		AdminUpdateRunnerScheduling Update runner scheduling status
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param id
-	@return AdminAPIAdminUpdateRunnerSchedulingRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@param id
+		@return AdminAPIAdminUpdateRunnerSchedulingRequest
 	*/
 	AdminUpdateRunnerScheduling(ctx context.Context, id string) AdminAPIAdminUpdateRunnerSchedulingRequest
 
@@ -306,9 +305,9 @@ type AdminAPI interface {
 type AdminAPIService service
 
 type AdminAPIAdminCanCleanupImageRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService AdminAPI
-	imageName *string
+	imageName  *string
 }
 
 // Image name with tag to check
@@ -324,24 +323,25 @@ func (r AdminAPIAdminCanCleanupImageRequest) Execute() (bool, *http.Response, er
 /*
 AdminCanCleanupImage Check if an image can be cleaned up
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return AdminAPIAdminCanCleanupImageRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return AdminAPIAdminCanCleanupImageRequest
 */
 func (a *AdminAPIService) AdminCanCleanupImage(ctx context.Context) AdminAPIAdminCanCleanupImageRequest {
 	return AdminAPIAdminCanCleanupImageRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return bool
+//
+//	@return bool
 func (a *AdminAPIService) AdminCanCleanupImageExecute(r AdminAPIAdminCanCleanupImageRequest) (bool, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  bool
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue bool
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AdminAPIService.AdminCanCleanupImage")
@@ -414,10 +414,10 @@ func (a *AdminAPIService) AdminCanCleanupImageExecute(r AdminAPIAdminCanCleanupI
 }
 
 type AdminAPIAdminCreateOrganizationRegionQuotaRequest struct {
-	ctx context.Context
-	ApiService AdminAPI
-	organizationId string
-	regionId string
+	ctx                           context.Context
+	ApiService                    AdminAPI
+	organizationId                string
+	regionId                      string
 	createOrganizationRegionQuota *CreateOrganizationRegionQuota
 }
 
@@ -433,28 +433,29 @@ func (r AdminAPIAdminCreateOrganizationRegionQuotaRequest) Execute() (*RegionQuo
 /*
 AdminCreateOrganizationRegionQuota Create organization region quota
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param organizationId Organization ID
- @param regionId ID of the region the new quota applies to
- @return AdminAPIAdminCreateOrganizationRegionQuotaRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param organizationId Organization ID
+	@param regionId ID of the region the new quota applies to
+	@return AdminAPIAdminCreateOrganizationRegionQuotaRequest
 */
 func (a *AdminAPIService) AdminCreateOrganizationRegionQuota(ctx context.Context, organizationId string, regionId string) AdminAPIAdminCreateOrganizationRegionQuotaRequest {
 	return AdminAPIAdminCreateOrganizationRegionQuotaRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:     a,
+		ctx:            ctx,
 		organizationId: organizationId,
-		regionId: regionId,
+		regionId:       regionId,
 	}
 }
 
 // Execute executes the request
-//  @return RegionQuota
+//
+//	@return RegionQuota
 func (a *AdminAPIService) AdminCreateOrganizationRegionQuotaExecute(r AdminAPIAdminCreateOrganizationRegionQuotaRequest) (*RegionQuota, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *RegionQuota
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *RegionQuota
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AdminAPIService.AdminCreateOrganizationRegionQuota")
@@ -530,8 +531,8 @@ func (a *AdminAPIService) AdminCreateOrganizationRegionQuotaExecute(r AdminAPIAd
 }
 
 type AdminAPIAdminCreateRunnerRequest struct {
-	ctx context.Context
-	ApiService AdminAPI
+	ctx               context.Context
+	ApiService        AdminAPI
 	adminCreateRunner *AdminCreateRunner
 }
 
@@ -547,24 +548,25 @@ func (r AdminAPIAdminCreateRunnerRequest) Execute() (*CreateRunnerResponse, *htt
 /*
 AdminCreateRunner Create runner
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return AdminAPIAdminCreateRunnerRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return AdminAPIAdminCreateRunnerRequest
 */
 func (a *AdminAPIService) AdminCreateRunner(ctx context.Context) AdminAPIAdminCreateRunnerRequest {
 	return AdminAPIAdminCreateRunnerRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return CreateRunnerResponse
+//
+//	@return CreateRunnerResponse
 func (a *AdminAPIService) AdminCreateRunnerExecute(r AdminAPIAdminCreateRunnerRequest) (*CreateRunnerResponse, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *CreateRunnerResponse
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *CreateRunnerResponse
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AdminAPIService.AdminCreateRunner")
@@ -638,7 +640,7 @@ func (a *AdminAPIService) AdminCreateRunnerExecute(r AdminAPIAdminCreateRunnerRe
 }
 
 type AdminAPIAdminCreateUserRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService AdminAPI
 	createUser *CreateUser
 }
@@ -655,22 +657,22 @@ func (r AdminAPIAdminCreateUserRequest) Execute() (*http.Response, error) {
 /*
 AdminCreateUser Create user
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return AdminAPIAdminCreateUserRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return AdminAPIAdminCreateUserRequest
 */
 func (a *AdminAPIService) AdminCreateUser(ctx context.Context) AdminAPIAdminCreateUserRequest {
 	return AdminAPIAdminCreateUserRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
 func (a *AdminAPIService) AdminCreateUserExecute(r AdminAPIAdminCreateUserRequest) (*http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
+		localVarHTTPMethod = http.MethodPost
+		localVarPostBody   interface{}
+		formFiles          []formFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AdminAPIService.AdminCreateUser")
@@ -735,11 +737,11 @@ func (a *AdminAPIService) AdminCreateUserExecute(r AdminAPIAdminCreateUserReques
 }
 
 type AdminAPIAdminDeleteOrganizationRegionQuotaRequest struct {
-	ctx context.Context
-	ApiService AdminAPI
+	ctx            context.Context
+	ApiService     AdminAPI
 	organizationId string
-	regionId string
-	sandboxClass SandboxClass
+	regionId       string
+	sandboxClass   SandboxClass
 }
 
 func (r AdminAPIAdminDeleteOrganizationRegionQuotaRequest) Execute() (*http.Response, error) {
@@ -749,28 +751,28 @@ func (r AdminAPIAdminDeleteOrganizationRegionQuotaRequest) Execute() (*http.Resp
 /*
 AdminDeleteOrganizationRegionQuota Delete organization region quota
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param organizationId Organization ID
- @param regionId Region ID
- @param sandboxClass Sandbox class
- @return AdminAPIAdminDeleteOrganizationRegionQuotaRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param organizationId Organization ID
+	@param regionId Region ID
+	@param sandboxClass Sandbox class
+	@return AdminAPIAdminDeleteOrganizationRegionQuotaRequest
 */
 func (a *AdminAPIService) AdminDeleteOrganizationRegionQuota(ctx context.Context, organizationId string, regionId string, sandboxClass SandboxClass) AdminAPIAdminDeleteOrganizationRegionQuotaRequest {
 	return AdminAPIAdminDeleteOrganizationRegionQuotaRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:     a,
+		ctx:            ctx,
 		organizationId: organizationId,
-		regionId: regionId,
-		sandboxClass: sandboxClass,
+		regionId:       regionId,
+		sandboxClass:   sandboxClass,
 	}
 }
 
 // Execute executes the request
 func (a *AdminAPIService) AdminDeleteOrganizationRegionQuotaExecute(r AdminAPIAdminDeleteOrganizationRegionQuotaRequest) (*http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodDelete
-		localVarPostBody     interface{}
-		formFiles            []formFile
+		localVarHTTPMethod = http.MethodDelete
+		localVarPostBody   interface{}
+		formFiles          []formFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AdminAPIService.AdminDeleteOrganizationRegionQuota")
@@ -833,9 +835,9 @@ func (a *AdminAPIService) AdminDeleteOrganizationRegionQuotaExecute(r AdminAPIAd
 }
 
 type AdminAPIAdminDeleteRunnerRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService AdminAPI
-	id string
+	id         string
 }
 
 func (r AdminAPIAdminDeleteRunnerRequest) Execute() (*http.Response, error) {
@@ -845,24 +847,24 @@ func (r AdminAPIAdminDeleteRunnerRequest) Execute() (*http.Response, error) {
 /*
 AdminDeleteRunner Delete runner
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param id Runner ID
- @return AdminAPIAdminDeleteRunnerRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param id Runner ID
+	@return AdminAPIAdminDeleteRunnerRequest
 */
 func (a *AdminAPIService) AdminDeleteRunner(ctx context.Context, id string) AdminAPIAdminDeleteRunnerRequest {
 	return AdminAPIAdminDeleteRunnerRequest{
 		ApiService: a,
-		ctx: ctx,
-		id: id,
+		ctx:        ctx,
+		id:         id,
 	}
 }
 
 // Execute executes the request
 func (a *AdminAPIService) AdminDeleteRunnerExecute(r AdminAPIAdminDeleteRunnerRequest) (*http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodDelete
-		localVarPostBody     interface{}
-		formFiles            []formFile
+		localVarHTTPMethod = http.MethodDelete
+		localVarPostBody   interface{}
+		formFiles          []formFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AdminAPIService.AdminDeleteRunner")
@@ -923,13 +925,13 @@ func (a *AdminAPIService) AdminDeleteRunnerExecute(r AdminAPIAdminDeleteRunnerRe
 }
 
 type AdminAPIAdminGetAllAuditLogsRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService AdminAPI
-	page *float32
-	limit *float32
-	from *time.Time
-	to *time.Time
-	nextToken *string
+	page       *float32
+	limit      *float32
+	from       *time.Time
+	to         *time.Time
+	nextToken  *string
 }
 
 // Page number of the results
@@ -969,24 +971,25 @@ func (r AdminAPIAdminGetAllAuditLogsRequest) Execute() (*PaginatedAuditLogs, *ht
 /*
 AdminGetAllAuditLogs Get all audit logs
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return AdminAPIAdminGetAllAuditLogsRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return AdminAPIAdminGetAllAuditLogsRequest
 */
 func (a *AdminAPIService) AdminGetAllAuditLogs(ctx context.Context) AdminAPIAdminGetAllAuditLogsRequest {
 	return AdminAPIAdminGetAllAuditLogsRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return PaginatedAuditLogs
+//
+//	@return PaginatedAuditLogs
 func (a *AdminAPIService) AdminGetAllAuditLogsExecute(r AdminAPIAdminGetAllAuditLogsRequest) (*PaginatedAuditLogs, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *PaginatedAuditLogs
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *PaginatedAuditLogs
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AdminAPIService.AdminGetAllAuditLogs")
@@ -1078,10 +1081,10 @@ func (a *AdminAPIService) AdminGetAllAuditLogsExecute(r AdminAPIAdminGetAllAudit
 }
 
 type AdminAPIAdminGetMessageAttemptsRequest struct {
-	ctx context.Context
-	ApiService AdminAPI
+	ctx            context.Context
+	ApiService     AdminAPI
 	organizationId string
-	messageId string
+	messageId      string
 }
 
 func (r AdminAPIAdminGetMessageAttemptsRequest) Execute() ([]map[string]interface{}, *http.Response, error) {
@@ -1091,28 +1094,29 @@ func (r AdminAPIAdminGetMessageAttemptsRequest) Execute() ([]map[string]interfac
 /*
 AdminGetMessageAttempts Get delivery attempts for a webhook message
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param organizationId
- @param messageId
- @return AdminAPIAdminGetMessageAttemptsRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param organizationId
+	@param messageId
+	@return AdminAPIAdminGetMessageAttemptsRequest
 */
 func (a *AdminAPIService) AdminGetMessageAttempts(ctx context.Context, organizationId string, messageId string) AdminAPIAdminGetMessageAttemptsRequest {
 	return AdminAPIAdminGetMessageAttemptsRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:     a,
+		ctx:            ctx,
 		organizationId: organizationId,
-		messageId: messageId,
+		messageId:      messageId,
 	}
 }
 
 // Execute executes the request
-//  @return []map[string]interface{}
+//
+//	@return []map[string]interface{}
 func (a *AdminAPIService) AdminGetMessageAttemptsExecute(r AdminAPIAdminGetMessageAttemptsRequest) ([]map[string]interface{}, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []map[string]interface{}
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []map[string]interface{}
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AdminAPIService.AdminGetMessageAttempts")
@@ -1183,11 +1187,11 @@ func (a *AdminAPIService) AdminGetMessageAttemptsExecute(r AdminAPIAdminGetMessa
 }
 
 type AdminAPIAdminGetOrganizationRegionQuotaRequest struct {
-	ctx context.Context
-	ApiService AdminAPI
+	ctx            context.Context
+	ApiService     AdminAPI
 	organizationId string
-	regionId string
-	sandboxClass SandboxClass
+	regionId       string
+	sandboxClass   SandboxClass
 }
 
 func (r AdminAPIAdminGetOrganizationRegionQuotaRequest) Execute() (*RegionQuota, *http.Response, error) {
@@ -1197,30 +1201,31 @@ func (r AdminAPIAdminGetOrganizationRegionQuotaRequest) Execute() (*RegionQuota,
 /*
 AdminGetOrganizationRegionQuota Get organization region quota
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param organizationId Organization ID
- @param regionId Region ID
- @param sandboxClass Sandbox class
- @return AdminAPIAdminGetOrganizationRegionQuotaRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param organizationId Organization ID
+	@param regionId Region ID
+	@param sandboxClass Sandbox class
+	@return AdminAPIAdminGetOrganizationRegionQuotaRequest
 */
 func (a *AdminAPIService) AdminGetOrganizationRegionQuota(ctx context.Context, organizationId string, regionId string, sandboxClass SandboxClass) AdminAPIAdminGetOrganizationRegionQuotaRequest {
 	return AdminAPIAdminGetOrganizationRegionQuotaRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:     a,
+		ctx:            ctx,
 		organizationId: organizationId,
-		regionId: regionId,
-		sandboxClass: sandboxClass,
+		regionId:       regionId,
+		sandboxClass:   sandboxClass,
 	}
 }
 
 // Execute executes the request
-//  @return RegionQuota
+//
+//	@return RegionQuota
 func (a *AdminAPIService) AdminGetOrganizationRegionQuotaExecute(r AdminAPIAdminGetOrganizationRegionQuotaRequest) (*RegionQuota, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *RegionQuota
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *RegionQuota
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AdminAPIService.AdminGetOrganizationRegionQuota")
@@ -1292,9 +1297,9 @@ func (a *AdminAPIService) AdminGetOrganizationRegionQuotaExecute(r AdminAPIAdmin
 }
 
 type AdminAPIAdminGetRunnerByIdRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService AdminAPI
-	id string
+	id         string
 }
 
 func (r AdminAPIAdminGetRunnerByIdRequest) Execute() (*RunnerFull, *http.Response, error) {
@@ -1304,26 +1309,27 @@ func (r AdminAPIAdminGetRunnerByIdRequest) Execute() (*RunnerFull, *http.Respons
 /*
 AdminGetRunnerById Get runner by ID
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param id Runner ID
- @return AdminAPIAdminGetRunnerByIdRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param id Runner ID
+	@return AdminAPIAdminGetRunnerByIdRequest
 */
 func (a *AdminAPIService) AdminGetRunnerById(ctx context.Context, id string) AdminAPIAdminGetRunnerByIdRequest {
 	return AdminAPIAdminGetRunnerByIdRequest{
 		ApiService: a,
-		ctx: ctx,
-		id: id,
+		ctx:        ctx,
+		id:         id,
 	}
 }
 
 // Execute executes the request
-//  @return RunnerFull
+//
+//	@return RunnerFull
 func (a *AdminAPIService) AdminGetRunnerByIdExecute(r AdminAPIAdminGetRunnerByIdRequest) (*RunnerFull, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *RunnerFull
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *RunnerFull
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AdminAPIService.AdminGetRunnerById")
@@ -1393,9 +1399,9 @@ func (a *AdminAPIService) AdminGetRunnerByIdExecute(r AdminAPIAdminGetRunnerById
 }
 
 type AdminAPIAdminGetUserRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService AdminAPI
-	id string
+	id         string
 }
 
 func (r AdminAPIAdminGetUserRequest) Execute() (*User, *http.Response, error) {
@@ -1405,26 +1411,27 @@ func (r AdminAPIAdminGetUserRequest) Execute() (*User, *http.Response, error) {
 /*
 AdminGetUser Get user by ID
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param id
- @return AdminAPIAdminGetUserRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param id
+	@return AdminAPIAdminGetUserRequest
 */
 func (a *AdminAPIService) AdminGetUser(ctx context.Context, id string) AdminAPIAdminGetUserRequest {
 	return AdminAPIAdminGetUserRequest{
 		ApiService: a,
-		ctx: ctx,
-		id: id,
+		ctx:        ctx,
+		id:         id,
 	}
 }
 
 // Execute executes the request
-//  @return User
+//
+//	@return User
 func (a *AdminAPIService) AdminGetUserExecute(r AdminAPIAdminGetUserRequest) (*User, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *User
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *User
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AdminAPIService.AdminGetUser")
@@ -1494,7 +1501,7 @@ func (a *AdminAPIService) AdminGetUserExecute(r AdminAPIAdminGetUserRequest) (*U
 }
 
 type AdminAPIAdminGetWebhookStatusRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService AdminAPI
 }
 
@@ -1505,24 +1512,25 @@ func (r AdminAPIAdminGetWebhookStatusRequest) Execute() (*AdminGetWebhookStatus2
 /*
 AdminGetWebhookStatus Get webhook service status
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return AdminAPIAdminGetWebhookStatusRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return AdminAPIAdminGetWebhookStatusRequest
 */
 func (a *AdminAPIService) AdminGetWebhookStatus(ctx context.Context) AdminAPIAdminGetWebhookStatusRequest {
 	return AdminAPIAdminGetWebhookStatusRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return AdminGetWebhookStatus200Response
+//
+//	@return AdminGetWebhookStatus200Response
 func (a *AdminAPIService) AdminGetWebhookStatusExecute(r AdminAPIAdminGetWebhookStatusRequest) (*AdminGetWebhookStatus200Response, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *AdminGetWebhookStatus200Response
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *AdminGetWebhookStatus200Response
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AdminAPIService.AdminGetWebhookStatus")
@@ -1591,8 +1599,8 @@ func (a *AdminAPIService) AdminGetWebhookStatusExecute(r AdminAPIAdminGetWebhook
 }
 
 type AdminAPIAdminInitializeWebhooksRequest struct {
-	ctx context.Context
-	ApiService AdminAPI
+	ctx            context.Context
+	ApiService     AdminAPI
 	organizationId string
 }
 
@@ -1603,14 +1611,14 @@ func (r AdminAPIAdminInitializeWebhooksRequest) Execute() (*http.Response, error
 /*
 AdminInitializeWebhooks Initialize webhooks for an organization
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param organizationId
- @return AdminAPIAdminInitializeWebhooksRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param organizationId
+	@return AdminAPIAdminInitializeWebhooksRequest
 */
 func (a *AdminAPIService) AdminInitializeWebhooks(ctx context.Context, organizationId string) AdminAPIAdminInitializeWebhooksRequest {
 	return AdminAPIAdminInitializeWebhooksRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:     a,
+		ctx:            ctx,
 		organizationId: organizationId,
 	}
 }
@@ -1618,9 +1626,9 @@ func (a *AdminAPIService) AdminInitializeWebhooks(ctx context.Context, organizat
 // Execute executes the request
 func (a *AdminAPIService) AdminInitializeWebhooksExecute(r AdminAPIAdminInitializeWebhooksRequest) (*http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
+		localVarHTTPMethod = http.MethodPost
+		localVarPostBody   interface{}
+		formFiles          []formFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AdminAPIService.AdminInitializeWebhooks")
@@ -1681,9 +1689,9 @@ func (a *AdminAPIService) AdminInitializeWebhooksExecute(r AdminAPIAdminInitiali
 }
 
 type AdminAPIAdminListRunnersRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService AdminAPI
-	regionId *string
+	regionId   *string
 }
 
 // Filter runners by region ID
@@ -1699,24 +1707,25 @@ func (r AdminAPIAdminListRunnersRequest) Execute() ([]RunnerFull, *http.Response
 /*
 AdminListRunners List all runners
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return AdminAPIAdminListRunnersRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return AdminAPIAdminListRunnersRequest
 */
 func (a *AdminAPIService) AdminListRunners(ctx context.Context) AdminAPIAdminListRunnersRequest {
 	return AdminAPIAdminListRunnersRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return []RunnerFull
+//
+//	@return []RunnerFull
 func (a *AdminAPIService) AdminListRunnersExecute(r AdminAPIAdminListRunnersRequest) ([]RunnerFull, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []RunnerFull
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []RunnerFull
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AdminAPIService.AdminListRunners")
@@ -1788,7 +1797,7 @@ func (a *AdminAPIService) AdminListRunnersExecute(r AdminAPIAdminListRunnersRequ
 }
 
 type AdminAPIAdminListUsersRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService AdminAPI
 }
 
@@ -1799,22 +1808,22 @@ func (r AdminAPIAdminListUsersRequest) Execute() (*http.Response, error) {
 /*
 AdminListUsers List all users
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return AdminAPIAdminListUsersRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return AdminAPIAdminListUsersRequest
 */
 func (a *AdminAPIService) AdminListUsers(ctx context.Context) AdminAPIAdminListUsersRequest {
 	return AdminAPIAdminListUsersRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
 func (a *AdminAPIService) AdminListUsersExecute(r AdminAPIAdminListUsersRequest) (*http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
+		localVarHTTPMethod = http.MethodGet
+		localVarPostBody   interface{}
+		formFiles          []formFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AdminAPIService.AdminListUsers")
@@ -1874,9 +1883,9 @@ func (a *AdminAPIService) AdminListUsersExecute(r AdminAPIAdminListUsersRequest)
 }
 
 type AdminAPIAdminRecoverSandboxRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService AdminAPI
-	sandboxId string
+	sandboxId  string
 }
 
 func (r AdminAPIAdminRecoverSandboxRequest) Execute() (*Sandbox, *http.Response, error) {
@@ -1886,26 +1895,27 @@ func (r AdminAPIAdminRecoverSandboxRequest) Execute() (*Sandbox, *http.Response,
 /*
 AdminRecoverSandbox Recover sandbox from error state as an admin
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param sandboxId ID of the sandbox
- @return AdminAPIAdminRecoverSandboxRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param sandboxId ID of the sandbox
+	@return AdminAPIAdminRecoverSandboxRequest
 */
 func (a *AdminAPIService) AdminRecoverSandbox(ctx context.Context, sandboxId string) AdminAPIAdminRecoverSandboxRequest {
 	return AdminAPIAdminRecoverSandboxRequest{
 		ApiService: a,
-		ctx: ctx,
-		sandboxId: sandboxId,
+		ctx:        ctx,
+		sandboxId:  sandboxId,
 	}
 }
 
 // Execute executes the request
-//  @return Sandbox
+//
+//	@return Sandbox
 func (a *AdminAPIService) AdminRecoverSandboxExecute(r AdminAPIAdminRecoverSandboxRequest) (*Sandbox, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *Sandbox
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *Sandbox
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AdminAPIService.AdminRecoverSandbox")
@@ -1975,9 +1985,9 @@ func (a *AdminAPIService) AdminRecoverSandboxExecute(r AdminAPIAdminRecoverSandb
 }
 
 type AdminAPIAdminRegenerateKeyPairRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService AdminAPI
-	id string
+	id         string
 }
 
 func (r AdminAPIAdminRegenerateKeyPairRequest) Execute() (*http.Response, error) {
@@ -1987,24 +1997,24 @@ func (r AdminAPIAdminRegenerateKeyPairRequest) Execute() (*http.Response, error)
 /*
 AdminRegenerateKeyPair Regenerate user key pair
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param id
- @return AdminAPIAdminRegenerateKeyPairRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param id
+	@return AdminAPIAdminRegenerateKeyPairRequest
 */
 func (a *AdminAPIService) AdminRegenerateKeyPair(ctx context.Context, id string) AdminAPIAdminRegenerateKeyPairRequest {
 	return AdminAPIAdminRegenerateKeyPairRequest{
 		ApiService: a,
-		ctx: ctx,
-		id: id,
+		ctx:        ctx,
+		id:         id,
 	}
 }
 
 // Execute executes the request
 func (a *AdminAPIService) AdminRegenerateKeyPairExecute(r AdminAPIAdminRegenerateKeyPairRequest) (*http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
+		localVarHTTPMethod = http.MethodPost
+		localVarPostBody   interface{}
+		formFiles          []formFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AdminAPIService.AdminRegenerateKeyPair")
@@ -2065,8 +2075,8 @@ func (a *AdminAPIService) AdminRegenerateKeyPairExecute(r AdminAPIAdminRegenerat
 }
 
 type AdminAPIAdminSendWebhookRequest struct {
-	ctx context.Context
-	ApiService AdminAPI
+	ctx            context.Context
+	ApiService     AdminAPI
 	organizationId string
 	sendWebhookDto *SendWebhookDto
 }
@@ -2083,14 +2093,14 @@ func (r AdminAPIAdminSendWebhookRequest) Execute() (*http.Response, error) {
 /*
 AdminSendWebhook Send a webhook message to an organization
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param organizationId
- @return AdminAPIAdminSendWebhookRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param organizationId
+	@return AdminAPIAdminSendWebhookRequest
 */
 func (a *AdminAPIService) AdminSendWebhook(ctx context.Context, organizationId string) AdminAPIAdminSendWebhookRequest {
 	return AdminAPIAdminSendWebhookRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:     a,
+		ctx:            ctx,
 		organizationId: organizationId,
 	}
 }
@@ -2098,9 +2108,9 @@ func (a *AdminAPIService) AdminSendWebhook(ctx context.Context, organizationId s
 // Execute executes the request
 func (a *AdminAPIService) AdminSendWebhookExecute(r AdminAPIAdminSendWebhookRequest) (*http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
+		localVarHTTPMethod = http.MethodPost
+		localVarPostBody   interface{}
+		formFiles          []formFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AdminAPIService.AdminSendWebhook")
@@ -2166,9 +2176,9 @@ func (a *AdminAPIService) AdminSendWebhookExecute(r AdminAPIAdminSendWebhookRequ
 }
 
 type AdminAPIAdminSetDefaultRegistryRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService AdminAPI
-	id string
+	id         string
 }
 
 func (r AdminAPIAdminSetDefaultRegistryRequest) Execute() (*DockerRegistry, *http.Response, error) {
@@ -2178,26 +2188,27 @@ func (r AdminAPIAdminSetDefaultRegistryRequest) Execute() (*DockerRegistry, *htt
 /*
 AdminSetDefaultRegistry Set default registry
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param id ID of the docker registry
- @return AdminAPIAdminSetDefaultRegistryRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param id ID of the docker registry
+	@return AdminAPIAdminSetDefaultRegistryRequest
 */
 func (a *AdminAPIService) AdminSetDefaultRegistry(ctx context.Context, id string) AdminAPIAdminSetDefaultRegistryRequest {
 	return AdminAPIAdminSetDefaultRegistryRequest{
 		ApiService: a,
-		ctx: ctx,
-		id: id,
+		ctx:        ctx,
+		id:         id,
 	}
 }
 
 // Execute executes the request
-//  @return DockerRegistry
+//
+//	@return DockerRegistry
 func (a *AdminAPIService) AdminSetDefaultRegistryExecute(r AdminAPIAdminSetDefaultRegistryRequest) (*DockerRegistry, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *DockerRegistry
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *DockerRegistry
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AdminAPIService.AdminSetDefaultRegistry")
@@ -2267,9 +2278,9 @@ func (a *AdminAPIService) AdminSetDefaultRegistryExecute(r AdminAPIAdminSetDefau
 }
 
 type AdminAPIAdminSetSnapshotGeneralStatusRequest struct {
-	ctx context.Context
-	ApiService AdminAPI
-	id string
+	ctx                         context.Context
+	ApiService                  AdminAPI
+	id                          string
 	setSnapshotGeneralStatusDto *SetSnapshotGeneralStatusDto
 }
 
@@ -2285,26 +2296,27 @@ func (r AdminAPIAdminSetSnapshotGeneralStatusRequest) Execute() (*SnapshotDto, *
 /*
 AdminSetSnapshotGeneralStatus Set snapshot general status
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param id Snapshot ID
- @return AdminAPIAdminSetSnapshotGeneralStatusRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param id Snapshot ID
+	@return AdminAPIAdminSetSnapshotGeneralStatusRequest
 */
 func (a *AdminAPIService) AdminSetSnapshotGeneralStatus(ctx context.Context, id string) AdminAPIAdminSetSnapshotGeneralStatusRequest {
 	return AdminAPIAdminSetSnapshotGeneralStatusRequest{
 		ApiService: a,
-		ctx: ctx,
-		id: id,
+		ctx:        ctx,
+		id:         id,
 	}
 }
 
 // Execute executes the request
-//  @return SnapshotDto
+//
+//	@return SnapshotDto
 func (a *AdminAPIService) AdminSetSnapshotGeneralStatusExecute(r AdminAPIAdminSetSnapshotGeneralStatusRequest) (*SnapshotDto, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPatch
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *SnapshotDto
+		localVarHTTPMethod  = http.MethodPatch
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *SnapshotDto
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AdminAPIService.AdminSetSnapshotGeneralStatus")
@@ -2379,10 +2391,10 @@ func (a *AdminAPIService) AdminSetSnapshotGeneralStatusExecute(r AdminAPIAdminSe
 }
 
 type AdminAPIAdminUpdateOrganizationRegionQuotaRequest struct {
-	ctx context.Context
-	ApiService AdminAPI
-	organizationId string
-	regionId string
+	ctx                           context.Context
+	ApiService                    AdminAPI
+	organizationId                string
+	regionId                      string
 	updateOrganizationRegionQuota *UpdateOrganizationRegionQuota
 }
 
@@ -2398,26 +2410,26 @@ func (r AdminAPIAdminUpdateOrganizationRegionQuotaRequest) Execute() (*http.Resp
 /*
 AdminUpdateOrganizationRegionQuota Update organization region quota
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param organizationId Organization ID
- @param regionId Region ID
- @return AdminAPIAdminUpdateOrganizationRegionQuotaRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param organizationId Organization ID
+	@param regionId Region ID
+	@return AdminAPIAdminUpdateOrganizationRegionQuotaRequest
 */
 func (a *AdminAPIService) AdminUpdateOrganizationRegionQuota(ctx context.Context, organizationId string, regionId string) AdminAPIAdminUpdateOrganizationRegionQuotaRequest {
 	return AdminAPIAdminUpdateOrganizationRegionQuotaRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:     a,
+		ctx:            ctx,
 		organizationId: organizationId,
-		regionId: regionId,
+		regionId:       regionId,
 	}
 }
 
 // Execute executes the request
 func (a *AdminAPIService) AdminUpdateOrganizationRegionQuotaExecute(r AdminAPIAdminUpdateOrganizationRegionQuotaRequest) (*http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPatch
-		localVarPostBody     interface{}
-		formFiles            []formFile
+		localVarHTTPMethod = http.MethodPatch
+		localVarPostBody   interface{}
+		formFiles          []formFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AdminAPIService.AdminUpdateOrganizationRegionQuota")
@@ -2484,9 +2496,9 @@ func (a *AdminAPIService) AdminUpdateOrganizationRegionQuotaExecute(r AdminAPIAd
 }
 
 type AdminAPIAdminUpdateRunnerSchedulingRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService AdminAPI
-	id string
+	id         string
 }
 
 func (r AdminAPIAdminUpdateRunnerSchedulingRequest) Execute() (*http.Response, error) {
@@ -2496,24 +2508,24 @@ func (r AdminAPIAdminUpdateRunnerSchedulingRequest) Execute() (*http.Response, e
 /*
 AdminUpdateRunnerScheduling Update runner scheduling status
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param id
- @return AdminAPIAdminUpdateRunnerSchedulingRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param id
+	@return AdminAPIAdminUpdateRunnerSchedulingRequest
 */
 func (a *AdminAPIService) AdminUpdateRunnerScheduling(ctx context.Context, id string) AdminAPIAdminUpdateRunnerSchedulingRequest {
 	return AdminAPIAdminUpdateRunnerSchedulingRequest{
 		ApiService: a,
-		ctx: ctx,
-		id: id,
+		ctx:        ctx,
+		id:         id,
 	}
 }
 
 // Execute executes the request
 func (a *AdminAPIService) AdminUpdateRunnerSchedulingExecute(r AdminAPIAdminUpdateRunnerSchedulingRequest) (*http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPatch
-		localVarPostBody     interface{}
-		formFiles            []formFile
+		localVarHTTPMethod = http.MethodPatch
+		localVarPostBody   interface{}
+		formFiles          []formFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "AdminAPIService.AdminUpdateRunnerScheduling")

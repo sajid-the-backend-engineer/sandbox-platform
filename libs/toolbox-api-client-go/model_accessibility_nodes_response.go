@@ -19,8 +19,8 @@ var _ MappedNullable = &AccessibilityNodesResponse{}
 
 // AccessibilityNodesResponse struct for AccessibilityNodesResponse
 type AccessibilityNodesResponse struct {
-	Matches []ComputerUseAccessibilityNode `json:"matches,omitempty"`
-	Truncated *bool `json:"truncated,omitempty"`
+	Matches              []ComputerUseAccessibilityNode `json:"matches,omitempty"`
+	Truncated            *bool                          `json:"truncated,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -108,7 +108,7 @@ func (o *AccessibilityNodesResponse) SetTruncated(v bool) {
 }
 
 func (o AccessibilityNodesResponse) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -188,5 +188,3 @@ func (v *NullableAccessibilityNodesResponse) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

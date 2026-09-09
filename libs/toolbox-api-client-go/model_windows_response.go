@@ -19,7 +19,7 @@ var _ MappedNullable = &WindowsResponse{}
 
 // WindowsResponse struct for WindowsResponse
 type WindowsResponse struct {
-	Windows []WindowInfo `json:"windows,omitempty"`
+	Windows              []WindowInfo `json:"windows,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -75,7 +75,7 @@ func (o *WindowsResponse) SetWindows(v []WindowInfo) {
 }
 
 func (o WindowsResponse) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -151,5 +151,3 @@ func (v *NullableWindowsResponse) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

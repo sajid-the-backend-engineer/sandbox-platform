@@ -13,12 +13,12 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/northrays/snapshot-manager/internal"
 	"github.com/distribution/distribution/v3/configuration"
 	_ "github.com/distribution/distribution/v3/registry/auth/htpasswd"
 	"github.com/distribution/distribution/v3/registry/handlers"
 	_ "github.com/distribution/distribution/v3/registry/storage/driver/filesystem"
 	_ "github.com/distribution/distribution/v3/registry/storage/driver/s3-aws"
+	"github.com/northrays/snapshot-manager/internal"
 )
 
 type Server struct {
@@ -66,7 +66,15 @@ func (s *Server) Start(ctx context.Context) error {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/healthz", func(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("ok"))
+		// The status is already written, so a failed body write cannot change the
+		// response -- it only means the client went away mid-answer. Logged at debug
+		// rather than ignored, because a health endpoint that starts failing to
+		// deliver its body is worth being able to see.
+		if _, err := w.Write([]byte("ok")); err != nil {
+			s.logger.Debug("health check response was not delivered",
+				slog.String("remoteAddr", r.RemoteAddr),
+				slog.String("error", err.Error()))
+		}
 	})
 	mux.Handle("/", app)
 

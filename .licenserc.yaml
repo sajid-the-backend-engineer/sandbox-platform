@@ -6,9 +6,20 @@ header:
       Copyright 2025 Daytona Platforms Inc.
       Copyright © 2026 Northrays Private Limited
       SPDX-License-Identifier: AGPL-3.0
+    # Two headers are legitimate in this repository, and the pattern has to accept
+    # both:
+    #
+    #   1. Daytona's line, optionally followed by Northrays' -- upstream files, and
+    #      upstream files this fork has modified.
+    #   2. Northrays' line alone -- files written here that contain no Daytona code.
+    #
+    # Only the first was accepted, so every new file failed the check. The tempting
+    # fix, adding "Copyright 2025 Daytona Platforms Inc." to files Daytona never
+    # wrote, would be a false attribution statement in a licence header -- exactly
+    # what the header exists to get right. The alternation below is required, not
+    # optional, so a file with no copyright line at all still fails.
     pattern: |
-      Copyright (\d{4} )?Daytona Platforms Inc\.
-      (Copyright (© )?(\d{4} )?Northrays( Private Limited)?\s+)?SPDX-License-Identifier: AGPL-3\.0
+      (Copyright (\d{4} )?Daytona Platforms Inc\.\s+(Copyright (© )?(\d{4} )?Northrays( Private Limited)?\s+)?|Copyright (© )?(\d{4} )?Northrays( Private Limited)?\s+)SPDX-License-Identifier: AGPL-3\.0
   paths:
     - '**/*.go'
     - '**/*.sh'

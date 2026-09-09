@@ -16,8 +16,8 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/northrays/daemon/pkg/toolbox/computeruse"
 	"github.com/godbus/dbus/v5"
+	"github.com/northrays/daemon/pkg/toolbox/computeruse"
 	log "github.com/sirupsen/logrus"
 )
 

@@ -10,10 +10,10 @@ import (
 	"strings"
 
 	"github.com/containerd/errdefs"
-	common_errors "github.com/northrays/common-go/pkg/errors"
-	"github.com/northrays/runner/pkg/api/dto"
 	"github.com/docker/docker/api/types/container"
 	"github.com/docker/docker/api/types/network"
+	common_errors "github.com/northrays/common-go/pkg/errors"
+	"github.com/northrays/runner/pkg/api/dto"
 	"github.com/vishvananda/netlink"
 )
 

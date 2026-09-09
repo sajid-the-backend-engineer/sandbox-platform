@@ -8,9 +8,9 @@ import (
 	"errors"
 	"net/http"
 
+	"github.com/gin-gonic/gin"
 	common_errors "github.com/northrays/common-go/pkg/errors"
 	"github.com/northrays/daemon/pkg/git"
-	"github.com/gin-gonic/gin"
 )
 
 // ListBranches godoc

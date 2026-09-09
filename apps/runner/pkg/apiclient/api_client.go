@@ -7,8 +7,8 @@ package apiclient
 import (
 	"net/http"
 
-	apiclient "github.com/northrays/sandbox-platform/libs/api-client-go"
 	"github.com/northrays/runner/cmd/runner/config"
+	apiclient "github.com/northrays/sandbox-platform/libs/api-client-go"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 )
 

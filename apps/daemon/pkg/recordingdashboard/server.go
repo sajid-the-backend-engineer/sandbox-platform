@@ -13,10 +13,10 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/gin-gonic/gin"
 	"github.com/northrays/daemon/pkg/recording"
 	recordingcontroller "github.com/northrays/daemon/pkg/toolbox/computeruse/recording"
 	"github.com/northrays/daemon/pkg/toolbox/config"
-	"github.com/gin-gonic/gin"
 )
 
 // DashboardServer serves the recording dashboard

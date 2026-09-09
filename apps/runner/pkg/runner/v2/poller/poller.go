@@ -12,9 +12,9 @@ import (
 	"log/slog"
 	"time"
 
-	apiclient "github.com/northrays/sandbox-platform/libs/api-client-go"
 	runnerapiclient "github.com/northrays/runner/pkg/apiclient"
 	"github.com/northrays/runner/pkg/runner/v2/executor"
+	apiclient "github.com/northrays/sandbox-platform/libs/api-client-go"
 )
 
 type PollerServiceConfig struct {

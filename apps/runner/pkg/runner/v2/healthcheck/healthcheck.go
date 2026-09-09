@@ -12,11 +12,11 @@ import (
 	"log/slog"
 	"time"
 
-	apiclient "github.com/northrays/sandbox-platform/libs/api-client-go"
 	"github.com/northrays/runner/internal"
 	"github.com/northrays/runner/internal/metrics"
 	runnerapiclient "github.com/northrays/runner/pkg/apiclient"
 	"github.com/northrays/runner/pkg/docker"
+	apiclient "github.com/northrays/sandbox-platform/libs/api-client-go"
 )
 
 type HealthcheckServiceConfig struct {

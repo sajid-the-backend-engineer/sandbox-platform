@@ -8,8 +8,8 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/northrays/daemon/internal"
 	"github.com/gin-gonic/gin"
+	"github.com/northrays/daemon/internal"
 )
 
 // Initialize godoc

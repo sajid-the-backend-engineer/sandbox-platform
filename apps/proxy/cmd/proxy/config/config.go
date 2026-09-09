@@ -11,12 +11,12 @@ import (
 	"strings"
 	"time"
 
-	"github.com/northrays/common-go/pkg/cache"
-	"github.com/northrays/common-go/pkg/utils"
-	apiclient "github.com/northrays/sandbox-platform/libs/api-client-go"
 	"github.com/go-playground/validator/v10"
 	"github.com/joho/godotenv"
 	"github.com/kelseyhightower/envconfig"
+	"github.com/northrays/common-go/pkg/cache"
+	"github.com/northrays/common-go/pkg/utils"
+	apiclient "github.com/northrays/sandbox-platform/libs/api-client-go"
 )
 
 type Config struct {
@@ -28,7 +28,7 @@ type Config struct {
 	TLSCertFile           string             `envconfig:"TLS_CERT_FILE"`
 	TLSKeyFile            string             `envconfig:"TLS_KEY_FILE"`
 	EnableTLS             bool               `envconfig:"ENABLE_TLS"`
-	NorthraysApiUrl         string             `envconfig:"NORTHRAYS_API_URL" validate:"required"`
+	NorthraysApiUrl       string             `envconfig:"NORTHRAYS_API_URL" validate:"required"`
 	Oidc                  OidcConfig         `envconfig:"OIDC"`
 	Redis                 *cache.RedisConfig `envconfig:"REDIS"`
 	ToolboxOnlyMode       bool               `envconfig:"TOOLBOX_ONLY_MODE"`

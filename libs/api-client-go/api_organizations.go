@@ -20,15 +20,14 @@ import (
 	"strings"
 )
 
-
 type OrganizationsAPI interface {
 
 	/*
-	AcceptOrganizationInvitation Accept organization invitation
+		AcceptOrganizationInvitation Accept organization invitation
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param invitationId Invitation ID
-	@return OrganizationsAPIAcceptOrganizationInvitationRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@param invitationId Invitation ID
+		@return OrganizationsAPIAcceptOrganizationInvitationRequest
 	*/
 	AcceptOrganizationInvitation(ctx context.Context, invitationId string) OrganizationsAPIAcceptOrganizationInvitationRequest
 
@@ -37,12 +36,12 @@ type OrganizationsAPI interface {
 	AcceptOrganizationInvitationExecute(r OrganizationsAPIAcceptOrganizationInvitationRequest) (*OrganizationInvitation, *http.Response, error)
 
 	/*
-	CancelOrganizationInvitation Cancel organization invitation
+		CancelOrganizationInvitation Cancel organization invitation
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param organizationId Organization ID
-	@param invitationId Invitation ID
-	@return OrganizationsAPICancelOrganizationInvitationRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@param organizationId Organization ID
+		@param invitationId Invitation ID
+		@return OrganizationsAPICancelOrganizationInvitationRequest
 	*/
 	CancelOrganizationInvitation(ctx context.Context, organizationId string, invitationId string) OrganizationsAPICancelOrganizationInvitationRequest
 
@@ -50,10 +49,10 @@ type OrganizationsAPI interface {
 	CancelOrganizationInvitationExecute(r OrganizationsAPICancelOrganizationInvitationRequest) (*http.Response, error)
 
 	/*
-	CreateOrganization Create organization
+		CreateOrganization Create organization
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@return OrganizationsAPICreateOrganizationRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@return OrganizationsAPICreateOrganizationRequest
 	*/
 	CreateOrganization(ctx context.Context) OrganizationsAPICreateOrganizationRequest
 
@@ -62,11 +61,11 @@ type OrganizationsAPI interface {
 	CreateOrganizationExecute(r OrganizationsAPICreateOrganizationRequest) (*Organization, *http.Response, error)
 
 	/*
-	CreateOrganizationInvitation Create organization invitation
+		CreateOrganizationInvitation Create organization invitation
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param organizationId Organization ID
-	@return OrganizationsAPICreateOrganizationInvitationRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@param organizationId Organization ID
+		@return OrganizationsAPICreateOrganizationInvitationRequest
 	*/
 	CreateOrganizationInvitation(ctx context.Context, organizationId string) OrganizationsAPICreateOrganizationInvitationRequest
 
@@ -75,11 +74,11 @@ type OrganizationsAPI interface {
 	CreateOrganizationInvitationExecute(r OrganizationsAPICreateOrganizationInvitationRequest) (*OrganizationInvitation, *http.Response, error)
 
 	/*
-	CreateOrganizationRole Create organization role
+		CreateOrganizationRole Create organization role
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param organizationId Organization ID
-	@return OrganizationsAPICreateOrganizationRoleRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@param organizationId Organization ID
+		@return OrganizationsAPICreateOrganizationRoleRequest
 	*/
 	CreateOrganizationRole(ctx context.Context, organizationId string) OrganizationsAPICreateOrganizationRoleRequest
 
@@ -88,10 +87,10 @@ type OrganizationsAPI interface {
 	CreateOrganizationRoleExecute(r OrganizationsAPICreateOrganizationRoleRequest) (*OrganizationRole, *http.Response, error)
 
 	/*
-	CreateRegion Create a new region
+		CreateRegion Create a new region
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@return OrganizationsAPICreateRegionRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@return OrganizationsAPICreateRegionRequest
 	*/
 	CreateRegion(ctx context.Context) OrganizationsAPICreateRegionRequest
 
@@ -100,11 +99,11 @@ type OrganizationsAPI interface {
 	CreateRegionExecute(r OrganizationsAPICreateRegionRequest) (*CreateRegionResponse, *http.Response, error)
 
 	/*
-	DeclineOrganizationInvitation Decline organization invitation
+		DeclineOrganizationInvitation Decline organization invitation
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param invitationId Invitation ID
-	@return OrganizationsAPIDeclineOrganizationInvitationRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@param invitationId Invitation ID
+		@return OrganizationsAPIDeclineOrganizationInvitationRequest
 	*/
 	DeclineOrganizationInvitation(ctx context.Context, invitationId string) OrganizationsAPIDeclineOrganizationInvitationRequest
 
@@ -112,11 +111,11 @@ type OrganizationsAPI interface {
 	DeclineOrganizationInvitationExecute(r OrganizationsAPIDeclineOrganizationInvitationRequest) (*http.Response, error)
 
 	/*
-	DeleteOrganization Delete organization
+		DeleteOrganization Delete organization
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param organizationId Organization ID
-	@return OrganizationsAPIDeleteOrganizationRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@param organizationId Organization ID
+		@return OrganizationsAPIDeleteOrganizationRequest
 	*/
 	DeleteOrganization(ctx context.Context, organizationId string) OrganizationsAPIDeleteOrganizationRequest
 
@@ -124,12 +123,12 @@ type OrganizationsAPI interface {
 	DeleteOrganizationExecute(r OrganizationsAPIDeleteOrganizationRequest) (*http.Response, error)
 
 	/*
-	DeleteOrganizationMember Delete organization member
+		DeleteOrganizationMember Delete organization member
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param organizationId Organization ID
-	@param userId User ID
-	@return OrganizationsAPIDeleteOrganizationMemberRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@param organizationId Organization ID
+		@param userId User ID
+		@return OrganizationsAPIDeleteOrganizationMemberRequest
 	*/
 	DeleteOrganizationMember(ctx context.Context, organizationId string, userId string) OrganizationsAPIDeleteOrganizationMemberRequest
 
@@ -137,11 +136,11 @@ type OrganizationsAPI interface {
 	DeleteOrganizationMemberExecute(r OrganizationsAPIDeleteOrganizationMemberRequest) (*http.Response, error)
 
 	/*
-	DeleteOrganizationOtelConfig Delete organization OpenTelemetry configuration
+		DeleteOrganizationOtelConfig Delete organization OpenTelemetry configuration
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param organizationId Organization ID
-	@return OrganizationsAPIDeleteOrganizationOtelConfigRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@param organizationId Organization ID
+		@return OrganizationsAPIDeleteOrganizationOtelConfigRequest
 	*/
 	DeleteOrganizationOtelConfig(ctx context.Context, organizationId string) OrganizationsAPIDeleteOrganizationOtelConfigRequest
 
@@ -149,12 +148,12 @@ type OrganizationsAPI interface {
 	DeleteOrganizationOtelConfigExecute(r OrganizationsAPIDeleteOrganizationOtelConfigRequest) (*http.Response, error)
 
 	/*
-	DeleteOrganizationRole Delete organization role
+		DeleteOrganizationRole Delete organization role
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param organizationId Organization ID
-	@param roleId Role ID
-	@return OrganizationsAPIDeleteOrganizationRoleRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@param organizationId Organization ID
+		@param roleId Role ID
+		@return OrganizationsAPIDeleteOrganizationRoleRequest
 	*/
 	DeleteOrganizationRole(ctx context.Context, organizationId string, roleId string) OrganizationsAPIDeleteOrganizationRoleRequest
 
@@ -162,11 +161,11 @@ type OrganizationsAPI interface {
 	DeleteOrganizationRoleExecute(r OrganizationsAPIDeleteOrganizationRoleRequest) (*http.Response, error)
 
 	/*
-	DeleteRegion Delete a region
+		DeleteRegion Delete a region
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param id Region ID
-	@return OrganizationsAPIDeleteRegionRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@param id Region ID
+		@return OrganizationsAPIDeleteRegionRequest
 	*/
 	DeleteRegion(ctx context.Context, id string) OrganizationsAPIDeleteRegionRequest
 
@@ -174,11 +173,11 @@ type OrganizationsAPI interface {
 	DeleteRegionExecute(r OrganizationsAPIDeleteRegionRequest) (*http.Response, error)
 
 	/*
-	GetOrganization Get organization by ID
+		GetOrganization Get organization by ID
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param organizationId Organization ID
-	@return OrganizationsAPIGetOrganizationRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@param organizationId Organization ID
+		@return OrganizationsAPIGetOrganizationRequest
 	*/
 	GetOrganization(ctx context.Context, organizationId string) OrganizationsAPIGetOrganizationRequest
 
@@ -187,10 +186,10 @@ type OrganizationsAPI interface {
 	GetOrganizationExecute(r OrganizationsAPIGetOrganizationRequest) (*Organization, *http.Response, error)
 
 	/*
-	GetOrganizationInvitationsCountForAuthenticatedUser Get count of organization invitations for authenticated user
+		GetOrganizationInvitationsCountForAuthenticatedUser Get count of organization invitations for authenticated user
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@return OrganizationsAPIGetOrganizationInvitationsCountForAuthenticatedUserRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@return OrganizationsAPIGetOrganizationInvitationsCountForAuthenticatedUserRequest
 	*/
 	GetOrganizationInvitationsCountForAuthenticatedUser(ctx context.Context) OrganizationsAPIGetOrganizationInvitationsCountForAuthenticatedUserRequest
 
@@ -199,11 +198,11 @@ type OrganizationsAPI interface {
 	GetOrganizationInvitationsCountForAuthenticatedUserExecute(r OrganizationsAPIGetOrganizationInvitationsCountForAuthenticatedUserRequest) (float32, *http.Response, error)
 
 	/*
-	GetOrganizationOtelConfig Get organization OTEL config by organization ID
+		GetOrganizationOtelConfig Get organization OTEL config by organization ID
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param organizationId Organization ID
-	@return OrganizationsAPIGetOrganizationOtelConfigRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@param organizationId Organization ID
+		@return OrganizationsAPIGetOrganizationOtelConfigRequest
 	*/
 	GetOrganizationOtelConfig(ctx context.Context, organizationId string) OrganizationsAPIGetOrganizationOtelConfigRequest
 
@@ -212,11 +211,11 @@ type OrganizationsAPI interface {
 	GetOrganizationOtelConfigExecute(r OrganizationsAPIGetOrganizationOtelConfigRequest) (*OtelConfig, *http.Response, error)
 
 	/*
-	GetOrganizationOtelConfigBySandboxAuthToken Get organization OTEL config by sandbox auth token
+		GetOrganizationOtelConfigBySandboxAuthToken Get organization OTEL config by sandbox auth token
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param authToken Sandbox Auth Token
-	@return OrganizationsAPIGetOrganizationOtelConfigBySandboxAuthTokenRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@param authToken Sandbox Auth Token
+		@return OrganizationsAPIGetOrganizationOtelConfigBySandboxAuthTokenRequest
 	*/
 	GetOrganizationOtelConfigBySandboxAuthToken(ctx context.Context, authToken string) OrganizationsAPIGetOrganizationOtelConfigBySandboxAuthTokenRequest
 
@@ -225,11 +224,11 @@ type OrganizationsAPI interface {
 	GetOrganizationOtelConfigBySandboxAuthTokenExecute(r OrganizationsAPIGetOrganizationOtelConfigBySandboxAuthTokenRequest) (*OtelConfig, *http.Response, error)
 
 	/*
-	GetOrganizationUsageOverview Get organization current usage overview
+		GetOrganizationUsageOverview Get organization current usage overview
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param organizationId Organization ID
-	@return OrganizationsAPIGetOrganizationUsageOverviewRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@param organizationId Organization ID
+		@return OrganizationsAPIGetOrganizationUsageOverviewRequest
 	*/
 	GetOrganizationUsageOverview(ctx context.Context, organizationId string) OrganizationsAPIGetOrganizationUsageOverviewRequest
 
@@ -238,11 +237,11 @@ type OrganizationsAPI interface {
 	GetOrganizationUsageOverviewExecute(r OrganizationsAPIGetOrganizationUsageOverviewRequest) (*OrganizationUsageOverview, *http.Response, error)
 
 	/*
-	GetRegionById Get region by ID
+		GetRegionById Get region by ID
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param id Region ID
-	@return OrganizationsAPIGetRegionByIdRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@param id Region ID
+		@return OrganizationsAPIGetRegionByIdRequest
 	*/
 	GetRegionById(ctx context.Context, id string) OrganizationsAPIGetRegionByIdRequest
 
@@ -251,11 +250,11 @@ type OrganizationsAPI interface {
 	GetRegionByIdExecute(r OrganizationsAPIGetRegionByIdRequest) (*Region, *http.Response, error)
 
 	/*
-	LeaveOrganization Leave organization
+		LeaveOrganization Leave organization
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param organizationId Organization ID
-	@return OrganizationsAPILeaveOrganizationRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@param organizationId Organization ID
+		@return OrganizationsAPILeaveOrganizationRequest
 	*/
 	LeaveOrganization(ctx context.Context, organizationId string) OrganizationsAPILeaveOrganizationRequest
 
@@ -263,10 +262,10 @@ type OrganizationsAPI interface {
 	LeaveOrganizationExecute(r OrganizationsAPILeaveOrganizationRequest) (*http.Response, error)
 
 	/*
-	ListAvailableRegions List all available regions for the organization
+		ListAvailableRegions List all available regions for the organization
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@return OrganizationsAPIListAvailableRegionsRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@return OrganizationsAPIListAvailableRegionsRequest
 	*/
 	ListAvailableRegions(ctx context.Context) OrganizationsAPIListAvailableRegionsRequest
 
@@ -275,11 +274,11 @@ type OrganizationsAPI interface {
 	ListAvailableRegionsExecute(r OrganizationsAPIListAvailableRegionsRequest) ([]Region, *http.Response, error)
 
 	/*
-	ListOrganizationInvitations List pending organization invitations
+		ListOrganizationInvitations List pending organization invitations
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param organizationId Organization ID
-	@return OrganizationsAPIListOrganizationInvitationsRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@param organizationId Organization ID
+		@return OrganizationsAPIListOrganizationInvitationsRequest
 	*/
 	ListOrganizationInvitations(ctx context.Context, organizationId string) OrganizationsAPIListOrganizationInvitationsRequest
 
@@ -288,10 +287,10 @@ type OrganizationsAPI interface {
 	ListOrganizationInvitationsExecute(r OrganizationsAPIListOrganizationInvitationsRequest) ([]OrganizationInvitation, *http.Response, error)
 
 	/*
-	ListOrganizationInvitationsForAuthenticatedUser List organization invitations for authenticated user
+		ListOrganizationInvitationsForAuthenticatedUser List organization invitations for authenticated user
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@return OrganizationsAPIListOrganizationInvitationsForAuthenticatedUserRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@return OrganizationsAPIListOrganizationInvitationsForAuthenticatedUserRequest
 	*/
 	ListOrganizationInvitationsForAuthenticatedUser(ctx context.Context) OrganizationsAPIListOrganizationInvitationsForAuthenticatedUserRequest
 
@@ -300,11 +299,11 @@ type OrganizationsAPI interface {
 	ListOrganizationInvitationsForAuthenticatedUserExecute(r OrganizationsAPIListOrganizationInvitationsForAuthenticatedUserRequest) ([]OrganizationInvitation, *http.Response, error)
 
 	/*
-	ListOrganizationMembers List organization members
+		ListOrganizationMembers List organization members
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param organizationId Organization ID
-	@return OrganizationsAPIListOrganizationMembersRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@param organizationId Organization ID
+		@return OrganizationsAPIListOrganizationMembersRequest
 	*/
 	ListOrganizationMembers(ctx context.Context, organizationId string) OrganizationsAPIListOrganizationMembersRequest
 
@@ -313,11 +312,11 @@ type OrganizationsAPI interface {
 	ListOrganizationMembersExecute(r OrganizationsAPIListOrganizationMembersRequest) ([]OrganizationUser, *http.Response, error)
 
 	/*
-	ListOrganizationRoles List organization roles
+		ListOrganizationRoles List organization roles
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param organizationId Organization ID
-	@return OrganizationsAPIListOrganizationRolesRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@param organizationId Organization ID
+		@return OrganizationsAPIListOrganizationRolesRequest
 	*/
 	ListOrganizationRoles(ctx context.Context, organizationId string) OrganizationsAPIListOrganizationRolesRequest
 
@@ -326,10 +325,10 @@ type OrganizationsAPI interface {
 	ListOrganizationRolesExecute(r OrganizationsAPIListOrganizationRolesRequest) ([]OrganizationRole, *http.Response, error)
 
 	/*
-	ListOrganizations List organizations
+		ListOrganizations List organizations
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@return OrganizationsAPIListOrganizationsRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@return OrganizationsAPIListOrganizationsRequest
 	*/
 	ListOrganizations(ctx context.Context) OrganizationsAPIListOrganizationsRequest
 
@@ -338,11 +337,11 @@ type OrganizationsAPI interface {
 	ListOrganizationsExecute(r OrganizationsAPIListOrganizationsRequest) ([]Organization, *http.Response, error)
 
 	/*
-	RegenerateProxyApiKey Regenerate proxy API key for a region
+		RegenerateProxyApiKey Regenerate proxy API key for a region
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param id Region ID
-	@return OrganizationsAPIRegenerateProxyApiKeyRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@param id Region ID
+		@return OrganizationsAPIRegenerateProxyApiKeyRequest
 	*/
 	RegenerateProxyApiKey(ctx context.Context, id string) OrganizationsAPIRegenerateProxyApiKeyRequest
 
@@ -351,11 +350,11 @@ type OrganizationsAPI interface {
 	RegenerateProxyApiKeyExecute(r OrganizationsAPIRegenerateProxyApiKeyRequest) (*RegenerateApiKeyResponse, *http.Response, error)
 
 	/*
-	RegenerateSnapshotManagerCredentials Regenerate snapshot manager credentials for a region
+		RegenerateSnapshotManagerCredentials Regenerate snapshot manager credentials for a region
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param id Region ID
-	@return OrganizationsAPIRegenerateSnapshotManagerCredentialsRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@param id Region ID
+		@return OrganizationsAPIRegenerateSnapshotManagerCredentialsRequest
 	*/
 	RegenerateSnapshotManagerCredentials(ctx context.Context, id string) OrganizationsAPIRegenerateSnapshotManagerCredentialsRequest
 
@@ -364,11 +363,11 @@ type OrganizationsAPI interface {
 	RegenerateSnapshotManagerCredentialsExecute(r OrganizationsAPIRegenerateSnapshotManagerCredentialsRequest) (*SnapshotManagerCredentials, *http.Response, error)
 
 	/*
-	RegenerateSshGatewayApiKey Regenerate SSH gateway API key for a region
+		RegenerateSshGatewayApiKey Regenerate SSH gateway API key for a region
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param id Region ID
-	@return OrganizationsAPIRegenerateSshGatewayApiKeyRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@param id Region ID
+		@return OrganizationsAPIRegenerateSshGatewayApiKeyRequest
 	*/
 	RegenerateSshGatewayApiKey(ctx context.Context, id string) OrganizationsAPIRegenerateSshGatewayApiKeyRequest
 
@@ -377,11 +376,11 @@ type OrganizationsAPI interface {
 	RegenerateSshGatewayApiKeyExecute(r OrganizationsAPIRegenerateSshGatewayApiKeyRequest) (*RegenerateApiKeyResponse, *http.Response, error)
 
 	/*
-	SetOrganizationDefaultRegion Set default region for organization
+		SetOrganizationDefaultRegion Set default region for organization
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param organizationId Organization ID
-	@return OrganizationsAPISetOrganizationDefaultRegionRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@param organizationId Organization ID
+		@return OrganizationsAPISetOrganizationDefaultRegionRequest
 	*/
 	SetOrganizationDefaultRegion(ctx context.Context, organizationId string) OrganizationsAPISetOrganizationDefaultRegionRequest
 
@@ -389,11 +388,11 @@ type OrganizationsAPI interface {
 	SetOrganizationDefaultRegionExecute(r OrganizationsAPISetOrganizationDefaultRegionRequest) (*http.Response, error)
 
 	/*
-	SuspendOrganization Suspend organization
+		SuspendOrganization Suspend organization
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param organizationId Organization ID
-	@return OrganizationsAPISuspendOrganizationRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@param organizationId Organization ID
+		@return OrganizationsAPISuspendOrganizationRequest
 	*/
 	SuspendOrganization(ctx context.Context, organizationId string) OrganizationsAPISuspendOrganizationRequest
 
@@ -401,11 +400,11 @@ type OrganizationsAPI interface {
 	SuspendOrganizationExecute(r OrganizationsAPISuspendOrganizationRequest) (*http.Response, error)
 
 	/*
-	UnsuspendOrganization Unsuspend organization
+		UnsuspendOrganization Unsuspend organization
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param organizationId Organization ID
-	@return OrganizationsAPIUnsuspendOrganizationRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@param organizationId Organization ID
+		@return OrganizationsAPIUnsuspendOrganizationRequest
 	*/
 	UnsuspendOrganization(ctx context.Context, organizationId string) OrganizationsAPIUnsuspendOrganizationRequest
 
@@ -413,12 +412,12 @@ type OrganizationsAPI interface {
 	UnsuspendOrganizationExecute(r OrganizationsAPIUnsuspendOrganizationRequest) (*http.Response, error)
 
 	/*
-	UpdateAccessForOrganizationMember Update access for organization member
+		UpdateAccessForOrganizationMember Update access for organization member
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param organizationId Organization ID
-	@param userId User ID
-	@return OrganizationsAPIUpdateAccessForOrganizationMemberRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@param organizationId Organization ID
+		@param userId User ID
+		@return OrganizationsAPIUpdateAccessForOrganizationMemberRequest
 	*/
 	UpdateAccessForOrganizationMember(ctx context.Context, organizationId string, userId string) OrganizationsAPIUpdateAccessForOrganizationMemberRequest
 
@@ -427,11 +426,11 @@ type OrganizationsAPI interface {
 	UpdateAccessForOrganizationMemberExecute(r OrganizationsAPIUpdateAccessForOrganizationMemberRequest) (*OrganizationUser, *http.Response, error)
 
 	/*
-	UpdateExperimentalConfig Update experimental configuration
+		UpdateExperimentalConfig Update experimental configuration
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param organizationId Organization ID
-	@return OrganizationsAPIUpdateExperimentalConfigRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@param organizationId Organization ID
+		@return OrganizationsAPIUpdateExperimentalConfigRequest
 	*/
 	UpdateExperimentalConfig(ctx context.Context, organizationId string) OrganizationsAPIUpdateExperimentalConfigRequest
 
@@ -439,12 +438,12 @@ type OrganizationsAPI interface {
 	UpdateExperimentalConfigExecute(r OrganizationsAPIUpdateExperimentalConfigRequest) (*http.Response, error)
 
 	/*
-	UpdateOrganizationInvitation Update organization invitation
+		UpdateOrganizationInvitation Update organization invitation
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param organizationId Organization ID
-	@param invitationId Invitation ID
-	@return OrganizationsAPIUpdateOrganizationInvitationRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@param organizationId Organization ID
+		@param invitationId Invitation ID
+		@return OrganizationsAPIUpdateOrganizationInvitationRequest
 	*/
 	UpdateOrganizationInvitation(ctx context.Context, organizationId string, invitationId string) OrganizationsAPIUpdateOrganizationInvitationRequest
 
@@ -453,11 +452,11 @@ type OrganizationsAPI interface {
 	UpdateOrganizationInvitationExecute(r OrganizationsAPIUpdateOrganizationInvitationRequest) (*OrganizationInvitation, *http.Response, error)
 
 	/*
-	UpdateOrganizationOtelConfig Update organization OpenTelemetry configuration
+		UpdateOrganizationOtelConfig Update organization OpenTelemetry configuration
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param organizationId Organization ID
-	@return OrganizationsAPIUpdateOrganizationOtelConfigRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@param organizationId Organization ID
+		@return OrganizationsAPIUpdateOrganizationOtelConfigRequest
 	*/
 	UpdateOrganizationOtelConfig(ctx context.Context, organizationId string) OrganizationsAPIUpdateOrganizationOtelConfigRequest
 
@@ -465,11 +464,11 @@ type OrganizationsAPI interface {
 	UpdateOrganizationOtelConfigExecute(r OrganizationsAPIUpdateOrganizationOtelConfigRequest) (*http.Response, error)
 
 	/*
-	UpdateOrganizationQuota Update organization quota
+		UpdateOrganizationQuota Update organization quota
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param organizationId Organization ID
-	@return OrganizationsAPIUpdateOrganizationQuotaRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@param organizationId Organization ID
+		@return OrganizationsAPIUpdateOrganizationQuotaRequest
 	*/
 	UpdateOrganizationQuota(ctx context.Context, organizationId string) OrganizationsAPIUpdateOrganizationQuotaRequest
 
@@ -477,12 +476,12 @@ type OrganizationsAPI interface {
 	UpdateOrganizationQuotaExecute(r OrganizationsAPIUpdateOrganizationQuotaRequest) (*http.Response, error)
 
 	/*
-	UpdateOrganizationRegionQuota Update organization region quota
+		UpdateOrganizationRegionQuota Update organization region quota
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param organizationId Organization ID
-	@param regionId ID of the region where the updated quota will be applied
-	@return OrganizationsAPIUpdateOrganizationRegionQuotaRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@param organizationId Organization ID
+		@param regionId ID of the region where the updated quota will be applied
+		@return OrganizationsAPIUpdateOrganizationRegionQuotaRequest
 	*/
 	UpdateOrganizationRegionQuota(ctx context.Context, organizationId string, regionId string) OrganizationsAPIUpdateOrganizationRegionQuotaRequest
 
@@ -490,12 +489,12 @@ type OrganizationsAPI interface {
 	UpdateOrganizationRegionQuotaExecute(r OrganizationsAPIUpdateOrganizationRegionQuotaRequest) (*http.Response, error)
 
 	/*
-	UpdateOrganizationRole Update organization role
+		UpdateOrganizationRole Update organization role
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param organizationId Organization ID
-	@param roleId Role ID
-	@return OrganizationsAPIUpdateOrganizationRoleRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@param organizationId Organization ID
+		@param roleId Role ID
+		@return OrganizationsAPIUpdateOrganizationRoleRequest
 	*/
 	UpdateOrganizationRole(ctx context.Context, organizationId string, roleId string) OrganizationsAPIUpdateOrganizationRoleRequest
 
@@ -504,11 +503,11 @@ type OrganizationsAPI interface {
 	UpdateOrganizationRoleExecute(r OrganizationsAPIUpdateOrganizationRoleRequest) (*OrganizationRole, *http.Response, error)
 
 	/*
-	UpdateRegion Update region configuration
+		UpdateRegion Update region configuration
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param id Region ID
-	@return OrganizationsAPIUpdateRegionRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@param id Region ID
+		@return OrganizationsAPIUpdateRegionRequest
 	*/
 	UpdateRegion(ctx context.Context, id string) OrganizationsAPIUpdateRegionRequest
 
@@ -516,11 +515,11 @@ type OrganizationsAPI interface {
 	UpdateRegionExecute(r OrganizationsAPIUpdateRegionRequest) (*http.Response, error)
 
 	/*
-	UpdateSandboxDefaultLimitedNetworkEgress Update sandbox default limited network egress
+		UpdateSandboxDefaultLimitedNetworkEgress Update sandbox default limited network egress
 
-	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
-	@param organizationId Organization ID
-	@return OrganizationsAPIUpdateSandboxDefaultLimitedNetworkEgressRequest
+		@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+		@param organizationId Organization ID
+		@return OrganizationsAPIUpdateSandboxDefaultLimitedNetworkEgressRequest
 	*/
 	UpdateSandboxDefaultLimitedNetworkEgress(ctx context.Context, organizationId string) OrganizationsAPIUpdateSandboxDefaultLimitedNetworkEgressRequest
 
@@ -532,8 +531,8 @@ type OrganizationsAPI interface {
 type OrganizationsAPIService service
 
 type OrganizationsAPIAcceptOrganizationInvitationRequest struct {
-	ctx context.Context
-	ApiService OrganizationsAPI
+	ctx          context.Context
+	ApiService   OrganizationsAPI
 	invitationId string
 }
 
@@ -544,26 +543,27 @@ func (r OrganizationsAPIAcceptOrganizationInvitationRequest) Execute() (*Organiz
 /*
 AcceptOrganizationInvitation Accept organization invitation
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param invitationId Invitation ID
- @return OrganizationsAPIAcceptOrganizationInvitationRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param invitationId Invitation ID
+	@return OrganizationsAPIAcceptOrganizationInvitationRequest
 */
 func (a *OrganizationsAPIService) AcceptOrganizationInvitation(ctx context.Context, invitationId string) OrganizationsAPIAcceptOrganizationInvitationRequest {
 	return OrganizationsAPIAcceptOrganizationInvitationRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:   a,
+		ctx:          ctx,
 		invitationId: invitationId,
 	}
 }
 
 // Execute executes the request
-//  @return OrganizationInvitation
+//
+//	@return OrganizationInvitation
 func (a *OrganizationsAPIService) AcceptOrganizationInvitationExecute(r OrganizationsAPIAcceptOrganizationInvitationRequest) (*OrganizationInvitation, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *OrganizationInvitation
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *OrganizationInvitation
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "OrganizationsAPIService.AcceptOrganizationInvitation")
@@ -633,10 +633,10 @@ func (a *OrganizationsAPIService) AcceptOrganizationInvitationExecute(r Organiza
 }
 
 type OrganizationsAPICancelOrganizationInvitationRequest struct {
-	ctx context.Context
-	ApiService OrganizationsAPI
+	ctx            context.Context
+	ApiService     OrganizationsAPI
 	organizationId string
-	invitationId string
+	invitationId   string
 }
 
 func (r OrganizationsAPICancelOrganizationInvitationRequest) Execute() (*http.Response, error) {
@@ -646,26 +646,26 @@ func (r OrganizationsAPICancelOrganizationInvitationRequest) Execute() (*http.Re
 /*
 CancelOrganizationInvitation Cancel organization invitation
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param organizationId Organization ID
- @param invitationId Invitation ID
- @return OrganizationsAPICancelOrganizationInvitationRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param organizationId Organization ID
+	@param invitationId Invitation ID
+	@return OrganizationsAPICancelOrganizationInvitationRequest
 */
 func (a *OrganizationsAPIService) CancelOrganizationInvitation(ctx context.Context, organizationId string, invitationId string) OrganizationsAPICancelOrganizationInvitationRequest {
 	return OrganizationsAPICancelOrganizationInvitationRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:     a,
+		ctx:            ctx,
 		organizationId: organizationId,
-		invitationId: invitationId,
+		invitationId:   invitationId,
 	}
 }
 
 // Execute executes the request
 func (a *OrganizationsAPIService) CancelOrganizationInvitationExecute(r OrganizationsAPICancelOrganizationInvitationRequest) (*http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
+		localVarHTTPMethod = http.MethodPost
+		localVarPostBody   interface{}
+		formFiles          []formFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "OrganizationsAPIService.CancelOrganizationInvitation")
@@ -727,8 +727,8 @@ func (a *OrganizationsAPIService) CancelOrganizationInvitationExecute(r Organiza
 }
 
 type OrganizationsAPICreateOrganizationRequest struct {
-	ctx context.Context
-	ApiService OrganizationsAPI
+	ctx                context.Context
+	ApiService         OrganizationsAPI
 	createOrganization *CreateOrganization
 }
 
@@ -744,24 +744,25 @@ func (r OrganizationsAPICreateOrganizationRequest) Execute() (*Organization, *ht
 /*
 CreateOrganization Create organization
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return OrganizationsAPICreateOrganizationRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return OrganizationsAPICreateOrganizationRequest
 */
 func (a *OrganizationsAPIService) CreateOrganization(ctx context.Context) OrganizationsAPICreateOrganizationRequest {
 	return OrganizationsAPICreateOrganizationRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return Organization
+//
+//	@return Organization
 func (a *OrganizationsAPIService) CreateOrganizationExecute(r OrganizationsAPICreateOrganizationRequest) (*Organization, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *Organization
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *Organization
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "OrganizationsAPIService.CreateOrganization")
@@ -835,9 +836,9 @@ func (a *OrganizationsAPIService) CreateOrganizationExecute(r OrganizationsAPICr
 }
 
 type OrganizationsAPICreateOrganizationInvitationRequest struct {
-	ctx context.Context
-	ApiService OrganizationsAPI
-	organizationId string
+	ctx                          context.Context
+	ApiService                   OrganizationsAPI
+	organizationId               string
 	createOrganizationInvitation *CreateOrganizationInvitation
 }
 
@@ -853,26 +854,27 @@ func (r OrganizationsAPICreateOrganizationInvitationRequest) Execute() (*Organiz
 /*
 CreateOrganizationInvitation Create organization invitation
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param organizationId Organization ID
- @return OrganizationsAPICreateOrganizationInvitationRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param organizationId Organization ID
+	@return OrganizationsAPICreateOrganizationInvitationRequest
 */
 func (a *OrganizationsAPIService) CreateOrganizationInvitation(ctx context.Context, organizationId string) OrganizationsAPICreateOrganizationInvitationRequest {
 	return OrganizationsAPICreateOrganizationInvitationRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:     a,
+		ctx:            ctx,
 		organizationId: organizationId,
 	}
 }
 
 // Execute executes the request
-//  @return OrganizationInvitation
+//
+//	@return OrganizationInvitation
 func (a *OrganizationsAPIService) CreateOrganizationInvitationExecute(r OrganizationsAPICreateOrganizationInvitationRequest) (*OrganizationInvitation, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *OrganizationInvitation
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *OrganizationInvitation
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "OrganizationsAPIService.CreateOrganizationInvitation")
@@ -947,9 +949,9 @@ func (a *OrganizationsAPIService) CreateOrganizationInvitationExecute(r Organiza
 }
 
 type OrganizationsAPICreateOrganizationRoleRequest struct {
-	ctx context.Context
-	ApiService OrganizationsAPI
-	organizationId string
+	ctx                    context.Context
+	ApiService             OrganizationsAPI
+	organizationId         string
 	createOrganizationRole *CreateOrganizationRole
 }
 
@@ -965,26 +967,27 @@ func (r OrganizationsAPICreateOrganizationRoleRequest) Execute() (*OrganizationR
 /*
 CreateOrganizationRole Create organization role
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param organizationId Organization ID
- @return OrganizationsAPICreateOrganizationRoleRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param organizationId Organization ID
+	@return OrganizationsAPICreateOrganizationRoleRequest
 */
 func (a *OrganizationsAPIService) CreateOrganizationRole(ctx context.Context, organizationId string) OrganizationsAPICreateOrganizationRoleRequest {
 	return OrganizationsAPICreateOrganizationRoleRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:     a,
+		ctx:            ctx,
 		organizationId: organizationId,
 	}
 }
 
 // Execute executes the request
-//  @return OrganizationRole
+//
+//	@return OrganizationRole
 func (a *OrganizationsAPIService) CreateOrganizationRoleExecute(r OrganizationsAPICreateOrganizationRoleRequest) (*OrganizationRole, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *OrganizationRole
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *OrganizationRole
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "OrganizationsAPIService.CreateOrganizationRole")
@@ -1059,9 +1062,9 @@ func (a *OrganizationsAPIService) CreateOrganizationRoleExecute(r OrganizationsA
 }
 
 type OrganizationsAPICreateRegionRequest struct {
-	ctx context.Context
-	ApiService OrganizationsAPI
-	createRegion *CreateRegion
+	ctx                      context.Context
+	ApiService               OrganizationsAPI
+	createRegion             *CreateRegion
 	xNorthraysOrganizationID *string
 }
 
@@ -1083,24 +1086,25 @@ func (r OrganizationsAPICreateRegionRequest) Execute() (*CreateRegionResponse, *
 /*
 CreateRegion Create a new region
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return OrganizationsAPICreateRegionRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return OrganizationsAPICreateRegionRequest
 */
 func (a *OrganizationsAPIService) CreateRegion(ctx context.Context) OrganizationsAPICreateRegionRequest {
 	return OrganizationsAPICreateRegionRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return CreateRegionResponse
+//
+//	@return CreateRegionResponse
 func (a *OrganizationsAPIService) CreateRegionExecute(r OrganizationsAPICreateRegionRequest) (*CreateRegionResponse, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *CreateRegionResponse
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *CreateRegionResponse
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "OrganizationsAPIService.CreateRegion")
@@ -1177,8 +1181,8 @@ func (a *OrganizationsAPIService) CreateRegionExecute(r OrganizationsAPICreateRe
 }
 
 type OrganizationsAPIDeclineOrganizationInvitationRequest struct {
-	ctx context.Context
-	ApiService OrganizationsAPI
+	ctx          context.Context
+	ApiService   OrganizationsAPI
 	invitationId string
 }
 
@@ -1189,14 +1193,14 @@ func (r OrganizationsAPIDeclineOrganizationInvitationRequest) Execute() (*http.R
 /*
 DeclineOrganizationInvitation Decline organization invitation
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param invitationId Invitation ID
- @return OrganizationsAPIDeclineOrganizationInvitationRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param invitationId Invitation ID
+	@return OrganizationsAPIDeclineOrganizationInvitationRequest
 */
 func (a *OrganizationsAPIService) DeclineOrganizationInvitation(ctx context.Context, invitationId string) OrganizationsAPIDeclineOrganizationInvitationRequest {
 	return OrganizationsAPIDeclineOrganizationInvitationRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:   a,
+		ctx:          ctx,
 		invitationId: invitationId,
 	}
 }
@@ -1204,9 +1208,9 @@ func (a *OrganizationsAPIService) DeclineOrganizationInvitation(ctx context.Cont
 // Execute executes the request
 func (a *OrganizationsAPIService) DeclineOrganizationInvitationExecute(r OrganizationsAPIDeclineOrganizationInvitationRequest) (*http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
+		localVarHTTPMethod = http.MethodPost
+		localVarPostBody   interface{}
+		formFiles          []formFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "OrganizationsAPIService.DeclineOrganizationInvitation")
@@ -1267,8 +1271,8 @@ func (a *OrganizationsAPIService) DeclineOrganizationInvitationExecute(r Organiz
 }
 
 type OrganizationsAPIDeleteOrganizationRequest struct {
-	ctx context.Context
-	ApiService OrganizationsAPI
+	ctx            context.Context
+	ApiService     OrganizationsAPI
 	organizationId string
 }
 
@@ -1279,14 +1283,14 @@ func (r OrganizationsAPIDeleteOrganizationRequest) Execute() (*http.Response, er
 /*
 DeleteOrganization Delete organization
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param organizationId Organization ID
- @return OrganizationsAPIDeleteOrganizationRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param organizationId Organization ID
+	@return OrganizationsAPIDeleteOrganizationRequest
 */
 func (a *OrganizationsAPIService) DeleteOrganization(ctx context.Context, organizationId string) OrganizationsAPIDeleteOrganizationRequest {
 	return OrganizationsAPIDeleteOrganizationRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:     a,
+		ctx:            ctx,
 		organizationId: organizationId,
 	}
 }
@@ -1294,9 +1298,9 @@ func (a *OrganizationsAPIService) DeleteOrganization(ctx context.Context, organi
 // Execute executes the request
 func (a *OrganizationsAPIService) DeleteOrganizationExecute(r OrganizationsAPIDeleteOrganizationRequest) (*http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodDelete
-		localVarPostBody     interface{}
-		formFiles            []formFile
+		localVarHTTPMethod = http.MethodDelete
+		localVarPostBody   interface{}
+		formFiles          []formFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "OrganizationsAPIService.DeleteOrganization")
@@ -1357,10 +1361,10 @@ func (a *OrganizationsAPIService) DeleteOrganizationExecute(r OrganizationsAPIDe
 }
 
 type OrganizationsAPIDeleteOrganizationMemberRequest struct {
-	ctx context.Context
-	ApiService OrganizationsAPI
+	ctx            context.Context
+	ApiService     OrganizationsAPI
 	organizationId string
-	userId string
+	userId         string
 }
 
 func (r OrganizationsAPIDeleteOrganizationMemberRequest) Execute() (*http.Response, error) {
@@ -1370,26 +1374,26 @@ func (r OrganizationsAPIDeleteOrganizationMemberRequest) Execute() (*http.Respon
 /*
 DeleteOrganizationMember Delete organization member
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param organizationId Organization ID
- @param userId User ID
- @return OrganizationsAPIDeleteOrganizationMemberRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param organizationId Organization ID
+	@param userId User ID
+	@return OrganizationsAPIDeleteOrganizationMemberRequest
 */
 func (a *OrganizationsAPIService) DeleteOrganizationMember(ctx context.Context, organizationId string, userId string) OrganizationsAPIDeleteOrganizationMemberRequest {
 	return OrganizationsAPIDeleteOrganizationMemberRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:     a,
+		ctx:            ctx,
 		organizationId: organizationId,
-		userId: userId,
+		userId:         userId,
 	}
 }
 
 // Execute executes the request
 func (a *OrganizationsAPIService) DeleteOrganizationMemberExecute(r OrganizationsAPIDeleteOrganizationMemberRequest) (*http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodDelete
-		localVarPostBody     interface{}
-		formFiles            []formFile
+		localVarHTTPMethod = http.MethodDelete
+		localVarPostBody   interface{}
+		formFiles          []formFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "OrganizationsAPIService.DeleteOrganizationMember")
@@ -1451,8 +1455,8 @@ func (a *OrganizationsAPIService) DeleteOrganizationMemberExecute(r Organization
 }
 
 type OrganizationsAPIDeleteOrganizationOtelConfigRequest struct {
-	ctx context.Context
-	ApiService OrganizationsAPI
+	ctx            context.Context
+	ApiService     OrganizationsAPI
 	organizationId string
 }
 
@@ -1463,14 +1467,14 @@ func (r OrganizationsAPIDeleteOrganizationOtelConfigRequest) Execute() (*http.Re
 /*
 DeleteOrganizationOtelConfig Delete organization OpenTelemetry configuration
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param organizationId Organization ID
- @return OrganizationsAPIDeleteOrganizationOtelConfigRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param organizationId Organization ID
+	@return OrganizationsAPIDeleteOrganizationOtelConfigRequest
 */
 func (a *OrganizationsAPIService) DeleteOrganizationOtelConfig(ctx context.Context, organizationId string) OrganizationsAPIDeleteOrganizationOtelConfigRequest {
 	return OrganizationsAPIDeleteOrganizationOtelConfigRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:     a,
+		ctx:            ctx,
 		organizationId: organizationId,
 	}
 }
@@ -1478,9 +1482,9 @@ func (a *OrganizationsAPIService) DeleteOrganizationOtelConfig(ctx context.Conte
 // Execute executes the request
 func (a *OrganizationsAPIService) DeleteOrganizationOtelConfigExecute(r OrganizationsAPIDeleteOrganizationOtelConfigRequest) (*http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodDelete
-		localVarPostBody     interface{}
-		formFiles            []formFile
+		localVarHTTPMethod = http.MethodDelete
+		localVarPostBody   interface{}
+		formFiles          []formFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "OrganizationsAPIService.DeleteOrganizationOtelConfig")
@@ -1541,10 +1545,10 @@ func (a *OrganizationsAPIService) DeleteOrganizationOtelConfigExecute(r Organiza
 }
 
 type OrganizationsAPIDeleteOrganizationRoleRequest struct {
-	ctx context.Context
-	ApiService OrganizationsAPI
+	ctx            context.Context
+	ApiService     OrganizationsAPI
 	organizationId string
-	roleId string
+	roleId         string
 }
 
 func (r OrganizationsAPIDeleteOrganizationRoleRequest) Execute() (*http.Response, error) {
@@ -1554,26 +1558,26 @@ func (r OrganizationsAPIDeleteOrganizationRoleRequest) Execute() (*http.Response
 /*
 DeleteOrganizationRole Delete organization role
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param organizationId Organization ID
- @param roleId Role ID
- @return OrganizationsAPIDeleteOrganizationRoleRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param organizationId Organization ID
+	@param roleId Role ID
+	@return OrganizationsAPIDeleteOrganizationRoleRequest
 */
 func (a *OrganizationsAPIService) DeleteOrganizationRole(ctx context.Context, organizationId string, roleId string) OrganizationsAPIDeleteOrganizationRoleRequest {
 	return OrganizationsAPIDeleteOrganizationRoleRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:     a,
+		ctx:            ctx,
 		organizationId: organizationId,
-		roleId: roleId,
+		roleId:         roleId,
 	}
 }
 
 // Execute executes the request
 func (a *OrganizationsAPIService) DeleteOrganizationRoleExecute(r OrganizationsAPIDeleteOrganizationRoleRequest) (*http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodDelete
-		localVarPostBody     interface{}
-		formFiles            []formFile
+		localVarHTTPMethod = http.MethodDelete
+		localVarPostBody   interface{}
+		formFiles          []formFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "OrganizationsAPIService.DeleteOrganizationRole")
@@ -1635,9 +1639,9 @@ func (a *OrganizationsAPIService) DeleteOrganizationRoleExecute(r OrganizationsA
 }
 
 type OrganizationsAPIDeleteRegionRequest struct {
-	ctx context.Context
-	ApiService OrganizationsAPI
-	id string
+	ctx                      context.Context
+	ApiService               OrganizationsAPI
+	id                       string
 	xNorthraysOrganizationID *string
 }
 
@@ -1654,24 +1658,24 @@ func (r OrganizationsAPIDeleteRegionRequest) Execute() (*http.Response, error) {
 /*
 DeleteRegion Delete a region
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param id Region ID
- @return OrganizationsAPIDeleteRegionRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param id Region ID
+	@return OrganizationsAPIDeleteRegionRequest
 */
 func (a *OrganizationsAPIService) DeleteRegion(ctx context.Context, id string) OrganizationsAPIDeleteRegionRequest {
 	return OrganizationsAPIDeleteRegionRequest{
 		ApiService: a,
-		ctx: ctx,
-		id: id,
+		ctx:        ctx,
+		id:         id,
 	}
 }
 
 // Execute executes the request
 func (a *OrganizationsAPIService) DeleteRegionExecute(r OrganizationsAPIDeleteRegionRequest) (*http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodDelete
-		localVarPostBody     interface{}
-		formFiles            []formFile
+		localVarHTTPMethod = http.MethodDelete
+		localVarPostBody   interface{}
+		formFiles          []formFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "OrganizationsAPIService.DeleteRegion")
@@ -1735,8 +1739,8 @@ func (a *OrganizationsAPIService) DeleteRegionExecute(r OrganizationsAPIDeleteRe
 }
 
 type OrganizationsAPIGetOrganizationRequest struct {
-	ctx context.Context
-	ApiService OrganizationsAPI
+	ctx            context.Context
+	ApiService     OrganizationsAPI
 	organizationId string
 }
 
@@ -1747,26 +1751,27 @@ func (r OrganizationsAPIGetOrganizationRequest) Execute() (*Organization, *http.
 /*
 GetOrganization Get organization by ID
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param organizationId Organization ID
- @return OrganizationsAPIGetOrganizationRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param organizationId Organization ID
+	@return OrganizationsAPIGetOrganizationRequest
 */
 func (a *OrganizationsAPIService) GetOrganization(ctx context.Context, organizationId string) OrganizationsAPIGetOrganizationRequest {
 	return OrganizationsAPIGetOrganizationRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:     a,
+		ctx:            ctx,
 		organizationId: organizationId,
 	}
 }
 
 // Execute executes the request
-//  @return Organization
+//
+//	@return Organization
 func (a *OrganizationsAPIService) GetOrganizationExecute(r OrganizationsAPIGetOrganizationRequest) (*Organization, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *Organization
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *Organization
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "OrganizationsAPIService.GetOrganization")
@@ -1836,7 +1841,7 @@ func (a *OrganizationsAPIService) GetOrganizationExecute(r OrganizationsAPIGetOr
 }
 
 type OrganizationsAPIGetOrganizationInvitationsCountForAuthenticatedUserRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService OrganizationsAPI
 }
 
@@ -1847,24 +1852,25 @@ func (r OrganizationsAPIGetOrganizationInvitationsCountForAuthenticatedUserReque
 /*
 GetOrganizationInvitationsCountForAuthenticatedUser Get count of organization invitations for authenticated user
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return OrganizationsAPIGetOrganizationInvitationsCountForAuthenticatedUserRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return OrganizationsAPIGetOrganizationInvitationsCountForAuthenticatedUserRequest
 */
 func (a *OrganizationsAPIService) GetOrganizationInvitationsCountForAuthenticatedUser(ctx context.Context) OrganizationsAPIGetOrganizationInvitationsCountForAuthenticatedUserRequest {
 	return OrganizationsAPIGetOrganizationInvitationsCountForAuthenticatedUserRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return float32
+//
+//	@return float32
 func (a *OrganizationsAPIService) GetOrganizationInvitationsCountForAuthenticatedUserExecute(r OrganizationsAPIGetOrganizationInvitationsCountForAuthenticatedUserRequest) (float32, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  float32
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue float32
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "OrganizationsAPIService.GetOrganizationInvitationsCountForAuthenticatedUser")
@@ -1933,8 +1939,8 @@ func (a *OrganizationsAPIService) GetOrganizationInvitationsCountForAuthenticate
 }
 
 type OrganizationsAPIGetOrganizationOtelConfigRequest struct {
-	ctx context.Context
-	ApiService OrganizationsAPI
+	ctx            context.Context
+	ApiService     OrganizationsAPI
 	organizationId string
 }
 
@@ -1945,26 +1951,27 @@ func (r OrganizationsAPIGetOrganizationOtelConfigRequest) Execute() (*OtelConfig
 /*
 GetOrganizationOtelConfig Get organization OTEL config by organization ID
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param organizationId Organization ID
- @return OrganizationsAPIGetOrganizationOtelConfigRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param organizationId Organization ID
+	@return OrganizationsAPIGetOrganizationOtelConfigRequest
 */
 func (a *OrganizationsAPIService) GetOrganizationOtelConfig(ctx context.Context, organizationId string) OrganizationsAPIGetOrganizationOtelConfigRequest {
 	return OrganizationsAPIGetOrganizationOtelConfigRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:     a,
+		ctx:            ctx,
 		organizationId: organizationId,
 	}
 }
 
 // Execute executes the request
-//  @return OtelConfig
+//
+//	@return OtelConfig
 func (a *OrganizationsAPIService) GetOrganizationOtelConfigExecute(r OrganizationsAPIGetOrganizationOtelConfigRequest) (*OtelConfig, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *OtelConfig
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *OtelConfig
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "OrganizationsAPIService.GetOrganizationOtelConfig")
@@ -2034,9 +2041,9 @@ func (a *OrganizationsAPIService) GetOrganizationOtelConfigExecute(r Organizatio
 }
 
 type OrganizationsAPIGetOrganizationOtelConfigBySandboxAuthTokenRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService OrganizationsAPI
-	authToken string
+	authToken  string
 }
 
 func (r OrganizationsAPIGetOrganizationOtelConfigBySandboxAuthTokenRequest) Execute() (*OtelConfig, *http.Response, error) {
@@ -2046,26 +2053,27 @@ func (r OrganizationsAPIGetOrganizationOtelConfigBySandboxAuthTokenRequest) Exec
 /*
 GetOrganizationOtelConfigBySandboxAuthToken Get organization OTEL config by sandbox auth token
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param authToken Sandbox Auth Token
- @return OrganizationsAPIGetOrganizationOtelConfigBySandboxAuthTokenRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param authToken Sandbox Auth Token
+	@return OrganizationsAPIGetOrganizationOtelConfigBySandboxAuthTokenRequest
 */
 func (a *OrganizationsAPIService) GetOrganizationOtelConfigBySandboxAuthToken(ctx context.Context, authToken string) OrganizationsAPIGetOrganizationOtelConfigBySandboxAuthTokenRequest {
 	return OrganizationsAPIGetOrganizationOtelConfigBySandboxAuthTokenRequest{
 		ApiService: a,
-		ctx: ctx,
-		authToken: authToken,
+		ctx:        ctx,
+		authToken:  authToken,
 	}
 }
 
 // Execute executes the request
-//  @return OtelConfig
+//
+//	@return OtelConfig
 func (a *OrganizationsAPIService) GetOrganizationOtelConfigBySandboxAuthTokenExecute(r OrganizationsAPIGetOrganizationOtelConfigBySandboxAuthTokenRequest) (*OtelConfig, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *OtelConfig
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *OtelConfig
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "OrganizationsAPIService.GetOrganizationOtelConfigBySandboxAuthToken")
@@ -2135,8 +2143,8 @@ func (a *OrganizationsAPIService) GetOrganizationOtelConfigBySandboxAuthTokenExe
 }
 
 type OrganizationsAPIGetOrganizationUsageOverviewRequest struct {
-	ctx context.Context
-	ApiService OrganizationsAPI
+	ctx            context.Context
+	ApiService     OrganizationsAPI
 	organizationId string
 }
 
@@ -2147,26 +2155,27 @@ func (r OrganizationsAPIGetOrganizationUsageOverviewRequest) Execute() (*Organiz
 /*
 GetOrganizationUsageOverview Get organization current usage overview
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param organizationId Organization ID
- @return OrganizationsAPIGetOrganizationUsageOverviewRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param organizationId Organization ID
+	@return OrganizationsAPIGetOrganizationUsageOverviewRequest
 */
 func (a *OrganizationsAPIService) GetOrganizationUsageOverview(ctx context.Context, organizationId string) OrganizationsAPIGetOrganizationUsageOverviewRequest {
 	return OrganizationsAPIGetOrganizationUsageOverviewRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:     a,
+		ctx:            ctx,
 		organizationId: organizationId,
 	}
 }
 
 // Execute executes the request
-//  @return OrganizationUsageOverview
+//
+//	@return OrganizationUsageOverview
 func (a *OrganizationsAPIService) GetOrganizationUsageOverviewExecute(r OrganizationsAPIGetOrganizationUsageOverviewRequest) (*OrganizationUsageOverview, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *OrganizationUsageOverview
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *OrganizationUsageOverview
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "OrganizationsAPIService.GetOrganizationUsageOverview")
@@ -2236,9 +2245,9 @@ func (a *OrganizationsAPIService) GetOrganizationUsageOverviewExecute(r Organiza
 }
 
 type OrganizationsAPIGetRegionByIdRequest struct {
-	ctx context.Context
-	ApiService OrganizationsAPI
-	id string
+	ctx                      context.Context
+	ApiService               OrganizationsAPI
+	id                       string
 	xNorthraysOrganizationID *string
 }
 
@@ -2255,26 +2264,27 @@ func (r OrganizationsAPIGetRegionByIdRequest) Execute() (*Region, *http.Response
 /*
 GetRegionById Get region by ID
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param id Region ID
- @return OrganizationsAPIGetRegionByIdRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param id Region ID
+	@return OrganizationsAPIGetRegionByIdRequest
 */
 func (a *OrganizationsAPIService) GetRegionById(ctx context.Context, id string) OrganizationsAPIGetRegionByIdRequest {
 	return OrganizationsAPIGetRegionByIdRequest{
 		ApiService: a,
-		ctx: ctx,
-		id: id,
+		ctx:        ctx,
+		id:         id,
 	}
 }
 
 // Execute executes the request
-//  @return Region
+//
+//	@return Region
 func (a *OrganizationsAPIService) GetRegionByIdExecute(r OrganizationsAPIGetRegionByIdRequest) (*Region, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *Region
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *Region
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "OrganizationsAPIService.GetRegionById")
@@ -2347,8 +2357,8 @@ func (a *OrganizationsAPIService) GetRegionByIdExecute(r OrganizationsAPIGetRegi
 }
 
 type OrganizationsAPILeaveOrganizationRequest struct {
-	ctx context.Context
-	ApiService OrganizationsAPI
+	ctx            context.Context
+	ApiService     OrganizationsAPI
 	organizationId string
 }
 
@@ -2359,14 +2369,14 @@ func (r OrganizationsAPILeaveOrganizationRequest) Execute() (*http.Response, err
 /*
 LeaveOrganization Leave organization
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param organizationId Organization ID
- @return OrganizationsAPILeaveOrganizationRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param organizationId Organization ID
+	@return OrganizationsAPILeaveOrganizationRequest
 */
 func (a *OrganizationsAPIService) LeaveOrganization(ctx context.Context, organizationId string) OrganizationsAPILeaveOrganizationRequest {
 	return OrganizationsAPILeaveOrganizationRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:     a,
+		ctx:            ctx,
 		organizationId: organizationId,
 	}
 }
@@ -2374,9 +2384,9 @@ func (a *OrganizationsAPIService) LeaveOrganization(ctx context.Context, organiz
 // Execute executes the request
 func (a *OrganizationsAPIService) LeaveOrganizationExecute(r OrganizationsAPILeaveOrganizationRequest) (*http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
+		localVarHTTPMethod = http.MethodPost
+		localVarPostBody   interface{}
+		formFiles          []formFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "OrganizationsAPIService.LeaveOrganization")
@@ -2437,8 +2447,8 @@ func (a *OrganizationsAPIService) LeaveOrganizationExecute(r OrganizationsAPILea
 }
 
 type OrganizationsAPIListAvailableRegionsRequest struct {
-	ctx context.Context
-	ApiService OrganizationsAPI
+	ctx                      context.Context
+	ApiService               OrganizationsAPI
 	xNorthraysOrganizationID *string
 }
 
@@ -2455,24 +2465,25 @@ func (r OrganizationsAPIListAvailableRegionsRequest) Execute() ([]Region, *http.
 /*
 ListAvailableRegions List all available regions for the organization
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return OrganizationsAPIListAvailableRegionsRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return OrganizationsAPIListAvailableRegionsRequest
 */
 func (a *OrganizationsAPIService) ListAvailableRegions(ctx context.Context) OrganizationsAPIListAvailableRegionsRequest {
 	return OrganizationsAPIListAvailableRegionsRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return []Region
+//
+//	@return []Region
 func (a *OrganizationsAPIService) ListAvailableRegionsExecute(r OrganizationsAPIListAvailableRegionsRequest) ([]Region, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []Region
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []Region
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "OrganizationsAPIService.ListAvailableRegions")
@@ -2544,8 +2555,8 @@ func (a *OrganizationsAPIService) ListAvailableRegionsExecute(r OrganizationsAPI
 }
 
 type OrganizationsAPIListOrganizationInvitationsRequest struct {
-	ctx context.Context
-	ApiService OrganizationsAPI
+	ctx            context.Context
+	ApiService     OrganizationsAPI
 	organizationId string
 }
 
@@ -2556,26 +2567,27 @@ func (r OrganizationsAPIListOrganizationInvitationsRequest) Execute() ([]Organiz
 /*
 ListOrganizationInvitations List pending organization invitations
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param organizationId Organization ID
- @return OrganizationsAPIListOrganizationInvitationsRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param organizationId Organization ID
+	@return OrganizationsAPIListOrganizationInvitationsRequest
 */
 func (a *OrganizationsAPIService) ListOrganizationInvitations(ctx context.Context, organizationId string) OrganizationsAPIListOrganizationInvitationsRequest {
 	return OrganizationsAPIListOrganizationInvitationsRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:     a,
+		ctx:            ctx,
 		organizationId: organizationId,
 	}
 }
 
 // Execute executes the request
-//  @return []OrganizationInvitation
+//
+//	@return []OrganizationInvitation
 func (a *OrganizationsAPIService) ListOrganizationInvitationsExecute(r OrganizationsAPIListOrganizationInvitationsRequest) ([]OrganizationInvitation, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []OrganizationInvitation
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []OrganizationInvitation
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "OrganizationsAPIService.ListOrganizationInvitations")
@@ -2645,7 +2657,7 @@ func (a *OrganizationsAPIService) ListOrganizationInvitationsExecute(r Organizat
 }
 
 type OrganizationsAPIListOrganizationInvitationsForAuthenticatedUserRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService OrganizationsAPI
 }
 
@@ -2656,24 +2668,25 @@ func (r OrganizationsAPIListOrganizationInvitationsForAuthenticatedUserRequest) 
 /*
 ListOrganizationInvitationsForAuthenticatedUser List organization invitations for authenticated user
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return OrganizationsAPIListOrganizationInvitationsForAuthenticatedUserRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return OrganizationsAPIListOrganizationInvitationsForAuthenticatedUserRequest
 */
 func (a *OrganizationsAPIService) ListOrganizationInvitationsForAuthenticatedUser(ctx context.Context) OrganizationsAPIListOrganizationInvitationsForAuthenticatedUserRequest {
 	return OrganizationsAPIListOrganizationInvitationsForAuthenticatedUserRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return []OrganizationInvitation
+//
+//	@return []OrganizationInvitation
 func (a *OrganizationsAPIService) ListOrganizationInvitationsForAuthenticatedUserExecute(r OrganizationsAPIListOrganizationInvitationsForAuthenticatedUserRequest) ([]OrganizationInvitation, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []OrganizationInvitation
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []OrganizationInvitation
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "OrganizationsAPIService.ListOrganizationInvitationsForAuthenticatedUser")
@@ -2742,8 +2755,8 @@ func (a *OrganizationsAPIService) ListOrganizationInvitationsForAuthenticatedUse
 }
 
 type OrganizationsAPIListOrganizationMembersRequest struct {
-	ctx context.Context
-	ApiService OrganizationsAPI
+	ctx            context.Context
+	ApiService     OrganizationsAPI
 	organizationId string
 }
 
@@ -2754,26 +2767,27 @@ func (r OrganizationsAPIListOrganizationMembersRequest) Execute() ([]Organizatio
 /*
 ListOrganizationMembers List organization members
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param organizationId Organization ID
- @return OrganizationsAPIListOrganizationMembersRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param organizationId Organization ID
+	@return OrganizationsAPIListOrganizationMembersRequest
 */
 func (a *OrganizationsAPIService) ListOrganizationMembers(ctx context.Context, organizationId string) OrganizationsAPIListOrganizationMembersRequest {
 	return OrganizationsAPIListOrganizationMembersRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:     a,
+		ctx:            ctx,
 		organizationId: organizationId,
 	}
 }
 
 // Execute executes the request
-//  @return []OrganizationUser
+//
+//	@return []OrganizationUser
 func (a *OrganizationsAPIService) ListOrganizationMembersExecute(r OrganizationsAPIListOrganizationMembersRequest) ([]OrganizationUser, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []OrganizationUser
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []OrganizationUser
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "OrganizationsAPIService.ListOrganizationMembers")
@@ -2843,8 +2857,8 @@ func (a *OrganizationsAPIService) ListOrganizationMembersExecute(r Organizations
 }
 
 type OrganizationsAPIListOrganizationRolesRequest struct {
-	ctx context.Context
-	ApiService OrganizationsAPI
+	ctx            context.Context
+	ApiService     OrganizationsAPI
 	organizationId string
 }
 
@@ -2855,26 +2869,27 @@ func (r OrganizationsAPIListOrganizationRolesRequest) Execute() ([]OrganizationR
 /*
 ListOrganizationRoles List organization roles
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param organizationId Organization ID
- @return OrganizationsAPIListOrganizationRolesRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param organizationId Organization ID
+	@return OrganizationsAPIListOrganizationRolesRequest
 */
 func (a *OrganizationsAPIService) ListOrganizationRoles(ctx context.Context, organizationId string) OrganizationsAPIListOrganizationRolesRequest {
 	return OrganizationsAPIListOrganizationRolesRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:     a,
+		ctx:            ctx,
 		organizationId: organizationId,
 	}
 }
 
 // Execute executes the request
-//  @return []OrganizationRole
+//
+//	@return []OrganizationRole
 func (a *OrganizationsAPIService) ListOrganizationRolesExecute(r OrganizationsAPIListOrganizationRolesRequest) ([]OrganizationRole, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []OrganizationRole
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []OrganizationRole
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "OrganizationsAPIService.ListOrganizationRoles")
@@ -2944,7 +2959,7 @@ func (a *OrganizationsAPIService) ListOrganizationRolesExecute(r OrganizationsAP
 }
 
 type OrganizationsAPIListOrganizationsRequest struct {
-	ctx context.Context
+	ctx        context.Context
 	ApiService OrganizationsAPI
 }
 
@@ -2955,24 +2970,25 @@ func (r OrganizationsAPIListOrganizationsRequest) Execute() ([]Organization, *ht
 /*
 ListOrganizations List organizations
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @return OrganizationsAPIListOrganizationsRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@return OrganizationsAPIListOrganizationsRequest
 */
 func (a *OrganizationsAPIService) ListOrganizations(ctx context.Context) OrganizationsAPIListOrganizationsRequest {
 	return OrganizationsAPIListOrganizationsRequest{
 		ApiService: a,
-		ctx: ctx,
+		ctx:        ctx,
 	}
 }
 
 // Execute executes the request
-//  @return []Organization
+//
+//	@return []Organization
 func (a *OrganizationsAPIService) ListOrganizationsExecute(r OrganizationsAPIListOrganizationsRequest) ([]Organization, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodGet
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  []Organization
+		localVarHTTPMethod  = http.MethodGet
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue []Organization
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "OrganizationsAPIService.ListOrganizations")
@@ -3041,9 +3057,9 @@ func (a *OrganizationsAPIService) ListOrganizationsExecute(r OrganizationsAPILis
 }
 
 type OrganizationsAPIRegenerateProxyApiKeyRequest struct {
-	ctx context.Context
-	ApiService OrganizationsAPI
-	id string
+	ctx                      context.Context
+	ApiService               OrganizationsAPI
+	id                       string
 	xNorthraysOrganizationID *string
 }
 
@@ -3060,26 +3076,27 @@ func (r OrganizationsAPIRegenerateProxyApiKeyRequest) Execute() (*RegenerateApiK
 /*
 RegenerateProxyApiKey Regenerate proxy API key for a region
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param id Region ID
- @return OrganizationsAPIRegenerateProxyApiKeyRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param id Region ID
+	@return OrganizationsAPIRegenerateProxyApiKeyRequest
 */
 func (a *OrganizationsAPIService) RegenerateProxyApiKey(ctx context.Context, id string) OrganizationsAPIRegenerateProxyApiKeyRequest {
 	return OrganizationsAPIRegenerateProxyApiKeyRequest{
 		ApiService: a,
-		ctx: ctx,
-		id: id,
+		ctx:        ctx,
+		id:         id,
 	}
 }
 
 // Execute executes the request
-//  @return RegenerateApiKeyResponse
+//
+//	@return RegenerateApiKeyResponse
 func (a *OrganizationsAPIService) RegenerateProxyApiKeyExecute(r OrganizationsAPIRegenerateProxyApiKeyRequest) (*RegenerateApiKeyResponse, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *RegenerateApiKeyResponse
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *RegenerateApiKeyResponse
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "OrganizationsAPIService.RegenerateProxyApiKey")
@@ -3152,9 +3169,9 @@ func (a *OrganizationsAPIService) RegenerateProxyApiKeyExecute(r OrganizationsAP
 }
 
 type OrganizationsAPIRegenerateSnapshotManagerCredentialsRequest struct {
-	ctx context.Context
-	ApiService OrganizationsAPI
-	id string
+	ctx                      context.Context
+	ApiService               OrganizationsAPI
+	id                       string
 	xNorthraysOrganizationID *string
 }
 
@@ -3171,26 +3188,27 @@ func (r OrganizationsAPIRegenerateSnapshotManagerCredentialsRequest) Execute() (
 /*
 RegenerateSnapshotManagerCredentials Regenerate snapshot manager credentials for a region
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param id Region ID
- @return OrganizationsAPIRegenerateSnapshotManagerCredentialsRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param id Region ID
+	@return OrganizationsAPIRegenerateSnapshotManagerCredentialsRequest
 */
 func (a *OrganizationsAPIService) RegenerateSnapshotManagerCredentials(ctx context.Context, id string) OrganizationsAPIRegenerateSnapshotManagerCredentialsRequest {
 	return OrganizationsAPIRegenerateSnapshotManagerCredentialsRequest{
 		ApiService: a,
-		ctx: ctx,
-		id: id,
+		ctx:        ctx,
+		id:         id,
 	}
 }
 
 // Execute executes the request
-//  @return SnapshotManagerCredentials
+//
+//	@return SnapshotManagerCredentials
 func (a *OrganizationsAPIService) RegenerateSnapshotManagerCredentialsExecute(r OrganizationsAPIRegenerateSnapshotManagerCredentialsRequest) (*SnapshotManagerCredentials, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *SnapshotManagerCredentials
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *SnapshotManagerCredentials
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "OrganizationsAPIService.RegenerateSnapshotManagerCredentials")
@@ -3263,9 +3281,9 @@ func (a *OrganizationsAPIService) RegenerateSnapshotManagerCredentialsExecute(r 
 }
 
 type OrganizationsAPIRegenerateSshGatewayApiKeyRequest struct {
-	ctx context.Context
-	ApiService OrganizationsAPI
-	id string
+	ctx                      context.Context
+	ApiService               OrganizationsAPI
+	id                       string
 	xNorthraysOrganizationID *string
 }
 
@@ -3282,26 +3300,27 @@ func (r OrganizationsAPIRegenerateSshGatewayApiKeyRequest) Execute() (*Regenerat
 /*
 RegenerateSshGatewayApiKey Regenerate SSH gateway API key for a region
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param id Region ID
- @return OrganizationsAPIRegenerateSshGatewayApiKeyRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param id Region ID
+	@return OrganizationsAPIRegenerateSshGatewayApiKeyRequest
 */
 func (a *OrganizationsAPIService) RegenerateSshGatewayApiKey(ctx context.Context, id string) OrganizationsAPIRegenerateSshGatewayApiKeyRequest {
 	return OrganizationsAPIRegenerateSshGatewayApiKeyRequest{
 		ApiService: a,
-		ctx: ctx,
-		id: id,
+		ctx:        ctx,
+		id:         id,
 	}
 }
 
 // Execute executes the request
-//  @return RegenerateApiKeyResponse
+//
+//	@return RegenerateApiKeyResponse
 func (a *OrganizationsAPIService) RegenerateSshGatewayApiKeyExecute(r OrganizationsAPIRegenerateSshGatewayApiKeyRequest) (*RegenerateApiKeyResponse, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *RegenerateApiKeyResponse
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *RegenerateApiKeyResponse
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "OrganizationsAPIService.RegenerateSshGatewayApiKey")
@@ -3374,9 +3393,9 @@ func (a *OrganizationsAPIService) RegenerateSshGatewayApiKeyExecute(r Organizati
 }
 
 type OrganizationsAPISetOrganizationDefaultRegionRequest struct {
-	ctx context.Context
-	ApiService OrganizationsAPI
-	organizationId string
+	ctx                             context.Context
+	ApiService                      OrganizationsAPI
+	organizationId                  string
 	updateOrganizationDefaultRegion *UpdateOrganizationDefaultRegion
 }
 
@@ -3392,14 +3411,14 @@ func (r OrganizationsAPISetOrganizationDefaultRegionRequest) Execute() (*http.Re
 /*
 SetOrganizationDefaultRegion Set default region for organization
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param organizationId Organization ID
- @return OrganizationsAPISetOrganizationDefaultRegionRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param organizationId Organization ID
+	@return OrganizationsAPISetOrganizationDefaultRegionRequest
 */
 func (a *OrganizationsAPIService) SetOrganizationDefaultRegion(ctx context.Context, organizationId string) OrganizationsAPISetOrganizationDefaultRegionRequest {
 	return OrganizationsAPISetOrganizationDefaultRegionRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:     a,
+		ctx:            ctx,
 		organizationId: organizationId,
 	}
 }
@@ -3407,9 +3426,9 @@ func (a *OrganizationsAPIService) SetOrganizationDefaultRegion(ctx context.Conte
 // Execute executes the request
 func (a *OrganizationsAPIService) SetOrganizationDefaultRegionExecute(r OrganizationsAPISetOrganizationDefaultRegionRequest) (*http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPatch
-		localVarPostBody     interface{}
-		formFiles            []formFile
+		localVarHTTPMethod = http.MethodPatch
+		localVarPostBody   interface{}
+		formFiles          []formFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "OrganizationsAPIService.SetOrganizationDefaultRegion")
@@ -3475,9 +3494,9 @@ func (a *OrganizationsAPIService) SetOrganizationDefaultRegionExecute(r Organiza
 }
 
 type OrganizationsAPISuspendOrganizationRequest struct {
-	ctx context.Context
-	ApiService OrganizationsAPI
-	organizationId string
+	ctx                    context.Context
+	ApiService             OrganizationsAPI
+	organizationId         string
 	organizationSuspension *OrganizationSuspension
 }
 
@@ -3493,14 +3512,14 @@ func (r OrganizationsAPISuspendOrganizationRequest) Execute() (*http.Response, e
 /*
 SuspendOrganization Suspend organization
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param organizationId Organization ID
- @return OrganizationsAPISuspendOrganizationRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param organizationId Organization ID
+	@return OrganizationsAPISuspendOrganizationRequest
 */
 func (a *OrganizationsAPIService) SuspendOrganization(ctx context.Context, organizationId string) OrganizationsAPISuspendOrganizationRequest {
 	return OrganizationsAPISuspendOrganizationRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:     a,
+		ctx:            ctx,
 		organizationId: organizationId,
 	}
 }
@@ -3508,9 +3527,9 @@ func (a *OrganizationsAPIService) SuspendOrganization(ctx context.Context, organ
 // Execute executes the request
 func (a *OrganizationsAPIService) SuspendOrganizationExecute(r OrganizationsAPISuspendOrganizationRequest) (*http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
+		localVarHTTPMethod = http.MethodPost
+		localVarPostBody   interface{}
+		formFiles          []formFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "OrganizationsAPIService.SuspendOrganization")
@@ -3573,8 +3592,8 @@ func (a *OrganizationsAPIService) SuspendOrganizationExecute(r OrganizationsAPIS
 }
 
 type OrganizationsAPIUnsuspendOrganizationRequest struct {
-	ctx context.Context
-	ApiService OrganizationsAPI
+	ctx            context.Context
+	ApiService     OrganizationsAPI
 	organizationId string
 }
 
@@ -3585,14 +3604,14 @@ func (r OrganizationsAPIUnsuspendOrganizationRequest) Execute() (*http.Response,
 /*
 UnsuspendOrganization Unsuspend organization
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param organizationId Organization ID
- @return OrganizationsAPIUnsuspendOrganizationRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param organizationId Organization ID
+	@return OrganizationsAPIUnsuspendOrganizationRequest
 */
 func (a *OrganizationsAPIService) UnsuspendOrganization(ctx context.Context, organizationId string) OrganizationsAPIUnsuspendOrganizationRequest {
 	return OrganizationsAPIUnsuspendOrganizationRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:     a,
+		ctx:            ctx,
 		organizationId: organizationId,
 	}
 }
@@ -3600,9 +3619,9 @@ func (a *OrganizationsAPIService) UnsuspendOrganization(ctx context.Context, org
 // Execute executes the request
 func (a *OrganizationsAPIService) UnsuspendOrganizationExecute(r OrganizationsAPIUnsuspendOrganizationRequest) (*http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
+		localVarHTTPMethod = http.MethodPost
+		localVarPostBody   interface{}
+		formFiles          []formFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "OrganizationsAPIService.UnsuspendOrganization")
@@ -3663,10 +3682,10 @@ func (a *OrganizationsAPIService) UnsuspendOrganizationExecute(r OrganizationsAP
 }
 
 type OrganizationsAPIUpdateAccessForOrganizationMemberRequest struct {
-	ctx context.Context
-	ApiService OrganizationsAPI
-	organizationId string
-	userId string
+	ctx                            context.Context
+	ApiService                     OrganizationsAPI
+	organizationId                 string
+	userId                         string
 	updateOrganizationMemberAccess *UpdateOrganizationMemberAccess
 }
 
@@ -3682,28 +3701,29 @@ func (r OrganizationsAPIUpdateAccessForOrganizationMemberRequest) Execute() (*Or
 /*
 UpdateAccessForOrganizationMember Update access for organization member
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param organizationId Organization ID
- @param userId User ID
- @return OrganizationsAPIUpdateAccessForOrganizationMemberRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param organizationId Organization ID
+	@param userId User ID
+	@return OrganizationsAPIUpdateAccessForOrganizationMemberRequest
 */
 func (a *OrganizationsAPIService) UpdateAccessForOrganizationMember(ctx context.Context, organizationId string, userId string) OrganizationsAPIUpdateAccessForOrganizationMemberRequest {
 	return OrganizationsAPIUpdateAccessForOrganizationMemberRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:     a,
+		ctx:            ctx,
 		organizationId: organizationId,
-		userId: userId,
+		userId:         userId,
 	}
 }
 
 // Execute executes the request
-//  @return OrganizationUser
+//
+//	@return OrganizationUser
 func (a *OrganizationsAPIService) UpdateAccessForOrganizationMemberExecute(r OrganizationsAPIUpdateAccessForOrganizationMemberRequest) (*OrganizationUser, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *OrganizationUser
+		localVarHTTPMethod  = http.MethodPost
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *OrganizationUser
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "OrganizationsAPIService.UpdateAccessForOrganizationMember")
@@ -3779,10 +3799,10 @@ func (a *OrganizationsAPIService) UpdateAccessForOrganizationMemberExecute(r Org
 }
 
 type OrganizationsAPIUpdateExperimentalConfigRequest struct {
-	ctx context.Context
-	ApiService OrganizationsAPI
+	ctx            context.Context
+	ApiService     OrganizationsAPI
 	organizationId string
-	requestBody *map[string]interface{}
+	requestBody    *map[string]interface{}
 }
 
 // Experimental configuration as a JSON object. Set to null to clear the configuration.
@@ -3798,14 +3818,14 @@ func (r OrganizationsAPIUpdateExperimentalConfigRequest) Execute() (*http.Respon
 /*
 UpdateExperimentalConfig Update experimental configuration
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param organizationId Organization ID
- @return OrganizationsAPIUpdateExperimentalConfigRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param organizationId Organization ID
+	@return OrganizationsAPIUpdateExperimentalConfigRequest
 */
 func (a *OrganizationsAPIService) UpdateExperimentalConfig(ctx context.Context, organizationId string) OrganizationsAPIUpdateExperimentalConfigRequest {
 	return OrganizationsAPIUpdateExperimentalConfigRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:     a,
+		ctx:            ctx,
 		organizationId: organizationId,
 	}
 }
@@ -3813,9 +3833,9 @@ func (a *OrganizationsAPIService) UpdateExperimentalConfig(ctx context.Context, 
 // Execute executes the request
 func (a *OrganizationsAPIService) UpdateExperimentalConfigExecute(r OrganizationsAPIUpdateExperimentalConfigRequest) (*http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPut
-		localVarPostBody     interface{}
-		formFiles            []formFile
+		localVarHTTPMethod = http.MethodPut
+		localVarPostBody   interface{}
+		formFiles          []formFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "OrganizationsAPIService.UpdateExperimentalConfig")
@@ -3878,10 +3898,10 @@ func (a *OrganizationsAPIService) UpdateExperimentalConfigExecute(r Organization
 }
 
 type OrganizationsAPIUpdateOrganizationInvitationRequest struct {
-	ctx context.Context
-	ApiService OrganizationsAPI
-	organizationId string
-	invitationId string
+	ctx                          context.Context
+	ApiService                   OrganizationsAPI
+	organizationId               string
+	invitationId                 string
 	updateOrganizationInvitation *UpdateOrganizationInvitation
 }
 
@@ -3897,28 +3917,29 @@ func (r OrganizationsAPIUpdateOrganizationInvitationRequest) Execute() (*Organiz
 /*
 UpdateOrganizationInvitation Update organization invitation
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param organizationId Organization ID
- @param invitationId Invitation ID
- @return OrganizationsAPIUpdateOrganizationInvitationRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param organizationId Organization ID
+	@param invitationId Invitation ID
+	@return OrganizationsAPIUpdateOrganizationInvitationRequest
 */
 func (a *OrganizationsAPIService) UpdateOrganizationInvitation(ctx context.Context, organizationId string, invitationId string) OrganizationsAPIUpdateOrganizationInvitationRequest {
 	return OrganizationsAPIUpdateOrganizationInvitationRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:     a,
+		ctx:            ctx,
 		organizationId: organizationId,
-		invitationId: invitationId,
+		invitationId:   invitationId,
 	}
 }
 
 // Execute executes the request
-//  @return OrganizationInvitation
+//
+//	@return OrganizationInvitation
 func (a *OrganizationsAPIService) UpdateOrganizationInvitationExecute(r OrganizationsAPIUpdateOrganizationInvitationRequest) (*OrganizationInvitation, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPut
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *OrganizationInvitation
+		localVarHTTPMethod  = http.MethodPut
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *OrganizationInvitation
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "OrganizationsAPIService.UpdateOrganizationInvitation")
@@ -3994,10 +4015,10 @@ func (a *OrganizationsAPIService) UpdateOrganizationInvitationExecute(r Organiza
 }
 
 type OrganizationsAPIUpdateOrganizationOtelConfigRequest struct {
-	ctx context.Context
-	ApiService OrganizationsAPI
+	ctx            context.Context
+	ApiService     OrganizationsAPI
 	organizationId string
-	otelConfig *OtelConfig
+	otelConfig     *OtelConfig
 }
 
 func (r OrganizationsAPIUpdateOrganizationOtelConfigRequest) OtelConfig(otelConfig OtelConfig) OrganizationsAPIUpdateOrganizationOtelConfigRequest {
@@ -4012,14 +4033,14 @@ func (r OrganizationsAPIUpdateOrganizationOtelConfigRequest) Execute() (*http.Re
 /*
 UpdateOrganizationOtelConfig Update organization OpenTelemetry configuration
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param organizationId Organization ID
- @return OrganizationsAPIUpdateOrganizationOtelConfigRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param organizationId Organization ID
+	@return OrganizationsAPIUpdateOrganizationOtelConfigRequest
 */
 func (a *OrganizationsAPIService) UpdateOrganizationOtelConfig(ctx context.Context, organizationId string) OrganizationsAPIUpdateOrganizationOtelConfigRequest {
 	return OrganizationsAPIUpdateOrganizationOtelConfigRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:     a,
+		ctx:            ctx,
 		organizationId: organizationId,
 	}
 }
@@ -4027,9 +4048,9 @@ func (a *OrganizationsAPIService) UpdateOrganizationOtelConfig(ctx context.Conte
 // Execute executes the request
 func (a *OrganizationsAPIService) UpdateOrganizationOtelConfigExecute(r OrganizationsAPIUpdateOrganizationOtelConfigRequest) (*http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPut
-		localVarPostBody     interface{}
-		formFiles            []formFile
+		localVarHTTPMethod = http.MethodPut
+		localVarPostBody   interface{}
+		formFiles          []formFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "OrganizationsAPIService.UpdateOrganizationOtelConfig")
@@ -4095,9 +4116,9 @@ func (a *OrganizationsAPIService) UpdateOrganizationOtelConfigExecute(r Organiza
 }
 
 type OrganizationsAPIUpdateOrganizationQuotaRequest struct {
-	ctx context.Context
-	ApiService OrganizationsAPI
-	organizationId string
+	ctx                     context.Context
+	ApiService              OrganizationsAPI
+	organizationId          string
 	updateOrganizationQuota *UpdateOrganizationQuota
 }
 
@@ -4113,14 +4134,14 @@ func (r OrganizationsAPIUpdateOrganizationQuotaRequest) Execute() (*http.Respons
 /*
 UpdateOrganizationQuota Update organization quota
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param organizationId Organization ID
- @return OrganizationsAPIUpdateOrganizationQuotaRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param organizationId Organization ID
+	@return OrganizationsAPIUpdateOrganizationQuotaRequest
 */
 func (a *OrganizationsAPIService) UpdateOrganizationQuota(ctx context.Context, organizationId string) OrganizationsAPIUpdateOrganizationQuotaRequest {
 	return OrganizationsAPIUpdateOrganizationQuotaRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:     a,
+		ctx:            ctx,
 		organizationId: organizationId,
 	}
 }
@@ -4128,9 +4149,9 @@ func (a *OrganizationsAPIService) UpdateOrganizationQuota(ctx context.Context, o
 // Execute executes the request
 func (a *OrganizationsAPIService) UpdateOrganizationQuotaExecute(r OrganizationsAPIUpdateOrganizationQuotaRequest) (*http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPatch
-		localVarPostBody     interface{}
-		formFiles            []formFile
+		localVarHTTPMethod = http.MethodPatch
+		localVarPostBody   interface{}
+		formFiles          []formFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "OrganizationsAPIService.UpdateOrganizationQuota")
@@ -4196,10 +4217,10 @@ func (a *OrganizationsAPIService) UpdateOrganizationQuotaExecute(r Organizations
 }
 
 type OrganizationsAPIUpdateOrganizationRegionQuotaRequest struct {
-	ctx context.Context
-	ApiService OrganizationsAPI
-	organizationId string
-	regionId string
+	ctx                           context.Context
+	ApiService                    OrganizationsAPI
+	organizationId                string
+	regionId                      string
 	updateOrganizationRegionQuota *UpdateOrganizationRegionQuota
 }
 
@@ -4215,26 +4236,26 @@ func (r OrganizationsAPIUpdateOrganizationRegionQuotaRequest) Execute() (*http.R
 /*
 UpdateOrganizationRegionQuota Update organization region quota
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param organizationId Organization ID
- @param regionId ID of the region where the updated quota will be applied
- @return OrganizationsAPIUpdateOrganizationRegionQuotaRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param organizationId Organization ID
+	@param regionId ID of the region where the updated quota will be applied
+	@return OrganizationsAPIUpdateOrganizationRegionQuotaRequest
 */
 func (a *OrganizationsAPIService) UpdateOrganizationRegionQuota(ctx context.Context, organizationId string, regionId string) OrganizationsAPIUpdateOrganizationRegionQuotaRequest {
 	return OrganizationsAPIUpdateOrganizationRegionQuotaRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:     a,
+		ctx:            ctx,
 		organizationId: organizationId,
-		regionId: regionId,
+		regionId:       regionId,
 	}
 }
 
 // Execute executes the request
 func (a *OrganizationsAPIService) UpdateOrganizationRegionQuotaExecute(r OrganizationsAPIUpdateOrganizationRegionQuotaRequest) (*http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPatch
-		localVarPostBody     interface{}
-		formFiles            []formFile
+		localVarHTTPMethod = http.MethodPatch
+		localVarPostBody   interface{}
+		formFiles          []formFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "OrganizationsAPIService.UpdateOrganizationRegionQuota")
@@ -4301,10 +4322,10 @@ func (a *OrganizationsAPIService) UpdateOrganizationRegionQuotaExecute(r Organiz
 }
 
 type OrganizationsAPIUpdateOrganizationRoleRequest struct {
-	ctx context.Context
-	ApiService OrganizationsAPI
-	organizationId string
-	roleId string
+	ctx                    context.Context
+	ApiService             OrganizationsAPI
+	organizationId         string
+	roleId                 string
 	updateOrganizationRole *UpdateOrganizationRole
 }
 
@@ -4320,28 +4341,29 @@ func (r OrganizationsAPIUpdateOrganizationRoleRequest) Execute() (*OrganizationR
 /*
 UpdateOrganizationRole Update organization role
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param organizationId Organization ID
- @param roleId Role ID
- @return OrganizationsAPIUpdateOrganizationRoleRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param organizationId Organization ID
+	@param roleId Role ID
+	@return OrganizationsAPIUpdateOrganizationRoleRequest
 */
 func (a *OrganizationsAPIService) UpdateOrganizationRole(ctx context.Context, organizationId string, roleId string) OrganizationsAPIUpdateOrganizationRoleRequest {
 	return OrganizationsAPIUpdateOrganizationRoleRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:     a,
+		ctx:            ctx,
 		organizationId: organizationId,
-		roleId: roleId,
+		roleId:         roleId,
 	}
 }
 
 // Execute executes the request
-//  @return OrganizationRole
+//
+//	@return OrganizationRole
 func (a *OrganizationsAPIService) UpdateOrganizationRoleExecute(r OrganizationsAPIUpdateOrganizationRoleRequest) (*OrganizationRole, *http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPut
-		localVarPostBody     interface{}
-		formFiles            []formFile
-		localVarReturnValue  *OrganizationRole
+		localVarHTTPMethod  = http.MethodPut
+		localVarPostBody    interface{}
+		formFiles           []formFile
+		localVarReturnValue *OrganizationRole
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "OrganizationsAPIService.UpdateOrganizationRole")
@@ -4417,10 +4439,10 @@ func (a *OrganizationsAPIService) UpdateOrganizationRoleExecute(r OrganizationsA
 }
 
 type OrganizationsAPIUpdateRegionRequest struct {
-	ctx context.Context
-	ApiService OrganizationsAPI
-	id string
-	updateRegion *UpdateRegion
+	ctx                      context.Context
+	ApiService               OrganizationsAPI
+	id                       string
+	updateRegion             *UpdateRegion
 	xNorthraysOrganizationID *string
 }
 
@@ -4442,24 +4464,24 @@ func (r OrganizationsAPIUpdateRegionRequest) Execute() (*http.Response, error) {
 /*
 UpdateRegion Update region configuration
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param id Region ID
- @return OrganizationsAPIUpdateRegionRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param id Region ID
+	@return OrganizationsAPIUpdateRegionRequest
 */
 func (a *OrganizationsAPIService) UpdateRegion(ctx context.Context, id string) OrganizationsAPIUpdateRegionRequest {
 	return OrganizationsAPIUpdateRegionRequest{
 		ApiService: a,
-		ctx: ctx,
-		id: id,
+		ctx:        ctx,
+		id:         id,
 	}
 }
 
 // Execute executes the request
 func (a *OrganizationsAPIService) UpdateRegionExecute(r OrganizationsAPIUpdateRegionRequest) (*http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPatch
-		localVarPostBody     interface{}
-		formFiles            []formFile
+		localVarHTTPMethod = http.MethodPatch
+		localVarPostBody   interface{}
+		formFiles          []formFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "OrganizationsAPIService.UpdateRegion")
@@ -4528,9 +4550,9 @@ func (a *OrganizationsAPIService) UpdateRegionExecute(r OrganizationsAPIUpdateRe
 }
 
 type OrganizationsAPIUpdateSandboxDefaultLimitedNetworkEgressRequest struct {
-	ctx context.Context
-	ApiService OrganizationsAPI
-	organizationId string
+	ctx                                            context.Context
+	ApiService                                     OrganizationsAPI
+	organizationId                                 string
 	organizationSandboxDefaultLimitedNetworkEgress *OrganizationSandboxDefaultLimitedNetworkEgress
 }
 
@@ -4546,14 +4568,14 @@ func (r OrganizationsAPIUpdateSandboxDefaultLimitedNetworkEgressRequest) Execute
 /*
 UpdateSandboxDefaultLimitedNetworkEgress Update sandbox default limited network egress
 
- @param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
- @param organizationId Organization ID
- @return OrganizationsAPIUpdateSandboxDefaultLimitedNetworkEgressRequest
+	@param ctx context.Context - for authentication, logging, cancellation, deadlines, tracing, etc. Passed from http.Request or context.Background().
+	@param organizationId Organization ID
+	@return OrganizationsAPIUpdateSandboxDefaultLimitedNetworkEgressRequest
 */
 func (a *OrganizationsAPIService) UpdateSandboxDefaultLimitedNetworkEgress(ctx context.Context, organizationId string) OrganizationsAPIUpdateSandboxDefaultLimitedNetworkEgressRequest {
 	return OrganizationsAPIUpdateSandboxDefaultLimitedNetworkEgressRequest{
-		ApiService: a,
-		ctx: ctx,
+		ApiService:     a,
+		ctx:            ctx,
 		organizationId: organizationId,
 	}
 }
@@ -4561,9 +4583,9 @@ func (a *OrganizationsAPIService) UpdateSandboxDefaultLimitedNetworkEgress(ctx c
 // Execute executes the request
 func (a *OrganizationsAPIService) UpdateSandboxDefaultLimitedNetworkEgressExecute(r OrganizationsAPIUpdateSandboxDefaultLimitedNetworkEgressRequest) (*http.Response, error) {
 	var (
-		localVarHTTPMethod   = http.MethodPost
-		localVarPostBody     interface{}
-		formFiles            []formFile
+		localVarHTTPMethod = http.MethodPost
+		localVarPostBody   interface{}
+		formFiles          []formFile
 	)
 
 	localBasePath, err := a.client.cfg.ServerURLWithContext(r.ctx, "OrganizationsAPIService.UpdateSandboxDefaultLimitedNetworkEgress")

@@ -10,9 +10,9 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/gin-gonic/gin"
 	common_errors "github.com/northrays/common-go/pkg/errors"
 	"github.com/northrays/common-go/pkg/utils"
-	"github.com/gin-gonic/gin"
 )
 
 func (p *Proxy) Authenticate(ctx *gin.Context, sandboxIdOrSignedToken string, port float32) (sandboxId string, didRedirect bool, err error) {

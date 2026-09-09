@@ -20,12 +20,12 @@ var _ MappedNullable = &CodeRunRequest{}
 
 // CodeRunRequest struct for CodeRunRequest
 type CodeRunRequest struct {
-	Argv []string `json:"argv,omitempty"`
-	Code string `json:"code"`
+	Argv []string           `json:"argv,omitempty"`
+	Code string             `json:"code"`
 	Envs *map[string]string `json:"envs,omitempty"`
 	// python, javascript, typescript
-	Language string `json:"language"`
-	Timeout *int32 `json:"timeout,omitempty"`
+	Language             string `json:"language"`
+	Timeout              *int32 `json:"timeout,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -195,7 +195,7 @@ func (o *CodeRunRequest) SetTimeout(v int32) {
 }
 
 func (o CodeRunRequest) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -237,10 +237,10 @@ func (o *CodeRunRequest) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}
@@ -305,5 +305,3 @@ func (v *NullableCodeRunRequest) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

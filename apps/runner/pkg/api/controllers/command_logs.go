@@ -11,9 +11,9 @@ import (
 	"net/url"
 	"strings"
 
+	"github.com/gin-gonic/gin"
 	"github.com/northrays/common-go/pkg/errors"
 	"github.com/northrays/common-go/pkg/proxy"
-	"github.com/gin-gonic/gin"
 
 	"github.com/gorilla/websocket"
 )

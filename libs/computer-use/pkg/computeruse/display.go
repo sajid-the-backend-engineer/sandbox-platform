@@ -13,9 +13,9 @@ import (
 	"image/jpeg"
 	"image/png"
 
-	"github.com/northrays/daemon/pkg/toolbox/computeruse"
 	"github.com/go-vgo/robotgo"
 	"github.com/kbinani/screenshot"
+	"github.com/northrays/daemon/pkg/toolbox/computeruse"
 )
 
 // ImageCompressionParams holds parameters for image compression

@@ -9,9 +9,9 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/google/uuid"
 	apiclient_cli "github.com/northrays/sandbox-platform/cli/apiclient"
 	apiclient "github.com/northrays/sandbox-platform/libs/api-client-go"
-	"github.com/google/uuid"
 )
 
 // isVolumeId reports whether the argument is a canonical UUID (the length check

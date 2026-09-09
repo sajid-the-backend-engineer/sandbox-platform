@@ -279,4 +279,3 @@ func parseSNI(handshake []byte) (string, error) {
 	}
 	return serverName, nil
 }
-

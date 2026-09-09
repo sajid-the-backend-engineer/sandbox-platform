@@ -8,8 +8,8 @@ import (
 	"errors"
 	"strings"
 
-	"github.com/northrays/runner/internal/constants"
 	"github.com/gin-gonic/gin"
+	"github.com/northrays/runner/internal/constants"
 
 	common_errors "github.com/northrays/common-go/pkg/errors"
 )

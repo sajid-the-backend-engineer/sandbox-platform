@@ -20,8 +20,8 @@ type GpuType string
 
 // List of GpuType
 const (
-	GPUTYPE_H100 GpuType = "H100"
-	GPUTYPE_RTX_PRO_6000 GpuType = "RTX-PRO-6000"
+	GPUTYPE_H100                     GpuType = "H100"
+	GPUTYPE_RTX_PRO_6000             GpuType = "RTX-PRO-6000"
 	GPUTYPE_UNKNOWN_DEFAULT_OPEN_API GpuType = "11184809"
 )
 
@@ -112,4 +112,3 @@ func (v *NullableGpuType) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-

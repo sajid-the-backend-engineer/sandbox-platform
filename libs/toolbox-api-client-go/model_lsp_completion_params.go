@@ -20,11 +20,11 @@ var _ MappedNullable = &LspCompletionParams{}
 
 // LspCompletionParams struct for LspCompletionParams
 type LspCompletionParams struct {
-	Context *CompletionContext `json:"context,omitempty"`
-	LanguageId string `json:"languageId"`
-	PathToProject string `json:"pathToProject"`
-	Position LspPosition `json:"position"`
-	Uri string `json:"uri"`
+	Context              *CompletionContext `json:"context,omitempty"`
+	LanguageId           string             `json:"languageId"`
+	PathToProject        string             `json:"pathToProject"`
+	Position             LspPosition        `json:"position"`
+	Uri                  string             `json:"uri"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -180,7 +180,7 @@ func (o *LspCompletionParams) SetUri(v string) {
 }
 
 func (o LspCompletionParams) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -220,10 +220,10 @@ func (o *LspCompletionParams) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}
@@ -288,5 +288,3 @@ func (v *NullableLspCompletionParams) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

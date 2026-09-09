@@ -9,8 +9,8 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/northrays/sandbox-platform/cli/apiclient"
 	"github.com/mark3labs/mcp-go/mcp"
+	"github.com/northrays/sandbox-platform/cli/apiclient"
 
 	log "github.com/sirupsen/logrus"
 )

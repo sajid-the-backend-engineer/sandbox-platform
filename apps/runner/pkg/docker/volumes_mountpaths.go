@@ -15,10 +15,10 @@ import (
 	"sync"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/northrays/common-go/pkg/log"
 	"github.com/northrays/runner/cmd/runner/config"
 	"github.com/northrays/runner/pkg/api/dto"
-	"github.com/google/uuid"
 )
 
 const volumeMountPrefix = "northrays-volume-"

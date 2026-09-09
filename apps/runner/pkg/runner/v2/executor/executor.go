@@ -20,10 +20,10 @@ import (
 	"go.opentelemetry.io/otel/trace"
 
 	"github.com/northrays/common-go/pkg/utils"
-	apiclient "github.com/northrays/sandbox-platform/libs/api-client-go"
 	"github.com/northrays/runner/internal/metrics"
 	runnerapiclient "github.com/northrays/runner/pkg/apiclient"
 	"github.com/northrays/runner/pkg/docker"
+	apiclient "github.com/northrays/sandbox-platform/libs/api-client-go"
 )
 
 type ExecutorConfig struct {

@@ -10,8 +10,8 @@ import (
 	"time"
 	"unicode"
 
-	"github.com/northrays/daemon/pkg/toolbox/computeruse"
 	"github.com/go-vgo/robotgo"
+	"github.com/northrays/daemon/pkg/toolbox/computeruse"
 )
 
 type typingActionType int

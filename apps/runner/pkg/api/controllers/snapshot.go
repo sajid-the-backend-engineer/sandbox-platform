@@ -17,10 +17,10 @@ import (
 
 	"context"
 
+	"github.com/gin-gonic/gin"
 	"github.com/northrays/runner/cmd/runner/config"
 	"github.com/northrays/runner/pkg/api/dto"
 	"github.com/northrays/runner/pkg/runner"
-	"github.com/gin-gonic/gin"
 
 	common_errors "github.com/northrays/common-go/pkg/errors"
 )

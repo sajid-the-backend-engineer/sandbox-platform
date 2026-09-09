@@ -19,23 +19,23 @@ var _ MappedNullable = &ChartElement{}
 
 // ChartElement struct for ChartElement
 type ChartElement struct {
-	Angle *float32 `json:"angle,omitempty"`
-	FirstQuartile *float32 `json:"first_quartile,omitempty"`
-	Group *string `json:"group,omitempty"`
-	Label *string `json:"label,omitempty"`
-	Max *float32 `json:"max,omitempty"`
-	Median *float32 `json:"median,omitempty"`
-	Min *float32 `json:"min,omitempty"`
-	Outliers []float32 `json:"outliers,omitempty"`
-	Png *string `json:"png,omitempty"`
-	Points [][]float32 `json:"points,omitempty"`
-	Radius *float32 `json:"radius,omitempty"`
-	ThirdQuartile *float32 `json:"third_quartile,omitempty"`
-	Title *string `json:"title,omitempty"`
-	Type *string `json:"type,omitempty"`
-	Value *string `json:"value,omitempty"`
-	XLabel *string `json:"x_label,omitempty"`
-	YLabel *string `json:"y_label,omitempty"`
+	Angle                *float32    `json:"angle,omitempty"`
+	FirstQuartile        *float32    `json:"first_quartile,omitempty"`
+	Group                *string     `json:"group,omitempty"`
+	Label                *string     `json:"label,omitempty"`
+	Max                  *float32    `json:"max,omitempty"`
+	Median               *float32    `json:"median,omitempty"`
+	Min                  *float32    `json:"min,omitempty"`
+	Outliers             []float32   `json:"outliers,omitempty"`
+	Png                  *string     `json:"png,omitempty"`
+	Points               [][]float32 `json:"points,omitempty"`
+	Radius               *float32    `json:"radius,omitempty"`
+	ThirdQuartile        *float32    `json:"third_quartile,omitempty"`
+	Title                *string     `json:"title,omitempty"`
+	Type                 *string     `json:"type,omitempty"`
+	Value                *string     `json:"value,omitempty"`
+	XLabel               *string     `json:"x_label,omitempty"`
+	YLabel               *string     `json:"y_label,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -603,7 +603,7 @@ func (o *ChartElement) SetYLabel(v string) {
 }
 
 func (o ChartElement) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -743,5 +743,3 @@ func (v *NullableChartElement) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

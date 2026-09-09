@@ -13,10 +13,10 @@ import (
 	"net/url"
 	"time"
 
+	"github.com/docker/docker/api/types/container"
 	common_errors "github.com/northrays/common-go/pkg/errors"
 	"github.com/northrays/common-go/pkg/timer"
 	"github.com/northrays/runner/pkg/common"
-	"github.com/docker/docker/api/types/container"
 	"go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp"
 	"go.opentelemetry.io/otel"
 	"go.opentelemetry.io/otel/attribute"

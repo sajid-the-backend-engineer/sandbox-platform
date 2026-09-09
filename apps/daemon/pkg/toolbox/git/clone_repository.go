@@ -8,11 +8,11 @@ import (
 	"fmt"
 	"net/http"
 
+	"github.com/gin-gonic/gin"
+	go_git_http "github.com/go-git/go-git/v5/plumbing/transport/http"
 	common_errors "github.com/northrays/common-go/pkg/errors"
 	"github.com/northrays/daemon/pkg/git"
 	"github.com/northrays/daemon/pkg/gitprovider"
-	"github.com/gin-gonic/gin"
-	go_git_http "github.com/go-git/go-git/v5/plumbing/transport/http"
 )
 
 // CloneRepository godoc

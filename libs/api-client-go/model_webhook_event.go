@@ -20,13 +20,13 @@ type WebhookEvent string
 
 // List of WebhookEvent
 const (
-	WEBHOOKEVENT_SANDBOX_CREATED WebhookEvent = "sandbox.created"
-	WEBHOOKEVENT_SANDBOX_STATE_UPDATED WebhookEvent = "sandbox.state.updated"
-	WEBHOOKEVENT_SNAPSHOT_CREATED WebhookEvent = "snapshot.created"
-	WEBHOOKEVENT_SNAPSHOT_STATE_UPDATED WebhookEvent = "snapshot.state.updated"
-	WEBHOOKEVENT_SNAPSHOT_REMOVED WebhookEvent = "snapshot.removed"
-	WEBHOOKEVENT_VOLUME_CREATED WebhookEvent = "volume.created"
-	WEBHOOKEVENT_VOLUME_STATE_UPDATED WebhookEvent = "volume.state.updated"
+	WEBHOOKEVENT_SANDBOX_CREATED          WebhookEvent = "sandbox.created"
+	WEBHOOKEVENT_SANDBOX_STATE_UPDATED    WebhookEvent = "sandbox.state.updated"
+	WEBHOOKEVENT_SNAPSHOT_CREATED         WebhookEvent = "snapshot.created"
+	WEBHOOKEVENT_SNAPSHOT_STATE_UPDATED   WebhookEvent = "snapshot.state.updated"
+	WEBHOOKEVENT_SNAPSHOT_REMOVED         WebhookEvent = "snapshot.removed"
+	WEBHOOKEVENT_VOLUME_CREATED           WebhookEvent = "volume.created"
+	WEBHOOKEVENT_VOLUME_STATE_UPDATED     WebhookEvent = "volume.state.updated"
 	WEBHOOKEVENT_UNKNOWN_DEFAULT_OPEN_API WebhookEvent = "11184809"
 )
 
@@ -122,4 +122,3 @@ func (v *NullableWebhookEvent) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-

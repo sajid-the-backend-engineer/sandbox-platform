@@ -1087,121 +1087,6 @@ files = [
 databind = ">=4.5.2,<5.0.0"
 
 [[package]]
-name = "northrays"
-version = "0.0.0-dev"
-description = "Python SDK for Northrays"
-optional = false
-python-versions = ">=3.9,<4.0"
-groups = ["main"]
-files = []
-develop = true
-
-[package.dependencies]
-aiofiles = ">=24.1.0,<24.2.0"
-aiohttp = ">=3.10.0,<4.0.0"
-Deprecated = ">=1.2.18,<2.0.0"
-httpx = ">=0.28.0,<0.29.0"
-httpx-ws = ">=0.7.0,<1.0.0"
-obstore = ">=0.8.0,<0.9.0"
-opentelemetry-api = ">=1.27.0,<2.0.0"
-opentelemetry-exporter-otlp-proto-http = ">=1.27.0,<2.0.0"
-opentelemetry-instrumentation-aiohttp-client = ">=0.59b0"
-opentelemetry-sdk = ">=1.27.0,<2.0.0"
-pydantic = ">=2.4.2,<3.0.0"
-python-dotenv = ">=1.0.0,<2.0.0"
-python-multipart = ">=0.0.15,<0.1.0"
-toml = ">=0.10.0,<0.11.0"
-typing-extensions = {version = ">=4.0.0", markers = "python_version < \"3.10\""}
-urllib3 = ">=2.1.0,<3.0.0"
-wsproto = ">=1.2.0,<2.0.0"
-
-[package.source]
-type = "directory"
-url = "libs/sdk-python"
-
-[[package]]
-name = "northrays-api-client"
-version = "0.0.0-dev"
-description = "Northrays"
-optional = false
-python-versions = ">=3.9"
-groups = ["main"]
-files = []
-develop = true
-
-[package.dependencies]
-pydantic = ">=2.11"
-python-dateutil = ">=2.8.2"
-typing-extensions = ">=4.7.1"
-urllib3 = ">=2.1.0,<3.0.0"
-
-[package.source]
-type = "directory"
-url = "libs/api-client-python"
-
-[[package]]
-name = "northrays-api-client-async"
-version = "0.0.0-dev"
-description = "Northrays"
-optional = false
-python-versions = ">=3.9"
-groups = ["main"]
-files = []
-develop = true
-
-[package.dependencies]
-aiohttp = ">=3.8.4"
-aiohttp-retry = ">=2.8.3"
-pydantic = ">=2.11"
-python-dateutil = ">=2.8.2"
-typing-extensions = ">=4.7.1"
-
-[package.source]
-type = "directory"
-url = "libs/api-client-python-async"
-
-[[package]]
-name = "northrays-toolbox-api-client"
-version = "0.0.0-dev"
-description = "Northrays Toolbox API"
-optional = false
-python-versions = ">=3.9"
-groups = ["main"]
-files = []
-develop = true
-
-[package.dependencies]
-pydantic = ">=2.11"
-python-dateutil = ">=2.8.2"
-typing-extensions = ">=4.7.1"
-urllib3 = ">=2.1.0,<3.0.0"
-
-[package.source]
-type = "directory"
-url = "libs/toolbox-api-client-python"
-
-[[package]]
-name = "northrays-toolbox-api-client-async"
-version = "0.0.0-dev"
-description = "Northrays Toolbox API"
-optional = false
-python-versions = ">=3.9"
-groups = ["main"]
-files = []
-develop = true
-
-[package.dependencies]
-aiohttp = ">=3.8.4"
-aiohttp-retry = ">=2.8.3"
-pydantic = ">=2.11"
-python-dateutil = ">=2.8.2"
-typing-extensions = ">=4.7.1"
-
-[package.source]
-type = "directory"
-url = "libs/toolbox-api-client-python-async"
-
-[[package]]
 name = "debugpy"
 version = "1.8.19"
 description = "An implementation of the Debug Adapter Protocol for Python"
@@ -3266,6 +3151,125 @@ files = [
     {file = "nodejs_wheel_binaries-24.11.1-py2.py3-none-win_arm64.whl", hash = "sha256:376b9ea1c4bc1207878975dfeb604f7aa5668c260c6154dcd2af9d42f7734116"},
     {file = "nodejs_wheel_binaries-24.11.1.tar.gz", hash = "sha256:413dfffeadfb91edb4d8256545dea797c237bba9b3faefea973cde92d96bb922"},
 ]
+
+[[package]]
+name = "northrays"
+version = "0.0.0-dev"
+description = "Python SDK for Northrays"
+optional = false
+python-versions = ">=3.9,<4.0"
+groups = ["main"]
+files = []
+develop = true
+
+[package.dependencies]
+aiofiles = ">=24.1.0,<24.2.0"
+aiohttp = ">=3.10.0,<4.0.0"
+Deprecated = ">=1.2.18,<2.0.0"
+httpx = ">=0.28.0,<0.29.0"
+httpx-ws = ">=0.7.0,<1.0.0"
+northrays-api-client = ">=0.0.0.dev0"
+northrays-api-client-async = ">=0.0.0.dev0"
+northrays-toolbox-api-client = ">=0.0.0.dev0"
+northrays-toolbox-api-client-async = ">=0.0.0.dev0"
+obstore = ">=0.8.0,<0.9.0"
+opentelemetry-api = ">=1.27.0,<2.0.0"
+opentelemetry-exporter-otlp-proto-http = ">=1.27.0,<2.0.0"
+opentelemetry-instrumentation-aiohttp-client = ">=0.59b0"
+opentelemetry-sdk = ">=1.27.0,<2.0.0"
+pydantic = ">=2.4.2,<3.0.0"
+python-dotenv = ">=1.0.0,<2.0.0"
+python-multipart = ">=0.0.15,<0.1.0"
+toml = ">=0.10.0,<0.11.0"
+typing-extensions = {version = ">=4.0.0", markers = "python_version < \"3.10\""}
+urllib3 = ">=2.1.0,<3.0.0"
+wsproto = ">=1.2.0,<2.0.0"
+
+[package.source]
+type = "directory"
+url = "libs/sdk-python"
+
+[[package]]
+name = "northrays-api-client"
+version = "0.0.0-dev"
+description = "Northrays"
+optional = false
+python-versions = ">=3.9"
+groups = ["main"]
+files = []
+develop = true
+
+[package.dependencies]
+pydantic = ">=2.11"
+python-dateutil = ">=2.8.2"
+typing-extensions = ">=4.7.1"
+urllib3 = ">=2.1.0,<3.0.0"
+
+[package.source]
+type = "directory"
+url = "libs/api-client-python"
+
+[[package]]
+name = "northrays-api-client-async"
+version = "0.0.0-dev"
+description = "Northrays"
+optional = false
+python-versions = ">=3.9"
+groups = ["main"]
+files = []
+develop = true
+
+[package.dependencies]
+aiohttp = ">=3.8.4"
+aiohttp-retry = ">=2.8.3"
+pydantic = ">=2.11"
+python-dateutil = ">=2.8.2"
+typing-extensions = ">=4.7.1"
+
+[package.source]
+type = "directory"
+url = "libs/api-client-python-async"
+
+[[package]]
+name = "northrays-toolbox-api-client"
+version = "0.0.0-dev"
+description = "Northrays Toolbox API"
+optional = false
+python-versions = ">=3.9"
+groups = ["main"]
+files = []
+develop = true
+
+[package.dependencies]
+pydantic = ">=2.11"
+python-dateutil = ">=2.8.2"
+typing-extensions = ">=4.7.1"
+urllib3 = ">=2.1.0,<3.0.0"
+
+[package.source]
+type = "directory"
+url = "libs/toolbox-api-client-python"
+
+[[package]]
+name = "northrays-toolbox-api-client-async"
+version = "0.0.0-dev"
+description = "Northrays Toolbox API"
+optional = false
+python-versions = ">=3.9"
+groups = ["main"]
+files = []
+develop = true
+
+[package.dependencies]
+aiohttp = ">=3.8.4"
+aiohttp-retry = ">=2.8.3"
+pydantic = ">=2.11"
+python-dateutil = ">=2.8.2"
+typing-extensions = ">=4.7.1"
+
+[package.source]
+type = "directory"
+url = "libs/toolbox-api-client-python-async"
 
 [[package]]
 name = "nr-date"
@@ -5671,4 +5675,4 @@ type = ["pytest-mypy"]
 [metadata]
 lock-version = "2.1"
 python-versions = "^3.9"
-content-hash = "cd0f0560f3f4bf427d954da0f5418f70540dd68c0338d23f6737a18dd8678dfe"
+content-hash = "0048b2444186850514fa82d6d8a1ebc46210f4e8ae98a448f65375dea0f40947"

@@ -9,8 +9,8 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/northrays/daemon/pkg/gitprovider"
 	"github.com/go-git/go-git/v5/plumbing/transport/http"
+	"github.com/northrays/daemon/pkg/gitprovider"
 	"github.com/stretchr/testify/require"
 )
 

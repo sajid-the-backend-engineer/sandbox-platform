@@ -19,10 +19,10 @@ var _ MappedNullable = &ProcessStatus{}
 
 // ProcessStatus struct for ProcessStatus
 type ProcessStatus struct {
-	AutoRestart *bool `json:"autoRestart,omitempty"`
-	Pid *int32 `json:"pid,omitempty"`
-	Priority *int32 `json:"priority,omitempty"`
-	Running *bool `json:"running,omitempty"`
+	AutoRestart          *bool  `json:"autoRestart,omitempty"`
+	Pid                  *int32 `json:"pid,omitempty"`
+	Priority             *int32 `json:"priority,omitempty"`
+	Running              *bool  `json:"running,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -174,7 +174,7 @@ func (o *ProcessStatus) SetRunning(v bool) {
 }
 
 func (o ProcessStatus) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -262,5 +262,3 @@ func (v *NullableProcessStatus) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

@@ -21,20 +21,20 @@ var _ MappedNullable = &CreateOrganizationRegionQuota{}
 
 // CreateOrganizationRegionQuota struct for CreateOrganizationRegionQuota
 type CreateOrganizationRegionQuota struct {
-	SandboxClass SandboxClass `json:"sandboxClass"`
-	TotalCpuQuota float32 `json:"totalCpuQuota"`
-	TotalMemoryQuota float32 `json:"totalMemoryQuota"`
-	TotalDiskQuota float32 `json:"totalDiskQuota"`
-	TotalGpuQuota float32 `json:"totalGpuQuota"`
-	AllowedGpuTypes []GpuType `json:"allowedGpuTypes,omitempty"`
-	MaxCpuPerSandbox NullableFloat32 `json:"maxCpuPerSandbox,omitempty"`
-	MaxMemoryPerSandbox NullableFloat32 `json:"maxMemoryPerSandbox,omitempty"`
-	MaxDiskPerSandbox NullableFloat32 `json:"maxDiskPerSandbox,omitempty"`
+	SandboxClass                  SandboxClass    `json:"sandboxClass"`
+	TotalCpuQuota                 float32         `json:"totalCpuQuota"`
+	TotalMemoryQuota              float32         `json:"totalMemoryQuota"`
+	TotalDiskQuota                float32         `json:"totalDiskQuota"`
+	TotalGpuQuota                 float32         `json:"totalGpuQuota"`
+	AllowedGpuTypes               []GpuType       `json:"allowedGpuTypes,omitempty"`
+	MaxCpuPerSandbox              NullableFloat32 `json:"maxCpuPerSandbox,omitempty"`
+	MaxMemoryPerSandbox           NullableFloat32 `json:"maxMemoryPerSandbox,omitempty"`
+	MaxDiskPerSandbox             NullableFloat32 `json:"maxDiskPerSandbox,omitempty"`
 	MaxDiskPerNonEphemeralSandbox NullableFloat32 `json:"maxDiskPerNonEphemeralSandbox,omitempty"`
-	MaxCpuPerGpuSandbox NullableFloat32 `json:"maxCpuPerGpuSandbox,omitempty"`
-	MaxMemoryPerGpuSandbox NullableFloat32 `json:"maxMemoryPerGpuSandbox,omitempty"`
-	MaxDiskPerGpuSandbox NullableFloat32 `json:"maxDiskPerGpuSandbox,omitempty"`
-	AdditionalProperties map[string]interface{}
+	MaxCpuPerGpuSandbox           NullableFloat32 `json:"maxCpuPerGpuSandbox,omitempty"`
+	MaxMemoryPerGpuSandbox        NullableFloat32 `json:"maxMemoryPerGpuSandbox,omitempty"`
+	MaxDiskPerGpuSandbox          NullableFloat32 `json:"maxDiskPerGpuSandbox,omitempty"`
+	AdditionalProperties          map[string]interface{}
 }
 
 type _CreateOrganizationRegionQuota CreateOrganizationRegionQuota
@@ -246,6 +246,7 @@ func (o *CreateOrganizationRegionQuota) HasMaxCpuPerSandbox() bool {
 func (o *CreateOrganizationRegionQuota) SetMaxCpuPerSandbox(v float32) {
 	o.MaxCpuPerSandbox.Set(&v)
 }
+
 // SetMaxCpuPerSandboxNil sets the value for MaxCpuPerSandbox to be an explicit nil
 func (o *CreateOrganizationRegionQuota) SetMaxCpuPerSandboxNil() {
 	o.MaxCpuPerSandbox.Set(nil)
@@ -288,6 +289,7 @@ func (o *CreateOrganizationRegionQuota) HasMaxMemoryPerSandbox() bool {
 func (o *CreateOrganizationRegionQuota) SetMaxMemoryPerSandbox(v float32) {
 	o.MaxMemoryPerSandbox.Set(&v)
 }
+
 // SetMaxMemoryPerSandboxNil sets the value for MaxMemoryPerSandbox to be an explicit nil
 func (o *CreateOrganizationRegionQuota) SetMaxMemoryPerSandboxNil() {
 	o.MaxMemoryPerSandbox.Set(nil)
@@ -330,6 +332,7 @@ func (o *CreateOrganizationRegionQuota) HasMaxDiskPerSandbox() bool {
 func (o *CreateOrganizationRegionQuota) SetMaxDiskPerSandbox(v float32) {
 	o.MaxDiskPerSandbox.Set(&v)
 }
+
 // SetMaxDiskPerSandboxNil sets the value for MaxDiskPerSandbox to be an explicit nil
 func (o *CreateOrganizationRegionQuota) SetMaxDiskPerSandboxNil() {
 	o.MaxDiskPerSandbox.Set(nil)
@@ -372,6 +375,7 @@ func (o *CreateOrganizationRegionQuota) HasMaxDiskPerNonEphemeralSandbox() bool 
 func (o *CreateOrganizationRegionQuota) SetMaxDiskPerNonEphemeralSandbox(v float32) {
 	o.MaxDiskPerNonEphemeralSandbox.Set(&v)
 }
+
 // SetMaxDiskPerNonEphemeralSandboxNil sets the value for MaxDiskPerNonEphemeralSandbox to be an explicit nil
 func (o *CreateOrganizationRegionQuota) SetMaxDiskPerNonEphemeralSandboxNil() {
 	o.MaxDiskPerNonEphemeralSandbox.Set(nil)
@@ -414,6 +418,7 @@ func (o *CreateOrganizationRegionQuota) HasMaxCpuPerGpuSandbox() bool {
 func (o *CreateOrganizationRegionQuota) SetMaxCpuPerGpuSandbox(v float32) {
 	o.MaxCpuPerGpuSandbox.Set(&v)
 }
+
 // SetMaxCpuPerGpuSandboxNil sets the value for MaxCpuPerGpuSandbox to be an explicit nil
 func (o *CreateOrganizationRegionQuota) SetMaxCpuPerGpuSandboxNil() {
 	o.MaxCpuPerGpuSandbox.Set(nil)
@@ -456,6 +461,7 @@ func (o *CreateOrganizationRegionQuota) HasMaxMemoryPerGpuSandbox() bool {
 func (o *CreateOrganizationRegionQuota) SetMaxMemoryPerGpuSandbox(v float32) {
 	o.MaxMemoryPerGpuSandbox.Set(&v)
 }
+
 // SetMaxMemoryPerGpuSandboxNil sets the value for MaxMemoryPerGpuSandbox to be an explicit nil
 func (o *CreateOrganizationRegionQuota) SetMaxMemoryPerGpuSandboxNil() {
 	o.MaxMemoryPerGpuSandbox.Set(nil)
@@ -498,6 +504,7 @@ func (o *CreateOrganizationRegionQuota) HasMaxDiskPerGpuSandbox() bool {
 func (o *CreateOrganizationRegionQuota) SetMaxDiskPerGpuSandbox(v float32) {
 	o.MaxDiskPerGpuSandbox.Set(&v)
 }
+
 // SetMaxDiskPerGpuSandboxNil sets the value for MaxDiskPerGpuSandbox to be an explicit nil
 func (o *CreateOrganizationRegionQuota) SetMaxDiskPerGpuSandboxNil() {
 	o.MaxDiskPerGpuSandbox.Set(nil)
@@ -509,7 +516,7 @@ func (o *CreateOrganizationRegionQuota) UnsetMaxDiskPerGpuSandbox() {
 }
 
 func (o CreateOrganizationRegionQuota) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -572,10 +579,10 @@ func (o *CreateOrganizationRegionQuota) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}
@@ -648,5 +655,3 @@ func (v *NullableCreateOrganizationRegionQuota) UnmarshalJSON(src []byte) error 
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

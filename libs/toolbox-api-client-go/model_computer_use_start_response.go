@@ -19,8 +19,8 @@ var _ MappedNullable = &ComputerUseStartResponse{}
 
 // ComputerUseStartResponse struct for ComputerUseStartResponse
 type ComputerUseStartResponse struct {
-	Message *string `json:"message,omitempty"`
-	Status *map[string]ProcessStatus `json:"status,omitempty"`
+	Message              *string                   `json:"message,omitempty"`
+	Status               *map[string]ProcessStatus `json:"status,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -108,7 +108,7 @@ func (o *ComputerUseStartResponse) SetStatus(v map[string]ProcessStatus) {
 }
 
 func (o ComputerUseStartResponse) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -188,5 +188,3 @@ func (v *NullableComputerUseStartResponse) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

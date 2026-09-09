@@ -90,7 +90,7 @@ type RunnerFull struct {
 	// The API key for the runner
 	ApiKey string `json:"apiKey"`
 	// The region type of the runner
-	RegionType *RegionType `json:"regionType,omitempty"`
+	RegionType           *RegionType `json:"regionType,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -1077,7 +1077,7 @@ func (o *RunnerFull) SetRegionType(v RegionType) {
 }
 
 func (o RunnerFull) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -1190,10 +1190,10 @@ func (o *RunnerFull) UnmarshalJSON(data []byte) (err error) {
 	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
-		return err;
+		return err
 	}
 
-	for _, requiredProperty := range(requiredProperties) {
+	for _, requiredProperty := range requiredProperties {
 		if _, exists := allProperties[requiredProperty]; !exists {
 			return fmt.Errorf("no value given for required property %v", requiredProperty)
 		}
@@ -1286,5 +1286,3 @@ func (v *NullableRunnerFull) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

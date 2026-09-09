@@ -12,8 +12,8 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/northrays/daemon/pkg/common"
 	"github.com/gorilla/websocket"
+	"github.com/northrays/daemon/pkg/common"
 )
 
 var upgrader = websocket.Upgrader{

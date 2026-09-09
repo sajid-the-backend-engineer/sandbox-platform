@@ -19,18 +19,18 @@ var _ MappedNullable = &Chart{}
 
 // Chart struct for Chart
 type Chart struct {
-	Elements []ChartElement `json:"elements,omitempty"`
-	Png *string `json:"png,omitempty"`
-	Title *string `json:"title,omitempty"`
-	Type *string `json:"type,omitempty"`
-	XLabel *string `json:"x_label,omitempty"`
-	XScale *string `json:"x_scale,omitempty"`
-	XTickLabels []string `json:"x_tick_labels,omitempty"`
-	XTicks []float32 `json:"x_ticks,omitempty"`
-	YLabel *string `json:"y_label,omitempty"`
-	YScale *string `json:"y_scale,omitempty"`
-	YTickLabels []string `json:"y_tick_labels,omitempty"`
-	YTicks []float32 `json:"y_ticks,omitempty"`
+	Elements             []ChartElement `json:"elements,omitempty"`
+	Png                  *string        `json:"png,omitempty"`
+	Title                *string        `json:"title,omitempty"`
+	Type                 *string        `json:"type,omitempty"`
+	XLabel               *string        `json:"x_label,omitempty"`
+	XScale               *string        `json:"x_scale,omitempty"`
+	XTickLabels          []string       `json:"x_tick_labels,omitempty"`
+	XTicks               []float32      `json:"x_ticks,omitempty"`
+	YLabel               *string        `json:"y_label,omitempty"`
+	YScale               *string        `json:"y_scale,omitempty"`
+	YTickLabels          []string       `json:"y_tick_labels,omitempty"`
+	YTicks               []float32      `json:"y_ticks,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -438,7 +438,7 @@ func (o *Chart) SetYTicks(v []float32) {
 }
 
 func (o Chart) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -558,5 +558,3 @@ func (v *NullableChart) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

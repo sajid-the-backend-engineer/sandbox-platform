@@ -10,12 +10,12 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/northrays/runner/cmd/runner/config"
-	"github.com/northrays/runner/pkg/api/dto"
-	"github.com/northrays/runner/pkg/common"
 	"github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/api/types/network"
 	"github.com/docker/docker/api/types/strslice"
+	"github.com/northrays/runner/cmd/runner/config"
+	"github.com/northrays/runner/pkg/api/dto"
+	"github.com/northrays/runner/pkg/common"
 
 	"github.com/docker/docker/api/types/container"
 )

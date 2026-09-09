@@ -17,12 +17,12 @@ import (
 	"sync"
 	"time"
 
-	apiclient "github.com/northrays/sandbox-platform/libs/api-client-go"
-	"github.com/northrays/proxy/cmd/proxy/config"
-	"github.com/northrays/proxy/internal"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/securecookie"
+	"github.com/northrays/proxy/cmd/proxy/config"
+	"github.com/northrays/proxy/internal"
+	apiclient "github.com/northrays/sandbox-platform/libs/api-client-go"
 
 	common_cache "github.com/northrays/common-go/pkg/cache"
 	common_errors "github.com/northrays/common-go/pkg/errors"

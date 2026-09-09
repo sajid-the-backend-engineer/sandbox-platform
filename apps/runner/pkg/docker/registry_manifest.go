@@ -8,11 +8,11 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/northrays/runner/pkg/api/dto"
 	"github.com/google/go-containerregistry/pkg/authn"
 	"github.com/google/go-containerregistry/pkg/name"
 	v1 "github.com/google/go-containerregistry/pkg/v1"
 	"github.com/google/go-containerregistry/pkg/v1/remote"
+	"github.com/northrays/runner/pkg/api/dto"
 )
 
 // getImageSizeFromRegistry fetches the manifest from a container registry and calculates

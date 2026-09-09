@@ -8,8 +8,8 @@ import (
 	"os"
 	"time"
 
-	"github.com/northrays/daemon/pkg/toolbox/computeruse"
 	"github.com/go-vgo/robotgo"
+	"github.com/northrays/daemon/pkg/toolbox/computeruse"
 	log "github.com/sirupsen/logrus"
 )
 

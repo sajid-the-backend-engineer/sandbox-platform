@@ -19,7 +19,7 @@ var _ MappedNullable = &ScrollResponse{}
 
 // ScrollResponse struct for ScrollResponse
 type ScrollResponse struct {
-	Success *bool `json:"success,omitempty"`
+	Success              *bool `json:"success,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -75,7 +75,7 @@ func (o *ScrollResponse) SetSuccess(v bool) {
 }
 
 func (o ScrollResponse) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -151,5 +151,3 @@ func (v *NullableScrollResponse) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

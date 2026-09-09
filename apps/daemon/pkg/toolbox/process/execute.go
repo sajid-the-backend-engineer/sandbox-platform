@@ -18,9 +18,9 @@ import (
 
 	common_errors "github.com/northrays/common-go/pkg/errors"
 
+	"github.com/gin-gonic/gin"
 	"github.com/northrays/daemon/pkg/childreap"
 	"github.com/northrays/daemon/pkg/common"
-	"github.com/gin-gonic/gin"
 )
 
 // ExecuteCommand godoc

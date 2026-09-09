@@ -9,11 +9,11 @@ import (
 	"net/http"
 	"time"
 
-	common_errors "github.com/northrays/common-go/pkg/errors"
-	"github.com/northrays/daemon/pkg/git"
 	"github.com/gin-gonic/gin"
 	go_git "github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/object"
+	common_errors "github.com/northrays/common-go/pkg/errors"
+	"github.com/northrays/daemon/pkg/git"
 )
 
 // CommitChanges godoc

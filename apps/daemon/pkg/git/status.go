@@ -10,8 +10,8 @@ import (
 	"strconv"
 	"strings"
 
-	"github.com/northrays/daemon/pkg/childreap"
 	"github.com/go-git/go-git/v5"
+	"github.com/northrays/daemon/pkg/childreap"
 )
 
 func (s *Service) GetGitStatus() (*GitStatus, error) {

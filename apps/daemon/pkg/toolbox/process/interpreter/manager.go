@@ -10,8 +10,8 @@ import (
 	"sync"
 	"time"
 
-	common_errors "github.com/northrays/common-go/pkg/errors"
 	"github.com/google/uuid"
+	common_errors "github.com/northrays/common-go/pkg/errors"
 )
 
 // Manager manages multiple interpreter contexts

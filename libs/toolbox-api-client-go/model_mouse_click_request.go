@@ -20,10 +20,10 @@ var _ MappedNullable = &MouseClickRequest{}
 // MouseClickRequest struct for MouseClickRequest
 type MouseClickRequest struct {
 	// left, right, middle
-	Button *string `json:"button,omitempty"`
-	Double *bool `json:"double,omitempty"`
-	X *int32 `json:"x,omitempty"`
-	Y *int32 `json:"y,omitempty"`
+	Button               *string `json:"button,omitempty"`
+	Double               *bool   `json:"double,omitempty"`
+	X                    *int32  `json:"x,omitempty"`
+	Y                    *int32  `json:"y,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -175,7 +175,7 @@ func (o *MouseClickRequest) SetY(v int32) {
 }
 
 func (o MouseClickRequest) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -263,5 +263,3 @@ func (v *NullableMouseClickRequest) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

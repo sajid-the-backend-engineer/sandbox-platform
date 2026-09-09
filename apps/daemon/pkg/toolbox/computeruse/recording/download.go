@@ -9,8 +9,8 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/northrays/daemon/pkg/recording"
 	"github.com/gin-gonic/gin"
+	"github.com/northrays/daemon/pkg/recording"
 )
 
 // DownloadRecording godoc

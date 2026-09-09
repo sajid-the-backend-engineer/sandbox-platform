@@ -10,11 +10,11 @@ import (
 	"log/slog"
 	"time"
 
-	apiclient "github.com/northrays/sandbox-platform/libs/api-client-go"
+	"github.com/docker/docker/api/types/container"
 	runnerapiclient "github.com/northrays/runner/pkg/apiclient"
 	"github.com/northrays/runner/pkg/docker"
 	"github.com/northrays/runner/pkg/models/enums"
-	"github.com/docker/docker/api/types/container"
+	apiclient "github.com/northrays/sandbox-platform/libs/api-client-go"
 )
 
 type SandboxSyncServiceConfig struct {

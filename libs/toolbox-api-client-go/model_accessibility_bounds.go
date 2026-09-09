@@ -19,10 +19,10 @@ var _ MappedNullable = &AccessibilityBounds{}
 
 // AccessibilityBounds struct for AccessibilityBounds
 type AccessibilityBounds struct {
-	Height *int32 `json:"height,omitempty"`
-	Width *int32 `json:"width,omitempty"`
-	X *int32 `json:"x,omitempty"`
-	Y *int32 `json:"y,omitempty"`
+	Height               *int32 `json:"height,omitempty"`
+	Width                *int32 `json:"width,omitempty"`
+	X                    *int32 `json:"x,omitempty"`
+	Y                    *int32 `json:"y,omitempty"`
 	AdditionalProperties map[string]interface{}
 }
 
@@ -174,7 +174,7 @@ func (o *AccessibilityBounds) SetY(v int32) {
 }
 
 func (o AccessibilityBounds) MarshalJSON() ([]byte, error) {
-	toSerialize,err := o.ToMap()
+	toSerialize, err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
 	}
@@ -262,5 +262,3 @@ func (v *NullableAccessibilityBounds) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }
-
-

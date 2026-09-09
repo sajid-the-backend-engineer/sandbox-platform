@@ -5,9 +5,9 @@
 package mcp
 
 import (
-	"github.com/northrays/sandbox-platform/cli/mcp/tools"
 	"github.com/mark3labs/mcp-go/mcp"
 	"github.com/mark3labs/mcp-go/server"
+	"github.com/northrays/sandbox-platform/cli/mcp/tools"
 )
 
 type NorthraysMCPServer struct {

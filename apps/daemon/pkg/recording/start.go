@@ -13,8 +13,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/northrays/daemon/pkg/childreap"
 	"github.com/google/uuid"
+	"github.com/northrays/daemon/pkg/childreap"
 )
 
 // validateLabel validates a user-provided label to prevent path injection

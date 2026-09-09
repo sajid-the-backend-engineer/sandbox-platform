@@ -11,8 +11,8 @@ import (
 	"time"
 
 	"github.com/containerd/errdefs"
-	"github.com/northrays/runner/internal/util"
 	"github.com/gin-gonic/gin"
+	"github.com/northrays/runner/internal/util"
 
 	common_errors "github.com/northrays/common-go/pkg/errors"
 )

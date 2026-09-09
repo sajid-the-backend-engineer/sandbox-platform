@@ -7,11 +7,11 @@ package main
 import (
 	"os"
 
+	"github.com/hashicorp/go-hclog"
+	hc_plugin "github.com/hashicorp/go-plugin"
 	cu "github.com/northrays/computer-use/pkg/computeruse"
 	"github.com/northrays/daemon/pkg/toolbox/computeruse"
 	"github.com/northrays/daemon/pkg/toolbox/computeruse/manager"
-	"github.com/hashicorp/go-hclog"
-	hc_plugin "github.com/hashicorp/go-plugin"
 )
 
 func main() {

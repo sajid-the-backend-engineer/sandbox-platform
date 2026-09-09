@@ -6,8 +6,8 @@ package controllers
 import (
 	"net/http"
 
-	"github.com/northrays/runner/internal"
 	"github.com/gin-gonic/gin"
+	"github.com/northrays/runner/internal"
 )
 
 // HealthCheck 			godoc

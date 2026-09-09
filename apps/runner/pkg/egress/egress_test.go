@@ -6,9 +6,9 @@ package egress
 import (
 	"bufio"
 	"crypto/tls"
+	"encoding/binary"
 	"fmt"
 	"io"
-	"encoding/binary"
 	"log/slog"
 	"net"
 	"strings"
@@ -394,9 +394,9 @@ func injectExtension(t *testing.T, hello []byte, extType uint16, body []byte) []
 	// Walk to the extensions_length field: 5 record header + 4 handshake header +
 	// 2 version + 32 random, then three length-prefixed vectors.
 	pos := 5 + 4 + 2 + 32
-	pos += 1 + int(hello[pos])                                          // session_id
-	pos += 2 + int(binary.BigEndian.Uint16(hello[pos:pos+2]))            // cipher_suites
-	pos += 1 + int(hello[pos])                                          // compression_methods
+	pos += 1 + int(hello[pos])                                // session_id
+	pos += 2 + int(binary.BigEndian.Uint16(hello[pos:pos+2])) // cipher_suites
+	pos += 1 + int(hello[pos])                                // compression_methods
 	extLenAt := pos
 
 	ext := make([]byte, 0, 4+len(body))

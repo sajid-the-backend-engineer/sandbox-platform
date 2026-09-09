@@ -18,22 +18,22 @@ import (
 )
 
 type Config struct {
-	NorthraysApiUrl                      string        `envconfig:"NORTHRAYS_API_URL"`
-	ApiToken                           string        `envconfig:"NORTHRAYS_RUNNER_TOKEN"`
-	ApiPort                            int           `envconfig:"API_PORT"`
-	ApiLogRequests                     bool          `envconfig:"API_LOG_REQUESTS" default:"false"`
-	TLSCertFile                        string        `envconfig:"TLS_CERT_FILE"`
-	TLSKeyFile                         string        `envconfig:"TLS_KEY_FILE"`
-	EnableTLS                          bool          `envconfig:"ENABLE_TLS"`
-	OtelLoggingEnabled                 bool          `envconfig:"OTEL_LOGGING_ENABLED"`
-	OtelTracingEnabled                 bool          `envconfig:"OTEL_TRACING_ENABLED"`
-	OtelEndpoint                       string        `envconfig:"OTEL_EXPORTER_OTLP_ENDPOINT"`
-	OtelHeaders                        string        `envconfig:"OTEL_EXPORTER_OTLP_HEADERS"`
-	BackupInfoCacheRetention           time.Duration `envconfig:"BACKUP_INFO_CACHE_RETENTION" default:"168h" validate:"min=5m"`
-	Environment                        string        `envconfig:"ENVIRONMENT"`
-	ContainerRuntime                   string        `envconfig:"CONTAINER_RUNTIME"`
-	ContainerNetwork                   string        `envconfig:"CONTAINER_NETWORK"`
-	InterSandboxNetworkEnabled         bool          `envconfig:"INTER_SANDBOX_NETWORK_ENABLED" default:"true"`
+	NorthraysApiUrl            string        `envconfig:"NORTHRAYS_API_URL"`
+	ApiToken                   string        `envconfig:"NORTHRAYS_RUNNER_TOKEN"`
+	ApiPort                    int           `envconfig:"API_PORT"`
+	ApiLogRequests             bool          `envconfig:"API_LOG_REQUESTS" default:"false"`
+	TLSCertFile                string        `envconfig:"TLS_CERT_FILE"`
+	TLSKeyFile                 string        `envconfig:"TLS_KEY_FILE"`
+	EnableTLS                  bool          `envconfig:"ENABLE_TLS"`
+	OtelLoggingEnabled         bool          `envconfig:"OTEL_LOGGING_ENABLED"`
+	OtelTracingEnabled         bool          `envconfig:"OTEL_TRACING_ENABLED"`
+	OtelEndpoint               string        `envconfig:"OTEL_EXPORTER_OTLP_ENDPOINT"`
+	OtelHeaders                string        `envconfig:"OTEL_EXPORTER_OTLP_HEADERS"`
+	BackupInfoCacheRetention   time.Duration `envconfig:"BACKUP_INFO_CACHE_RETENTION" default:"168h" validate:"min=5m"`
+	Environment                string        `envconfig:"ENVIRONMENT"`
+	ContainerRuntime           string        `envconfig:"CONTAINER_RUNTIME"`
+	ContainerNetwork           string        `envconfig:"CONTAINER_NETWORK"`
+	InterSandboxNetworkEnabled bool          `envconfig:"INTER_SANDBOX_NETWORK_ENABLED" default:"true"`
 	// Ports the egress proxy listens on for sandboxes carrying a domain allow
 	// list. They are internal to the runner -- sandboxes are redirected here by
 	// iptables and never address them directly -- so the defaults only need to
