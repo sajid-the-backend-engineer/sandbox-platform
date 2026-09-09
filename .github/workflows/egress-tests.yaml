@@ -1,0 +1,84 @@
+# Copyright © 2026 Northrays Private Limited
+# SPDX-License-Identifier: AGPL-3.0
+
+name: Egress enforcement
+
+# The sandbox network guarantees -- domain allow lists, the baseline deny, protection
+# of the runner's own services, and recovery across resume, restart and rollback --
+# rest entirely on the privileged suites in apps/runner/pkg/egress and
+# apps/runner/pkg/docker. They install real iptables rules and drive a real Docker
+# daemon, so they cannot run in the ordinary test job, and until now they ran only
+# when somebody remembered to run them by hand.
+#
+# That is the wrong place for a security control to live. A regression in these rules
+# is silent: the runner keeps reporting that it is enforcing, sandboxes keep starting,
+# and the only visible symptom is that traffic which should be refused is not. A
+# dispatch-chain hook that had been installed where no packet reached it survived
+# exactly that way.
+#
+# So they run automatically here: on every change to the code they cover, and nightly
+# regardless, because the environment underneath them (Docker's own chains, the
+# iptables backend, the runner image) moves without this repository changing.
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - 'apps/runner/pkg/egress/**'
+      - 'apps/runner/pkg/netrules/**'
+      - 'apps/runner/pkg/docker/**'
+      - 'apps/runner/cmd/runner/**'
+      - 'hack/egress-tests/**'
+      - '.github/workflows/egress-tests.yaml'
+  push:
+    branches: [main]
+    paths:
+      - 'apps/runner/pkg/egress/**'
+      - 'apps/runner/pkg/netrules/**'
+      - 'apps/runner/pkg/docker/**'
+      - 'apps/runner/cmd/runner/**'
+      - 'hack/egress-tests/**'
+      - '.github/workflows/egress-tests.yaml'
+  schedule:
+    # 03:17 UTC. Off the hour on purpose: scheduled jobs queue behind everyone else's
+    # cron at :00, and a nightly that starts late is a nightly that reports late.
+    - cron: '17 3 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  privileged:
+    name: Privileged egress suites
+    runs-on: ubuntu-latest
+    # The suites take about three minutes; the ceiling is for a hang, not for normal
+    # slowness, and it is deliberately well above the 30m `go test -timeout` inside.
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
+        with:
+          persist-credentials: false
+
+      - name: Build the test environment
+        run: docker build -t northrays-egress-tests:ci hack/egress-tests
+
+      # A nested daemon inside a privileged container, rather than the runner's own
+      # daemon: these tests install and remove firewall rules, and confining that to a
+      # throwaway container keeps them off the host the rest of the job shares.
+      - name: Run the privileged egress suites
+        run: |
+          docker run --rm --privileged \
+            -v "${{ github.workspace }}:/src" \
+            northrays-egress-tests:ci -v
+
+      - name: Report the daemon log on failure
+        if: failure()
+        run: |
+          echo "The suites reach example.com and www.wikipedia.org on purpose: a denial"
+          echo "is only evidence of policy when the host is otherwise reachable. If both"
+          echo "controls failed, suspect the network before the code."
