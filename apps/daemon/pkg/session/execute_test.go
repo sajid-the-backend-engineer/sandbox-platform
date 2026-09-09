@@ -186,7 +186,13 @@ func TestExecuteAsyncCommandStillAcceptsInput(t *testing.T) {
 		t.Fatalf("send input: %v", err)
 	}
 
-	command := waitForCommandExit(t, svc, sessionID, result.CommandId, 2*time.Second)
+	// 10s, not 2s. This waits on a real shell reading stdin, printing and exiting,
+	// and 2s was tight enough to lose the race on a loaded CI runner -- it failed
+	// there while passing 20 consecutive local runs. The assertions below are
+	// unchanged: the command still has to exit, exit zero, and have logged the input
+	// it was sent. Only the patience changed, which is the part that was measuring
+	// the machine rather than the code.
+	command := waitForCommandExit(t, svc, sessionID, result.CommandId, 10*time.Second)
 	if command.ExitCode == nil || *command.ExitCode != 0 {
 		t.Fatalf("expected exit code 0, got %#v", command.ExitCode)
 	}
