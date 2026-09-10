@@ -232,3 +232,14 @@ generate_random_secret_values = false
 # Role ARNs the api may assume for customers who bring their own registry or
 # bucket. Add ARNs as customers are onboarded; never widen this to a wildcard.
 customer_assumable_role_arns = []
+
+# Restrict the dashboard to these sources. Empty or unset leaves it public.
+#
+# Set this in your own terraform.tfvars, which is not committed -- an operator's
+# address is personal data and this repository is public. Removing the value and
+# applying puts the dashboard back on the internet.
+#
+# Pair it with the "Restrict to allowed emails" Auth0 action
+# (functions/auth0/restrictToAllowedEmails.onExecutePostLogin.js). This rule
+# decides who can reach the login page; that action decides who can pass it.
+# dashboard_allowed_cidrs = ["203.0.113.10/32"]

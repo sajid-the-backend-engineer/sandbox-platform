@@ -1,916 +1,949 @@
-# Copyright © 2026 Northrays Private Limited
-# SPDX-License-Identifier: AGPL-3.0
-
-# ---------------------------------------------------------------------------
-# Placement
-# ---------------------------------------------------------------------------
-
-variable "aws_region" {
-  description = "AWS region for every resource in this stack."
-  type        = string
-  default     = "us-west-1"
-}
-
-variable "project" {
-  description = "Project tag value applied to everything."
-  type        = string
-  default     = "northrays"
-}
-
-variable "environment" {
-  description = "Environment tag value, and the secret path segment: secrets are named northrays/<environment>/<name>."
-  type        = string
-  default     = "production"
-}
-
-variable "cluster_name" {
-  description = "ECS cluster name. Contractual with the deploy pipeline -- do not rename without updating the workflows."
-  type        = string
-  default     = "northrays-production"
-}
-
-# ---------------------------------------------------------------------------
-# Networking
-# ---------------------------------------------------------------------------
-
-variable "vpc_cidr" {
-  description = "IPv4 CIDR for the VPC."
-  type        = string
-  default     = "10.20.0.0/16"
-}
-
-variable "az_count" {
-  description = "Availability zones to spread across."
-  type        = number
-  default     = 2
-}
-
-variable "single_nat_gateway" {
-  description = "Run one NAT gateway instead of one per AZ. Cheaper, but makes outbound internet a single-AZ dependency. Leave false in production."
-  type        = bool
-  default     = false
-}
-
-variable "enable_interface_endpoints" {
-  description = "Create interface VPC endpoints for ECR, Logs, Secrets Manager and SSM to keep that traffic off the NAT gateway."
-  type        = bool
-  default     = false
-}
-
-# ---------------------------------------------------------------------------
-# Domain
-# ---------------------------------------------------------------------------
-
-variable "domain_name" {
-  description = <<-EOT
-    Apex domain for the platform, e.g. northrays.example.com.
-
-    Leave empty and the stack still comes up, but on plain HTTP behind the load
-    balancer's generated DNS name. That is a bootstrapping convenience, not a
-    production configuration:
-
-      - OIDC tokens, API keys and SSH session setup cross the internet unencrypted.
-      - The proxy's per-sandbox preview URLs are wildcard subdomains and cannot
-        work without a domain you control DNS for.
-      - Cookie domains and OIDC redirect URIs have to be re-registered when the
-        domain is added later.
-
-    Supply a domain before taking real traffic.
-  EOT
-  type        = string
-  default     = ""
-}
-
-variable "route53_zone_id" {
-  description = "Hosted zone for the domain. Empty looks the zone up by name, which requires that the zone already exists and is public. Ignored when create_route53_zone is true."
-  type        = string
-  default     = ""
-}
-
-variable "create_route53_zone" {
-  description = <<-EOT
-    Create a Route53 hosted zone for domain_name rather than expecting one to
-    exist. Set this when the parent domain is registered outside Route53: the
-    zone is created here and you delegate to it by adding the four NS records
-    from the route53_name_servers output at the registrar.
-
-    Certificates cannot validate until that delegation resolves, so create the
-    zone and delegate BEFORE the full apply.
-  EOT
-  type        = bool
-  default     = false
-}
-
-# ---------------------------------------------------------------------------
-# Images
-# ---------------------------------------------------------------------------
-
-variable "image_tag" {
-  description = <<-EOT
-    Container image tag Terraform writes into the initial task definitions.
-
-    After the first apply this is largely cosmetic: CI registers new task
-    definition revisions on every deploy and both service modules ignore changes
-    to container_definitions, so Terraform will not revert the running image.
-  EOT
-  type        = string
-  default     = "latest"
-}
-
-# ---------------------------------------------------------------------------
-# Service sizing
-# ---------------------------------------------------------------------------
-
-variable "api_cpu" {
-  description = "api task CPU units (1024 = 1 vCPU)."
-  type        = number
-  default     = 1024
-}
-
-variable "api_memory" {
-  description = "api task memory in MiB."
-  type        = number
-  default     = 2048
-}
-
-variable "api_desired_count" {
-  description = "Initial api task count."
-  type        = number
-  default     = 2
-}
-
-variable "proxy_cpu" {
-  description = "proxy task CPU units."
-  type        = number
-  default     = 512
-}
-
-variable "proxy_memory" {
-  description = "proxy task memory in MiB."
-  type        = number
-  default     = 1024
-}
-
-variable "proxy_desired_count" {
-  description = "Initial proxy task count."
-  type        = number
-  default     = 2
-}
-
-variable "dashboard_cpu" {
-  description = "dashboard task CPU units. Static nginx, so this is small on purpose."
-  type        = number
-  default     = 256
-}
-
-variable "dashboard_memory" {
-  description = "dashboard task memory in MiB."
-  type        = number
-  default     = 512
-}
-
-variable "dashboard_desired_count" {
-  description = "Initial dashboard task count."
-  type        = number
-  default     = 2
-}
-
-variable "ssh_gateway_cpu" {
-  description = "ssh-gateway task CPU units."
-  type        = number
-  default     = 256
-}
-
-variable "ssh_gateway_memory" {
-  description = "ssh-gateway task memory in MiB."
-  type        = number
-  default     = 512
-}
-
-variable "ssh_gateway_desired_count" {
-  description = "Initial ssh-gateway task count."
-  type        = number
-  default     = 2
-}
-
-# ---------------------------------------------------------------------------
-# Snapshot manager (the internal Docker registry)
-# ---------------------------------------------------------------------------
-
-variable "snapshot_manager_cpu" {
-  description = "snapshot-manager task CPU units. The registry streams bytes between the client and S3 and does no image processing, so it is I/O bound rather than CPU bound."
-  type        = number
-  default     = 256
-}
-
-variable "snapshot_manager_memory" {
-  description = "snapshot-manager task memory in MiB. Layer data is streamed, not buffered whole, so this does not scale with image size."
-  type        = number
-  default     = 512
-}
-
-variable "snapshot_manager_desired_count" {
-  description = <<-EOT
-    Initial snapshot-manager task count. Two so a task loss does not take
-    sandbox creation down with it -- the shared SNAPSHOT_MANAGER_HTTP_SECRET is
-    what makes more than one safe.
-  EOT
-  type        = number
-  default     = 2
-}
-
-variable "snapshot_manager_hostname_label" {
-  description = <<-EOT
-    DNS label the registry is served on, under domain_name: "registry" yields
-    registry.<domain>.
-
-    A bare label, not an FQDN. The ALB's certificate already carries *.<domain>,
-    so any single-label value here is covered without re-issuing it -- and a
-    label with a dot in it would NOT be, since an ACM wildcard matches exactly
-    one level.
-  EOT
-  type        = string
-  default     = "registry"
-
-  validation {
-    condition     = can(regex("^[a-z0-9]([a-z0-9-]*[a-z0-9])?$", var.snapshot_manager_hostname_label))
-    error_message = "snapshot_manager_hostname_label must be a single lowercase DNS label with no dots."
-  }
-}
-
-variable "snapshot_manager_public_ingress" {
-  description = <<-EOT
-    Keep serving the snapshot registry on the PUBLIC load balancer as well as
-    the internal one.
-
-    This is a transition switch, not a feature. The registry has an internal
-    path -- a private-scheme ALB plus a split-horizon private hosted zone -- that
-    is created regardless of this value. While this is true the public listener
-    rule and the public registry.<domain> record also exist, exactly as before
-    the internal path was added, so an apply that introduces the internal path
-    changes nothing about how the runner and the api reach the registry today.
-
-    Flip it to false ONLY after verifying, from inside the VPC, that
-    registry.<domain> resolves to the internal balancer and that a sandbox can
-    still be created. That second apply removes the public rule and record, and
-    from then on the registry is unreachable from the internet.
-
-    Read directly from configuration and never derived from a resource
-    attribute: it drives `count`, `for_each` and a null-vs-object switch, all of
-    which must be decidable at plan time.
-  EOT
-  type        = bool
-  default     = true
-}
-
-variable "image_mirror_image" {
-  description = <<-EOT
-    Container image for the one-off task that copies the sandbox base image from
-    ECR into the internal snapshot registry.
-
-    krane, not crane: krane is the same CLI with cloud credential helpers
-    compiled in, so it reads the task role's credentials from the ECS
-    container-credentials endpoint and authenticates to ECR with no
-    `get-login-password` dance. The /debug variant carries busybox, which the
-    entrypoint script needs. Pinned to a release; bump deliberately.
-  EOT
-  type        = string
-  default     = "gcr.io/go-containerregistry/krane/debug:v0.22.1"
-}
-
-variable "snapshot_manager_s3_root_directory" {
-  description = <<-EOT
-    Key prefix inside the registry bucket that all registry data is stored
-    under. Changing this on a live deployment orphans everything already pushed:
-    the registry looks under the new prefix, finds nothing, and every existing
-    snapshot has to be rebuilt.
-  EOT
-  type        = string
-  default     = "registry"
-}
-
-variable "internal_registry_username" {
-  description = <<-EOT
-    Basic-auth username shared by the snapshot-manager registry and the api that
-    pushes to it. The matching password lives in the INTERNAL_REGISTRY_PASSWORD
-    secret, which both sides read, so only this half is configuration.
-
-    Changing it after first boot is not enough on its own: the api seeds the
-    credential into a DockerRegistry row and only reseeds when no internal
-    registry row exists, so the old row has to be deleted for a new value to
-    take effect.
-  EOT
-  type        = string
-  default     = "northrays"
-}
-
-# ---------------------------------------------------------------------------
-# Runner
-# ---------------------------------------------------------------------------
-
-variable "runner_instance_type" {
-  description = <<-EOT
-    EC2 instance type for runner hosts. Drives sandbox density -- the runner
-    reserves 4 vCPU / 8 GB per build job.
-
-    m5.xlarge (4 vCPU / 16 GB) rather than the cheaper m6a.xlarge because
-    us-west-1 has thin instance-type coverage and does not offer every AMD-based
-    family. Switch to m6a.xlarge in a region that has it.
-  EOT
-  type        = string
-  default     = "m5.xlarge"
-}
-
-variable "default_runner_cpu" {
-  description = <<-EOT
-    vCPU the scheduler believes a runner host has available for sandboxes.
-
-    This is an advertisement, not a limit: set it above what the instance can
-    actually provide and the scheduler will happily place sandboxes that the
-    host then cannot run. Keep it below runner_instance_type's real capacity,
-    leaving headroom for the OS, the ECS agent and the runner's own container.
-  EOT
-  type        = number
-  default     = 4
-}
-
-variable "default_runner_memory" {
-  description = "Memory in GB the scheduler believes a runner host has available for sandboxes. Same advertisement caveat as default_runner_cpu."
-  type        = number
-  default     = 8
-}
-
-variable "default_runner_disk" {
-  description = "Disk in GB advertised per runner. Must fit within runner_root_volume_size alongside images and the Docker state directory."
-  type        = number
-  default     = 50
-}
-
-# ---------------------------------------------------------------------------
-# Organization quotas
-#
-# The second ceiling on sandbox capacity. A sandbox is refused if either these
-# quotas or the runner's advertised capacity is exhausted, so they need to be
-# chosen together with default_runner_cpu/memory/disk -- quotas far below the
-# hardware waste the instance, and quotas far above it produce sandboxes the
-# scheduler accepts and the host cannot run.
-#
-# The defaults here reproduce the application's own defaults, so setting none of
-# them changes nothing.
-# ---------------------------------------------------------------------------
-
-# ---------------------------------------------------------------------------
-# CI/CD
-# ---------------------------------------------------------------------------
-
-variable "github_repository" {
-  description = <<-EOT
-    owner/repo that may assume the deploy role, e.g. acme/platform.
-
-    Empty creates no role at all, for environments deployed by hand. The value
-    is matched against the OIDC token's `sub` claim, and it is what stops any
-    other repository on GitHub from assuming the role.
-  EOT
-  type        = string
-  default     = ""
-}
-
-variable "github_deploy_refs" {
-  description = <<-EOT
-    Which refs of github_repository may assume the role, as `sub` claim
-    suffixes: "ref:refs/heads/main" for a branch, "environment:production" for a
-    protected environment, or "*" for any ref in the repository.
-
-    Narrow this to a protected branch or environment before the role is allowed
-    to touch anything you care about -- "*" means any branch, including one
-    opened by a fork's pull request.
-  EOT
-  type        = list(string)
-  default     = ["*"]
-}
-
-variable "codeartifact_region" {
-  description = <<-EOT
-    Region for the CodeArtifact domain and repositories in codeartifact.tf.
-
-    Separate from aws_region because CodeArtifact is not offered in every
-    region -- notably not in us-west-1, this stack's default. IAM is global,
-    so nothing else cares; but every `aws codeartifact` call (the publish
-    workflow, and consumers running `aws codeartifact login`) must pass this
-    region. The workflow reads it from the repository variable
-    AWS_CODEARTIFACT_REGION.
-
-    Validated against the regions listed on the CodeArtifact endpoints page
-    (docs.aws.amazon.com/general/latest/gr/codeartifact.html) as of September
-    2026. Extend the list if AWS adds one you need.
-  EOT
-  type        = string
-  default     = "us-west-2"
-
-  validation {
-    condition = contains([
-      "us-east-1", "us-east-2", "us-west-2",
-      "ap-south-1", "ap-southeast-1", "ap-southeast-2", "ap-northeast-1",
-      "eu-central-1", "eu-west-1", "eu-west-2", "eu-west-3", "eu-south-1", "eu-north-1",
-    ], var.codeartifact_region)
-    error_message = "codeartifact_region must be a region where AWS CodeArtifact is available (us-west-1 is not one of them)."
-  }
-}
-
-variable "skip_user_email_verification" {
-  description = <<-EOT
-    Allow organization actions without a verified email address.
-
-    The identity provider owns the email_verified claim and already controls who
-    may sign up, so on a closed deployment this gate mostly couples the platform
-    to mail delivery. Set false before opening signups beyond a known set of
-    people.
-  EOT
-  type        = bool
-  default     = false
-}
-
-variable "max_auto_archive_interval_minutes" {
-  description = <<-EOT
-    Minutes a stopped sandbox may sit before being archived off the runner,
-    freeing its CPU, memory and disk.
-
-    The application default is 43200 (30 days). Lower it for agent-driven
-    workloads, where sandboxes are abandoned rather than returned to.
-  EOT
-  type        = number
-  default     = 43200
-}
-
-variable "org_quota_total_cpu" {
-  description = "Total vCPU one organization may consume across all its sandboxes."
-  type        = number
-  default     = 10
-}
-
-variable "org_quota_total_memory" {
-  description = "Total memory in GB one organization may consume across all its sandboxes."
-  type        = number
-  default     = 10
-}
-
-variable "org_quota_total_disk" {
-  description = <<-EOT
-    Total disk in GB one organization may consume.
-
-    The application default is 30, which silently caps an organization at three
-    10 GB sandboxes regardless of how much disk the runner advertises. Raise
-    this alongside default_runner_disk or the extra storage is unreachable.
-  EOT
-  type        = number
-  default     = 30
-}
-
-variable "org_quota_max_cpu_per_sandbox" {
-  description = "Largest vCPU a single sandbox may request."
-  type        = number
-  default     = 4
-}
-
-variable "org_quota_max_memory_per_sandbox" {
-  description = "Largest memory in GB a single sandbox may request."
-  type        = number
-  default     = 8
-}
-
-variable "org_quota_max_disk_per_sandbox" {
-  description = "Largest disk in GB a single sandbox may request."
-  type        = number
-  default     = 10
-}
-
-variable "build_cpu_cores" {
-  description = "vCPU reserved for a single sandbox build job. With default_runner_cpu, sets how many builds run concurrently on one host."
-  type        = number
-  default     = 4
-}
-
-variable "build_memory_gb" {
-  description = "Memory in GB reserved for a single sandbox build job."
-  type        = number
-  default     = 8
-}
-
-variable "runner_asg_min_size" {
-  description = "Minimum runner instances."
-  type        = number
-  default     = 1
-}
-
-variable "runner_asg_max_size" {
-  description = "Maximum runner instances."
-  type        = number
-  default     = 4
-}
-
-variable "runner_asg_desired_capacity" {
-  description = "Starting runner instance count."
-  type        = number
-  default     = 1
-}
-
-variable "runner_root_volume_size" {
-  description = "Root EBS volume size in GiB on runner hosts. OS, host Docker daemon and the runner image only; sandbox data is on runner_data_volume_size."
-  type        = number
-  default     = 50
-}
-
-variable "runner_data_volume_size" {
-  description = <<-EOT
-    Dedicated XFS+prjquota volume in GiB backing the runner's Docker daemon --
-    every sandbox image layer and container filesystem. Must exceed
-    default_runner_disk plus image cache. See the module variable for why this
-    cannot be the root volume.
-  EOT
-  type        = number
-  default     = 300
-}
-
-variable "runner_desired_count" {
-  description = "Runner task count. See the module documentation before raising this above 1 -- the api addresses runners by a persisted URL, not by discovery."
-  type        = number
-  default     = 1
-}
-
-# ---------------------------------------------------------------------------
-# Data tier
-# ---------------------------------------------------------------------------
-
-variable "use_rds" {
-  description = <<-EOT
-    Run Postgres on RDS (true, the default) or as a container inside the ECS
-    cluster (false).
-
-    Leaving this true changes nothing: RDS is created exactly as before and none
-    of the in-cluster Postgres resources exist.
-
-    Setting it false replaces the managed instance with a single `postgres`
-    container on a dedicated EC2 host, backed by a dedicated EBS volume, and
-    registered in Cloud Map as postgres.<namespace>. That saves the RDS bill and
-    costs, concretely:
-
-      - No point-in-time recovery. Recovery granularity becomes "the last
-        scheduled pg_dump", which is daily by default.
-      - No standby and no automatic failover. Losing the host or the AZ is a
-        hard outage until an instance comes back and re-attaches the volume.
-      - Downtime on every task replacement. The service is configured to stop
-        the old task before starting the new one, because two Postgres processes
-        on one data directory would corrupt it.
-      - Self-managed everything: version upgrades, tuning, vacuum monitoring.
-
-    It is a defensible trade for a handful of users. It is not a production
-    database posture, and the README section "Postgres in the cluster" spells out
-    the restore procedure you will need.
-
-    Read directly from configuration and never derived from a resource
-    attribute, because it drives `count` on roughly thirty resources.
-  EOT
-  type        = bool
-  default     = true
-}
-
-variable "db_instance_class" {
-  description = "RDS instance class."
-  type        = string
-  default     = "db.t4g.medium"
-}
-
-variable "db_allocated_storage" {
-  description = "Initial RDS storage in GiB."
-  type        = number
-  default     = 50
-}
-
-variable "db_multi_az" {
-  description = "Run a Postgres standby in a second AZ."
-  type        = bool
-  default     = true
-}
-
-variable "db_backup_retention_days" {
-  description = "Automated backup retention in days."
-  type        = number
-  default     = 14
-}
-
-variable "db_tls_reject_unauthorized" {
-  description = <<-EOT
-    Verify the RDS Postgres certificate chain (true, the default) or only
-    encrypt to it (false). Becomes DB_TLS_REJECT_UNAUTHORIZED on the api and
-    migrations tasks. Inert while use_rds is false, where TLS is off entirely.
-
-    Verification works because the api image ships Amazon's global RDS trust
-    bundle and points NODE_EXTRA_CA_CERTS at it (apps/api/Dockerfile). Set this
-    false only against an api image built before that bundle was added -- such
-    an image fails every connection with SELF_SIGNED_CERT_IN_CHAIN when this is
-    true -- or as a rollback while diagnosing a chain problem.
-
-    Changing it does NOT reach the running service on its own: both task
-    definitions ignore changes to container_definitions, so the value lands only
-    after `terraform apply -replace=module.api.aws_ecs_task_definition.this
-    -replace=aws_ecs_task_definition.migrations` followed by a redeploy. The
-    README section "Hardening" has the full procedure.
-  EOT
-  type        = bool
-  default     = true
-}
-
-# ---------------------------------------------------------------------------
-# In-cluster Postgres
-#
-# Every variable below is inert while use_rds is true.
-# ---------------------------------------------------------------------------
-
-variable "postgres_data_volume_size" {
-  description = <<-EOT
-    Size in GiB of the dedicated EBS volume holding the Postgres data directory.
-
-    This is NOT the instance root volume: it is a separate gp3 volume that
-    survives instance replacement and carries prevent_destroy. Growing it later
-    is a modify-volume plus an online xfs_growfs; shrinking it is not possible.
-  EOT
-  type        = number
-  default     = 50
-}
-
-variable "postgres_data_volume_iops" {
-  description = "Provisioned IOPS for the gp3 data volume. 3000 is the gp3 baseline and is included in the per-GiB price."
-  type        = number
-  default     = 3000
-}
-
-variable "postgres_data_volume_throughput" {
-  description = "Provisioned throughput in MiB/s for the gp3 data volume. 125 is the included baseline."
-  type        = number
-  default     = 125
-}
-
-variable "postgres_data_mount_path" {
-  description = "Where the data volume is mounted on the host. The ECS task bind-mounts <path>/data, so the filesystem root itself never becomes the data directory."
-  type        = string
-  default     = "/mnt/pgdata"
-}
-
-variable "postgres_instance_type" {
-  description = <<-EOT
-    EC2 instance type for the Postgres host.
-
-    t3.medium (2 vCPU / 4 GiB) is sized for the handful of users this mode is
-    intended for. Raise postgres_task_memory alongside it if you change this --
-    the task's hard memory limit has to stay below what the instance actually
-    registers with ECS, which is a few hundred MiB less than its nominal RAM.
-  EOT
-  type        = string
-  default     = "t3.medium"
-}
-
-variable "postgres_root_volume_size" {
-  description = "Root EBS volume size in GiB on the Postgres host. Holds the OS and the container image only -- the database lives on the separate data volume."
-  type        = number
-  default     = 30
-}
-
-variable "postgres_subnet_index" {
-  description = <<-EOT
-    Index into the private subnet list picking the one subnet the Postgres host
-    and its task run in.
-
-    A single subnet, not the full list, because an EBS volume exists in exactly
-    one availability zone and can only attach to an instance in that same zone.
-    The data volume is created in the AZ of this subnet.
-
-    Must be less than az_count. Changing it after the volume exists does NOT
-    move the data -- you would be pointing a host in one AZ at a volume in
-    another, and it would never attach.
-  EOT
-  type        = number
-  default     = 0
-}
-
-variable "postgres_image" {
-  description = <<-EOT
-    Postgres container image. Matches the version in docker/docker-compose.yaml
-    (postgres:18) so development and production run the same major version.
-
-    Pulled from the ECR Public mirror of the Docker official image rather than
-    from Docker Hub directly, because ECR Public needs no credentials and has no
-    anonymous pull rate limit.
-  EOT
-  type        = string
-  default     = "public.ecr.aws/docker/library/postgres:18"
-}
-
-variable "postgres_task_cpu" {
-  description = "CPU units for the Postgres task."
-  type        = number
-  default     = 1024
-}
-
-variable "postgres_task_memory" {
-  description = "Hard memory limit in MiB for the Postgres task. Must be below the memory the host registers with ECS, or the task is unplaceable and the service never starts."
-  type        = number
-  default     = 2560
-}
-
-variable "postgres_backup_image" {
-  description = <<-EOT
-    Image for the scheduled pg_dump task. Empty means use postgres_image, which
-    is the right default: pg_dump refuses to dump a server newer than itself, so
-    the client version must track the server version.
-
-    Point this at a pre-baked image containing pg_dump and the AWS CLI to remove
-    the runtime package install the backup script otherwise performs.
-  EOT
-  type        = string
-  default     = ""
-}
-
-variable "postgres_backup_schedule" {
-  description = "EventBridge Scheduler expression for the pg_dump job, interpreted in UTC. Daily at 08:00 UTC by default."
-  type        = string
-  default     = "cron(0 8 * * ? *)"
-}
-
-variable "postgres_backup_retention_days" {
-  description = <<-EOT
-    Days a pg_dump object is kept in the backup bucket before S3 expires it.
-
-    With no RDS there are no automated snapshots, so this number is the entire
-    recovery window. Zero disables the prefix rule and lets dumps fall under the
-    bucket-wide 90-day snapshot expiry instead.
-  EOT
-  type        = number
-  default     = 30
-}
-
-variable "redis_node_type" {
-  description = "ElastiCache node type."
-  type        = string
-  default     = "cache.t4g.micro"
-}
-
-variable "redis_replica_count" {
-  description = "Redis read replicas. One gives AZ redundancy with automatic failover."
-  type        = number
-  default     = 1
-}
-
-# ---------------------------------------------------------------------------
-# Application configuration
-#
-# Non-secret settings only. Anything credential-shaped belongs in Secrets
-# Manager and is wired through the ECS `secrets` block instead.
-# ---------------------------------------------------------------------------
-
-variable "oidc_issuer_base_url" {
-  description = "OIDC issuer base URL, e.g. https://tenant.auth0.com. Required for login to work; the proxy will retry-loop at boot until the api can serve OIDC config."
-  type        = string
-  default     = ""
-}
-
-variable "oidc_client_id" {
-  description = "OIDC client ID for the dashboard and api."
-  type        = string
-  default     = ""
-}
-
-variable "oidc_audience" {
-  description = "OIDC audience the api validates access tokens against."
-  type        = string
-  default     = ""
-}
-
-variable "oidc_management_api_enabled" {
-  description = "Enable the api's OIDC management API integration for user administration."
-  type        = bool
-  default     = false
-}
-
-variable "oidc_management_api_client_id" {
-  description = "Client ID for the OIDC management API."
-  type        = string
-  default     = ""
-}
-
-variable "oidc_management_api_audience" {
-  description = "Audience for the OIDC management API."
-  type        = string
-  default     = ""
-}
-
-variable "smtp_host" {
-  description = "SMTP server hostname for transactional email. Empty disables outbound email."
-  type        = string
-  default     = ""
-}
-
-variable "smtp_port" {
-  description = "SMTP port."
-  type        = number
-  default     = 587
-}
-
-variable "smtp_user" {
-  description = "SMTP username."
-  type        = string
-  default     = ""
-}
-
-variable "smtp_secure" {
-  description = "Use implicit TLS for SMTP. False means STARTTLS on port 587."
-  type        = bool
-  default     = false
-}
-
-variable "smtp_email_from" {
-  description = "From address on outbound email. Note the application variable is SMTP_EMAIL_FROM, not SMTP_FROM."
-  type        = string
-  default     = ""
-}
-
-variable "default_snapshot" {
-  description = "Snapshot image new sandboxes start from when the caller does not name one."
-  type        = string
-  default     = ""
-}
-
-variable "maintenance_mode" {
-  description = "Put the api into maintenance mode, rejecting sandbox operations while returning a clear error."
-  type        = bool
-  default     = false
-}
-
-variable "log_level" {
-  description = "Application log level."
-  type        = string
-  default     = "info"
-}
-
-variable "log_retention_days" {
-  description = "CloudWatch Logs retention for container output."
-  type        = number
-  default     = 30
-}
-
-variable "enable_proxy_metrics" {
-  description = <<-EOT
-    Expose the proxy's Prometheus metrics and pprof endpoints on port 2112.
-
-    The proxy disables that listener entirely when METRICS_PORT is unset -- 2112
-    is not a built-in default -- so this has to be turned on explicitly. The port
-    is not load balanced and is only reachable inside the VPC.
-  EOT
-  type        = bool
-  default     = true
-}
-
-variable "generate_random_secret_values" {
-  description = <<-EOT
-    Seed generated random values into the secrets that are pure random material,
-    so the stack can reach a running state without hand-populating every one.
-
-    This writes those values into Terraform state. Only enable it if the state
-    bucket is treated as secret material. Secrets sourced from third parties
-    (OIDC, SMTP, SSH keys) are never generated regardless.
-  EOT
-  type        = bool
-  default     = false
-}
-
-variable "customer_assumable_role_arns" {
-  description = "Extra role ARNs the api may assume for customers who bring their own registry or bucket."
-  type        = list(string)
-  default     = []
-}
-
-# ---------------------------------------------------------------------------
-# Optional subsystems
-#
-# Kafka, OpenSearch and ClickHouse are all disabled by default in the
-# application's own configuration, and no infrastructure is provisioned for them
-# here. These flags exist as the seam to widen when that changes -- turning one
-# on requires adding the corresponding module, not just flipping the variable.
-# ---------------------------------------------------------------------------
-
-variable "enable_kafka_audit" {
-  description = "Reserved. The api's KAFKA_ENABLED defaults to false and no MSK cluster is provisioned by this stack. Enabling audit streaming means adding an MSK module first."
-  type        = bool
-  default     = false
-}
-
-variable "enable_opensearch" {
-  description = "Reserved. Sandbox search indexing is off by default and no OpenSearch domain is provisioned. Enabling it means adding an OpenSearch module first."
-  type        = bool
-  default     = false
-}
-
-variable "enable_clickhouse" {
-  description = "Reserved. Usage analytics are off by default and ClickHouse is not provisioned by this stack."
-  type        = bool
-  default     = false
-}
+# Copyright © 2026 Northrays Private Limited
+# SPDX-License-Identifier: AGPL-3.0
+
+# ---------------------------------------------------------------------------
+# Placement
+# ---------------------------------------------------------------------------
+
+variable "aws_region" {
+  description = "AWS region for every resource in this stack."
+  type        = string
+  default     = "us-west-1"
+}
+
+variable "project" {
+  description = "Project tag value applied to everything."
+  type        = string
+  default     = "northrays"
+}
+
+variable "environment" {
+  description = "Environment tag value, and the secret path segment: secrets are named northrays/<environment>/<name>."
+  type        = string
+  default     = "production"
+}
+
+variable "cluster_name" {
+  description = "ECS cluster name. Contractual with the deploy pipeline -- do not rename without updating the workflows."
+  type        = string
+  default     = "northrays-production"
+}
+
+# ---------------------------------------------------------------------------
+# Networking
+# ---------------------------------------------------------------------------
+
+variable "vpc_cidr" {
+  description = "IPv4 CIDR for the VPC."
+  type        = string
+  default     = "10.20.0.0/16"
+}
+
+variable "az_count" {
+  description = "Availability zones to spread across."
+  type        = number
+  default     = 2
+}
+
+variable "single_nat_gateway" {
+  description = "Run one NAT gateway instead of one per AZ. Cheaper, but makes outbound internet a single-AZ dependency. Leave false in production."
+  type        = bool
+  default     = false
+}
+
+variable "enable_interface_endpoints" {
+  description = "Create interface VPC endpoints for ECR, Logs, Secrets Manager and SSM to keep that traffic off the NAT gateway."
+  type        = bool
+  default     = false
+}
+
+# ---------------------------------------------------------------------------
+# Domain
+# ---------------------------------------------------------------------------
+
+variable "domain_name" {
+  description = <<-EOT
+    Apex domain for the platform, e.g. northrays.example.com.
+
+    Leave empty and the stack still comes up, but on plain HTTP behind the load
+    balancer's generated DNS name. That is a bootstrapping convenience, not a
+    production configuration:
+
+      - OIDC tokens, API keys and SSH session setup cross the internet unencrypted.
+      - The proxy's per-sandbox preview URLs are wildcard subdomains and cannot
+        work without a domain you control DNS for.
+      - Cookie domains and OIDC redirect URIs have to be re-registered when the
+        domain is added later.
+
+    Supply a domain before taking real traffic.
+  EOT
+  type        = string
+  default     = ""
+}
+
+variable "route53_zone_id" {
+  description = "Hosted zone for the domain. Empty looks the zone up by name, which requires that the zone already exists and is public. Ignored when create_route53_zone is true."
+  type        = string
+  default     = ""
+}
+
+variable "create_route53_zone" {
+  description = <<-EOT
+    Create a Route53 hosted zone for domain_name rather than expecting one to
+    exist. Set this when the parent domain is registered outside Route53: the
+    zone is created here and you delegate to it by adding the four NS records
+    from the route53_name_servers output at the registrar.
+
+    Certificates cannot validate until that delegation resolves, so create the
+    zone and delegate BEFORE the full apply.
+  EOT
+  type        = bool
+  default     = false
+}
+
+# ---------------------------------------------------------------------------
+# Images
+# ---------------------------------------------------------------------------
+
+variable "image_tag" {
+  description = <<-EOT
+    Container image tag Terraform writes into the initial task definitions.
+
+    After the first apply this is largely cosmetic: CI registers new task
+    definition revisions on every deploy and both service modules ignore changes
+    to container_definitions, so Terraform will not revert the running image.
+  EOT
+  type        = string
+  default     = "latest"
+}
+
+# ---------------------------------------------------------------------------
+# Service sizing
+# ---------------------------------------------------------------------------
+
+variable "api_cpu" {
+  description = "api task CPU units (1024 = 1 vCPU)."
+  type        = number
+  default     = 1024
+}
+
+variable "api_memory" {
+  description = "api task memory in MiB."
+  type        = number
+  default     = 2048
+}
+
+variable "api_desired_count" {
+  description = "Initial api task count."
+  type        = number
+  default     = 2
+}
+
+variable "proxy_cpu" {
+  description = "proxy task CPU units."
+  type        = number
+  default     = 512
+}
+
+variable "proxy_memory" {
+  description = "proxy task memory in MiB."
+  type        = number
+  default     = 1024
+}
+
+variable "proxy_desired_count" {
+  description = "Initial proxy task count."
+  type        = number
+  default     = 2
+}
+
+variable "dashboard_cpu" {
+  description = "dashboard task CPU units. Static nginx, so this is small on purpose."
+  type        = number
+  default     = 256
+}
+
+variable "dashboard_memory" {
+  description = "dashboard task memory in MiB."
+  type        = number
+  default     = 512
+}
+
+variable "dashboard_desired_count" {
+  description = "Initial dashboard task count."
+  type        = number
+  default     = 2
+}
+
+variable "ssh_gateway_cpu" {
+  description = "ssh-gateway task CPU units."
+  type        = number
+  default     = 256
+}
+
+variable "ssh_gateway_memory" {
+  description = "ssh-gateway task memory in MiB."
+  type        = number
+  default     = 512
+}
+
+variable "ssh_gateway_desired_count" {
+  description = <<-EOT
+    ssh-gateway task count. Zero by default: nothing on this deployment uses
+    SSH into a sandbox.
+
+    The service fronts a public NLB on 2222. Running it costs two Fargate
+    tasks and leaves a TCP listener open on the internet for a feature with no
+    caller -- AADML drives sandboxes through the API. Raise it to 2 if SSH
+    access is ever wanted; the NLB stays provisioned either way, so this is a
+    one-value change in both directions.
+  EOT
+  type        = number
+  default     = 0
+}
+
+# ---------------------------------------------------------------------------
+# Snapshot manager (the internal Docker registry)
+# ---------------------------------------------------------------------------
+
+variable "snapshot_manager_cpu" {
+  description = "snapshot-manager task CPU units. The registry streams bytes between the client and S3 and does no image processing, so it is I/O bound rather than CPU bound."
+  type        = number
+  default     = 256
+}
+
+variable "snapshot_manager_memory" {
+  description = "snapshot-manager task memory in MiB. Layer data is streamed, not buffered whole, so this does not scale with image size."
+  type        = number
+  default     = 512
+}
+
+variable "snapshot_manager_desired_count" {
+  description = <<-EOT
+    Initial snapshot-manager task count. Two so a task loss does not take
+    sandbox creation down with it -- the shared SNAPSHOT_MANAGER_HTTP_SECRET is
+    what makes more than one safe.
+  EOT
+  type        = number
+  default     = 2
+}
+
+variable "snapshot_manager_hostname_label" {
+  description = <<-EOT
+    DNS label the registry is served on, under domain_name: "registry" yields
+    registry.<domain>.
+
+    A bare label, not an FQDN. The ALB's certificate already carries *.<domain>,
+    so any single-label value here is covered without re-issuing it -- and a
+    label with a dot in it would NOT be, since an ACM wildcard matches exactly
+    one level.
+  EOT
+  type        = string
+  default     = "registry"
+
+  validation {
+    condition     = can(regex("^[a-z0-9]([a-z0-9-]*[a-z0-9])?$", var.snapshot_manager_hostname_label))
+    error_message = "snapshot_manager_hostname_label must be a single lowercase DNS label with no dots."
+  }
+}
+
+variable "snapshot_manager_public_ingress" {
+  description = <<-EOT
+    Keep serving the snapshot registry on the PUBLIC load balancer as well as
+    the internal one.
+
+    This is a transition switch, not a feature. The registry has an internal
+    path -- a private-scheme ALB plus a split-horizon private hosted zone -- that
+    is created regardless of this value. While this is true the public listener
+    rule and the public registry.<domain> record also exist, exactly as before
+    the internal path was added, so an apply that introduces the internal path
+    changes nothing about how the runner and the api reach the registry today.
+
+    Flip it to false ONLY after verifying, from inside the VPC, that
+    registry.<domain> resolves to the internal balancer and that a sandbox can
+    still be created. That second apply removes the public rule and record, and
+    from then on the registry is unreachable from the internet.
+
+    Read directly from configuration and never derived from a resource
+    attribute: it drives `count`, `for_each` and a null-vs-object switch, all of
+    which must be decidable at plan time.
+  EOT
+  type        = bool
+  default     = true
+}
+
+variable "image_mirror_image" {
+  description = <<-EOT
+    Container image for the one-off task that copies the sandbox base image from
+    ECR into the internal snapshot registry.
+
+    krane, not crane: krane is the same CLI with cloud credential helpers
+    compiled in, so it reads the task role's credentials from the ECS
+    container-credentials endpoint and authenticates to ECR with no
+    `get-login-password` dance. The /debug variant carries busybox, which the
+    entrypoint script needs. Pinned to a release; bump deliberately.
+  EOT
+  type        = string
+  default     = "gcr.io/go-containerregistry/krane/debug:v0.22.1"
+}
+
+variable "snapshot_manager_s3_root_directory" {
+  description = <<-EOT
+    Key prefix inside the registry bucket that all registry data is stored
+    under. Changing this on a live deployment orphans everything already pushed:
+    the registry looks under the new prefix, finds nothing, and every existing
+    snapshot has to be rebuilt.
+  EOT
+  type        = string
+  default     = "registry"
+}
+
+variable "internal_registry_username" {
+  description = <<-EOT
+    Basic-auth username shared by the snapshot-manager registry and the api that
+    pushes to it. The matching password lives in the INTERNAL_REGISTRY_PASSWORD
+    secret, which both sides read, so only this half is configuration.
+
+    Changing it after first boot is not enough on its own: the api seeds the
+    credential into a DockerRegistry row and only reseeds when no internal
+    registry row exists, so the old row has to be deleted for a new value to
+    take effect.
+  EOT
+  type        = string
+  default     = "northrays"
+}
+
+# ---------------------------------------------------------------------------
+# Runner
+# ---------------------------------------------------------------------------
+
+variable "runner_instance_type" {
+  description = <<-EOT
+    EC2 instance type for runner hosts. Drives sandbox density -- the runner
+    reserves 4 vCPU / 8 GB per build job.
+
+    m5.xlarge (4 vCPU / 16 GB) rather than the cheaper m6a.xlarge because
+    us-west-1 has thin instance-type coverage and does not offer every AMD-based
+    family. Switch to m6a.xlarge in a region that has it.
+  EOT
+  type        = string
+  default     = "m5.xlarge"
+}
+
+variable "default_runner_cpu" {
+  description = <<-EOT
+    vCPU the scheduler believes a runner host has available for sandboxes.
+
+    This is an advertisement, not a limit: set it above what the instance can
+    actually provide and the scheduler will happily place sandboxes that the
+    host then cannot run. Keep it below runner_instance_type's real capacity,
+    leaving headroom for the OS, the ECS agent and the runner's own container.
+  EOT
+  type        = number
+  default     = 4
+}
+
+variable "default_runner_memory" {
+  description = "Memory in GB the scheduler believes a runner host has available for sandboxes. Same advertisement caveat as default_runner_cpu."
+  type        = number
+  default     = 8
+}
+
+variable "default_runner_disk" {
+  description = "Disk in GB advertised per runner. Must fit within runner_root_volume_size alongside images and the Docker state directory."
+  type        = number
+  default     = 50
+}
+
+# ---------------------------------------------------------------------------
+# Organization quotas
+#
+# The second ceiling on sandbox capacity. A sandbox is refused if either these
+# quotas or the runner's advertised capacity is exhausted, so they need to be
+# chosen together with default_runner_cpu/memory/disk -- quotas far below the
+# hardware waste the instance, and quotas far above it produce sandboxes the
+# scheduler accepts and the host cannot run.
+#
+# The defaults here reproduce the application's own defaults, so setting none of
+# them changes nothing.
+# ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# CI/CD
+# ---------------------------------------------------------------------------
+
+variable "github_repository" {
+  description = <<-EOT
+    owner/repo that may assume the deploy role, e.g. acme/platform.
+
+    Empty creates no role at all, for environments deployed by hand. The value
+    is matched against the OIDC token's `sub` claim, and it is what stops any
+    other repository on GitHub from assuming the role.
+  EOT
+  type        = string
+  default     = ""
+}
+
+variable "github_deploy_refs" {
+  description = <<-EOT
+    Which refs of github_repository may assume the role, as `sub` claim
+    suffixes: "ref:refs/heads/main" for a branch, "environment:production" for a
+    protected environment, or "*" for any ref in the repository.
+
+    Narrow this to a protected branch or environment before the role is allowed
+    to touch anything you care about -- "*" means any branch, including one
+    opened by a fork's pull request.
+  EOT
+  type        = list(string)
+  default     = ["*"]
+}
+
+variable "codeartifact_region" {
+  description = <<-EOT
+    Region for the CodeArtifact domain and repositories in codeartifact.tf.
+
+    Separate from aws_region because CodeArtifact is not offered in every
+    region -- notably not in us-west-1, this stack's default. IAM is global,
+    so nothing else cares; but every `aws codeartifact` call (the publish
+    workflow, and consumers running `aws codeartifact login`) must pass this
+    region. The workflow reads it from the repository variable
+    AWS_CODEARTIFACT_REGION.
+
+    Validated against the regions listed on the CodeArtifact endpoints page
+    (docs.aws.amazon.com/general/latest/gr/codeartifact.html) as of September
+    2026. Extend the list if AWS adds one you need.
+  EOT
+  type        = string
+  default     = "us-west-2"
+
+  validation {
+    condition = contains([
+      "us-east-1", "us-east-2", "us-west-2",
+      "ap-south-1", "ap-southeast-1", "ap-southeast-2", "ap-northeast-1",
+      "eu-central-1", "eu-west-1", "eu-west-2", "eu-west-3", "eu-south-1", "eu-north-1",
+    ], var.codeartifact_region)
+    error_message = "codeartifact_region must be a region where AWS CodeArtifact is available (us-west-1 is not one of them)."
+  }
+}
+
+variable "skip_user_email_verification" {
+  description = <<-EOT
+    Allow organization actions without a verified email address.
+
+    The identity provider owns the email_verified claim and already controls who
+    may sign up, so on a closed deployment this gate mostly couples the platform
+    to mail delivery. Set false before opening signups beyond a known set of
+    people.
+  EOT
+  type        = bool
+  default     = false
+}
+
+variable "max_auto_archive_interval_minutes" {
+  description = <<-EOT
+    Minutes a stopped sandbox may sit before being archived off the runner,
+    freeing its CPU, memory and disk.
+
+    The application default is 43200 (30 days). Lower it for agent-driven
+    workloads, where sandboxes are abandoned rather than returned to.
+  EOT
+  type        = number
+  default     = 43200
+}
+
+variable "org_quota_total_cpu" {
+  description = "Total vCPU one organization may consume across all its sandboxes."
+  type        = number
+  default     = 10
+}
+
+variable "org_quota_total_memory" {
+  description = "Total memory in GB one organization may consume across all its sandboxes."
+  type        = number
+  default     = 10
+}
+
+variable "org_quota_total_disk" {
+  description = <<-EOT
+    Total disk in GB one organization may consume.
+
+    The application default is 30, which silently caps an organization at three
+    10 GB sandboxes regardless of how much disk the runner advertises. Raise
+    this alongside default_runner_disk or the extra storage is unreachable.
+  EOT
+  type        = number
+  default     = 30
+}
+
+variable "org_quota_max_cpu_per_sandbox" {
+  description = "Largest vCPU a single sandbox may request."
+  type        = number
+  default     = 4
+}
+
+variable "org_quota_max_memory_per_sandbox" {
+  description = "Largest memory in GB a single sandbox may request."
+  type        = number
+  default     = 8
+}
+
+variable "org_quota_max_disk_per_sandbox" {
+  description = "Largest disk in GB a single sandbox may request."
+  type        = number
+  default     = 10
+}
+
+variable "build_cpu_cores" {
+  description = "vCPU reserved for a single sandbox build job. With default_runner_cpu, sets how many builds run concurrently on one host."
+  type        = number
+  default     = 4
+}
+
+variable "build_memory_gb" {
+  description = "Memory in GB reserved for a single sandbox build job."
+  type        = number
+  default     = 8
+}
+
+variable "runner_asg_min_size" {
+  description = "Minimum runner instances."
+  type        = number
+  default     = 1
+}
+
+variable "runner_asg_max_size" {
+  description = "Maximum runner instances."
+  type        = number
+  default     = 4
+}
+
+variable "runner_asg_desired_capacity" {
+  description = "Starting runner instance count."
+  type        = number
+  default     = 1
+}
+
+variable "runner_root_volume_size" {
+  description = "Root EBS volume size in GiB on runner hosts. OS, host Docker daemon and the runner image only; sandbox data is on runner_data_volume_size."
+  type        = number
+  default     = 50
+}
+
+variable "runner_data_volume_size" {
+  description = <<-EOT
+    Dedicated XFS+prjquota volume in GiB backing the runner's Docker daemon --
+    every sandbox image layer and container filesystem. Must exceed
+    default_runner_disk plus image cache. See the module variable for why this
+    cannot be the root volume.
+  EOT
+  type        = number
+  default     = 300
+}
+
+variable "runner_desired_count" {
+  description = "Runner task count. See the module documentation before raising this above 1 -- the api addresses runners by a persisted URL, not by discovery."
+  type        = number
+  default     = 1
+}
+
+# ---------------------------------------------------------------------------
+# Data tier
+# ---------------------------------------------------------------------------
+
+variable "use_rds" {
+  description = <<-EOT
+    Run Postgres on RDS (true, the default) or as a container inside the ECS
+    cluster (false).
+
+    Leaving this true changes nothing: RDS is created exactly as before and none
+    of the in-cluster Postgres resources exist.
+
+    Setting it false replaces the managed instance with a single `postgres`
+    container on a dedicated EC2 host, backed by a dedicated EBS volume, and
+    registered in Cloud Map as postgres.<namespace>. That saves the RDS bill and
+    costs, concretely:
+
+      - No point-in-time recovery. Recovery granularity becomes "the last
+        scheduled pg_dump", which is daily by default.
+      - No standby and no automatic failover. Losing the host or the AZ is a
+        hard outage until an instance comes back and re-attaches the volume.
+      - Downtime on every task replacement. The service is configured to stop
+        the old task before starting the new one, because two Postgres processes
+        on one data directory would corrupt it.
+      - Self-managed everything: version upgrades, tuning, vacuum monitoring.
+
+    It is a defensible trade for a handful of users. It is not a production
+    database posture, and the README section "Postgres in the cluster" spells out
+    the restore procedure you will need.
+
+    Read directly from configuration and never derived from a resource
+    attribute, because it drives `count` on roughly thirty resources.
+  EOT
+  type        = bool
+  default     = true
+}
+
+variable "db_instance_class" {
+  description = "RDS instance class."
+  type        = string
+  default     = "db.t4g.medium"
+}
+
+variable "db_allocated_storage" {
+  description = "Initial RDS storage in GiB."
+  type        = number
+  default     = 50
+}
+
+variable "db_multi_az" {
+  description = "Run a Postgres standby in a second AZ."
+  type        = bool
+  default     = true
+}
+
+variable "db_backup_retention_days" {
+  description = "Automated backup retention in days."
+  type        = number
+  default     = 14
+}
+
+variable "db_tls_reject_unauthorized" {
+  description = <<-EOT
+    Verify the RDS Postgres certificate chain (true, the default) or only
+    encrypt to it (false). Becomes DB_TLS_REJECT_UNAUTHORIZED on the api and
+    migrations tasks. Inert while use_rds is false, where TLS is off entirely.
+
+    Verification works because the api image ships Amazon's global RDS trust
+    bundle and points NODE_EXTRA_CA_CERTS at it (apps/api/Dockerfile). Set this
+    false only against an api image built before that bundle was added -- such
+    an image fails every connection with SELF_SIGNED_CERT_IN_CHAIN when this is
+    true -- or as a rollback while diagnosing a chain problem.
+
+    Changing it does NOT reach the running service on its own: both task
+    definitions ignore changes to container_definitions, so the value lands only
+    after `terraform apply -replace=module.api.aws_ecs_task_definition.this
+    -replace=aws_ecs_task_definition.migrations` followed by a redeploy. The
+    README section "Hardening" has the full procedure.
+  EOT
+  type        = bool
+  default     = true
+}
+
+# ---------------------------------------------------------------------------
+# In-cluster Postgres
+#
+# Every variable below is inert while use_rds is true.
+# ---------------------------------------------------------------------------
+
+variable "postgres_data_volume_size" {
+  description = <<-EOT
+    Size in GiB of the dedicated EBS volume holding the Postgres data directory.
+
+    This is NOT the instance root volume: it is a separate gp3 volume that
+    survives instance replacement and carries prevent_destroy. Growing it later
+    is a modify-volume plus an online xfs_growfs; shrinking it is not possible.
+  EOT
+  type        = number
+  default     = 50
+}
+
+variable "postgres_data_volume_iops" {
+  description = "Provisioned IOPS for the gp3 data volume. 3000 is the gp3 baseline and is included in the per-GiB price."
+  type        = number
+  default     = 3000
+}
+
+variable "postgres_data_volume_throughput" {
+  description = "Provisioned throughput in MiB/s for the gp3 data volume. 125 is the included baseline."
+  type        = number
+  default     = 125
+}
+
+variable "postgres_data_mount_path" {
+  description = "Where the data volume is mounted on the host. The ECS task bind-mounts <path>/data, so the filesystem root itself never becomes the data directory."
+  type        = string
+  default     = "/mnt/pgdata"
+}
+
+variable "postgres_instance_type" {
+  description = <<-EOT
+    EC2 instance type for the Postgres host.
+
+    t3.medium (2 vCPU / 4 GiB) is sized for the handful of users this mode is
+    intended for. Raise postgres_task_memory alongside it if you change this --
+    the task's hard memory limit has to stay below what the instance actually
+    registers with ECS, which is a few hundred MiB less than its nominal RAM.
+  EOT
+  type        = string
+  default     = "t3.medium"
+}
+
+variable "postgres_root_volume_size" {
+  description = "Root EBS volume size in GiB on the Postgres host. Holds the OS and the container image only -- the database lives on the separate data volume."
+  type        = number
+  default     = 30
+}
+
+variable "postgres_subnet_index" {
+  description = <<-EOT
+    Index into the private subnet list picking the one subnet the Postgres host
+    and its task run in.
+
+    A single subnet, not the full list, because an EBS volume exists in exactly
+    one availability zone and can only attach to an instance in that same zone.
+    The data volume is created in the AZ of this subnet.
+
+    Must be less than az_count. Changing it after the volume exists does NOT
+    move the data -- you would be pointing a host in one AZ at a volume in
+    another, and it would never attach.
+  EOT
+  type        = number
+  default     = 0
+}
+
+variable "postgres_image" {
+  description = <<-EOT
+    Postgres container image. Matches the version in docker/docker-compose.yaml
+    (postgres:18) so development and production run the same major version.
+
+    Pulled from the ECR Public mirror of the Docker official image rather than
+    from Docker Hub directly, because ECR Public needs no credentials and has no
+    anonymous pull rate limit.
+  EOT
+  type        = string
+  default     = "public.ecr.aws/docker/library/postgres:18"
+}
+
+variable "postgres_task_cpu" {
+  description = "CPU units for the Postgres task."
+  type        = number
+  default     = 1024
+}
+
+variable "postgres_task_memory" {
+  description = "Hard memory limit in MiB for the Postgres task. Must be below the memory the host registers with ECS, or the task is unplaceable and the service never starts."
+  type        = number
+  default     = 2560
+}
+
+variable "postgres_backup_image" {
+  description = <<-EOT
+    Image for the scheduled pg_dump task. Empty means use postgres_image, which
+    is the right default: pg_dump refuses to dump a server newer than itself, so
+    the client version must track the server version.
+
+    Point this at a pre-baked image containing pg_dump and the AWS CLI to remove
+    the runtime package install the backup script otherwise performs.
+  EOT
+  type        = string
+  default     = ""
+}
+
+variable "postgres_backup_schedule" {
+  description = "EventBridge Scheduler expression for the pg_dump job, interpreted in UTC. Daily at 08:00 UTC by default."
+  type        = string
+  default     = "cron(0 8 * * ? *)"
+}
+
+variable "postgres_backup_retention_days" {
+  description = <<-EOT
+    Days a pg_dump object is kept in the backup bucket before S3 expires it.
+
+    With no RDS there are no automated snapshots, so this number is the entire
+    recovery window. Zero disables the prefix rule and lets dumps fall under the
+    bucket-wide 90-day snapshot expiry instead.
+  EOT
+  type        = number
+  default     = 30
+}
+
+variable "redis_node_type" {
+  description = "ElastiCache node type."
+  type        = string
+  default     = "cache.t4g.micro"
+}
+
+variable "redis_replica_count" {
+  description = "Redis read replicas. One gives AZ redundancy with automatic failover."
+  type        = number
+  default     = 1
+}
+
+# ---------------------------------------------------------------------------
+# Application configuration
+#
+# Non-secret settings only. Anything credential-shaped belongs in Secrets
+# Manager and is wired through the ECS `secrets` block instead.
+# ---------------------------------------------------------------------------
+
+variable "oidc_issuer_base_url" {
+  description = "OIDC issuer base URL, e.g. https://tenant.auth0.com. Required for login to work; the proxy will retry-loop at boot until the api can serve OIDC config."
+  type        = string
+  default     = ""
+}
+
+variable "oidc_client_id" {
+  description = "OIDC client ID for the dashboard and api."
+  type        = string
+  default     = ""
+}
+
+variable "oidc_audience" {
+  description = "OIDC audience the api validates access tokens against."
+  type        = string
+  default     = ""
+}
+
+variable "oidc_management_api_enabled" {
+  description = "Enable the api's OIDC management API integration for user administration."
+  type        = bool
+  default     = false
+}
+
+variable "oidc_management_api_client_id" {
+  description = "Client ID for the OIDC management API."
+  type        = string
+  default     = ""
+}
+
+variable "oidc_management_api_audience" {
+  description = "Audience for the OIDC management API."
+  type        = string
+  default     = ""
+}
+
+variable "smtp_host" {
+  description = "SMTP server hostname for transactional email. Empty disables outbound email."
+  type        = string
+  default     = ""
+}
+
+variable "smtp_port" {
+  description = "SMTP port."
+  type        = number
+  default     = 587
+}
+
+variable "smtp_user" {
+  description = "SMTP username."
+  type        = string
+  default     = ""
+}
+
+variable "smtp_secure" {
+  description = "Use implicit TLS for SMTP. False means STARTTLS on port 587."
+  type        = bool
+  default     = false
+}
+
+variable "smtp_email_from" {
+  description = "From address on outbound email. Note the application variable is SMTP_EMAIL_FROM, not SMTP_FROM."
+  type        = string
+  default     = ""
+}
+
+variable "default_snapshot" {
+  description = "Snapshot image new sandboxes start from when the caller does not name one."
+  type        = string
+  default     = ""
+}
+
+variable "maintenance_mode" {
+  description = "Put the api into maintenance mode, rejecting sandbox operations while returning a clear error."
+  type        = bool
+  default     = false
+}
+
+variable "log_level" {
+  description = "Application log level."
+  type        = string
+  default     = "info"
+}
+
+variable "log_retention_days" {
+  description = "CloudWatch Logs retention for container output."
+  type        = number
+  default     = 30
+}
+
+variable "enable_proxy_metrics" {
+  description = <<-EOT
+    Expose the proxy's Prometheus metrics and pprof endpoints on port 2112.
+
+    The proxy disables that listener entirely when METRICS_PORT is unset -- 2112
+    is not a built-in default -- so this has to be turned on explicitly. The port
+    is not load balanced and is only reachable inside the VPC.
+  EOT
+  type        = bool
+  default     = true
+}
+
+variable "generate_random_secret_values" {
+  description = <<-EOT
+    Seed generated random values into the secrets that are pure random material,
+    so the stack can reach a running state without hand-populating every one.
+
+    This writes those values into Terraform state. Only enable it if the state
+    bucket is treated as secret material. Secrets sourced from third parties
+    (OIDC, SMTP, SSH keys) are never generated regardless.
+  EOT
+  type        = bool
+  default     = false
+}
+
+variable "customer_assumable_role_arns" {
+  description = "Extra role ARNs the api may assume for customers who bring their own registry or bucket."
+  type        = list(string)
+  default     = []
+}
+
+# ---------------------------------------------------------------------------
+# Optional subsystems
+#
+# Kafka, OpenSearch and ClickHouse are all disabled by default in the
+# application's own configuration, and no infrastructure is provisioned for them
+# here. These flags exist as the seam to widen when that changes -- turning one
+# on requires adding the corresponding module, not just flipping the variable.
+# ---------------------------------------------------------------------------
+
+variable "enable_kafka_audit" {
+  description = "Reserved. The api's KAFKA_ENABLED defaults to false and no MSK cluster is provisioned by this stack. Enabling audit streaming means adding an MSK module first."
+  type        = bool
+  default     = false
+}
+
+variable "enable_opensearch" {
+  description = "Reserved. Sandbox search indexing is off by default and no OpenSearch domain is provisioned. Enabling it means adding an OpenSearch module first."
+  type        = bool
+  default     = false
+}
+
+variable "enable_clickhouse" {
+  description = "Reserved. Usage analytics are off by default and ClickHouse is not provisioned by this stack."
+  type        = bool
+  default     = false
+}
+
+variable "dashboard_allowed_cidrs" {
+  description = <<-EOT
+    Source CIDRs permitted to reach the dashboard. Empty means public.
+
+    This is the off switch for the login page. With any value set, the ALB
+    serves the dashboard only to these sources and answers 403 to everyone
+    else; the api, registry and proxy rules are evaluated first and are not
+    affected, so AADML and sandbox preview URLs keep working.
+
+    Do NOT set a real value here. This repository is public and an operator's
+    home or office address is personal data -- put it in terraform.tfvars,
+    which is not committed:
+
+      dashboard_allowed_cidrs = ["203.0.113.10/32"]
+
+    Consumer addresses move, and some sit behind carrier NAT shared with other
+    customers of the same ISP, so treat this as narrowing the surface rather
+    than as the boundary. The Auth0 email allow list is what decides who can
+    actually log in.
+  EOT
+  type        = list(string)
+  default     = []
+}
