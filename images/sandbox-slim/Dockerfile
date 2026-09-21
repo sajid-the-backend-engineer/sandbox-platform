@@ -99,8 +99,29 @@ ENTRYPOINT [ "sleep", "infinity" ]
 # Desktop workloads require a separate snapshot; keep ordinary code execution slim.
 FROM slim AS desktop
 USER root
+
+# Google Chrome, not Chromium.
+#
+# browser_runtime.py already probes google-chrome-stable first and falls back to
+# chromium, so the backend preferred Chrome all along -- the image simply never had
+# it. Chrome carries Widevine and the full proprietary codec set that Chromium does
+# not, and those are the two things that make a page render differently in a
+# screenshot from how a user sees it.
+#
+# It comes from Google's own apt repo because it is not in Debian, and unlike
+# Chromium it is not freely redistributable. That is acceptable here: this image is
+# published to a private registry for our own runners, not shipped to third parties.
+# Revisit that if the image is ever distributed more widely.
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
-    chromium fonts-liberation \
+    ca-certificates curl gnupg \
+    && curl -fsSL https://dl.google.com/linux/linux_signing_key.pub \
+       | gpg --dearmor -o /usr/share/keyrings/google-chrome.gpg \
+    && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google-chrome.gpg] https://dl.google.com/linux/chrome/deb/ stable main" \
+       > /etc/apt/sources.list.d/google-chrome.list \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+    google-chrome-stable fonts-liberation \
     libx11-6 libxrandr2 libxext6 libxrender1 libxfixes3 libxss1 libxtst6 libxi6 libxinerama1 \
     libxcb1 libxcb-shm0 libxcb-shape0 libxcb-xfixes0 \
     xvfb xauth x11vnc novnc websockify xfce4 xfce4-terminal dbus-x11 \
