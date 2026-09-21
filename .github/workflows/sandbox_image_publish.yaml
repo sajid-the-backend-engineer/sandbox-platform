@@ -39,7 +39,13 @@ on:
   workflow_dispatch:
     inputs:
       version:
-        description: 'Image version, e.g. 0.1.0. Becomes the tag <version>-slim.'
+        description: 'Image version, e.g. 0.1.3. Becomes the tag <version>-<variant>.'
+        required: true
+      variant:
+        description: 'Slim for code execution; desktop for browser screenshots and computer use.'
+        type: choice
+        options: [slim, desktop]
+        default: slim
         required: true
 
 permissions:
@@ -47,7 +53,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: sandbox-image-${{ inputs.version }}
+  group: sandbox-image-${{ inputs.version }}-${{ inputs.variant }}
   cancel-in-progress: false
 
 env:
@@ -65,7 +71,7 @@ env:
 jobs:
   # -------------------------------------------------------------------------
   build:
-    name: Build & push sandbox-slim ${{ inputs.version }} to ECR
+    name: Build & push sandbox-${{ inputs.variant }} ${{ inputs.version }} to ECR
     runs-on: ubuntu-latest
     timeout-minutes: 60
     outputs:
@@ -75,6 +81,7 @@ jobs:
         id: tag
         env:
           VERSION: ${{ inputs.version }}
+          VARIANT: ${{ inputs.variant }}
         run: |
           set -euo pipefail
           # Conservative: the value is interpolated into an image tag.
@@ -82,7 +89,8 @@ jobs:
             echo "::error::version '$VERSION' is not a plain semantic version."
             exit 1
           fi
-          echo "image_tag=${VERSION}-slim" >> "$GITHUB_OUTPUT"
+          case "$VARIANT" in slim|desktop) ;; *) echo '::error::Invalid image variant'; exit 1 ;; esac
+          echo "image_tag=${VERSION}-${VARIANT}" >> "$GITHUB_OUTPUT"
 
       - name: Checkout
         uses: actions/checkout@df4cb1c069e1874edd31b4311f1884172cec0e10 # v6.0.3
@@ -108,13 +116,14 @@ jobs:
         with:
           context: .
           file: images/sandbox-slim/Dockerfile
+          target: ${{ inputs.variant }}
           platforms: linux/amd64
           push: true
           provenance: false
           tags: |
             ${{ steps.ecr-login.outputs.registry }}/${{ env.ECR_REPOSITORY }}:${{ steps.tag.outputs.image_tag }}
-          cache-from: type=gha,scope=sandbox-slim
-          cache-to: type=gha,scope=sandbox-slim,mode=max
+          cache-from: type=gha,scope=sandbox-${{ inputs.variant }}
+          cache-to: type=gha,scope=sandbox-${{ inputs.variant }},mode=max
 
       - name: Verify the image is in ECR
         env:
@@ -322,5 +331,5 @@ jobs:
             echo
             echo "Copied \`$ECR_REPOSITORY:$IMAGE_TAG\` from ECR into the snapshot registry as \`northrays/sandbox:$IMAGE_TAG\`."
             echo
-            echo "Set \`default_snapshot\` (Terraform) / \`DEFAULT_SNAPSHOT\` to that name and roll the api."
+            echo "Register a snapshot for this image. For desktop, set Aadml's \`SANDBOX_DESKTOP_SNAPSHOT\` to its snapshot name; leave the code-execution default unchanged."
           } >> "$GITHUB_STEP_SUMMARY"

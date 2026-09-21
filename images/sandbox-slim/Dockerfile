@@ -1,4 +1,4 @@
-FROM python:3.14.5-slim
+FROM python:3.14.5-slim AS slim
 
 # Update package list and install required dependencies
 RUN apt-get update && apt-get install -y \
@@ -95,3 +95,22 @@ RUN mkdir -p /usr/local/lib && sudo chown northrays:northrays /usr/local/lib
 
 # Keep the container running indefinitely
 ENTRYPOINT [ "sleep", "infinity" ]
+
+# Desktop workloads require a separate snapshot; keep ordinary code execution slim.
+FROM slim AS desktop
+USER root
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+    chromium fonts-liberation \
+    libx11-6 libxrandr2 libxext6 libxrender1 libxfixes3 libxss1 libxtst6 libxi6 libxinerama1 \
+    libxcb1 libxcb-shm0 libxcb-shape0 libxcb-xfixes0 \
+    xvfb xauth x11vnc novnc websockify xfce4 xfce4-terminal dbus-x11 \
+    at-spi2-core libatspi2.0-0 ffmpeg procps \
+    && rm -rf /var/lib/apt/lists/*
+ENV DISPLAY=:0 \
+    GTK_MODULES=gail:atk-bridge \
+    QT_ACCESSIBILITY=1 \
+    NO_AT_BRIDGE=0
+USER northrays
+
+# An untargeted build retains the existing slim contract.
+FROM slim AS default
