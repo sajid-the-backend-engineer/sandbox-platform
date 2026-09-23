@@ -127,6 +127,22 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-ins
     xvfb xauth x11vnc novnc websockify xfce4 xfce4-terminal dbus-x11 \
     at-spi2-core libatspi2.0-0 ffmpeg procps \
     && rm -rf /var/lib/apt/lists/*
+# Playwright, WITHOUT its bundled browser.
+#
+# `playwright install` is deliberately not run. It would add roughly 400 MB and give
+# us its pinned Chromium build -- the one Cloudflare and similar fingerprint as
+# automation. The worker passes executable_path=/usr/bin/google-chrome-stable, so the
+# browser is the Chrome installed above and the bundled one would never be launched.
+#
+# Verified on this exact base (python:3.14.5-slim): playwright ships
+# py3-none-manylinux1_x86_64 -- not ABI-specific -- so no cp314 wheel is needed, and
+# its only compiled dependency, greenlet, does publish a cp314 wheel. Import and
+# driver start both succeed on 3.14.5. No venv, no downgrade.
+#
+# Pinned because the driver is a Node bundle inside the wheel: an unpinned upgrade
+# changes the browser protocol the worker speaks, silently.
+RUN python3 -m pip install --no-cache-dir --break-system-packages playwright==1.63.0
+
 ENV DISPLAY=:0 \
     GTK_MODULES=gail:atk-bridge \
     QT_ACCESSIBILITY=1 \
