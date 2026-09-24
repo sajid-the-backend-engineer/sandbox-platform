@@ -104,6 +104,21 @@ export class CreateSandboxDto {
   domainAllowList?: string
 
   @ApiPropertyOptional({
+    description:
+      'Whether this sandbox will run a browser that sandboxes itself. When set, the runner ' +
+      'widens the seccomp filter by the three syscalls Chrome needs to build its own renderer ' +
+      'sandbox (clone and unshare with the user, PID and network namespace bits, and chroot). ' +
+      'Nothing else changes: the sandbox stays unprivileged, keeps NET_ADMIN and NET_RAW ' +
+      'dropped, and keeps its egress policy. Declare it only for sandboxes that really run a ' +
+      'browser -- on anything else it is kernel surface bought for nothing.',
+    example: true,
+    default: false,
+  })
+  @IsOptional()
+  @IsBoolean()
+  browserSandbox?: boolean
+
+  @ApiPropertyOptional({
     description: 'The target (region) where the sandbox will be created',
     example: 'us',
   })

@@ -233,6 +233,11 @@ export class RunnerAdapterV0 implements RunnerAdapter {
       regionId: sandbox.region,
       linkedSandboxId: sandbox.linkedSandboxId ?? undefined,
       sandboxClass: sandbox.sandboxClass,
+      // Sent on this adapter too. A runner old enough to predate the field ignores it
+      // -- Go drops unknown JSON keys -- and one new enough honours it, so the only
+      // behaviour omitting it could produce is a browser sandbox on a v0 runner whose
+      // Chrome cannot start.
+      browserSandbox: sandbox.browserSandbox,
     }
 
     const response = await this.sandboxApiClient.create(createSandboxDto)

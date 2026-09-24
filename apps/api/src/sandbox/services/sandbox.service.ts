@@ -574,7 +574,23 @@ export class SandboxService {
       // runner for their lifetime and are auto-deleted on first stop. Skip the
       // warm-pool path entirely so we always provision a fresh container on a
       // currently-unoccupied GPU runner.
-      if (gpu <= 0 && !linkedSandbox && (!createSandboxDto.volumes || createSandboxDto.volumes.length === 0)) {
+      // A browser sandbox skips the warm pool for the same reason a GPU one does: the
+      // thing it needs is fixed when the CONTAINER is created, and a warm-pool sandbox
+      // was created before anybody asked for it.
+      //
+      // Seccomp is a property of the container, not of the row. Handing a browser
+      // request a pre-built container would set browserSandbox on a sandbox whose
+      // filter is Docker's default, and Chrome would fail to build its own sandbox --
+      // reported as "the browser will not start", with a database row insisting it
+      // should. Everything else assign-time can change (env, intervals, the egress
+      // policy, which is re-pushed to the runner) genuinely can be changed on a
+      // running container. This cannot.
+      if (
+        gpu <= 0 &&
+        !linkedSandbox &&
+        !createSandboxDto.browserSandbox &&
+        (!createSandboxDto.volumes || createSandboxDto.volumes.length === 0)
+      ) {
         const skipWarmPool = (await this.redis.exists(`warm-pool:skip:${snapshot.id}`)) === 1
 
         if (!skipWarmPool) {
@@ -659,6 +675,13 @@ export class SandboxService {
 
       if (createSandboxDto.domainAllowList !== undefined) {
         sandbox.domainAllowList = this.resolveDomainAllowList(createSandboxDto.domainAllowList)
+      }
+
+      // Persisted rather than recomputed at dispatch time. The runner needs it on every
+      // start and resume, not only on the first create, and the sandbox row is the only
+      // thing that still exists by then.
+      if (createSandboxDto.browserSandbox !== undefined) {
+        sandbox.browserSandbox = createSandboxDto.browserSandbox
       }
 
       if (createSandboxDto.autoStopInterval !== undefined) {
@@ -932,6 +955,13 @@ export class SandboxService {
         sandbox.domainAllowList = this.resolveDomainAllowList(createSandboxDto.domainAllowList)
       }
 
+      // Persisted rather than recomputed at dispatch time. The runner needs it on every
+      // start and resume, not only on the first create, and the sandbox row is the only
+      // thing that still exists by then.
+      if (createSandboxDto.browserSandbox !== undefined) {
+        sandbox.browserSandbox = createSandboxDto.browserSandbox
+      }
+
       if (createSandboxDto.autoStopInterval !== undefined) {
         sandbox.autoStopInterval = this.resolveAutoStopInterval(createSandboxDto.autoStopInterval)
       }
@@ -1139,6 +1169,10 @@ export class SandboxService {
       forkedSandbox.volumes = sourceSandbox.volumes?.map((volume) => ({ ...volume }))
       forkedSandbox.networkBlockAll = sourceSandbox.networkBlockAll
       forkedSandbox.networkAllowList = sourceSandbox.networkAllowList
+      // A fork of a browser sandbox is still a browser sandbox. It gets a container of
+      // its own, so the filter is applied fresh; losing the flag here would produce a
+      // copy in which the browser silently stops starting.
+      forkedSandbox.browserSandbox = sourceSandbox.browserSandbox
       forkedSandbox.runnerId = sourceSandbox.runnerId
       forkedSandbox.pending = true
       forkedSandbox.state = SandboxState.CREATING
