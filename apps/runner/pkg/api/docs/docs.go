@@ -1552,6 +1552,10 @@ const docTemplate = `{
                 "authToken": {
                     "type": "string"
                 },
+                "browserSandbox": {
+                    "description": "BrowserSandbox says this sandbox runs a browser that sandboxes itself.\n\nSent explicitly by the caller rather than inferred. The computer-use plugin is\nmounted into every sandbox, so its presence says nothing about whether a browser\nwill run -- inferring from it would widen the syscall filter for workloads that\nnever launch one.\n\nIt is also NOT the same question as SandboxClass, which describes the shape of the\nmachine (container, linux-vm, android, windows). This describes the workload, and\nthe two vary independently.\n\nIts only effect is the seccomp profile: see browserSeccompProfile. Everything else\nabout a restricted sandbox -- unprivileged, capabilities dropped, egress enforced --\nis unchanged, and a browser sandbox that is NOT restricted gets nothing extra.",
+                    "type": "boolean"
+                },
                 "cpuQuota": {
                     "type": "integer",
                     "minimum": 1

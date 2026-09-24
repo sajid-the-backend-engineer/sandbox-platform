@@ -134,6 +134,21 @@ export class Sandbox {
   @Column({ nullable: true })
   domainAllowList?: string
 
+  /**
+   * Whether this sandbox runs a browser that sandboxes itself.
+   *
+   * Set by the caller, never inferred. The computer-use plugin is mounted into every
+   * sandbox, so its presence says nothing about whether a browser will run, and
+   * sandboxClass answers a different question -- the shape of the machine, not the
+   * workload.
+   *
+   * Its only effect is on the runner, which widens the seccomp filter by three
+   * syscalls so Chrome can build its own renderer sandbox without the container
+   * regaining CAP_SYS_ADMIN. Everything else about a restricted sandbox is unchanged.
+   */
+  @Column({ default: false, type: 'boolean' })
+  browserSandbox = false
+
   @Column('jsonb', { nullable: true })
   labels: { [key: string]: string }
 

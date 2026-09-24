@@ -22,6 +22,10 @@ import type { RegistryDTO } from './registry-dto';
 
 export interface CreateSandboxDTO {
     'authToken'?: string;
+    /**
+     * BrowserSandbox says this sandbox runs a browser that sandboxes itself.  Sent explicitly by the caller rather than inferred. The computer-use plugin is mounted into every sandbox, so its presence says nothing about whether a browser will run -- inferring from it would widen the syscall filter for workloads that never launch one.  It is also NOT the same question as SandboxClass, which describes the shape of the machine (container, linux-vm, android, windows). This describes the workload, and the two vary independently.  Its only effect is the seccomp profile: see browserSeccompProfile. Everything else about a restricted sandbox -- unprivileged, capabilities dropped, egress enforced -- is unchanged, and a browser sandbox that is NOT restricted gets nothing extra.
+     */
+    'browserSandbox'?: boolean;
     'cpuQuota'?: number;
     'domainAllowList'?: string;
     'entrypoint'?: Array<string>;
