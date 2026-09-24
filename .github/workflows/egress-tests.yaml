@@ -71,8 +71,21 @@ jobs:
       # daemon: these tests install and remove firewall rules, and confining that to a
       # throwaway container keeps them off the host the rest of the job shares.
       - name: Run the privileged egress suites
+        # D2_BROWSER_IMAGE enables the browser-sandbox runtime proofs in
+        # apps/runner/pkg/docker/browser_privileged_test.go -- Chrome really starting
+        # under the narrowed seccomp profile, in a container with no capabilities.
+        #
+        # It comes from a repository variable rather than being hardcoded because the
+        # image is a deployment fact: it is whatever SANDBOX_DESKTOP_SNAPSHOT currently
+        # points at, and a value pinned here would drift into testing an image nothing
+        # runs. Left unset, those tests skip and the rest of the suite is unaffected --
+        # the nested daemon would otherwise spend the job pulling a gigabyte of desktop
+        # image on every change to an iptables rule.
+        env:
+          D2_BROWSER_IMAGE: ${{ vars.D2_BROWSER_IMAGE }}
         run: |
           docker run --rm --privileged \
+            -e D2_BROWSER_IMAGE \
             -v "${{ github.workspace }}:/src" \
             northrays-egress-tests:ci -v
 

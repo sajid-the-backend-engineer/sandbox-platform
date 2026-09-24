@@ -43,6 +43,24 @@ until docker pull -q alpine:3.20 >/dev/null 2>&1; do
   sleep $((attempt * 5))
 done
 
+# The browser image for the D2 runtime proofs, when one is named. Same reasoning as
+# the probe image above, and more so: it is about a gigabyte, and a pull that slow
+# inside a test reads as a hang in a suite where hangs mean firewall rules.
+if [ -n "$D2_BROWSER_IMAGE" ]; then
+  echo "browser image: $D2_BROWSER_IMAGE"
+  attempt=1
+  until docker pull -q "$D2_BROWSER_IMAGE" >/dev/null 2>&1; do
+    if [ $attempt -ge 3 ]; then
+      echo "could not pull $D2_BROWSER_IMAGE after $attempt attempts" >&2
+      docker pull "$D2_BROWSER_IMAGE" >&2 || true
+      exit 1
+    fi
+    echo "browser image pull failed (attempt $attempt), retrying" >&2
+    attempt=$((attempt + 1))
+    sleep $((attempt * 5))
+  done
+fi
+
 cd /src
 
 # -p 1 is required, not tidiness. There is one kernel, and these two packages install
