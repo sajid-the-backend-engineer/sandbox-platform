@@ -7,7 +7,6 @@ RUN apt-get update && apt-get install -y \
     python3-pip \
     python3-venv \
     ripgrep \
-    chromium \
     iputils-ping \
     bind9-dnsutils \
     # X11 libraries required for computer use plugin
@@ -36,6 +35,35 @@ RUN apt-get update && apt-get install -y \
     # AT-SPI for accessibility API
     at-spi2-core \
     libatspi2.0-0 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Google Chrome, not Chromium - the SAME choice already made for the desktop image in cbebe6ec1.
+#
+# This image backs the code workspace, where `browser_runtime.py` launches the browser that renders
+# pages for screenshots and for the BROWSER tool. It shipped Debian's `chromium`, so the platform's
+# two browser paths disagreed about what a page looks like. Chrome carries Widevine and the full
+# proprietary codec set Chromium does not, which are the two things that make a page render
+# differently in a screenshot from how a user sees it; Cloudflare also fingerprints Chromium builds
+# and challenges them, so the binary changes what a page DOES, not only how it looks.
+#
+# It comes from Google's own apt repo because it is not in Debian, and unlike Chromium it is not
+# freely redistributable. Acceptable here for the same reason it is in the desktop image: this is
+# published to a private registry for our own runners, not shipped to third parties. Revisit if that
+# ever changes.
+#
+# `fonts-liberation` rides along for the same reason the desktop image takes it: a browser with no
+# metric-compatible fonts falls back to whatever it can find, and the screenshot then shows a page
+# nobody would see.
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+    ca-certificates curl gnupg \
+    && curl -fsSL https://dl.google.com/linux/linux_signing_key.pub \
+       | gpg --dearmor -o /usr/share/keyrings/google-chrome.gpg \
+    && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/google-chrome.gpg] https://dl.google.com/linux/chrome/deb/ stable main" \
+       > /etc/apt/sources.list.d/google-chrome.list \
+    && rm -rf /var/lib/apt/lists/*
+
+RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends \
+    google-chrome-stable fonts-liberation \
     && rm -rf /var/lib/apt/lists/*
 
 # Install pipx and uv
