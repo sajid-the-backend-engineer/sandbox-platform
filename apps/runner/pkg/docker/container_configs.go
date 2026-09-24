@@ -249,6 +249,36 @@ func (d *DockerClient) getContainerHostConfig(sandboxDto dto.CreateSandboxDTO, v
 		// true -- privileged mode ignores the drop list -- which is the other reason
 		// the flag above has to come off.
 		hostConfig.CapDrop = append(hostConfig.CapDrop, "NET_ADMIN", "NET_RAW")
+
+		// A browser needs three more syscalls to sandbox ITSELF, and only a browser
+		// gets them.
+		//
+		// Dropping privileged is what makes the egress policy enforceable, and it is
+		// also what stops Chrome building the namespaces its renderer sandbox is made
+		// of -- Docker's default filter refuses clone/unshare with namespace flags
+		// unless the container holds CAP_SYS_ADMIN. The usual response is
+		// --no-sandbox, which switches Chrome's renderer isolation off and leaves the
+		// container as the only boundary.
+		//
+		// This keeps both boundaries. The capability stays dropped; the filter gains
+		// three traced syscalls. See browserSeccompProfile for what they are and how
+		// each was established.
+		//
+		// Scoped to restricted AND browser on purpose. An ordinary restricted sandbox
+		// has no browser to isolate, so widening its filter would buy nothing and cost
+		// kernel surface -- which is the same reasoning that rules out applying this
+		// globally.
+		if sandboxDto.IsBrowserSandbox() {
+			profile, err := browserSeccompProfile()
+			if err != nil {
+				// Fail the create rather than fall back to the default filter. A
+				// browser sandbox that silently lost its seccomp profile would run
+				// with Chrome unable to sandbox itself, and the caller would have no
+				// way to tell that from success.
+				return nil, fmt.Errorf("build browser seccomp profile for %s: %w", sandboxDto.Id, err)
+			}
+			hostConfig.SecurityOpt = append(hostConfig.SecurityOpt, "seccomp="+profile)
+		}
 	}
 
 	if sandboxDto.OtelEndpoint != nil && strings.Contains(*sandboxDto.OtelEndpoint, "host.docker.internal") {

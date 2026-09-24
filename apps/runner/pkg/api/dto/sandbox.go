@@ -32,6 +32,22 @@ type CreateSandboxDTO struct {
 	// Optional for backward compatibility, but when provided, indicates the class of sandbox to create.
 	SandboxClass *string `json:"sandboxClass,omitempty"`
 
+	// BrowserSandbox says this sandbox runs a browser that sandboxes itself.
+	//
+	// Sent explicitly by the caller rather than inferred. The computer-use plugin is
+	// mounted into every sandbox, so its presence says nothing about whether a browser
+	// will run -- inferring from it would widen the syscall filter for workloads that
+	// never launch one.
+	//
+	// It is also NOT the same question as SandboxClass, which describes the shape of the
+	// machine (container, linux-vm, android, windows). This describes the workload, and
+	// the two vary independently.
+	//
+	// Its only effect is the seccomp profile: see browserSeccompProfile. Everything else
+	// about a restricted sandbox -- unprivileged, capabilities dropped, egress enforced --
+	// is unchanged, and a browser sandbox that is NOT restricted gets nothing extra.
+	BrowserSandbox *bool `json:"browserSandbox,omitempty"`
+
 	// Nullable for backward compatibility
 	OrganizationId *string `json:"organizationId,omitempty"`
 	RegionId       *string `json:"regionId,omitempty"`
@@ -46,6 +62,14 @@ func (c *CreateSandboxDTO) IsAndroidSandbox() bool {
 		return true
 	}
 	return false
+}
+
+// IsBrowserSandbox reports whether the caller declared this a browser workload.
+//
+// Absent means no. A sandbox that does not say it runs a browser keeps the default
+// syscall filter, which is the posture every sandbox had before this flag existed.
+func (c *CreateSandboxDTO) IsBrowserSandbox() bool {
+	return c.BrowserSandbox != nil && *c.BrowserSandbox
 }
 
 type ResizeSandboxDTO struct {
