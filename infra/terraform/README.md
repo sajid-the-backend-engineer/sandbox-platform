@@ -179,7 +179,7 @@ for PHASE in init pre-deploy post-deploy; do
 done
 ```
 
-In a real pipeline `post-deploy` runs *after* the new service revisions are
+In a real pipeline `post-deploy` runs _after_ the new service revisions are
 live, not immediately after `pre-deploy`.
 
 ## Populating secrets
@@ -214,7 +214,7 @@ Notes per secret:
 | `admin-api-key`, `proxy-api-key`, `health-check-api-key` | Random strings shared between services. |
 | `ssh-gateway-api-key` | Shared value: the api reads it as `SSH_GATEWAY_API_KEY`, the gateway as `API_KEY`. Both are pointed at this one secret so they cannot drift. |
 | `default-runner-api-key` | Same pattern: the api authenticates with it, the runner validates against it as `NORTHRAYS_RUNNER_TOKEN`. |
-| `ssh-private-key`, `ssh-host-key` | Two *different* base64-encoded OpenSSH keys — the gateway's identity when dialling runners, and the host key it presents to clients. Generate with `ssh-keygen -t ed25519 -f key -N ""` then `base64 -w0 key`. |
+| `ssh-private-key`, `ssh-host-key` | Two _different_ base64-encoded OpenSSH keys — the gateway's identity when dialling runners, and the host key it presents to clients. Generate with `ssh-keygen -t ed25519 -f key -N ""` then `base64 -w0 key`. |
 | `ssh-gateway-public-key` | Base64 of the public half of `ssh-private-key`. The runner accepts connections signed by it. |
 | `oidc-client-secret`, `oidc-management-api-client-secret` | From your identity provider. |
 | `smtp-password` | From your email provider. |
@@ -267,7 +267,7 @@ Two decisions worth knowing before touching this:
   covers `*.<domain>`, and one certificate can be attached to any number of
   listeners. The name it serves never needs a public A record.
 - **The private zone is the single leaf name, not `<domain>`.** A private zone
-  takes precedence over public DNS for *every* name under it, and a name it
+  takes precedence over public DNS for _every_ name under it, and a name it
   does not hold is NXDOMAIN, not a fall-through. A private zone for `<domain>`
   would have had to replicate `api.`, `proxy.`, `*.proxy.`, `ssh.` and the
   apex — which the proxy and api call by their public names from inside the
@@ -321,7 +321,7 @@ is that switch; it defaults to `true`, which is today's behaviour.
    definition, role policy, security group and log group; and
    `module.snapshot_manager.aws_ecs_service.this` **updated in place** with a
    second `load_balancer` entry. Nothing is destroyed. If the plan shows the
-   registry service being *replaced*, stop — that is not expected.
+   registry service being _replaced_, stop — that is not expected.
 
    ```bash
    terraform apply tfplan
@@ -391,6 +391,14 @@ Both service modules set `ignore_changes` on `task_definition`,
 `container_definitions` and `desired_count`. CI owns the running image;
 autoscaling owns the running count. Terraform owns the shape of everything else
 and will not fight either of them.
+
+### Before taking real traffic
+
+Production runs a single runner server sized for low traffic and low cost, and
+the runner has no auto-scaling rule. Read
+[environments/production/GO-LIVE-SCALING.md](environments/production/GO-LIVE-SCALING.md)
+before go-live: it records the cost settings changed on 2026-10-05, how to
+reverse each one, and the work still needed to run more than one runner.
 
 ### Getting a shell in a task
 
@@ -514,20 +522,24 @@ There is no console button for this. The procedure:
 2. Fetch the dump you want:
    `aws s3 cp s3://<bucket>/postgres/2026/09/01/northrays-<ts>.dump ./restore.dump`
 3. Get a shell in the Postgres task:
+
    ```bash
    aws ecs execute-command --cluster northrays-production \
      --task <task-id> --container postgres --interactive --command /bin/bash
    ```
+
    The dump has to reach the container. The simplest route is to copy it onto
    the host over Session Manager (`aws ssm start-session --target <instance-id>`)
    into `/mnt/pgdata/data`, which is the same directory the container sees as
    `/var/lib/postgresql/data`.
 4. Restore into a clean database:
+
    ```bash
    dropdb  -U northrays northrays
    createdb -U northrays northrays
    pg_restore -U northrays -d northrays --no-owner --no-privileges /var/lib/postgresql/data/restore.dump
    ```
+
 5. Scale the api back up.
 
 Practise this once on a throwaway stack. A restore procedure that has never been
@@ -632,7 +644,7 @@ python3 scripts/smoke-test-sandbox.py
 ```
 
 Do not use a bare `aws ecs update-service --force-new-deployment`: it re-rolls
-the revision the service is *already* on, which still says `false`. And do not
+the revision the service is _already_ on, which still says `false`. And do not
 point the service at the Terraform-registered revision directly — its image is
 `var.image_tag` (`latest`), a moving pointer ECS must never be pinned to.
 
