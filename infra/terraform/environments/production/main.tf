@@ -169,6 +169,7 @@ module "ecs_cluster" {
   cluster_name       = var.cluster_name
   vpc_id             = module.network.vpc_id
   log_retention_days = var.log_retention_days
+  container_insights = var.ecs_container_insights
 
   # snapshot-manager and the image-mirror task are always present; the Postgres
   # pair only when Postgres runs in the cluster, so RDS deployments get exactly

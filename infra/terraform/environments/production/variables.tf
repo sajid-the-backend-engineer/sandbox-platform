@@ -505,6 +505,53 @@ variable "build_memory_gb" {
   default     = 8
 }
 
+variable "ecs_container_insights" {
+  description = <<-EOT
+    CloudWatch Container Insights on the cluster: "enabled", "enhanced" or
+    "disabled".
+
+    Disabled here, because it was the largest line on the bill that nothing read.
+    It publishes roughly 150 custom metrics for this cluster at about $0.30 each a
+    month -- some $45 -- and on 2026-10-05 not one alarm and not one dashboard in
+    the account referenced the ECS/ContainerInsights namespace. Every alarm that
+    exists reads AWS/ECS or AWS/ECS/ManagedScaling, which are free and unaffected.
+
+    What is given up is per-service network, storage and task-count graphs. Turn it
+    back on when somebody needs them to debug something; it starts collecting again
+    within minutes and keeps no history from the time it was off.
+  EOT
+  type        = string
+  default     = "disabled"
+
+  validation {
+    condition     = contains(["enabled", "enhanced", "disabled"], var.ecs_container_insights)
+    error_message = "ecs_container_insights must be one of: enabled, enhanced, disabled."
+  }
+}
+
+variable "runner_volume_throughput" {
+  description = <<-EOT
+    Provisioned throughput in MiB/s for both runner volumes (root and data).
+
+    125 is what gp3 includes for free; anything above it is billed per MiB/s. The
+    module default of 250 was a guess at what image unpacking would need, and the
+    measurement says otherwise: over the fortnight to 2026-10-05 the data volume
+    peaked at 7 MiB/s and the root volume at 1.5, averaged over 15 minutes. IOPS,
+    which is what unpacking layers is actually bound by, stays at the free 3000.
+
+    Raise it only against a measured VolumeReadBytes + VolumeWriteBytes that is
+    pressing on 125, and remember EBS allows one modification per volume every six
+    hours.
+  EOT
+  type        = number
+  default     = 125
+
+  validation {
+    condition     = var.runner_volume_throughput >= 125 && var.runner_volume_throughput <= 1000
+    error_message = "runner_volume_throughput must be between 125 and 1000 MiB/s (gp3 limits)."
+  }
+}
+
 variable "runner_target_capacity" {
   description = <<-EOT
     Target percentage cluster utilisation for the runner capacity provider.

@@ -546,14 +546,15 @@ module "runner" {
   container_port = local.ports.runner
   ssh_port       = local.ports.runner_ssh
 
-  instance_type        = var.runner_instance_type
-  asg_min_size         = var.runner_asg_min_size
-  asg_max_size         = var.runner_asg_max_size
-  asg_desired_capacity = var.runner_asg_desired_capacity
-  target_capacity      = var.runner_target_capacity
-  root_volume_size     = var.runner_root_volume_size
-  data_volume_size     = var.runner_data_volume_size
-  desired_count        = var.runner_desired_count
+  instance_type          = var.runner_instance_type
+  asg_min_size           = var.runner_asg_min_size
+  asg_max_size           = var.runner_asg_max_size
+  asg_desired_capacity   = var.runner_asg_desired_capacity
+  target_capacity        = var.runner_target_capacity
+  root_volume_size       = var.runner_root_volume_size
+  data_volume_size       = var.runner_data_volume_size
+  root_volume_throughput = var.runner_volume_throughput
+  desired_count          = var.runner_desired_count
 
   execution_role_arn = module.iam.execution_role_arn
   task_role_arn      = module.iam.task_role_arns["runner"]
