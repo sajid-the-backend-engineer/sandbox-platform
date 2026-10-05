@@ -505,6 +505,34 @@ variable "build_memory_gb" {
   default     = 8
 }
 
+variable "runner_target_capacity" {
+  description = <<-EOT
+    Target percentage cluster utilisation for the runner capacity provider.
+
+    100, not the module default of 80, and the reason is arithmetic rather than
+    taste. The runner task reserves 4 GiB and an m5.large offers about 7.5 GiB, so
+    a second task cannot share a host. Below 100, ECS must therefore run a WHOLE
+    extra instance to hold its headroom -- one task, two hosts, permanently. At
+    this traffic that is roughly $60/month to keep a machine idle.
+
+    The cost of 100 is that a task needing a new host waits for one to boot and
+    pull images, which is minutes. That is the right trade while a single runner
+    is not close to saturated; revisit it when sandbox demand regularly queues,
+    or when the account vCPU quota is high enough that the spare host can also
+    serve as replacement capacity.
+
+    Note that this is NOT settable by adjusting the ASG desired capacity: ECS
+    managed scaling owns that value and reverts manual changes within minutes.
+  EOT
+  type        = number
+  default     = 100
+
+  validation {
+    condition     = var.runner_target_capacity > 0 && var.runner_target_capacity <= 100
+    error_message = "runner_target_capacity must be between 1 and 100."
+  }
+}
+
 variable "runner_asg_min_size" {
   description = "Minimum runner instances."
   type        = number

@@ -550,6 +550,7 @@ module "runner" {
   asg_min_size         = var.runner_asg_min_size
   asg_max_size         = var.runner_asg_max_size
   asg_desired_capacity = var.runner_asg_desired_capacity
+  target_capacity      = var.runner_target_capacity
   root_volume_size     = var.runner_root_volume_size
   data_volume_size     = var.runner_data_volume_size
   desired_count        = var.runner_desired_count
