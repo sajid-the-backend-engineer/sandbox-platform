@@ -220,12 +220,23 @@ variable "snapshot_manager_memory" {
 
 variable "snapshot_manager_desired_count" {
   description = <<-EOT
-    Initial snapshot-manager task count. Two so a task loss does not take
-    sandbox creation down with it -- the shared SNAPSHOT_MANAGER_HTTP_SECRET is
-    what makes more than one safe.
+    Snapshot-manager task count, and the floor its auto-scaling will not go
+    below.
+
+    One, since 2026-10-05, to save the cost of an idle second task while
+    traffic is low: the service averaged 0.3% CPU and 5% memory over the week
+    before. Auto-scaling can still take it to four under load.
+
+    The price is resilience. With one task, a restart means about a minute in
+    which new sandboxes cannot fetch their image; running sandboxes are not
+    affected. The rest of the platform already runs one runner, one api and
+    one proxy, so two here protected a single link in a chain of single links.
+
+    Set it back to 2 before go-live. More than one task is safe because of the
+    shared SNAPSHOT_MANAGER_HTTP_SECRET.
   EOT
   type        = number
-  default     = 2
+  default     = 1
 }
 
 variable "snapshot_manager_hostname_label" {

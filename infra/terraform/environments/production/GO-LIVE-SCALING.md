@@ -7,9 +7,9 @@ Written 2026-10-05. Read this before the platform takes real traffic.
 - The platform runs **exactly one runner server** today (`m5.large`: 2 vCPU, 8 GB).
   Every sandbox, for every user, runs on that one machine.
 - That is sized for low traffic and low cost. **It is not a go-live configuration.**
-- On 2026-10-05 three cost settings were changed. Each is easy to reverse, and
-  the steps are in [What changed on 2026-10-05](#what-changed-on-2026-10-05).
-- **Reversing those three does not give you auto-scaling.** The runner was fixed
+- On 2026-10-05 five cost changes were made. Each is easy to reverse, and the
+  steps are in [What changed on 2026-10-05](#what-changed-on-2026-10-05).
+- **Reversing them does not give you auto-scaling.** The runner was fixed
   at one copy before 5 October too, and it has never had an auto-scaling rule.
   Running more than one runner is new work that has not been done yet. It is
   listed in [Before go-live](#before-go-live).
@@ -50,27 +50,29 @@ smaller machine was chosen to fit the AWS vCPU limit.
 | Capacity target | 100 (no standby server) | `runner_target_capacity`, changed 2026-10-05 |
 | Container Insights | disabled | `ecs_container_insights`, changed 2026-10-05 |
 | Runner disk throughput | 125 MiB/s on both disks | `runner_volume_throughput`, changed 2026-10-05 |
+| Snapshot manager copies | 1, can grow to 4 under load | `snapshot_manager_desired_count`, changed 2026-10-05 |
+| Deployment server `aadml-sandbox` | switched off unless someone is deploying | not in Terraform; changed 2026-10-05 |
 | How a deploy replaces the runner | stops the old one, then starts the new one | `modules/service-ec2-runner/service.tf` (minimum healthy 0%, maximum 100%) |
 | Runners per server | one | `distinctInstance` in the same file |
 | Runner record in the API | one row, `runner-0`, at `http://runner.northrays.internal:3003` | `DEFAULT_RUNNER_*` on the api task |
-| AWS vCPU limit | 8, with 7 in use | quota `L-1216C47A`; an increase to 16 was requested 2026-10-05 |
+| AWS vCPU limit | 8, with 5 in use while the deployment server is off, 7 while it is on | quota `L-1216C47A`; an increase to 16 was requested 2026-10-05 |
 
 For comparison, the other services already scale on their own: api 1 to 12
 copies, proxy 1 to 10, dashboard 1 to 6, ssh-gateway 0 to 6, snapshot-manager
-2 to 4. Only the runner does not.
+1 to 4. Only the runner does not.
 
 ## What changed on 2026-10-05
 
 AWS credits stopped on 2026-09-30 and the bill went from about $5 a day to about
-$26 with no change in usage. These three changes were made to cut cost while
-traffic is low. Together they save about $58 a month, and avoid a further $125 a
-month for a standby runner.
+$26 with no change in usage. These five changes were made to cut cost while
+traffic is low. Changes 1 to 3 save about $58 a month and avoid a further $125 a
+month for a standby runner. Changes 4 and 5 save about $43 a month.
 
-All three were applied directly in AWS with the CLI and committed to Terraform
-with the same values, because `terraform.tfvars` exists only on the deployment
-server (`aadml-sandbox`). **`terraform apply` has not been run since.** Before
-the next infrastructure change, run `terraform plan` on that server and confirm
-it shows no change for these three.
+Changes 1 to 4 were applied directly in AWS with the CLI and committed to
+Terraform with the same values, because `terraform.tfvars` exists only on the
+deployment server (`aadml-sandbox`). **`terraform apply` has not been run
+since.** Before the next infrastructure change, start that server (see change
+5), run `terraform plan` on it and confirm it shows no change for these four.
 
 ### 1. Capacity target 80 to 100: no standby runner server
 
@@ -106,6 +108,36 @@ target is the only lever.
 | To reverse | Set `runner_volume_throughput = 250`, run `modify-volume --throughput 250` on the live volumes, and create a new launch template version. AWS allows one change per volume every six hours. |
 | When to reverse | Only if measured disk traffic (`VolumeReadBytes` + `VolumeWriteBytes`) gets close to 125 MiB/s, for example when many sandboxes pull large images at once. |
 
+### 4. Snapshot manager: two copies to one
+
+| | |
+|---|---|
+| What | The service that stores sandbox images runs one copy instead of two. Auto-scaling can still raise it to four. |
+| Why | Over the week before, it averaged 0.3% CPU and 5% memory. The second copy cost about $10 a month and did no work. |
+| How | Auto-scaling minimum lowered first, then the count: `aws application-autoscaling register-scalable-target` with `--min-capacity 1 --max-capacity 4`, then `aws ecs update-service --desired-count 1`. In Terraform, `snapshot_manager_desired_count = 1`. Lower the minimum first, or auto-scaling pushes the count straight back to two. |
+| To reverse | Set `snapshot_manager_desired_count = 2`, then run the two commands with `--min-capacity 2` and `--desired-count 2`. It takes effect in about two minutes. |
+| When to reverse | **Before go-live.** With one copy, a restart means about a minute in which new sandboxes cannot fetch their image. Sandboxes that are already running are not affected. |
+
+### 5. Deployment server switched off when not in use
+
+| | |
+|---|---|
+| What | `aadml-sandbox` (`i-046084b62c91f310a`, a `t3.medium` with a 200 GB disk) is stopped. It is the server engineers log in to for builds and for Terraform. It is not part of the running platform, and sandboxes work while it is off. |
+| Why | It had been on for four weeks without a break at 1.3% average CPU. Leaving it off saves about $33 a month. Its disk and its address are still charged while it is off. |
+| To start it | `aws ec2 start-instances --instance-ids i-046084b62c91f310a --region us-west-1`, or **Start instance** in the EC2 console. Wait about a minute, then log in as usual. The address (`184.169.204.111`), the login key and the files are unchanged. |
+| To stop it | `aws ec2 stop-instances --instance-ids i-046084b62c91f310a --region us-west-1`, or **Stop instance** in the console. Check first that nobody else is logged in. |
+| To reverse | Leave it running. |
+
+Two cautions:
+
+- **Stop, never Terminate.** The disk is set to be deleted when the server is
+  terminated, and it holds the only copy of `terraform.tfvars`.
+- Starting it needs 2 spare vCPU. That is available today. It would not be if a
+  second runner or another new server were running; see step 0 below.
+
+Unlike a runner, this is a standalone server, so stopping and starting it is
+safe.
+
 ### Also that day: an outage worth remembering
 
 Sandbox creation was down from about 3 October to 5 October because a runner
@@ -121,8 +153,9 @@ These are in order. Step 0 blocks every other step.
 
 ### Step 0. Raise the AWS vCPU limit
 
-The account may run 8 vCPU of servers. Other servers in the account use 5
-(`sztax_frontend` 1, `agentic-backend` 2, `aadml-sandbox` 2). The runner uses 2.
+The account may run 8 vCPU of servers. Other servers in the account use 5 when
+they are all on (`sztax_frontend` 1, `agentic-backend` 2, `aadml-sandbox` 2).
+The runner uses 2. The table assumes all of them are on.
 
 | Target | vCPU needed |
 |---|---:|
@@ -191,9 +224,9 @@ every running sandbox. With two or more runners, change the runner service to a
 rolling deploy (minimum healthy 50% or more) so that one runner stays up while
 the other is replaced.
 
-### Step 5. Turn monitoring back on
+### Step 5. Turn monitoring back on, and run two snapshot managers again
 
-Reverse change 2 above, and add alarms on runner CPU, memory and sandbox disk
+Reverse changes 2 and 4 above, and add alarms on runner CPU, memory and sandbox disk
 space. Running out of sandbox disk does not fail cleanly; see
 `data_volume_size` in `modules/service-ec2-runner/variables.tf`.
 
@@ -231,6 +264,12 @@ aws ecs describe-clusters --clusters northrays-production --include SETTINGS \
 # vCPU limit
 aws service-quotas get-service-quota --service-code ec2 --quota-code L-1216C47A \
   --query 'Quota.Value'
+
+# Snapshot manager copies
+aws ecs describe-services --cluster northrays-production --services northrays-snapshot-manager --query 'services[0].[desiredCount,runningCount]'
+
+# Is the deployment server on?
+aws ec2 describe-instances --instance-ids i-046084b62c91f310a --query 'Reservations[0].Instances[0].State.Name'
 ```
 
 All of these use region `us-west-1`.

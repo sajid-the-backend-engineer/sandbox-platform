@@ -90,7 +90,7 @@ ssh_gateway_desired_count = 2
 # secret and is populated out-of-band.
 snapshot_manager_cpu            = 256
 snapshot_manager_memory         = 512
-snapshot_manager_desired_count  = 2
+snapshot_manager_desired_count  = 1
 snapshot_manager_hostname_label = "registry"
 internal_registry_username      = "northrays"
 
