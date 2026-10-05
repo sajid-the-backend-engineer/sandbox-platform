@@ -7,8 +7,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/docker/docker/profiles/seccomp"
-	mobyseccomp "github.com/moby/profiles/seccomp"
+	"github.com/moby/profiles/seccomp"
 	specs "github.com/opencontainers/runtime-spec/specs-go"
 )
 
@@ -58,9 +57,14 @@ const (
 //     not grant it. Chrome only holds it INSIDE the user namespace it just created,
 //     which is the whole point -- the container itself still cannot chroot.
 func browserSeccompProfile() (string, error) {
-	// Built from the running Docker library rather than a vendored copy, so the base
-	// can never drift from the daemon this runner talks to. A stale pinned profile is
-	// the failure mode that turns "hardened" into "blocks syscalls the runtime needs".
+	// Built from the moby library the daemon itself uses, rather than a vendored copy,
+	// so the base can never drift from the daemon this runner talks to. A stale pinned
+	// profile is the failure mode that turns "hardened" into "blocks syscalls the
+	// runtime needs".
+	//
+	// github.com/moby/profiles/seccomp, not github.com/docker/docker/profiles/seccomp:
+	// the latter is a deprecated alias for this one, and staticcheck fails the build on
+	// it. Same function, same profile -- only the import path moved.
 	profile := seccomp.DefaultProfile()
 
 	// MASKED_EQ compares (arg & value) == valueTwo. Value is every namespace bit EXCEPT
@@ -74,7 +78,7 @@ func browserSeccompProfile() (string, error) {
 		Op:       specs.OpMaskedEqual,
 	}}
 
-	allowances := []*mobyseccomp.Syscall{
+	allowances := []*seccomp.Syscall{
 		{LinuxSyscall: specs.LinuxSyscall{
 			Names: []string{"clone"}, Action: specs.ActAllow, Args: namespaceArg}},
 		{LinuxSyscall: specs.LinuxSyscall{

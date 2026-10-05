@@ -8,7 +8,7 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/docker/docker/profiles/seccomp"
+	"github.com/moby/profiles/seccomp"
 )
 
 // The three syscalls a browser needs to sandbox itself, and the namespaces it may ask
