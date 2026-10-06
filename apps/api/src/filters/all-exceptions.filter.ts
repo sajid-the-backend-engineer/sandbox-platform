@@ -1,5 +1,6 @@
 /*
  * Copyright 2025 Daytona Platforms Inc.
+ * Copyright © 2026 Northrays Private Limited
  * SPDX-License-Identifier: AGPL-3.0
  */
 
@@ -18,6 +19,7 @@ import {
 } from '@nestjs/common'
 import { ThrottlerException } from '@nestjs/throttler'
 import { FailedAuthTrackerService } from '../auth/failed-auth-tracker.service'
+import { RunnerUnavailableError } from '../exceptions/runner-starting.exception'
 
 @Catch()
 export class AllExceptionsFilter implements ExceptionFilter {
@@ -33,6 +35,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
     let statusCode: number
     let error: string
     let message: string
+    let code: string | undefined
 
     // If the exception is a NotFoundException and the request path is not an API request,
     // redirect root requests to the dashboard and serve the dashboard index.html file for everything else
@@ -70,6 +73,16 @@ export class AllExceptionsFilter implements ExceptionFilter {
         message = Array.isArray(responseMessage)
           ? responseMessage.join(', ')
           : (responseMessage as string) || exception.message
+        // A machine-readable reason, for errors a client is expected to act on
+        // rather than show (RUNNER_STARTING means "retry shortly", RUNNER_ASLEEP
+        // "not started, as asked").
+        const responseCode = (exceptionResponse as Record<string, unknown>).code
+        if (typeof responseCode === 'string') {
+          code = responseCode
+        }
+      }
+      if (exception instanceof RunnerUnavailableError) {
+        response.setHeader('Retry-After', String(exception.retryAfterSeconds))
       }
     } else {
       this.logger.error(exception)
@@ -84,6 +97,7 @@ export class AllExceptionsFilter implements ExceptionFilter {
       statusCode,
       error,
       message,
+      ...(code ? { code } : {}),
     })
   }
 }

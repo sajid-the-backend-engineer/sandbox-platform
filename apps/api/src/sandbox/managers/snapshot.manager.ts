@@ -49,6 +49,7 @@ import { SnapshotInfoResponse } from '@northrays/runner-api-client'
 import { SnapshotActivatedEvent } from '../events/snapshot-activated.event'
 import { TypedConfigService } from '../../config/typed-config.service'
 import { RegionType } from '../../region/enums/region-type.enum'
+import { RunnerPowerService } from '../services/runner-power.service'
 
 /** Fisher-Yates shuffle — uniform random permutation in O(n). */
 function shuffleArray<T>(array: T[]): T[] {
@@ -92,6 +93,7 @@ export class SnapshotManager implements TrackableJobExecutions, OnApplicationShu
     private readonly organizationService: OrganizationService,
     private readonly snapshotService: SnapshotService,
     private readonly configService: TypedConfigService,
+    private readonly runnerPowerService: RunnerPowerService,
   ) {}
 
   async onApplicationShutdown() {
@@ -315,6 +317,19 @@ export class SnapshotManager implements TrackableJobExecutions, OnApplicationShu
     }
 
     if (runner.state !== RunnerState.READY) {
+      //  with runner power management the runner is switched off while idle; a removal
+      //  queued meanwhile stays queued and runs after the next wake, instead of the image
+      //  being left on the runner's kept disk for good
+      //  -- but only for a runner that is asleep or waking. A disabled or decommissioned
+      //  runner never comes back, so its removals are dropped as upstream drops them.
+      if (
+        snapshotRunner.state === SnapshotRunnerState.REMOVING &&
+        this.runnerPowerService.isEnabled() &&
+        (runner.state === RunnerState.UNRESPONSIVE || runner.state === RunnerState.INITIALIZING)
+      ) {
+        throw new RunnerNotReadyError(`Runner ${runner.id} is not ready`)
+      }
+
       //  todo: handle timeout policy
       //  for now just remove the snapshot runner record if the runner is not ready
       await this.snapshotRunnerRepository.delete(snapshotRunner.id)

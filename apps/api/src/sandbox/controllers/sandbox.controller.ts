@@ -40,6 +40,8 @@ import { ResizeSandboxDto } from '../dto/resize-sandbox.dto'
 import { UpdateSandboxStateDto } from '../dto/update-sandbox-state.dto'
 import { PaginatedSandboxesDtoDeprecated } from '../dto/paginated-sandboxes.deprecated.dto'
 import { RunnerService } from '../services/runner.service'
+import { EnsureAwakeOptions, RunnerPowerService } from '../services/runner-power.service'
+import { RunnerWake } from '../decorators/runner-wake.decorator'
 import { RunnerAuthContextGuard } from '../guards/runner-auth-context.guard'
 import { RunnerAuthContext } from '../../common/interfaces/runner-auth-context.interface'
 import { SandboxState } from '../enums/sandbox-state.enum'
@@ -109,6 +111,7 @@ export class SandboxController {
     private readonly runnerService: RunnerService,
     private readonly sandboxService: SandboxService,
     private readonly organizationService: OrganizationService,
+    private readonly runnerPowerService: RunnerPowerService,
     @InjectRedis() private readonly redis: Redis,
   ) {
     this.redisSubscriber = this.redis.duplicate()
@@ -278,6 +281,7 @@ export class SandboxController {
   async createSandbox(
     @IsOrganizationAuthContext() authContext: OrganizationAuthContext,
     @Body() createSandboxDto: CreateSandboxDto,
+    @RunnerWake() runnerWake: EnsureAwakeOptions,
   ): Promise<SandboxDto> {
     const organization = authContext.organization
     let sandbox: SandboxDto
@@ -291,6 +295,7 @@ export class SandboxController {
           'linkedSandbox is not supported with declarative builds. Create a sandbox from a snapshot',
         )
       }
+      await this.runnerPowerService.ensureAwake('sandbox create', runnerWake)
       sandbox = await this.sandboxService.createFromBuildInfo(createSandboxDto, organization)
     } else {
       if (createSandboxDto.cpu || createSandboxDto.gpu || createSandboxDto.memory || createSandboxDto.disk) {
@@ -301,6 +306,7 @@ export class SandboxController {
           'Cannot specify GPU type when creating sandbox from snapshot. GPU type is inherited from snapshot.',
         )
       }
+      await this.runnerPowerService.ensureAwake('sandbox create', runnerWake)
       sandbox = await this.sandboxService.createFromSnapshot(createSandboxDto, organization)
       if (sandbox.state === SandboxState.STARTED) {
         return sandbox
@@ -470,7 +476,10 @@ export class SandboxController {
     @IsOrganizationAuthContext() authContext: OrganizationAuthContext,
     @Param('sandboxIdOrName') sandboxIdOrName: string,
     @Query('skipStart', new ParseBoolPipe({ optional: true })) skipStart?: boolean,
+    @RunnerWake() runnerWake?: EnsureAwakeOptions,
   ): Promise<SandboxDto> {
+    // Even with skipStart: the recovery itself runs on the runner.
+    await this.runnerPowerService.ensureAwake('sandbox recover', runnerWake)
     const recoveredSandbox = await this.sandboxService.recover(sandboxIdOrName, authContext.organization, skipStart)
     let sandboxDto = await this.sandboxService.toSandboxDto(recoveredSandbox)
 
@@ -512,7 +521,9 @@ export class SandboxController {
   async startSandbox(
     @IsOrganizationAuthContext() authContext: OrganizationAuthContext,
     @Param('sandboxIdOrName') sandboxIdOrName: string,
+    @RunnerWake() runnerWake: EnsureAwakeOptions,
   ): Promise<SandboxDto> {
+    await this.runnerPowerService.ensureAwake('sandbox start', runnerWake)
     const sbx = await this.sandboxService.start(sandboxIdOrName, authContext.organization)
     let sandbox = await this.sandboxService.toSandboxDto(sbx)
 
@@ -641,7 +652,9 @@ export class SandboxController {
     @IsOrganizationAuthContext() authContext: OrganizationAuthContext,
     @Param('sandboxIdOrName') sandboxIdOrName: string,
     @Body() resizeSandboxDto: ResizeSandboxDto,
+    @RunnerWake() runnerWake: EnsureAwakeOptions,
   ): Promise<SandboxDto> {
+    await this.runnerPowerService.ensureAwake('sandbox resize', runnerWake)
     const sandbox = await this.sandboxService.resize(sandboxIdOrName, resizeSandboxDto, authContext.organization)
     return this.sandboxService.toSandboxDto(sandbox)
   }
@@ -741,7 +754,9 @@ export class SandboxController {
   async createBackup(
     @IsOrganizationAuthContext() authContext: OrganizationAuthContext,
     @Param('sandboxIdOrName') sandboxIdOrName: string,
+    @RunnerWake() runnerWake: EnsureAwakeOptions,
   ): Promise<SandboxDto> {
+    await this.runnerPowerService.ensureAwake('sandbox backup', runnerWake)
     const sandbox = await this.sandboxService.createBackup(sandboxIdOrName, authContext.organizationId)
     return this.sandboxService.toSandboxDto(sandbox)
   }
@@ -774,7 +789,9 @@ export class SandboxController {
     @IsOrganizationAuthContext() authContext: OrganizationAuthContext,
     @Param('sandboxIdOrName') sandboxIdOrName: string,
     @Body() dto: CreateSandboxSnapshotDto,
+    @RunnerWake() runnerWake: EnsureAwakeOptions,
   ): Promise<SandboxDto> {
+    await this.runnerPowerService.ensureAwake('sandbox snapshot', runnerWake)
     const sandbox = await this.sandboxService.createSnapshotFromSandbox(sandboxIdOrName, authContext.organization, dto)
     return this.sandboxService.toSandboxDto(sandbox)
   }

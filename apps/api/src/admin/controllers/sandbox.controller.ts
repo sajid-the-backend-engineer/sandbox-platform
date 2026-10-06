@@ -1,5 +1,6 @@
 /*
  * Copyright Daytona Platforms Inc.
+ * Copyright © 2026 Northrays Private Limited
  * SPDX-License-Identifier: AGPL-3.0
  */
 
@@ -13,6 +14,8 @@ import { RequiredSystemRole } from '../../user/decorators/required-system-role.d
 import { OrganizationService } from '../../organization/services/organization.service'
 import { SandboxDto } from '../../sandbox/dto/sandbox.dto'
 import { SandboxService } from '../../sandbox/services/sandbox.service'
+import { EnsureAwakeOptions, RunnerPowerService } from '../../sandbox/services/runner-power.service'
+import { RunnerWake } from '../../sandbox/decorators/runner-wake.decorator'
 import { SystemRole } from '../../user/enums/system-role.enum'
 import { AuthStrategy } from '../../auth/decorators/auth-strategy.decorator'
 import { AuthStrategyType } from '../../auth/enums/auth-strategy-type.enum'
@@ -28,6 +31,7 @@ export class AdminSandboxController {
   constructor(
     private readonly sandboxService: SandboxService,
     private readonly organizationService: OrganizationService,
+    private readonly runnerPowerService: RunnerPowerService,
   ) {}
 
   @Post(':sandboxId/recover')
@@ -52,11 +56,15 @@ export class AdminSandboxController {
     targetIdFromRequest: (req) => req.params.sandboxId,
     targetIdFromResult: (result: SandboxDto) => result?.id,
   })
-  async recoverSandbox(@Param('sandboxId') sandboxId: string): Promise<SandboxDto> {
+  async recoverSandbox(
+    @Param('sandboxId') sandboxId: string,
+    @RunnerWake() runnerWake: EnsureAwakeOptions,
+  ): Promise<SandboxDto> {
     const organization = await this.organizationService.findBySandboxId(sandboxId)
     if (!organization) {
       throw new NotFoundException('Sandbox not found')
     }
+    await this.runnerPowerService.ensureAwake('admin sandbox recover', runnerWake)
     const recoveredSandbox = await this.sandboxService.recover(sandboxId, organization)
     return this.sandboxService.toSandboxDto(recoveredSandbox)
   }

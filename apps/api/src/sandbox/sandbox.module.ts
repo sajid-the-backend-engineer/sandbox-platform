@@ -1,5 +1,6 @@
 /*
  * Copyright 2025 Daytona Platforms Inc.
+ * Copyright © 2026 Northrays Private Limited
  * SPDX-License-Identifier: AGPL-3.0
  */
 
@@ -62,6 +63,8 @@ import { SandboxActivityService } from './services/sandbox-activity.service'
 import { OpensearchModule } from 'nestjs-opensearch'
 import { TypedConfigService } from '../config/typed-config.service'
 import { SandboxSearchAdapterProvider } from './providers/sandbox-search.provider'
+import { RunnerPowerService } from './services/runner-power.service'
+import { RunnerPowerEcsClient } from './services/runner-power-ecs.client'
 
 @Module({
   imports: [
@@ -107,6 +110,8 @@ import { SandboxSearchAdapterProvider } from './providers/sandbox-search.provide
     BackupManager,
     SandboxWarmPoolService,
     RunnerService,
+    RunnerPowerService,
+    RunnerPowerEcsClient,
     ToolboxService,
     SnapshotService,
     ProxyCacheInvalidationService,
@@ -155,6 +160,7 @@ import { SandboxSearchAdapterProvider } from './providers/sandbox-search.provide
     SnapshotRepository,
     RunnerAdapterFactory,
     SandboxActivityService,
+    RunnerPowerService,
     ProxyAuthContextGuard,
     SshGatewayAuthContextGuard,
   ],

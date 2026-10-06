@@ -189,6 +189,18 @@ const configuration = {
     apiVersion: (process.env.DEFAULT_RUNNER_API_VERSION || '2') as '0' | '2',
     name: process.env.DEFAULT_RUNNER_NAME,
   },
+  // Switches the runner off when nothing needs it and back on when a sandbox is
+  // created or started. Off unless explicitly enabled; see RunnerPowerService.
+  runnerPower: {
+    enabled: process.env.RUNNER_POWER_MANAGEMENT_ENABLED === 'true',
+    ecsCluster: process.env.RUNNER_POWER_ECS_CLUSTER,
+    ecsService: process.env.RUNNER_POWER_ECS_SERVICE,
+    awsRegion: process.env.RUNNER_POWER_AWS_REGION || process.env.AWS_REGION,
+    idleMinutes: parseInt(process.env.RUNNER_POWER_IDLE_MINUTES || '20', 10),
+    minAwakeMinutes: parseInt(process.env.RUNNER_POWER_MIN_AWAKE_MINUTES || '10', 10),
+    wakeTimeoutMinutes: parseInt(process.env.RUNNER_POWER_WAKE_TIMEOUT_MINUTES || '10', 10),
+    retryAfterSeconds: parseInt(process.env.RUNNER_POWER_RETRY_AFTER_SECONDS || '15', 10),
+  },
   buildInfo: {
     maxCpuPerRunner: parseInt(process.env.BUILD_INFO_MAX_CPU_PER_RUNNER || '40', 10),
   },
