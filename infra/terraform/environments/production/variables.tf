@@ -626,6 +626,66 @@ variable "runner_data_volume_size" {
   default     = 300
 }
 
+variable "runner_persistent_data_volume" {
+  description = <<-EOT
+    Keep the runner's 300 GB sandbox disk when its host is replaced or switched
+    off, and attach it to the next host at boot. Parked sandboxes and downloaded
+    images then survive. Hosts are confined to the disk's subnet
+    (runner_data_volume_subnet_index) and capped at one.
+
+    Turning this on for a running platform adopts the live disk; follow
+    docs-daytona/runner-sleep-when-idle-plan.md section 7 (protect the disk, then
+    terraform import), or the first apply creates a new, empty disk.
+  EOT
+  type        = bool
+  default     = false
+}
+
+variable "runner_data_volume_subnet_index" {
+  description = "With runner_persistent_data_volume: index into the private subnets of the one subnet runner hosts launch in, which is also the kept disk's zone. Must match the zone of the disk being adopted."
+  type        = number
+  default     = null
+}
+
+variable "runner_instance_type_alternatives" {
+  description = <<-EOT
+    With runner_persistent_data_volume: instance types a wake falls back to, in
+    order, when the disk's zone has no capacity for runner_instance_type. Without
+    the kept disk the group spans every zone and these are not used.
+
+    The defaults are the same size as the m5.large production runs on (2 vCPU,
+    8 GB) and are offered in us-west-1c. Change them together with
+    runner_instance_type; [] means one instance type.
+  EOT
+  type        = list(string)
+  default     = ["m6i.large", "m5a.large", "m6a.large", "m7i.large"]
+}
+
+variable "runner_sleep_when_idle" {
+  description = <<-EOT
+    Let the api switch the runner off when nothing needs it and back on when a
+    sandbox is created or started (RUNNER_POWER_MANAGEMENT_ENABLED). Requires
+    runner_persistent_data_volume, or every sleep would delete parked sandboxes.
+
+    The api task definition ignores container_definitions changes, so flipping
+    this needs `terraform apply -replace=module.api.aws_ecs_task_definition.this`
+    before the api is rolled.
+  EOT
+  type        = bool
+  default     = false
+}
+
+variable "runner_sleep_idle_minutes" {
+  description = "Minutes with nothing running and no requests before the runner is switched off."
+  type        = number
+  default     = 20
+
+  validation {
+    condition     = var.runner_sleep_idle_minutes >= 5
+    error_message = "runner_sleep_idle_minutes must be at least 5."
+  }
+}
+
 variable "runner_desired_count" {
   description = "Runner task count. See the module documentation before raising this above 1 -- the api addresses runners by a persisted URL, not by discovery."
   type        = number

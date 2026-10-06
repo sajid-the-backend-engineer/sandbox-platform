@@ -6,6 +6,16 @@ output "service_name" {
   value       = aws_ecs_service.this.name
 }
 
+output "service_arn" {
+  description = "ECS service ARN. The api's runner power manager changes this service's desired count."
+  value       = aws_ecs_service.this.id
+}
+
+output "data_volume_id" {
+  description = "The kept sandbox data volume, or null when each host has its own."
+  value       = one(aws_ebs_volume.data[*].id)
+}
+
 output "task_definition_family" {
   description = "Task definition family, referenced by the deploy pipeline."
   value       = aws_ecs_task_definition.this.family

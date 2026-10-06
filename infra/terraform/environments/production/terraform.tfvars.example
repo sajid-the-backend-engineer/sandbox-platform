@@ -123,6 +123,16 @@ runner_asg_desired_capacity = 1
 runner_root_volume_size     = 200
 runner_desired_count        = 1
 
+# Runner sleep when idle. Both are off unless set, and the second needs the
+# first. Read docs-daytona/runner-sleep-when-idle-plan.md before turning either
+# on for a platform that is already running: the first adopts the live sandbox
+# disk, and that takes a `terraform import` before the apply.
+#
+# runner_persistent_data_volume   = true
+# runner_data_volume_subnet_index = 1 # the private subnet in the disk's zone
+# runner_sleep_when_idle          = true
+# runner_sleep_idle_minutes       = 20
+
 # ---------------------------------------------------------------------------
 # Data tier
 # ---------------------------------------------------------------------------

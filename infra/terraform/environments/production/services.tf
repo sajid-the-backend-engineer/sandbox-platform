@@ -171,6 +171,14 @@ module "api" {
     DEFAULT_RUNNER_MEMORY      = tostring(var.default_runner_memory)
     DEFAULT_RUNNER_DISK        = tostring(var.default_runner_disk)
 
+    # Runner sleep when idle. The api changes the runner service's desired count
+    # and nothing else; see runner_power.tf for its permission.
+    RUNNER_POWER_MANAGEMENT_ENABLED = tostring(var.runner_sleep_when_idle)
+    RUNNER_POWER_ECS_CLUSTER        = module.ecs_cluster.cluster_name
+    RUNNER_POWER_ECS_SERVICE        = module.runner.service_name
+    RUNNER_POWER_AWS_REGION         = local.region
+    RUNNER_POWER_IDLE_MINUTES       = tostring(var.runner_sleep_idle_minutes)
+
     PROXY_DOMAIN   = module.alb.proxy_domain
     PROXY_PROTOCOL = local.scheme
 
@@ -555,6 +563,19 @@ module "runner" {
   data_volume_size       = var.runner_data_volume_size
   root_volume_throughput = var.runner_volume_throughput
   desired_count          = var.runner_desired_count
+
+  persistent_data_volume     = var.runner_persistent_data_volume
+  instance_type_alternatives = var.runner_instance_type_alternatives
+  data_volume_subnet_id = (
+    var.runner_persistent_data_volume && var.runner_data_volume_subnet_index != null
+    ? module.network.private_subnet_ids[var.runner_data_volume_subnet_index]
+    : null
+  )
+  data_volume_availability_zone = (
+    var.runner_persistent_data_volume && var.runner_data_volume_subnet_index != null
+    ? module.network.availability_zones[var.runner_data_volume_subnet_index]
+    : null
+  )
 
   execution_role_arn = module.iam.execution_role_arn
   task_role_arn      = module.iam.task_role_arns["runner"]

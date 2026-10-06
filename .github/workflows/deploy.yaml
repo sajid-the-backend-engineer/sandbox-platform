@@ -47,6 +47,16 @@
 # built SHA. That skips the build and redeploys existing ECR images. Note that
 # it does NOT revert migrations — expand/contract means the older image is
 # expected to still run against the newer (expanded) schema.
+#
+# Runner sleep when idle: the api may have set the runner service's desired
+# count to 0. Every deploy, rollbacks included, switches it back to 1 before
+# rolling it (see the runner's "Update service" step), so the new image is
+# actually started and checked, and checks again once every service has rolled
+# (the "runner-left-on" job), because the outgoing api tasks can switch it off
+# while they drain. This also covers rolling the api back to an image from
+# before runner sleep: nothing in that api can switch the runner on, and the
+# deploy leaves it on. An api with runner sleep switches it off again once it
+# is idle.
 # ---------------------------------------------------------------------------
 
 name: Deploy
@@ -562,6 +572,9 @@ jobs:
             ecs_service: northrays-runner
             task_family: northrays-runner
             ecr_repository: northrays/runner
+            # The api may have switched the runner off (runner sleep when
+            # idle). See "Update service".
+            wake_if_asleep: 'true'
           # The registry the api re-pushes sandbox base images into. It carries
           # no schema of its own, so its position in the matrix is arbitrary --
           # but it must roll with the rest or the api ends up pointed at a
@@ -615,13 +628,31 @@ jobs:
         env:
           ECS_SERVICE: ${{ matrix.ecs_service }}
           TASK_DEFINITION_ARN: ${{ steps.render.outputs.task_definition_arn }}
+          WAKE_IF_ASLEEP: ${{ matrix.wake_if_asleep || 'false' }}
         run: |
           set -euo pipefail
+          # Runner only. A runner the api has switched off sits at desired count
+          # 0, and rolling it at 0 starts nothing: the circuit breaker never sees
+          # the new image, the stability wait passes on zero tasks, and a broken
+          # image shows up only at the next wake. So it is switched on for the
+          # deploy. Afterwards the api's idle check switches it off again (that
+          # check must treat a desired count above 0 as awake, whatever it last
+          # recorded), and an api from before runner sleep simply leaves it on.
+          desired_count_args=()
+          if [ "$WAKE_IF_ASLEEP" = "true" ]; then
+            desired=$(aws ecs describe-services --cluster "$ECS_CLUSTER" --services "$ECS_SERVICE" \
+              --query 'services[0].desiredCount' --output text)
+            if [ "$desired" = "0" ]; then
+              echo "::notice::$ECS_SERVICE is switched off (desired count 0); switching it on so the new image is started and checked."
+              desired_count_args=(--desired-count 1)
+            fi
+          fi
           aws ecs update-service \
             --cluster "$ECS_CLUSTER" \
             --service "$ECS_SERVICE" \
             --task-definition "$TASK_DEFINITION_ARN" \
             --force-new-deployment \
+            "${desired_count_args[@]}" \
             --output text --query 'service.serviceName'
 
       - name: Wait for service stability
@@ -816,6 +847,41 @@ jobs:
           bash "$RUNNER_TEMP/bin/run-migration.sh" migration:run:post-deploy
 
   # -------------------------------------------------------------------------
+  runner-left-on:
+    name: Runner left switched on
+    # Runs after every service has rolled, whatever the outcome. The runner leg
+    # switched a sleeping runner on before rolling it, but the api tasks being
+    # replaced keep running their idle check until they drain, and one of them
+    # can switch the runner off again in that window. After a rollback to an api
+    # from before runner sleep nothing would ever switch it back on, so the
+    # deploy checks once more at the end. An api with runner sleep switches it
+    # off again once it is idle.
+    needs: [prepare, deploy]
+    if: always() && needs.prepare.result == 'success' && needs.deploy.result != 'skipped'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Configure AWS credentials (OIDC)
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+          role-session-name: gha-runner-left-on-${{ github.run_id }}
+
+      - name: Switch the runner on if it was left off
+        env:
+          ECS_SERVICE: northrays-runner
+        run: |
+          set -euo pipefail
+          desired=$(aws ecs describe-services --cluster "$ECS_CLUSTER" --services "$ECS_SERVICE" \
+            --query 'services[0].desiredCount' --output text)
+          if [ "$desired" = "0" ]; then
+            echo "::notice::$ECS_SERVICE was left switched off (desired count 0) at the end of the deploy; switching it on."
+            aws ecs update-service --cluster "$ECS_CLUSTER" --service "$ECS_SERVICE" \
+              --desired-count 1 --output text --query 'service.serviceName'
+          else
+            echo "$ECS_SERVICE desired count is $desired; nothing to do."
+          fi
+
   summary:
     name: Deploy summary
     needs: [prepare, build, verify-images, migrate-pre, deploy, migrate-post]

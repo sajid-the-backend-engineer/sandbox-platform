@@ -45,6 +45,18 @@ variable "instance_type" {
   default     = "m6a.xlarge"
 }
 
+variable "instance_type_alternatives" {
+  description = <<-EOT
+    With persistent_data_volume only: instance types to fall back to, in order,
+    when the one zone the hosts are pinned to has no capacity for instance_type.
+    Same size as instance_type -- the api advertises a fixed CPU and memory for
+    the runner -- and offered in that zone. Ignored without persistent_data_volume,
+    and empty means a single instance type as before.
+  EOT
+  type        = list(string)
+  default     = []
+}
+
 variable "asg_min_size" {
   description = "Minimum number of runner instances."
   type        = number
@@ -95,11 +107,40 @@ variable "data_volume_size" {
     Running it out of space does not fail cleanly: the daemon errors mid-build
     and the ECS agent reports the instance unhealthy for reasons that look
     unrelated. Keep it comfortably above default_runner_disk plus image cache.
-    Deleted with the instance: sandbox state is transient by design, and
-    anything durable is in the snapshot registry or S3.
+    Deleted with the instance, unless persistent_data_volume keeps it.
   EOT
   type        = number
   default     = 300
+}
+
+variable "persistent_data_volume" {
+  description = <<-EOT
+    Keep the sandbox data volume when its host goes away, and attach it to the
+    next host at boot.
+
+    Off (the default): every host gets its own data volume, deleted with it.
+
+    On: one long-lived volume (prevent_destroy) that each new host attaches
+    before joining the cluster, so parked sandboxes and the image cache survive
+    a host being replaced -- which is what lets the runner be switched off when
+    idle. The cost is that hosts are confined to one availability zone (the
+    volume's), and the group is capped at one host and allowed to reach zero.
+    Requires data_volume_subnet_id and data_volume_availability_zone.
+  EOT
+  type        = bool
+  default     = false
+}
+
+variable "data_volume_subnet_id" {
+  description = "With persistent_data_volume: the one subnet runner hosts launch in. Must be in data_volume_availability_zone."
+  type        = string
+  default     = null
+}
+
+variable "data_volume_availability_zone" {
+  description = "With persistent_data_volume: the availability zone of the kept data volume. Changing it after the volume exists does not move the data."
+  type        = string
+  default     = null
 }
 
 variable "root_volume_type" {

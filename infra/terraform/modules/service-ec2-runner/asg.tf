@@ -17,6 +17,30 @@ data "aws_vpc" "this" {
   id = var.vpc_id
 }
 
+data "aws_caller_identity" "current" {}
+
+locals {
+  # The sandbox data volume either comes and goes with each host (the default),
+  # or is one long-lived volume every host attaches at boot. The second is what
+  # lets the runner be switched off when idle without losing parked sandboxes and
+  # the image cache: the host is replaced, the disk is not.
+  persistent_data_volume = var.persistent_data_volume
+
+  # Applied to both the kept volume and the hosts, so one IAM condition covers
+  # both sides of the AttachVolume call.
+  data_volume_host_tag = "NorthraysRunnerDataHost"
+
+  # A volume lives in one availability zone and attaches only to an instance in
+  # that zone, so with a kept volume the hosts may launch only in its subnet.
+  asg_subnet_ids = local.persistent_data_volume ? [var.data_volume_subnet_id] : var.subnet_ids
+
+  # One zone means one capacity pool per instance type, and a wake that hits
+  # InsufficientInstanceCapacity has nowhere else to go. So with a kept volume
+  # the group may fall back to alternative types, instance_type first.
+  instance_types      = distinct(concat([var.instance_type], var.instance_type_alternatives))
+  use_mixed_instances = local.persistent_data_volume && length(local.instance_types) > 1
+}
+
 # ---------------------------------------------------------------------------
 # Instance role
 # ---------------------------------------------------------------------------
@@ -56,6 +80,82 @@ resource "aws_iam_instance_profile" "instance" {
   tags = var.tags
 }
 
+# Attaching the kept data volume is the one extra thing a host does with it, so
+# the grant is as narrow as EC2 allows (the same shape as the Postgres host's):
+# AttachVolume names the exact volume, and both sides must carry the host tag.
+# DescribeVolumes cannot be resource-scoped; it is read-only.
+data "aws_iam_policy_document" "data_volume" {
+  count = local.persistent_data_volume ? 1 : 0
+
+  statement {
+    sid     = "AttachDataVolume"
+    effect  = "Allow"
+    actions = ["ec2:AttachVolume"]
+    resources = [
+      aws_ebs_volume.data[0].arn,
+      "arn:aws:ec2:${data.aws_region.current.name}:${data.aws_caller_identity.current.account_id}:instance/*",
+    ]
+
+    condition {
+      test     = "StringEquals"
+      variable = "ec2:ResourceTag/${local.data_volume_host_tag}"
+      values   = ["true"]
+    }
+  }
+
+  statement {
+    sid       = "DescribeVolumesForAttachWait"
+    effect    = "Allow"
+    actions   = ["ec2:DescribeVolumes"]
+    resources = ["*"]
+  }
+}
+
+resource "aws_iam_role_policy" "data_volume" {
+  count = local.persistent_data_volume ? 1 : 0
+
+  name   = "runner-data-volume"
+  role   = aws_iam_role.instance.id
+  policy = data.aws_iam_policy_document.data_volume[0].json
+}
+
+# ---------------------------------------------------------------------------
+# Kept data volume (only with persistent_data_volume)
+#
+# prevent_destroy is the point: this volume holds every parked sandbox. Removing
+# it is a deliberate two-step -- `terraform state rm` and a manual delete, or a
+# commit that drops the lifecycle block on purpose.
+#
+# To adopt the volume a running host already has, rather than start empty: set
+# its DeleteOnTermination to false on that host first, then
+# `terraform import 'module.runner.aws_ebs_volume.data[0]' vol-...`.
+# ---------------------------------------------------------------------------
+
+resource "aws_ebs_volume" "data" {
+  count = local.persistent_data_volume ? 1 : 0
+
+  availability_zone = var.data_volume_availability_zone
+  size              = var.data_volume_size
+  type              = var.root_volume_type
+  iops              = var.root_volume_type == "gp3" ? var.root_volume_iops : null
+  throughput        = var.root_volume_type == "gp3" ? var.root_volume_throughput : null
+  encrypted         = true
+
+  tags = merge(var.tags, {
+    Name                         = "${var.name}-data"
+    (local.data_volume_host_tag) = "true"
+  })
+
+  lifecycle {
+    prevent_destroy = true
+
+    precondition {
+      condition     = var.data_volume_subnet_id != null && var.data_volume_availability_zone != null
+      error_message = "persistent_data_volume needs data_volume_subnet_id and data_volume_availability_zone, in the same zone."
+    }
+  }
+}
+
 # ---------------------------------------------------------------------------
 # Security group
 # ---------------------------------------------------------------------------
@@ -84,15 +184,97 @@ resource "aws_vpc_security_group_egress_rule" "instance_outbound" {
 # ---------------------------------------------------------------------------
 
 locals {
+  # Only with a kept data volume. Claims it before the disk discovery below, which
+  # then finds it as the one non-root disk exactly as it finds a per-host volume,
+  # and reuses its XFS filesystem instead of formatting it.
+  #
+  # A new host can race its predecessor's detach (the old host is being removed
+  # as the new one boots), so this waits rather than failing. If it never gets
+  # the volume it exits before ECS_CLUSTER is written, so the host never joins
+  # the cluster with an empty disk, and powers off (power_off_on_boot_failure).
+  attach_data_volume = <<-EOT
+    # 0. Attach the kept data volume.
+    VOLUME_ID="${join("", aws_ebs_volume.data[*].id)}"
+    REGION="${data.aws_region.current.name}"
+    TOKEN=$(curl -sS -X PUT "http://169.254.169.254/latest/api/token" \
+      -H "X-aws-ec2-metadata-token-ttl-seconds: 600")
+    INSTANCE_ID=$(curl -sS -H "X-aws-ec2-metadata-token: $TOKEN" \
+      http://169.254.169.254/latest/meta-data/instance-id)
+    echo "instance $INSTANCE_ID claiming data volume $VOLUME_ID"
+
+    attached=0
+    for _ in $(seq 1 60); do
+      state=$(aws ec2 describe-volumes --region "$REGION" --volume-ids "$VOLUME_ID" \
+        --query 'Volumes[0].State' --output text) || state="describe-failed"
+      holder=$(aws ec2 describe-volumes --region "$REGION" --volume-ids "$VOLUME_ID" \
+        --query 'Volumes[0].Attachments[0].InstanceId' --output text) || holder=""
+      if [ "$holder" = "$INSTANCE_ID" ]; then
+        attached=1
+        break
+      fi
+      if [ "$state" = "available" ] && aws ec2 attach-volume --region "$REGION" \
+           --volume-id "$VOLUME_ID" --instance-id "$INSTANCE_ID" --device /dev/xvdb; then
+        attached=1
+        break
+      fi
+      echo "data volume state=$state holder=$holder; waiting"
+      sleep 10
+    done
+    if [ "$attached" -ne 1 ]; then
+      echo "FATAL: could not attach data volume $VOLUME_ID" >&2
+      exit 1
+    fi
+
+    # Wait for the attachment to appear as a block device before discovery.
+    BY_ID="/dev/disk/by-id/nvme-Amazon_Elastic_Block_Store_$(echo "$VOLUME_ID" | tr -d '-')"
+    for _ in $(seq 1 60); do
+      [ -e "$BY_ID" ] && break
+      sleep 5
+    done
+    echo "data volume attached as $(readlink -f "$BY_ID")"
+  EOT
+
+  # Only with a kept data volume. The group then holds at most one host, so a
+  # host whose boot script fails -- attach timeout, AttachVolume denied, no
+  # prjquota, any set -e exit -- would stay up outside the cluster, protected
+  # from scale-in, and block every later wake. Instead it powers itself off;
+  # instance_initiated_shutdown_behavior makes that a termination, and the group
+  # launches a replacement that tries the attach again. BOOT_OK is set only once
+  # ECS_CLUSTER is written.
+  power_off_on_boot_failure = <<-EOT
+    # Kept data volume: any failure before ECS_CLUSTER is written powers this
+    # host off, so the group replaces it rather than keeping a host that never
+    # joins the cluster.
+    BOOT_OK=0
+    trap 'echo "FATAL: line $LINENO exited $?: $BASH_COMMAND" >&2' ERR
+    on_exit() {
+      rc=$?
+      if [ "$BOOT_OK" != 1 ]; then
+        echo "FATAL: runner host setup failed (exit $rc); powering off so the group replaces this host" >&2
+        shutdown -h now
+      fi
+    }
+    trap on_exit EXIT
+  EOT
+
   # /etc/ecs/ecs.config is read by the ECS agent on boot.
   #
   # ECS_DISABLE_PRIVILEGED is set explicitly rather than relied on as a default:
   # the entire reason this ASG exists is that the runner task needs
   # privileged: true, and a future AMI flipping that default would break sandbox
   # creation in a way that is genuinely hard to diagnose from the symptom.
+  #
+  # The kept-data-volume steps are template directives so that, with it off,
+  # the rendered script is byte-for-byte what it was before they existed and the
+  # launch template does not change. Each `%{endif~}` must be followed by a
+  # blank line or the end: its ~ eats the newline, and the line after it would
+  # otherwise keep its indentation.
   user_data = base64encode(<<-EOT
     #!/bin/bash
     set -euo pipefail
+    %{if local.persistent_data_volume}
+    ${chomp(local.power_off_on_boot_failure)}
+    %{endif~}
 
     # ------------------------------------------------------------------------
     # Data volume for the runner's own Docker daemon: XFS with project quotas.
@@ -110,6 +292,9 @@ locals {
     # runner bug.
     # ------------------------------------------------------------------------
     MOUNT_POINT="${var.docker_state_host_path}"
+    %{if local.persistent_data_volume}
+    ${chomp(local.attach_data_volume)}
+    %{endif~}
 
     # 1. Identify the data disk: the one EBS disk that is not the root disk.
     #    Device names are not stable on Nitro (/dev/xvdb appears as /dev/nvme1n1
@@ -179,6 +364,10 @@ locals {
     ECS_NUM_IMAGES_DELETE_PER_CYCLE=25
     ECS_AVAILABLE_LOGGING_DRIVERS=["json-file","awslogs"]
     ECSCONFIG
+    %{if local.persistent_data_volume}
+    # ECS_CLUSTER is written: from here on a failure is not a reason to power off.
+    BOOT_OK=1
+    %{endif~}
   EOT
   )
 }
@@ -189,6 +378,11 @@ resource "aws_launch_template" "this" {
   instance_type = var.instance_type
   key_name      = var.key_name
   user_data     = local.user_data
+
+  # With a kept data volume a host whose boot script fails powers itself off
+  # (power_off_on_boot_failure), and this makes that a termination the group
+  # replaces. Left unset otherwise, which is EC2's default of stop.
+  instance_initiated_shutdown_behavior = local.persistent_data_volume ? "terminate" : null
 
   iam_instance_profile {
     arn = aws_iam_instance_profile.instance.arn
@@ -213,16 +407,23 @@ resource "aws_launch_template" "this" {
   # see data_volume_size for why it cannot be the root volume. Named /dev/xvdb
   # here, but Nitro exposes it as an nvme device, so user-data finds it by
   # elimination rather than by this name.
-  block_device_mappings {
-    device_name = "/dev/xvdb"
+  #
+  # Absent with persistent_data_volume: the kept volume is attached by user-data
+  # instead, and nothing about it is tied to the instance's lifetime.
+  dynamic "block_device_mappings" {
+    for_each = local.persistent_data_volume ? [] : [1]
 
-    ebs {
-      volume_size           = var.data_volume_size
-      volume_type           = var.root_volume_type
-      iops                  = var.root_volume_type == "gp3" ? var.root_volume_iops : null
-      throughput            = var.root_volume_type == "gp3" ? var.root_volume_throughput : null
-      encrypted             = true
-      delete_on_termination = true
+    content {
+      device_name = "/dev/xvdb"
+
+      ebs {
+        volume_size           = var.data_volume_size
+        volume_type           = var.root_volume_type
+        iops                  = var.root_volume_type == "gp3" ? var.root_volume_iops : null
+        throughput            = var.root_volume_type == "gp3" ? var.root_volume_throughput : null
+        encrypted             = true
+        delete_on_termination = true
+      }
     }
   }
 
@@ -241,9 +442,14 @@ resource "aws_launch_template" "this" {
     enabled = true
   }
 
+  # The host tag is what the AttachVolume IAM condition matches on.
   tag_specifications {
     resource_type = "instance"
-    tags          = merge(var.tags, { Name = "${var.name}-instance" })
+    tags = merge(
+      var.tags,
+      { Name = "${var.name}-instance" },
+      local.persistent_data_volume ? { (local.data_volume_host_tag) = "true" } : {},
+    )
   }
 
   tag_specifications {
@@ -264,15 +470,56 @@ resource "aws_launch_template" "this" {
 
 resource "aws_autoscaling_group" "this" {
   name_prefix         = "${var.name}-"
-  vpc_zone_identifier = var.subnet_ids
+  vpc_zone_identifier = local.asg_subnet_ids
 
-  min_size         = var.asg_min_size
-  max_size         = var.asg_max_size
+  # With a kept data volume there can only ever be one host: a second could never
+  # attach the volume and would sit in the group billing. It is also what stops
+  # ECS starting two hosts when it scales out from zero, which it does by
+  # default. And the group must be allowed to reach zero for the runner to sleep.
+  min_size         = local.persistent_data_volume ? 0 : var.asg_min_size
+  max_size         = local.persistent_data_volume ? 1 : var.asg_max_size
   desired_capacity = var.asg_desired_capacity
 
-  launch_template {
-    id      = aws_launch_template.this.id
-    version = "$Latest"
+  # One instance type, unless a kept data volume pins the group to one zone and
+  # instance_type_alternatives are given. Then a mixed instances policy, all
+  # on-demand, launches instance_type and falls back to each alternative in the
+  # order listed. No weights: ECS capacity providers do not support them.
+  # Switching between the two is an in-place update of the group. With a kept
+  # data volume there is no instance refresh to start (see below).
+  dynamic "launch_template" {
+    for_each = local.use_mixed_instances ? [] : [1]
+
+    content {
+      id      = aws_launch_template.this.id
+      version = "$Latest"
+    }
+  }
+
+  dynamic "mixed_instances_policy" {
+    for_each = local.use_mixed_instances ? [1] : []
+
+    content {
+      instances_distribution {
+        on_demand_allocation_strategy            = "prioritized"
+        on_demand_base_capacity                  = 0
+        on_demand_percentage_above_base_capacity = 100
+      }
+
+      launch_template {
+        launch_template_specification {
+          launch_template_id = aws_launch_template.this.id
+          version            = "$Latest"
+        }
+
+        dynamic "override" {
+          for_each = local.instance_types
+
+          content {
+            instance_type = override.value
+          }
+        }
+      }
+    }
   }
 
   health_check_type         = "EC2"
@@ -285,12 +532,22 @@ resource "aws_autoscaling_group" "this" {
 
   # Replace instances in place when the launch template changes (new AMI, bigger
   # volume) rather than requiring a manual cycle.
-  instance_refresh {
-    strategy = "Rolling"
+  #
+  # Not with a kept data volume. Every wake already starts a host from the latest
+  # launch template, so a refresh adds nothing; and a refresh started by an apply
+  # (Terraform starts one whenever the launch template or instance policy block
+  # changes) would replace the one runner host in the middle of the day, ending
+  # every running sandbox.
+  dynamic "instance_refresh" {
+    for_each = local.persistent_data_volume ? [] : [1]
 
-    preferences {
-      min_healthy_percentage = 50
-      instance_warmup        = var.instance_warmup_period
+    content {
+      strategy = "Rolling"
+
+      preferences {
+        min_healthy_percentage = 50
+        instance_warmup        = var.instance_warmup_period
+      }
     }
   }
 
@@ -321,6 +578,13 @@ resource "aws_autoscaling_group" "this" {
     create_before_destroy = true
     # The capacity provider owns the running count once managed scaling is on.
     ignore_changes = [desired_capacity]
+
+    # The api advertises one fixed CPU and memory for the runner, sized for
+    # instance_type, so a smaller fallback host would be overcommitted.
+    precondition {
+      condition     = !local.use_mixed_instances || alltrue([for t in local.instance_types : split(".", t)[1] == split(".", var.instance_type)[1]])
+      error_message = "instance_type_alternatives must be the same size as instance_type (${var.instance_type}); change them together."
+    }
   }
 }
 
