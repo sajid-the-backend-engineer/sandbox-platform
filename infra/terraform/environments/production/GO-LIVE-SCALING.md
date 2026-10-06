@@ -9,6 +9,11 @@ Written 2026-10-05. Read this before the platform takes real traffic.
 - That is sized for low traffic and low cost. **It is not a go-live configuration.**
 - On 2026-10-05 five cost changes were made. Each is easy to reverse, and the
   steps are in [What changed on 2026-10-05](#what-changed-on-2026-10-05).
+- Since 2026-10-06 that one server is **switched off when nobody is using a
+  sandbox** and started again on the next request, which takes about 4 minutes.
+  Its sandbox disk is kept, so parked sandboxes survive. See
+  [What changed on 2026-10-06](#what-changed-on-2026-10-06-the-runner-sleeps-when-idle).
+  This is a low-traffic setting too.
 - **Reversing them does not give you auto-scaling.** The runner was fixed
   at one copy before 5 October too, and it has never had an auto-scaling rule.
   Running more than one runner is new work that has not been done yet. It is
@@ -44,7 +49,9 @@ smaller machine was chosen to fit the AWS vCPU limit.
 | Setting | Value on 2026-10-05 | Where it is set |
 |---|---|---|
 | Runner server type | `m5.large` | `runner_instance_type` in `terraform.tfvars` (the default in `variables.tf` is `m5.xlarge`) |
-| Runner servers allowed | minimum 0, maximum 2, running 1 | `runner_asg_min_size`, `runner_asg_max_size` in `terraform.tfvars` |
+| Runner servers allowed | minimum 0, **maximum 1**, in zone us-west-1c only | forced by `runner_persistent_data_volume = true` (since 2026-10-06); the `runner_asg_*` values in `terraform.tfvars` are ignored while it is on |
+| Sandbox disk | one 300 GB disk, `vol-0d303f55afa6efde2`, **kept** when the server goes away and attached to the next one | `runner_persistent_data_volume`, since 2026-10-06 |
+| Runner sleep when idle | **on**: off after 20 quiet minutes, on again at the next create or start | `runner_sleep_when_idle`, `runner_sleep_idle_minutes`, since 2026-10-06 |
 | Runner copies | 1, fixed | `runner_desired_count` |
 | Runner auto-scaling rule | **none, never existed** | not in Terraform |
 | Capacity target | 100 (no standby server) | `runner_target_capacity`, changed 2026-10-05 |
@@ -147,6 +154,33 @@ never be started again, and it can leave the runner service stuck with no
 runner at all. If that happens, force-deregister the dead server from the ECS
 cluster.
 
+## What changed on 2026-10-06: the runner sleeps when idle
+
+| | |
+|---|---|
+| What | When no sandbox is running or changing and nothing has asked for one for 20 minutes, the API sets the runner service to 0 and AWS removes the server. The next request for a sandbox sets it back to 1; AWS starts a server, it attaches the kept sandbox disk, and the runner comes up. While that happens the API answers `503 RUNNER_STARTING` and AADML shows "Sandbox is starting up". |
+| Why | The runner server ran all day at about 0.6% average CPU. The server is about $82 a month; the disk (about $29) is still paid. |
+| Measured on 2026-10-06 | From "not needed" to the server being gone: 18 minutes (16 of them AWS's own wait). From the wake request to the runner running: 4 minutes 22 seconds (3 of them AWS waiting before it starts the server). A workspace parked before the server was replaced resumed with its files. |
+| How | `runner_persistent_data_volume = true`, `runner_data_volume_subnet_index = 1` and `runner_sleep_when_idle = true` in `terraform.tfvars`. Code: `apps/api` `RunnerPowerService`, `modules/service-ec2-runner`, `runner_power.tf`. Commits `6b5318df3` and `b17a419cb`; AADML `a22d5c32`. |
+| To reverse | In this order: (1) `aws ecs update-service --cluster northrays-production --service northrays-runner --desired-count 1` and wait for the runner; (2) `runner_sleep_when_idle = false`, `terraform apply`, then `terraform apply -replace=module.api.aws_ecs_task_definition.this`, then redeploy through the pipeline; (3) delete the Redis keys `runner-power:*`. The kept disk can stay. |
+| When to reverse | **Before go-live**, or raise `runner_sleep_idle_minutes`. With steady traffic the runner rarely sleeps, and the first user after a quiet spell waits 4 minutes. |
+
+Full design, rollout record and tests: `docs-daytona/runner-sleep-when-idle-plan.md`.
+
+Things to know while it is on:
+
+- **Never stop the runner server by hand** (unchanged). Setting the runner
+  service's desired count by hand is fine; the API notices within 30 seconds.
+- A deploy wakes a sleeping runner, so the new image is really started and
+  checked. The API puts it back to sleep 20 quiet minutes later.
+- The kept disk lives in one zone, so the runner can only run in us-west-1c, on
+  one server. **More than one runner (step 2 below) is not possible while
+  `runner_persistent_data_volume` is on**: that work has to give each runner its
+  own disk first.
+- If a wake fails, the API logs `RUNNER_WAKE_TIMEOUT` after 10 minutes and a
+  server that cannot start deletes itself and is replaced. Nobody is notified:
+  the account has no alarm channel yet.
+
 ## Before go-live
 
 These are in order. Step 0 blocks every other step.
@@ -200,6 +234,10 @@ Before the count is raised, each runner needs:
 - its own token;
 - a way to be registered when it starts and removed when it goes away.
 
+The single kept sandbox disk has to go as well (see the 2026-10-06 section): two
+servers cannot attach one disk, and the runner server group is capped at one
+server while `runner_persistent_data_volume` is on.
+
 Then raise `runner_desired_count` and `runner_asg_max_size`, and test with two
 runners that create, run, stop and delete each reach the correct machine.
 
@@ -224,9 +262,10 @@ every running sandbox. With two or more runners, change the runner service to a
 rolling deploy (minimum healthy 50% or more) so that one runner stays up while
 the other is replaced.
 
-### Step 5. Turn monitoring back on, and run two snapshot managers again
+### Step 5. Turn monitoring back on, run two snapshot managers again, and stop the runner sleeping
 
-Reverse changes 2 and 4 above, and add alarms on runner CPU, memory and sandbox disk
+Reverse changes 2 and 4 above and the 2026-10-06 runner sleep (or raise its idle
+time), and add alarms on runner CPU, memory, a failed wake and sandbox disk
 space. Running out of sandbox disk does not fail cleanly; see
 `data_volume_size` in `modules/service-ec2-runner/variables.tf`.
 
@@ -277,8 +316,9 @@ All of these use region `us-west-1`.
 ## Related
 
 - Jira: ADM-662 (outage), ADM-665 (capacity target), ADM-670 (Container Insights
-  and disk throughput), ADM-671 (September cost review).
-- Commits: `15a6652f7`, `986337093`.
-- A separate design for switching the runner off when idle exists as a draft and
-  has not been approved or built. It is the opposite direction from this file:
-  it lowers cost at low traffic, while this file is about raising capacity.
+  and disk throughput), ADM-671 (September cost review), ADM-683 (Phase 2).
+- Commits: `15a6652f7`, `986337093`, `c3547bdc1`, `6b5318df3`, `b17a419cb`.
+- `docs-daytona/` holds the record of the 5 October work and the runner sleep
+  plan. An older, larger design for many runners behind a queue
+  (`docs-daytona/aadml-scale-to-zero-runner-architecture.md`) is a draft and has
+  not been built.

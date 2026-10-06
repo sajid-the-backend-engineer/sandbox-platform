@@ -2,11 +2,11 @@
 
 | | |
 |---|---|
-| Status | **Approved 2026-10-06. Code written and tested; not deployed.** See [section 13](#13-build-status). |
+| Status | **Live in production since 2026-10-06, 14:35 UTC.** Rollout record and test results: [section 14](#14-rollout-record-6-october-2026). |
 | Asked for by | The manager, 5 October 2026 |
 | Option chosen | **B, "off but kept"**: the runner server is switched off when idle, its sandbox disk is kept |
 | Expected saving | Up to about $82 a month while traffic is low (less for every hour the runner is awake) |
-| First user after a quiet period | Waits about 2 to 4 minutes, sees "Sandbox is starting up" |
+| First user after a quiet period | Waits about 4 and a half minutes (measured), sees "Sandbox is starting up". Under one minute if they come back within about 15 minutes of it going to sleep. |
 | Effort | About one week: AWS 1 day, platform API and AADML 3 days, testing 1 to 2 days |
 | Repos | `sandbox-platform` (this repo) and `agentic-system-backend` (AADML) |
 
@@ -334,3 +334,57 @@ description added by hand on 5 October). The server start-up script showed no ch
   `latest`).
 - Adopting the live disk: `runner_data_volume_subnet_index` is `1` (us-west-1c,
   `subnet-06f0dbd8fa6b88c7c`), checked against AWS on 6 October.
+
+## 14. Rollout record (6 October 2026)
+
+All times UTC. Pakistan time is UTC+5.
+
+| Step | When (about) | What happened |
+|---|---|---|
+| 1. Protect the disk | 08:00 | `DeleteOnTermination` set to false for `vol-0d303f55afa6efde2`; snapshot `snap-0487af284bef64027` (delete after 14 October) |
+| 2. Dry run | 10:50 | Switches off: no change from this work, two older differences left alone |
+| 3. AADML fix | 11:40 | Commit `a22d5c32` deployed with `deploy.sh`; create, park, resume checked |
+| 4. Disk setup | 11:25 | Disk imported as `module.runner.aws_ebs_volume.data[0]`; `terraform apply -target=module.runner`: 1 added, 3 changed, 0 destroyed; runner untouched |
+| 5. Replace the server once | 13:33 to 13:57 | Old server `i-057214392151e8ac3` removed, new server `i-03674ff2394b49a63` attached the kept disk (boot log: "already XFS; reusing"); a workspace parked before resumed with its file |
+| 6. Platform code, switch off | 13:58 to 14:20 | Commit `b17a419cb`; deploy run 37475111162 and CI green |
+| 7. Switch on | 14:25 to 14:35 | `runner_sleep_when_idle = true`; API permission and settings applied; redeploy run 37478817036; API log: "Runner power state recovered from ECS: awake" |
+
+### Test results
+
+| Test | Result | Evidence |
+|---|---|---|
+| A. Goes to sleep | Passed | API log 14:52:00 "Runner switched off after 20 idle minutes"; server gone 15:10:49; disk `available` |
+| B. Wakes on create | Passed | New sandbox created after the wake, ran Python, reached the internet |
+| C. Wakes on resume | Passed | File written at 11:43 still present after a real sleep and wake, and again after a second one |
+| D. Two requests at once | Passed | One "Waking the runner" log line, one server (`i-00aa90636478fe05f`), both requests succeeded on retry |
+| E. Request during "going to sleep" | Not run in production | Covered by unit tests ("cancels the sleep when a request arrives during it") |
+| F. Busy sandbox keeps it awake | Passed | Still on at 15:42, six minutes past when it would have slept; API log "Runner kept on: sandbox ... is running or changing state" |
+| G. Delete while asleep | Passed | Delete accepted at once; runner stayed at 0; platform held the sandbox as `destroying` and removed it after the next wake |
+| H. Failed wake | **Not run** | Deliberately breaks a wake in production; waiting for a decision |
+| I. Switch off (rollback) | **Not run** | Rehearses the rollback in production; waiting for a decision |
+
+### Measured
+
+| | Time |
+|---|---|
+| Quiet time before the API switches the runner off | 20 to 21 minutes |
+| From switched off to the server being gone | 18 to 19 minutes (about 16 of them are AWS's own wait) |
+| Wake, when the server is already gone | 4 minutes 21 seconds, twice (about 3 minutes are AWS waiting before it starts a server; the server itself joins in about 30 seconds) |
+| Wake, when the server has not been removed yet | about 1 minute |
+
+### Seen during the rollout
+
+- Step 5 was done at 18:33 Pakistan time, earlier than the agreed quiet window, on the owner's go-ahead.
+  Three requests for new sandboxes failed with "No available runners" while the runner was away. They
+  created nothing. No parked workspace was affected.
+- AADML's own health check ran while the runner slept and did not wake it (log: "the sandbox server is
+  asleep; not waiting (policy never)").
+- The "Sandbox is starting up" line was checked through AADML's API answers ("starting, try again"),
+  not by eye in the chat screen.
+
+### Where Terraform is run from
+
+On `aadml-sandbox`, Terraform was run from `~/runner-sleep-plan` (code at `6b5318df3`). The older
+`~/sandbox-platform` checkout is out of date and has uncommitted edits; its `terraform.tfvars` was
+brought up to date (backup kept beside it) so both hold the same settings. Update that checkout's code
+to `main` before running Terraform from it.
