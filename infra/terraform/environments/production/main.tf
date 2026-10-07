@@ -55,6 +55,14 @@ locals {
   internal_api_url    = "http://api.${local.namespace}:${local.ports.api}/api"
   internal_runner_url = "http://runner.${local.namespace}:${local.ports.runner}"
 
+  # Where SSH clients are told to connect. The api reads this with getOrThrow,
+  # so it is never left empty. Without the balancer the name is still stated
+  # (ssh.<domain> when there is a domain) but nothing answers on it.
+  ssh_hostname = coalesce(
+    one(module.nlb_ssh[*].ssh_hostname),
+    var.domain_name != "" ? "ssh.${var.domain_name}" : "ssh-disabled.invalid",
+  )
+
   # ---------------------------------------------------------------------------
   # Postgres placement switch
   #
@@ -366,8 +374,12 @@ module "internal_alb" {
   tags = local.common_tags
 }
 
+# Optional. With ssh_load_balancer_enabled off there is no balancer, no public
+# address on 2222 and no ssh.<domain> record; the ssh-gateway service is left in
+# place with nothing in front of it. See the variable for what that gives up.
 module "nlb_ssh" {
   source = "../../modules/nlb-ssh"
+  count  = var.ssh_load_balancer_enabled ? 1 : 0
 
   name              = local.name
   vpc_id            = module.network.vpc_id
@@ -379,4 +391,11 @@ module "nlb_ssh" {
   lookup_zone_by_name = local.lookup_zone_by_name
 
   tags = local.common_tags
+}
+
+# The balancer predates its count. Without this, a deployment that keeps it
+# would see the existing one planned for destroy and a new one for create.
+moved {
+  from = module.nlb_ssh
+  to   = module.nlb_ssh[0]
 }

@@ -83,6 +83,11 @@ ssh_gateway_cpu           = 256
 ssh_gateway_memory        = 512
 ssh_gateway_desired_count = 2
 
+# The public load balancer in front of the ssh-gateway. Set to false when nobody
+# uses SSH into sandboxes: it removes the balancer, its public addresses and the
+# ssh.<domain_name> record.
+ssh_load_balancer_enabled = true
+
 # The internal snapshot registry (apps/snapshot-manager). Served on
 # <label>.<domain_name> through an INTERNAL load balancer and a private hosted
 # zone, using the public ALB's certificate (it already carries *.<domain_name>).

@@ -21,8 +21,8 @@ output "proxy_url" {
 }
 
 output "ssh_endpoint" {
-  description = "SSH connection target for sandboxes."
-  value       = "${module.nlb_ssh.ssh_hostname}:${module.nlb_ssh.port}"
+  description = "SSH connection target for sandboxes. Empty when ssh_load_balancer_enabled is off and there is nothing to connect to."
+  value       = var.ssh_load_balancer_enabled ? "${local.ssh_hostname}:${local.ports.ssh_gateway}" : ""
 }
 
 output "alb_dns_name" {

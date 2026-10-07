@@ -14,6 +14,10 @@ output "nlb_dns_name" {
 output "target_group_arn" {
   description = "Target group the ssh-gateway service registers into."
   value       = aws_lb_target_group.this.arn
+
+  # Not known to a consumer until the listener exists: ECS rejects a service
+  # whose target group is not yet attached to a load balancer.
+  depends_on = [aws_lb_listener.this]
 }
 
 output "security_group_id" {

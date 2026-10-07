@@ -195,11 +195,39 @@ variable "ssh_gateway_desired_count" {
     The service fronts a public NLB on 2222. Running it costs two Fargate
     tasks and leaves a TCP listener open on the internet for a feature with no
     caller -- AADML drives sandboxes through the API. Raise it to 2 if SSH
-    access is ever wanted; the NLB stays provisioned either way, so this is a
-    one-value change in both directions.
+    access is ever wanted; while ssh_load_balancer_enabled is on the NLB stays
+    provisioned either way, so this is a one-value change in both directions.
   EOT
   type        = number
   default     = 0
+}
+
+variable "ssh_load_balancer_enabled" {
+  description = <<-EOT
+    Keep the public network load balancer in front of the ssh-gateway.
+
+    On by default. Turning it off removes the balancer, its public addresses,
+    its security group and the ssh.<domain> record, which is the whole of the
+    fixed cost of offering SSH. What it gives up is `ssh` into a sandbox from
+    outside: the dashboard still shows the command, and it no longer connects.
+    Everything that goes through the API, including exec and file access, is
+    unaffected.
+
+    The ssh-gateway service itself is not removed and still follows
+    ssh_gateway_desired_count. Turning this back on recreates the balancer and
+    re-registers the service; the ssh.<domain> name is the same, the balancer's
+    own addresses are new.
+
+    Removing a balancer that already exists takes two things by hand. It has
+    deletion protection on, so switch that off first: `aws elbv2
+    modify-load-balancer-attributes --attributes
+    Key=deletion_protection.enabled,Value=false`. And it takes two applies,
+    `-target=module.ssh_gateway` and then the rest; in one, Terraform reports a
+    dependency cycle. docs-daytona/2026-10-07-ssh-load-balancer-removed.md has
+    the commands that were run.
+  EOT
+  type        = bool
+  default     = true
 }
 
 # ---------------------------------------------------------------------------

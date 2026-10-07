@@ -181,6 +181,17 @@ Things to know while it is on:
   server that cannot start deletes itself and is replaced. Nobody is notified:
   the account has no alarm channel yet.
 
+## What changed on 2026-10-07: the SSH load balancer is gone
+
+| | |
+|---|---|
+| What | The public network load balancer `northrays-production-ssh-nlb` (port 2222), its two public addresses, its security group and the `ssh.sandbox.aadml.com` record were deleted. Two load balancers remain: the public one (API, dashboard, sandbox links) and the internal one (image store). |
+| Why | About $26 a month for a feature nobody used. In the 30 days of logs kept, the ssh-gateway recorded 1.79 million lines and not one successful login: 1.66 million failed handshakes, 94,695 failed authentications, 36,248 invalid tokens. Traffic averaged 3.4 KB per connection, which is what scanners look like. |
+| What no longer works | `ssh` into a sandbox from outside. The dashboard still shows the command; it does not connect. Everything through the API (exec, files, previews) is unchanged. AADML does not use SSH. |
+| How | `ssh_load_balancer_enabled = false` in `terraform.tfvars`. Details and the exact commands: `docs-daytona/2026-10-07-ssh-load-balancer-removed.md`. |
+| To reverse | Set `ssh_load_balancer_enabled = true` and `terraform apply -target=module.nlb_ssh -target=module.ssh_gateway`. About 15 minutes. The name `ssh.sandbox.aadml.com` comes back the same; make sure `northrays-ssh-gateway` is running at least 1 task. |
+| When to reverse | When a customer needs SSH into a sandbox. Not needed for go-live otherwise. |
+
 ## Before go-live
 
 These are in order. Step 0 blocks every other step.

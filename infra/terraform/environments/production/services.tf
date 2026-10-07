@@ -184,8 +184,8 @@ module "api" {
 
     # host:port with no scheme, and the connection string the dashboard shows
     # users. {{TOKEN}} is substituted by the api per session.
-    SSH_GATEWAY_URL     = "${module.nlb_ssh.ssh_hostname}:${module.nlb_ssh.port}"
-    SSH_GATEWAY_COMMAND = "ssh -p ${module.nlb_ssh.port} {{TOKEN}}@${module.nlb_ssh.ssh_hostname}"
+    SSH_GATEWAY_URL     = "${local.ssh_hostname}:${local.ports.ssh_gateway}"
+    SSH_GATEWAY_COMMAND = "ssh -p ${local.ports.ssh_gateway} {{TOKEN}}@${local.ssh_hostname}"
 
     SMTP_HOST       = var.smtp_host
     SMTP_PORT       = tostring(var.smtp_port)
@@ -523,18 +523,21 @@ module "ssh_gateway" {
     SSH_HOST_KEY    = module.secrets.secret_arns["SSH_HOST_KEY"]
   }
 
-  ingress_security_group_ids = [module.nlb_ssh.security_group_id]
-  external_target_group_arns = [module.nlb_ssh.target_group_arn]
+  # Both empty when the balancer is switched off: the service then registers
+  # nowhere and accepts no inbound connections.
+  ingress_security_group_ids = module.nlb_ssh[*].security_group_id
+  external_target_group_arns = module.nlb_ssh[*].target_group_arn
 
   service_discovery_namespace_id = module.ecs_cluster.namespace_id
   service_discovery_name         = "ssh-gateway"
 
   tags = local.common_tags
 
-  # The service only references the NLB's target group, not its listener. ECS
-  # rejects a service whose target group is not yet attached to a load balancer,
-  # so without this the two can race on a first apply.
-  depends_on = [module.nlb_ssh]
+  # The service only references the NLB's target group, not its listener, and
+  # ECS rejects a service whose target group is not yet attached to a load
+  # balancer. The ordering is carried by the target_group_arn output, which
+  # waits for the listener. A module-level depends_on here did the same job but
+  # made removing the balancer a dependency cycle.
 }
 
 # ---------------------------------------------------------------------------
