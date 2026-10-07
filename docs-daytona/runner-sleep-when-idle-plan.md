@@ -360,8 +360,43 @@ All times UTC. Pakistan time is UTC+5.
 | E. Request during "going to sleep" | Not run in production | Covered by unit tests ("cancels the sleep when a request arrives during it") |
 | F. Busy sandbox keeps it awake | Passed | Still on at 15:42, six minutes past when it would have slept; API log "Runner kept on: sandbox ... is running or changing state" |
 | G. Delete while asleep | Passed | Delete accepted at once; runner stayed at 0; platform held the sandbox as `destroying` and removed it after the next wake |
-| H. Failed wake | **Not run** | Deliberately breaks a wake in production; waiting for a decision |
-| I. Switch off (rollback) | **Not run** | Rehearses the rollback in production; waiting for a decision |
+| H. Failed wake | Passed (7 October) | With the disk made impossible to attach, the new server gave up and removed itself about 13.5 minutes after launch, AWS started a replacement, the API logged `RUNNER_WAKE_TIMEOUT` 10 minutes after the wake, and the parked workspace stayed `PAUSED` with its file. Details below. |
+| I. Switch off (rollback) | **Not run** | Approved, but it needs about an hour and did not fit in the 17:00 to 19:00 window on 7 October after test H. Needs its own window. |
+
+### Test H, forced failed wake (7 October 2026, times in UTC)
+
+The owner approved it and set the window (17:00 to 19:00 Pakistan time). A sandbox was in use at
+17:01, so the test waited until nothing was live (12:17 UTC).
+
+| Time | What |
+|---|---|
+| 12:17 | Proof workspace created through AADML, `proof.txt` written, workspace parked |
+| 12:18:05 | Runner service set to 0 by hand |
+| 12:35:43 | Server `i-049de23f17df32126` gone, disk `available` (17.5 minutes) |
+| 12:36:31 | Tag `NorthraysRunnerDataHost` removed from the disk, so no server is allowed to attach it |
+| 12:36:42 | Resume of the proof workspace requested. AADML answered "The sandbox server is starting up". API log: "Waking the runner: sandbox start" |
+| 12:38:47 | AWS launched server `i-0c0ee426a91003b56`. Its boot log shows `AttachVolume` refused (`UnauthorizedOperation`) every 12 seconds: "data volume state=available holder=None; waiting" |
+| 12:47:00 | API log: `RUNNER_WAKE_TIMEOUT: the runner has not reported 10 minutes after it was woken` |
+| 12:52:14 | The server shut itself down (`Client.InstanceInitiatedShutdown`) and AWS removed it, about 13.5 minutes after launch |
+| 12:52:17 | AWS launched a replacement, `i-05cf99fe01bc93737` ("an unhealthy instance needing to be replaced") |
+| 12:53:41 | Tag put back |
+| 12:55:06 | The replacement had attached the disk and the runner was running (85 seconds after the tag came back) |
+| 12:55:18 | Proof workspace resumed; `proof.txt` unchanged |
+
+What this shows:
+
+- A server that cannot get the disk never starts a runner on an empty disk. It removes itself and is
+  replaced, again and again, until the cause is fixed. Nothing has to be cleaned up by hand.
+- A failed wake does not harm parked work. The workspace stayed `PAUSED` the whole time (state reason
+  "resume waiting for the sandbox server"), was not marked failed and was not deleted.
+- Recovery needs no restart: once the cause is fixed, the next server comes up on its own.
+- Sandboxes could not start for 18 minutes (12:37 to 12:55). **Nobody was told**: the only signal was
+  the error line in the API log. The account still has no alarm channel.
+- The server's last boot-log line (the "FATAL" one) is not in the console capture AWS kept, which ends
+  earlier. The shutdown itself is confirmed by the termination reason above.
+
+Afterwards everything was as before: runner 1 of 1, sleeping still switched on (API revision 55),
+tag present, disk attached with delete-on-termination off, test workspace destroyed.
 
 ### Measured
 
@@ -371,6 +406,7 @@ All times UTC. Pakistan time is UTC+5.
 | From switched off to the server being gone | 18 to 19 minutes (about 16 of them are AWS's own wait) |
 | Wake, when the server is already gone | 4 minutes 21 seconds, twice (about 3 minutes are AWS waiting before it starts a server; the server itself joins in about 30 seconds) |
 | Wake, when the server has not been removed yet | about 1 minute |
+| A server that cannot attach the disk, from launch to removing itself | about 13.5 minutes |
 
 ### Seen during the rollout
 
