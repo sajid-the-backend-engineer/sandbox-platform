@@ -1,0 +1,88 @@
+# Copyright © 2026 Northrays Private Limited
+# SPDX-License-Identifier: AGPL-3.0
+
+AWSTemplateFormatVersion: '2010-09-09'
+Description: >-
+  Monthly cost budget for everything in the California region (us-west-1):
+  the Daytona platform, the AADML backend and the other servers there. It
+  sends email when the cost passes 80 percent or 100 percent of the limit, or
+  when AWS forecasts the month will end above it. It only warns - it does not
+  stop or switch off anything. Deploy in us-east-1.
+
+Metadata:
+  AWSToolsMetrics:
+    AWSAgentToolkit: aws-cloudformation@3
+
+Parameters:
+  MonthlyLimitUsd:
+    Type: Number
+    Default: 350
+    MinValue: 1
+    Description: Budget limit in US dollars per calendar month.
+  AlertEmailOne:
+    Type: String
+    Default: sajid@northrays.com
+    Description: First address that receives the alerts.
+  AlertEmailTwo:
+    Type: String
+    Default: hamza@northrays.com
+    Description: Second address that receives the alerts.
+
+Resources:
+  CaliforniaMonthlyBudget:
+    Type: AWS::Budgets::Budget
+    Metadata:
+      com.aws.cloudformation.Context:
+        why: >-
+          AWS credits ended on 2026-09-30 and the target for the California
+          region is 350 dollars a month. This is a warning, not a cap.
+        must:
+          - Keep the Region filter on us-west-1 only. Singapore is out of scope.
+          - Keep it without budget actions. An action can block production.
+    Properties:
+      Budget:
+        BudgetName: california-monthly-350
+        BudgetType: COST
+        TimeUnit: MONTHLY
+        BudgetLimit:
+          Amount: !Ref MonthlyLimitUsd
+          Unit: USD
+        CostFilters:
+          Region:
+            - us-west-1
+      NotificationsWithSubscribers:
+        - Notification:
+            NotificationType: ACTUAL
+            ComparisonOperator: GREATER_THAN
+            Threshold: 80
+            ThresholdType: PERCENTAGE
+          Subscribers:
+            - SubscriptionType: EMAIL
+              Address: !Ref AlertEmailOne
+            - SubscriptionType: EMAIL
+              Address: !Ref AlertEmailTwo
+        - Notification:
+            NotificationType: ACTUAL
+            ComparisonOperator: GREATER_THAN
+            Threshold: 100
+            ThresholdType: PERCENTAGE
+          Subscribers:
+            - SubscriptionType: EMAIL
+              Address: !Ref AlertEmailOne
+            - SubscriptionType: EMAIL
+              Address: !Ref AlertEmailTwo
+        - Notification:
+            NotificationType: FORECASTED
+            ComparisonOperator: GREATER_THAN
+            Threshold: 100
+            ThresholdType: PERCENTAGE
+          Subscribers:
+            - SubscriptionType: EMAIL
+              Address: !Ref AlertEmailOne
+            - SubscriptionType: EMAIL
+              Address: !Ref AlertEmailTwo
+
+Outputs:
+  BudgetName:
+    Description: Name of the budget, as shown in Billing and Cost Management.
+    Value: california-monthly-350

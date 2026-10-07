@@ -42,8 +42,13 @@ greeting and leaving.
 - DNS record `ssh.sandbox.aadml.com`
 - The rule that let the load balancer reach the ssh-gateway on port 2222
 
-Not deleted: the `northrays-ssh-gateway` service. It still runs 1 task with nothing in front of
-it and accepts no connections. It costs roughly $10 a month and can be set to 0.
+The `northrays-ssh-gateway` service was not deleted, but later the same day it was set to 0
+tasks: with nothing in front of it, it did nothing (about $10 a month). To use SSH again it must
+be set back to 1:
+
+```bash
+aws ecs update-service --cluster northrays-production --service northrays-ssh-gateway   --desired-count 1 --region us-west-1
+```
 
 ## How it was done
 
@@ -96,7 +101,7 @@ About 15 minutes.
 1. Start `aadml-sandbox`.
 2. Set `ssh_load_balancer_enabled = true` in `terraform.tfvars`.
 3. `terraform apply -target=module.nlb_ssh -target=module.ssh_gateway`
-4. Make sure `northrays-ssh-gateway` is running at least 1 task.
+4. Set `northrays-ssh-gateway` back to 1 task (command above). It is at 0 since 7 October.
 5. Stop `aadml-sandbox`.
 
 The name `ssh.sandbox.aadml.com` comes back the same. The addresses behind it are new.

@@ -189,7 +189,7 @@ Things to know while it is on:
 | Why | About $26 a month for a feature nobody used. In the 30 days of logs kept, the ssh-gateway recorded 1.79 million lines and not one successful login: 1.66 million failed handshakes, 94,695 failed authentications, 36,248 invalid tokens. Traffic averaged 3.4 KB per connection, which is what scanners look like. |
 | What no longer works | `ssh` into a sandbox from outside. The dashboard still shows the command; it does not connect. Everything through the API (exec, files, previews) is unchanged. AADML does not use SSH. |
 | How | `ssh_load_balancer_enabled = false` in `terraform.tfvars`. Details and the exact commands: `docs-daytona/2026-10-07-ssh-load-balancer-removed.md`. |
-| To reverse | Set `ssh_load_balancer_enabled = true` and `terraform apply -target=module.nlb_ssh -target=module.ssh_gateway`. About 15 minutes. The name `ssh.sandbox.aadml.com` comes back the same; make sure `northrays-ssh-gateway` is running at least 1 task. |
+| To reverse | Set `ssh_load_balancer_enabled = true` and `terraform apply -target=module.nlb_ssh -target=module.ssh_gateway`. About 15 minutes. The name `ssh.sandbox.aadml.com` comes back the same; then set `northrays-ssh-gateway` back to 1 task (it is at 0 since 2026-10-07). |
 | When to reverse | When a customer needs SSH into a sandbox. Not needed for go-live otherwise. |
 
 ## Before go-live
