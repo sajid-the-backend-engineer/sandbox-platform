@@ -564,6 +564,8 @@ jobs:
             ecs_service: northrays-proxy
             task_family: northrays-proxy
             ecr_repository: northrays/proxy
+            # Switched off with the runner. See "Update service".
+            wake_if_asleep: 'true'
           - service: ssh-gateway
             ecs_service: northrays-ssh-gateway
             task_family: northrays-ssh-gateway
@@ -583,6 +585,8 @@ jobs:
             ecs_service: northrays-snapshot-manager
             task_family: northrays-snapshot-manager
             ecr_repository: northrays/snapshot-manager
+            # Switched off with the runner. See "Update service".
+            wake_if_asleep: 'true'
     steps:
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
@@ -631,13 +635,16 @@ jobs:
           WAKE_IF_ASLEEP: ${{ matrix.wake_if_asleep || 'false' }}
         run: |
           set -euo pipefail
-          # Runner only. A runner the api has switched off sits at desired count
-          # 0, and rolling it at 0 starts nothing: the circuit breaker never sees
-          # the new image, the stability wait passes on zero tasks, and a broken
-          # image shows up only at the next wake. So it is switched on for the
-          # deploy. Afterwards the api's idle check switches it off again (that
-          # check must treat a desired count above 0 as awake, whatever it last
-          # recorded), and an api from before runner sleep simply leaves it on.
+          # The runner, and the services the api switches off with it (the proxy
+          # and the snapshot registry). A service the api has switched off sits
+          # at desired count 0, and rolling it at 0 starts nothing: the circuit
+          # breaker never sees the new image, the stability wait passes on zero
+          # tasks, and a broken image shows up only at the next wake. So it is
+          # switched on for the deploy. Afterwards the api's idle check switches
+          # the runner off again (that check must treat a desired count above 0
+          # as awake, whatever it last recorded), and an api from before runner
+          # sleep simply leaves it on. The api leaves a service that is being
+          # deployed on, and switches the other two off only once the runner is.
           desired_count_args=()
           if [ "$WAKE_IF_ASLEEP" = "true" ]; then
             desired=$(aws ecs describe-services --cluster "$ECS_CLUSTER" --services "$ECS_SERVICE" \

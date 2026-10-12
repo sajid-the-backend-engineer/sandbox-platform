@@ -7,13 +7,24 @@ import { Injectable } from '@nestjs/common'
 import { DescribeServicesCommand, ECSClient, UpdateServiceCommand } from '@aws-sdk/client-ecs'
 import { TypedConfigService } from '../../config/typed-config.service'
 
+export interface EcsServiceStatus {
+  desiredCount: number
+  runningCount: number
+  // A deployment is rolling: more than one is listed, or the primary one has not
+  // finished.
+  deploying: boolean
+}
+
 /**
  * The two ECS calls the runner power manager makes, and nothing else.
  *
- * It changes the runner SERVICE's desired count and never touches an instance.
- * ECS managed scaling then adds or removes the host, which is the supported path:
- * stopping a runner host by hand leaves a task ECS cannot reap and the service
- * stuck at zero runners (the 2026-10-03 outage).
+ * It changes a SERVICE's desired count and never touches an instance. For the
+ * runner, ECS managed scaling then adds or removes the host, which is the
+ * supported path: stopping a runner host by hand leaves a task ECS cannot reap and
+ * the service stuck at zero runners (the 2026-10-03 outage).
+ *
+ * The same two calls serve the services that sleep and wake with the runner (see
+ * RunnerPowerCompanions).
  */
 @Injectable()
 export class RunnerPowerEcsClient {
@@ -22,27 +33,11 @@ export class RunnerPowerEcsClient {
   constructor(private readonly configService: TypedConfigService) {}
 
   async setDesiredCount(desiredCount: number): Promise<void> {
-    await this.ecs().send(
-      new UpdateServiceCommand({
-        cluster: this.configService.getOrThrow('runnerPower.ecsCluster'),
-        service: this.configService.getOrThrow('runnerPower.ecsService'),
-        desiredCount,
-      }),
-    )
+    await this.setServiceDesiredCount(this.runnerService(), desiredCount)
   }
 
   async getDesiredCount(): Promise<number> {
-    const result = await this.ecs().send(
-      new DescribeServicesCommand({
-        cluster: this.configService.getOrThrow('runnerPower.ecsCluster'),
-        services: [this.configService.getOrThrow('runnerPower.ecsService')],
-      }),
-    )
-    const service = result.services?.[0]
-    if (!service || service.desiredCount === undefined) {
-      throw new Error(`runner service ${this.configService.get('runnerPower.ecsService')} not found`)
-    }
-    return service.desiredCount
+    return (await this.describeRunner()).desiredCount
   }
 
   /**
@@ -55,17 +50,63 @@ export class RunnerPowerEcsClient {
    * wake.
    */
   async isDeploying(): Promise<boolean> {
+    return (await this.describeRunner()).deploying
+  }
+
+  async setServiceDesiredCount(service: string, desiredCount: number): Promise<void> {
+    await this.ecs().send(
+      new UpdateServiceCommand({
+        cluster: this.configService.getOrThrow('runnerPower.ecsCluster'),
+        service,
+        desiredCount,
+      }),
+    )
+  }
+
+  /**
+   * The state of each named service in the runner's cluster, in one call. A
+   * service ECS does not know is left out of the result.
+   */
+  async describeServices(services: string[]): Promise<Map<string, EcsServiceStatus>> {
+    const statuses = new Map<string, EcsServiceStatus>()
+    if (services.length === 0) {
+      return statuses
+    }
+
     const result = await this.ecs().send(
       new DescribeServicesCommand({
         cluster: this.configService.getOrThrow('runnerPower.ecsCluster'),
-        services: [this.configService.getOrThrow('runnerPower.ecsService')],
+        services,
       }),
     )
-    const deployments = result.services?.[0]?.deployments ?? []
-    return (
-      deployments.length > 1 ||
-      deployments.some((deployment) => deployment.status === 'PRIMARY' && deployment.rolloutState === 'IN_PROGRESS')
-    )
+    for (const service of result.services ?? []) {
+      if (!service.serviceName || service.desiredCount === undefined) {
+        continue
+      }
+      const deployments = service.deployments ?? []
+      statuses.set(service.serviceName, {
+        desiredCount: service.desiredCount,
+        runningCount: service.runningCount ?? 0,
+        deploying:
+          deployments.length > 1 ||
+          deployments.some(
+            (deployment) => deployment.status === 'PRIMARY' && deployment.rolloutState === 'IN_PROGRESS',
+          ),
+      })
+    }
+    return statuses
+  }
+
+  private runnerService(): string {
+    return this.configService.getOrThrow('runnerPower.ecsService')
+  }
+
+  private async describeRunner(): Promise<EcsServiceStatus> {
+    const status = (await this.describeServices([this.runnerService()])).get(this.runnerService())
+    if (!status) {
+      throw new Error(`runner service ${this.runnerService()} not found`)
+    }
+    return status
   }
 
   // Created on first use, so a deployment with power management off never needs

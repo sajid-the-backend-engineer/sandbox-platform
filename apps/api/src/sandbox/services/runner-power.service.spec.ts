@@ -18,6 +18,7 @@ import { RunnerPowerState } from '../enums/runner-power-state.enum'
 import { RunnerState } from '../enums/runner-state.enum'
 import { SnapshotRunnerState } from '../enums/snapshot-runner-state.enum'
 import { SandboxRepository } from '../repositories/sandbox.repository'
+import { RunnerPowerCompanions } from './runner-power-companions'
 import { RunnerPowerEcsClient } from './runner-power-ecs.client'
 import { RunnerPowerService, runnerWakeOptionsFromHeader } from './runner-power.service'
 
@@ -77,6 +78,7 @@ describe('RunnerPowerService', () => {
   let redis: FakeRedis
   let desiredCount: number
   let ecs: { setDesiredCount: jest.Mock; getDesiredCount: jest.Mock; isDeploying: jest.Mock }
+  let companions: { wake: jest.Mock; sleep: jest.Mock; sync: jest.Mock; notReadyReason: jest.Mock }
   let sandboxFindOne: jest.Mock
   let unconverged: jest.Mock
   let runnerExists: jest.Mock
@@ -112,6 +114,13 @@ describe('RunnerPowerService', () => {
       }),
       getDesiredCount: jest.fn(async () => desiredCount),
       isDeploying: jest.fn(async () => false),
+    }
+    // No service sleeps with the runner unless a test says so.
+    companions = {
+      wake: jest.fn(async () => undefined),
+      sleep: jest.fn(async () => undefined),
+      sync: jest.fn(async () => undefined),
+      notReadyReason: jest.fn(async () => null),
     }
     sandboxFindOne = jest.fn().mockResolvedValue(null)
     unconverged = jest.fn().mockResolvedValue(null)
@@ -155,6 +164,7 @@ describe('RunnerPowerService', () => {
           ) ?? null,
       } as unknown as Repository<Job>,
       { findOne: snapshotRunnerFindOne } as unknown as Repository<SnapshotRunner>,
+      companions as unknown as RunnerPowerCompanions,
     )
   })
 
@@ -682,6 +692,189 @@ describe('RunnerPowerService', () => {
 
       await expect(service.ensureAwake('sandbox create')).resolves.toBeUndefined()
       expect(state()).toBe(RunnerPowerState.AWAKE)
+    })
+
+    it('reads WAKING back when the runner is reporting but a companion does not answer', async () => {
+      runnerExists.mockResolvedValue(true)
+      companions.notReadyReason.mockResolvedValue('https://proxy.example.com/health answers 503')
+
+      await expect(service.ensureAwake('sandbox create')).rejects.toBeInstanceOf(RunnerStartingError)
+      expect(state()).toBe(RunnerPowerState.WAKING)
+    })
+  })
+
+  describe('the services that sleep and wake with the runner', () => {
+    it('are switched on in the same step as the runner', async () => {
+      putState(RunnerPowerState.ASLEEP, 30 * MINUTE)
+
+      await expect(service.ensureAwake('sandbox create')).rejects.toBeInstanceOf(RunnerStartingError)
+
+      expect(companions.wake).toHaveBeenCalledTimes(1)
+    })
+
+    it('are switched on once when many requests arrive at once', async () => {
+      putState(RunnerPowerState.ASLEEP, 30 * MINUTE)
+
+      await Promise.allSettled(Array.from({ length: 10 }, () => service.ensureAwake('sandbox create')))
+
+      expect(companions.wake).toHaveBeenCalledTimes(1)
+    })
+
+    it('are not switched on for a request that may not wake the runner', async () => {
+      putState(RunnerPowerState.ASLEEP, 30 * MINUTE)
+
+      await expect(service.ensureAwake('health probe', { wake: false })).rejects.toBeDefined()
+
+      expect(companions.wake).not.toHaveBeenCalled()
+    })
+
+    it('are switched off when the runner is', async () => {
+      putState(RunnerPowerState.AWAKE, 60 * MINUTE)
+      redis.values.set('runner-power:last-activity', String(Date.now() - 25 * MINUTE))
+
+      await service.handleCheck()
+
+      expect(state()).toBe(RunnerPowerState.ASLEEP)
+      expect(companions.sleep).toHaveBeenCalledTimes(1)
+    })
+
+    it('stay on when the sleep is cancelled', async () => {
+      putState(RunnerPowerState.AWAKE, 60 * MINUTE)
+      redis.values.set('runner-power:last-activity', String(Date.now() - 25 * MINUTE))
+      ecs.isDeploying.mockResolvedValue(true)
+
+      await service.handleCheck()
+
+      expect(state()).toBe(RunnerPowerState.AWAKE)
+      expect(companions.sleep).not.toHaveBeenCalled()
+    })
+
+    it.each([RunnerPowerState.AWAKE, RunnerPowerState.WAKING, RunnerPowerState.ASLEEP])(
+      'are brought in line on every tick while the runner is %s',
+      async (value) => {
+        putState(value, MINUTE)
+        redis.values.set('runner-power:wake-requested-at', String(Date.now() - MINUTE))
+
+        await service.handleCheck()
+
+        expect(companions.sync).toHaveBeenCalledWith(value)
+      },
+    )
+
+    it('hold a request back while the runner has reported but one of them does not answer', async () => {
+      putState(RunnerPowerState.WAKING, 2 * MINUTE)
+      redis.values.set('runner-power:wake-requested-at', String(Date.now() - 2 * MINUTE))
+      runnerExists.mockResolvedValue(true)
+      companions.notReadyReason.mockResolvedValue('https://proxy.example.com/health answers 503')
+
+      await expect(service.ensureAwake('sandbox start')).rejects.toBeInstanceOf(RunnerStartingError)
+      expect(state()).toBe(RunnerPowerState.WAKING)
+
+      await service.handleCheck()
+      expect(state()).toBe(RunnerPowerState.WAKING)
+    })
+
+    it('let the request through once they answer', async () => {
+      putState(RunnerPowerState.WAKING, 2 * MINUTE)
+      redis.values.set('runner-power:wake-requested-at', String(Date.now() - 2 * MINUTE))
+      runnerExists.mockResolvedValue(true)
+      companions.notReadyReason.mockResolvedValueOnce('https://proxy.example.com/health answers 503')
+
+      await expect(service.ensureAwake('sandbox start')).rejects.toBeInstanceOf(RunnerStartingError)
+      await expect(service.ensureAwake('sandbox start')).resolves.toBeUndefined()
+      expect(state()).toBe(RunnerPowerState.AWAKE)
+    })
+
+    it('are not probed until the runner itself has reported', async () => {
+      putState(RunnerPowerState.WAKING, MINUTE)
+      redis.values.set('runner-power:wake-requested-at', String(Date.now() - MINUTE))
+
+      await expect(service.ensureAwake('sandbox start')).rejects.toBeInstanceOf(RunnerStartingError)
+      await service.handleCheck()
+
+      expect(companions.notReadyReason).not.toHaveBeenCalled()
+    })
+
+    it('are not probed for a request that finds the runner awake', async () => {
+      putState(RunnerPowerState.AWAKE, MINUTE)
+
+      await service.ensureAwake('sandbox create')
+
+      expect(companions.notReadyReason).not.toHaveBeenCalled()
+    })
+
+    it('are named in the wake timeout and asked for again, and stop holding sandboxes back, when one of them is what is missing', async () => {
+      putState(RunnerPowerState.WAKING, 12 * MINUTE)
+      redis.values.set('runner-power:wake-requested-at', String(Date.now() - 12 * MINUTE))
+      runnerExists.mockResolvedValue(true)
+      companions.notReadyReason.mockResolvedValue('https://registry.example.com/v2/ answers 503')
+      const logged = jest.spyOn(Logger.prototype, 'error').mockImplementation(() => undefined)
+
+      await service.handleCheck()
+
+      expect(logged).toHaveBeenCalledWith(
+        expect.stringContaining('RUNNER_WAKE_TIMEOUT: https://registry.example.com/v2/ answers 503 12 minutes'),
+      )
+      expect(companions.wake).toHaveBeenCalledTimes(1)
+      expect(state()).toBe(RunnerPowerState.AWAKE)
+      logged.mockRestore()
+    })
+
+    it('hold sandboxes back until the timeout, not for ever, when one of them never answers', async () => {
+      putState(RunnerPowerState.WAKING, 9 * MINUTE)
+      redis.values.set('runner-power:wake-requested-at', String(Date.now() - 9 * MINUTE))
+      runnerExists.mockResolvedValue(true)
+      companions.notReadyReason.mockResolvedValue('https://registry.example.com/v2/ answers 503')
+
+      await service.handleCheck()
+      expect(state()).toBe(RunnerPowerState.WAKING)
+
+      redis.values.set('runner-power:wake-requested-at', String(Date.now() - 11 * MINUTE))
+      await service.handleCheck()
+      expect(state()).toBe(RunnerPowerState.AWAKE)
+    })
+
+    it('keep the wording of the wake timeout when it is the runner that is missing', async () => {
+      putState(RunnerPowerState.WAKING, 12 * MINUTE)
+      redis.values.set('runner-power:wake-requested-at', String(Date.now() - 12 * MINUTE))
+      const logged = jest.spyOn(Logger.prototype, 'error').mockImplementation(() => undefined)
+
+      await service.handleCheck()
+
+      expect(logged).toHaveBeenCalledWith(
+        'RUNNER_WAKE_TIMEOUT: the runner has not reported 12 minutes after it was woken',
+      )
+      expect(state()).toBe(RunnerPowerState.WAKING)
+      logged.mockRestore()
+    })
+
+    it('are left alone while the feature is off', async () => {
+      config['runnerPower.enabled'] = false
+
+      await service.ensureAwake('sandbox create')
+      await service.handleCheck()
+
+      expect(companions.wake).not.toHaveBeenCalled()
+      expect(companions.sleep).not.toHaveBeenCalled()
+      expect(companions.sync).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('saying when the runner is up', () => {
+    it.each([
+      ['a request', () => service.ensureAwake('sandbox start')],
+      ['the check', () => service.handleCheck()],
+    ])('logs it once when %s finds the woken runner reporting', async (_who, act) => {
+      putState(RunnerPowerState.WAKING, 2 * MINUTE)
+      redis.values.set('runner-power:wake-requested-at', String(Date.now() - 2 * MINUTE))
+      runnerExists.mockResolvedValue(true)
+      const logged = jest.spyOn(Logger.prototype, 'log').mockImplementation(() => undefined)
+
+      await act()
+      await service.handleCheck()
+
+      expect(logged.mock.calls.filter(([message]) => String(message).startsWith('Runner is up'))).toHaveLength(1)
+      logged.mockRestore()
     })
   })
 })

@@ -703,6 +703,34 @@ variable "runner_sleep_when_idle" {
   default     = false
 }
 
+variable "runner_sleep_companions" {
+  description = <<-EOT
+    Switch the proxy and the snapshot registry off and on together with the
+    runner (RUNNER_POWER_COMPANION_SERVICES). Neither is used while no sandbox
+    can run: the proxy carries traffic into running sandboxes, and the registry
+    serves images to the runner. Has no effect unless runner_sleep_when_idle is
+    on.
+
+    The api sets their desired count to 0 when it switches the runner off and to
+    1 when it wakes it, and does not report the runner as up until both answer
+    through their load balancers. While they are off, preview links and the
+    registry answer 503.
+
+    Their auto-scaling minimum stays at 1. A service set below its minimum is
+    left there by Service Auto Scaling unless a scale-out alarm fires, and a
+    service with no tasks reports no metrics for one.
+
+    Like runner_sleep_when_idle, flipping this needs
+    `terraform apply -replace=module.api.aws_ecs_task_definition.this` before
+    the api is rolled. To switch it off: set it to false, apply and roll the api
+    the same way, then set both services back to 1 by hand
+    (`aws ecs update-service --desired-count 1`) if the runner is asleep at the
+    time; an api without this setting no longer wakes them.
+  EOT
+  type        = bool
+  default     = false
+}
+
 variable "runner_sleep_idle_minutes" {
   description = "Minutes with nothing running and no requests before the runner is switched off."
   type        = number

@@ -136,6 +136,9 @@ runner_desired_count        = 1
 # runner_persistent_data_volume   = true
 # runner_data_volume_subnet_index = 1 # the private subnet in the disk's zone
 # runner_sleep_when_idle          = true
+# Also switch the proxy and the snapshot registry off and on with the runner.
+# Only with runner_sleep_when_idle.
+runner_sleep_companions = false
 # runner_sleep_idle_minutes       = 20
 
 # ---------------------------------------------------------------------------

@@ -179,6 +179,11 @@ module "api" {
     RUNNER_POWER_AWS_REGION         = local.region
     RUNNER_POWER_IDLE_MINUTES       = tostring(var.runner_sleep_idle_minutes)
 
+    # Switched off and on with the runner; empty when runner_sleep_companions is
+    # off. See runner_power.tf.
+    RUNNER_POWER_COMPANION_SERVICES    = join(",", local.runner_sleep_companions[*].service)
+    RUNNER_POWER_COMPANION_HEALTH_URLS = join(",", local.runner_sleep_companions[*].health_url)
+
     PROXY_DOMAIN   = module.alb.proxy_domain
     PROXY_PROTOCOL = local.scheme
 

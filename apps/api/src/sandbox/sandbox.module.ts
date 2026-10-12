@@ -65,6 +65,7 @@ import { TypedConfigService } from '../config/typed-config.service'
 import { SandboxSearchAdapterProvider } from './providers/sandbox-search.provider'
 import { RunnerPowerService } from './services/runner-power.service'
 import { RunnerPowerEcsClient } from './services/runner-power-ecs.client'
+import { RunnerPowerCompanions } from './services/runner-power-companions'
 
 @Module({
   imports: [
@@ -112,6 +113,7 @@ import { RunnerPowerEcsClient } from './services/runner-power-ecs.client'
     RunnerService,
     RunnerPowerService,
     RunnerPowerEcsClient,
+    RunnerPowerCompanions,
     ToolboxService,
     SnapshotService,
     ProxyCacheInvalidationService,

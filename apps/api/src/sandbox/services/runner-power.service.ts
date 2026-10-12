@@ -25,6 +25,7 @@ import { SandboxDesiredState } from '../enums/sandbox-desired-state.enum'
 import { SandboxState } from '../enums/sandbox-state.enum'
 import { SnapshotRunnerState } from '../enums/snapshot-runner-state.enum'
 import { SandboxRepository } from '../repositories/sandbox.repository'
+import { RunnerPowerCompanions } from './runner-power-companions'
 import { RunnerPowerEcsClient } from './runner-power-ecs.client'
 
 /**
@@ -69,6 +70,9 @@ const RUNNER_REPORT_FRESH_MS = 60_000
 // A runner job that has not moved for this long is not counted: the runner has
 // dropped it, and it must not hold the runner on, or wake it, for ever.
 const JOB_STALE_MS = 6 * 60 * 60_000
+
+// What a wake is waiting for while the runner itself is not up yet.
+const RUNNER_NOT_REPORTED = 'the runner has not reported'
 
 // How often, at most, the reason the runner stays on is logged.
 const BUSY_LOG_INTERVAL_SECONDS = 60 * 60
@@ -132,6 +136,10 @@ const WAKE_JOB_TYPES = [
  * cache survive the sleep. ECS is the truth: the state kept in Redis is checked
  * against it on every tick.
  *
+ * Services that only matter while a sandbox can run are switched with the runner
+ * (see RunnerPowerCompanions), and the runner is not reported as up until they
+ * answer too.
+ *
  * The race that matters is a request arriving just as the runner goes to sleep.
  * A request records "activity now" BEFORE it reads the power state; the sleeper
  * publishes SLEEPING BEFORE it re-reads the activity time. Whichever runs second
@@ -156,6 +164,7 @@ export class RunnerPowerService {
     private readonly jobRepository: Repository<Job>,
     @InjectRepository(SnapshotRunner)
     private readonly snapshotRunnerRepository: Repository<SnapshotRunner>,
+    private readonly companions: RunnerPowerCompanions,
   ) {}
 
   isEnabled(): boolean {
@@ -166,8 +175,9 @@ export class RunnerPowerService {
    * Call before any request that needs a running runner (create, start, recover,
    * resize, snapshot, backup).
    *
-   * Returns when the runner is up. Otherwise starts it if it is not already
-   * starting, and throws RunnerStartingError for the caller to retry. With
+   * Returns when the runner, and the services that wake with it, are up.
+   * Otherwise starts it if it is not already starting, and throws
+   * RunnerStartingError for the caller to retry. With
    * `wake: false` it starts nothing, records no activity, and throws
    * RunnerAsleepError instead.
    */
@@ -200,10 +210,7 @@ export class RunnerPowerService {
       return
     }
 
-    if (
-      state === RunnerPowerState.WAKING &&
-      (await this.runnerReportedSince(await this.getNumber(KEY_WAKE_REQUESTED_AT)))
-    ) {
+    if (state === RunnerPowerState.WAKING && !(await this.notUpReason(await this.getNumber(KEY_WAKE_REQUESTED_AT)))) {
       try {
         await this.markAwake()
       } catch (error) {
@@ -248,6 +255,8 @@ export class RunnerPowerService {
       await this.redis.del(KEY_WAKE_TIMEOUT_LOGGED_AT)
       await this.setState(RunnerPowerState.WAKING)
       this.logger.log(`Waking the runner: ${reason}`)
+      // Started now, not at the next tick: they take about as long as the runner.
+      await this.companions.wake()
       return RunnerPowerState.WAKING
     })
   }
@@ -265,6 +274,10 @@ export class RunnerPowerService {
 
     try {
       const state = await this.reconcile()
+      // Before acting on the state: puts right a companion a failed call or a
+      // manual change left out of step. A sleep or a wake decided below switches
+      // them itself.
+      await this.companions.sync(state)
       switch (state) {
         case RunnerPowerState.AWAKE:
           await this.sleepIfIdle()
@@ -393,6 +406,7 @@ export class RunnerPowerService {
       }
       await this.setState(RunnerPowerState.ASLEEP)
       this.logger.log(`Runner switched off after ${Math.round((now - quietSince) / 60_000)} idle minutes`)
+      await this.companions.sleep()
     } finally {
       await this.redisLockProvider.unlock(LOCK_TRANSITION)
     }
@@ -415,10 +429,9 @@ export class RunnerPowerService {
 
   private async checkWake(): Promise<void> {
     const wakeRequestedAt = await this.getNumber(KEY_WAKE_REQUESTED_AT)
-    if (await this.runnerReportedSince(wakeRequestedAt)) {
-      if (await this.markAwake()) {
-        this.logger.log(`Runner is up, ${Math.round((Date.now() - wakeRequestedAt) / 1000)} s after the wake request`)
-      }
+    const waitingFor = await this.notUpReason(wakeRequestedAt)
+    if (!waitingFor) {
+      await this.markAwake()
       return
     }
 
@@ -432,17 +445,26 @@ export class RunnerPowerService {
     const loggedAt = await this.getNumber(KEY_WAKE_TIMEOUT_LOGGED_AT)
     if (Date.now() - loggedAt >= timeoutMs) {
       this.logger.error(
-        `RUNNER_WAKE_TIMEOUT: the runner has not reported ${Math.round((Date.now() - wakeRequestedAt) / 60_000)} minutes after it was woken`,
+        `RUNNER_WAKE_TIMEOUT: ${waitingFor} ${Math.round((Date.now() - wakeRequestedAt) / 60_000)} minutes after it was woken`,
       )
       await this.redis.set(KEY_WAKE_TIMEOUT_LOGGED_AT, String(Date.now()))
       await this.ecs.setDesiredCount(1)
+      await this.companions.wake()
+    }
+
+    // The runner is up and only a companion could not be confirmed. Holding every
+    // sandbox back for a proxy that may only be failing its probe would turn one
+    // broken service, or one wrong health URL, into a full outage; so after the
+    // timeout the wake is declared done, with the error above as the record.
+    if (waitingFor !== RUNNER_NOT_REPORTED) {
+      await this.markAwake()
     }
   }
 
   /**
-   * WAKING -> AWAKE once the runner has reported. Re-reads the state under the
-   * lock, since a reconcile or another request may have moved it on. Returns
-   * whether this call made the change.
+   * WAKING -> AWAKE once the runner has reported and its companions answer.
+   * Re-reads the state under the lock, since a reconcile or another request may
+   * have moved it on. Returns whether this call made the change.
    */
   private async markAwake(): Promise<boolean> {
     return this.withTransitionLock(async () => {
@@ -450,8 +472,23 @@ export class RunnerPowerService {
         return false
       }
       await this.setState(RunnerPowerState.AWAKE)
+      const wakeRequestedAt = await this.getNumber(KEY_WAKE_REQUESTED_AT)
+      this.logger.log(`Runner is up, ${Math.round((Date.now() - wakeRequestedAt) / 1000)} s after the wake request`)
       return true
     })
+  }
+
+  /**
+   * What a wake requested at `since` is still waiting for, or null when sandboxes
+   * can be served: the runner has reported, and the services that wake with it
+   * answer. The runner is asked first, so the companions are only probed in the
+   * last part of a wake.
+   */
+  private async notUpReason(since: number): Promise<string | null> {
+    if (!(await this.runnerReportedSince(since))) {
+      return RUNNER_NOT_REPORTED
+    }
+    return this.companions.notReadyReason()
   }
 
   /**
@@ -630,7 +667,7 @@ export class RunnerPowerService {
     } else {
       // Asleep as far as Redis knows, or nothing stored, yet ECS wants the task:
       // someone woke it by hand, or Redis was flushed.
-      actual = (await this.runnerReportedSince(0)) ? RunnerPowerState.AWAKE : RunnerPowerState.WAKING
+      actual = (await this.notUpReason(0)) ? RunnerPowerState.WAKING : RunnerPowerState.AWAKE
     }
 
     if (actual === stored) {

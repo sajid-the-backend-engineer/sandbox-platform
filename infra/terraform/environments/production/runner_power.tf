@@ -12,6 +12,25 @@
 #
 # Plan and rollout: docs-daytona/runner-sleep-when-idle-plan.md.
 
+locals {
+  # The services switched off and on with the runner, and where the api asks
+  # each one whether it is up before it reports the runner as up. Asked through
+  # the load balancer a client would use, which answers 503 until a task is
+  # registered and healthy; the registry answers 401 there, which counts as up.
+  runner_sleep_companions = var.runner_sleep_when_idle && var.runner_sleep_companions ? [
+    {
+      service    = module.proxy.service_name
+      arn        = module.proxy.service_arn
+      health_url = "${module.alb.public_proxy_url}/health"
+    },
+    {
+      service    = module.snapshot_manager.service_name
+      arn        = module.snapshot_manager.service_arn
+      health_url = "${local.snapshot_manager_registry_url}/v2/"
+    },
+  ] : []
+}
+
 data "aws_iam_policy_document" "api_runner_power" {
   count = var.runner_sleep_when_idle ? 1 : 0
 
@@ -20,6 +39,19 @@ data "aws_iam_policy_document" "api_runner_power" {
     effect    = "Allow"
     actions   = ["ecs:UpdateService", "ecs:DescribeServices"]
     resources = [module.runner.service_arn]
+  }
+
+  # The same two calls on the services that sleep with the runner, and on
+  # nothing else.
+  dynamic "statement" {
+    for_each = length(local.runner_sleep_companions) > 0 ? [1] : []
+
+    content {
+      sid       = "CompanionServicesDesiredCount"
+      effect    = "Allow"
+      actions   = ["ecs:UpdateService", "ecs:DescribeServices"]
+      resources = local.runner_sleep_companions[*].arn
+    }
   }
 }
 

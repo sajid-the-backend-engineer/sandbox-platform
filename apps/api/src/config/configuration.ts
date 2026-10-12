@@ -6,6 +6,13 @@
 
 import { SandboxClass } from '../sandbox/enums/sandbox-class.enum'
 
+// A comma-separated environment value as a list. Unset or empty gives no items.
+const listFromEnv = (value: string | undefined): string[] =>
+  (value ?? '')
+    .split(',')
+    .map((item) => item.trim())
+    .filter(Boolean)
+
 const configuration = {
   production: process.env.NODE_ENV === 'production',
   version: process.env.VERSION || '0.0.0-dev',
@@ -200,6 +207,12 @@ const configuration = {
     minAwakeMinutes: parseInt(process.env.RUNNER_POWER_MIN_AWAKE_MINUTES || '10', 10),
     wakeTimeoutMinutes: parseInt(process.env.RUNNER_POWER_WAKE_TIMEOUT_MINUTES || '10', 10),
     retryAfterSeconds: parseInt(process.env.RUNNER_POWER_RETRY_AFTER_SECONDS || '15', 10),
+    // ECS services that are switched off and on together with the runner, because
+    // nothing uses them while no sandbox can run (the proxy, the snapshot registry).
+    // Empty means none. The health URLs are asked before the runner is reported as
+    // up; any answer below 500 counts.
+    companionServices: listFromEnv(process.env.RUNNER_POWER_COMPANION_SERVICES),
+    companionHealthUrls: listFromEnv(process.env.RUNNER_POWER_COMPANION_HEALTH_URLS),
   },
   buildInfo: {
     maxCpuPerRunner: parseInt(process.env.BUILD_INFO_MAX_CPU_PER_RUNNER || '40', 10),
