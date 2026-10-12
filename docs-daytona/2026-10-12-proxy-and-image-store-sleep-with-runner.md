@@ -83,7 +83,9 @@ nothing for an alarm to fire on.
 | The image store while awake | Passed | A sandbox backup ran straight after that wake and finished |
 | Go to sleep together, second time | Passed | 10:49:30: all three switched off again, 20 minutes after the last activity |
 | Wake together, from a real request | Passed | 10:54:35: a real request (not a test) woke all three; "Runner is up, 55 s after the wake request" |
-| Wake from a fully removed server | Not timed yet | Both wakes came while the runner server was still there (AWS removes it about 18 minutes after a sleep). The runner then takes about 4.5 minutes; the proxy and the image store start in under a minute, so that time should not change |
+| Go to sleep together, third time | Passed | 11:15:30: all three switched off; AWS removed the runner server at 11:33:08 |
+| Wake from a fully removed server | Passed | Resume of a parked workspace requested 11:34:30. Proxy and image store running 47 seconds later; new server launched 11:36:07; "Runner is up, 210 s after the wake request" (3.5 minutes) |
+| Parked work after a full sleep | Passed | The workspace resumed at 11:38:08 with its file, written at 10:29 before three sleeps, unchanged |
 
 The API log for the whole sequence:
 
@@ -103,7 +105,17 @@ The API log for the whole sequence:
 10:54:36 Switched northrays-proxy on with the runner
 10:54:36 Switched northrays-snapshot-manager on with the runner
 10:55:30 Runner is up, 55 s after the wake request
+11:15:30 Runner switched off after 20 idle minutes
+11:15:31 Switched northrays-proxy off with the runner
+11:15:31 Switched northrays-snapshot-manager off with the runner
+11:34:30 Waking the runner: sandbox start
+11:34:30 Switched northrays-proxy on with the runner
+11:34:30 Switched northrays-snapshot-manager on with the runner
+11:38:00 Runner is up, 210 s after the wake request
 ```
+
+The proxy and the image store are ready about three minutes before the runner, so they add
+nothing to the wait. The 3.5 minutes is the runner's own start, as before this change.
 
 ## Known limits
 
