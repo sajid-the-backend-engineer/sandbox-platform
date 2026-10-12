@@ -71,3 +71,5 @@ Both are in Phase 3, which is parked.
 |---|---:|
 | Replace the NAT gateway with a small NAT server | about $30 (estimate) |
 | Move secrets from Secrets Manager to the free parameter store | about $9 |
+
+Jira: ADM-898.

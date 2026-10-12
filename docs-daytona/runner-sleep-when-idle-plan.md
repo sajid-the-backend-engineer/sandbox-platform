@@ -418,6 +418,17 @@ tag present, disk attached with delete-on-termination off, test workspace destro
 - The "Sandbox is starting up" line was checked through AADML's API answers ("starting, try again"),
   not by eye in the chat screen.
 
+### Added on 12 October: the proxy and the image store follow the runner
+
+Since 12 October 2026 the API also switches the proxy and the image store off when it switches
+the runner off, and on when it wakes it, and does not report the runner as up until both answer.
+Design, tests and how to reverse it:
+[2026-10-12-proxy-and-image-store-sleep-with-runner.md](2026-10-12-proxy-and-image-store-sleep-with-runner.md).
+Switching runner sleep off reverses that as well.
+
+The "Runner is up" log line, which used to be missing when a request (not the 30-second check)
+found the runner awake, is now always written.
+
 ### Where Terraform is run from
 
 On `aadml-sandbox`, Terraform was run from `~/runner-sleep-plan` (code at `6b5318df3`). The older

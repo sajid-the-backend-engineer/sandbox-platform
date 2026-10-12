@@ -14,10 +14,45 @@ Written 2026-10-05. Read this before the platform takes real traffic.
   Its sandbox disk is kept, so parked sandboxes survive. See
   [What changed on 2026-10-06](#what-changed-on-2026-10-06-the-runner-sleeps-when-idle).
   This is a low-traffic setting too.
+- On 2026-10-07 the SSH load balancer was removed and the SSH gateway set to 0,
+  because nobody used SSH. Since 2026-10-12 the **proxy and the image store are
+  switched off and on together with the runner**.
+- **Every one of these is a low-traffic setting.** The table in
+  [Every cost change, and how to reverse it](#every-cost-change-and-how-to-reverse-it)
+  lists them all in one place.
 - **Reversing them does not give you auto-scaling.** The runner was fixed
   at one copy before 5 October too, and it has never had an auto-scaling rule.
   Running more than one runner is new work that has not been done yet. It is
   listed in [Before go-live](#before-go-live).
+
+## Every cost change, and how to reverse it
+
+All of these were made in October 2026 to cut cost while traffic is low. This is
+the list to work through when traffic grows. Each row has its own section below,
+or its own document in `docs-daytona/`, with the exact commands.
+
+| Date | Change | Saves a month | To reverse, in short | Reverse it when |
+|---|---|---:|---|---|
+| 5 Oct | No standby runner server (capacity target 100) | avoids $125 | `runner_target_capacity` back to 80, apply | More than one runner exists (needs new work first) |
+| 5 Oct | Container Insights off | about $47 | `ecs_container_insights = "enabled"`, apply | Before go-live: it is the monitoring |
+| 5 Oct | Runner disk speed 250 to 125 MiB/s | about $11 | `runner_volume_throughput = 250`, apply, replace the runner | Sandboxes are slow on disk |
+| 5 Oct | Snapshot manager 2 copies to 1 | about $10 | `snapshot_manager_desired_count = 2`, apply | Before go-live |
+| 5 Oct | Deployment server off unless deploying | about $33 | Start it and leave it on | Deploys become frequent |
+| 6 Oct | Runner switched off when idle, disk kept | about $75 | `runner_sleep_when_idle = false`, apply, replace the api task definition, redeploy | **Before go-live**, or raise `runner_sleep_idle_minutes` |
+| 7 Oct | SSH load balancer removed | about $26 | `ssh_load_balancer_enabled = true`, apply | A customer needs SSH into a sandbox |
+| 7 Oct | SSH gateway service at 0 | about $10 | `aws ecs update-service --service northrays-ssh-gateway --desired-count 1` | Together with the row above |
+| 7 Oct | Unused old database disk deleted | about $5 | Cannot be reversed; nothing needs it | Never |
+| 12 Oct | Proxy and image store switched off and on with the runner | about $20 | `runner_sleep_companions = false`, apply, replace the api task definition, redeploy | **Before go-live**, together with runner sleep |
+
+Also set up on 7 October: an AWS budget of $350 a month for the California
+region, which only sends email (`docs-daytona/2026-10-07-california-budget-and-small-cuts.md`).
+Raise its amount when traffic, and so the bill, is meant to grow.
+
+The two sleep settings go together. Reversing runner sleep (6 Oct) also stops
+the proxy and image store being switched off, because that setting only works
+with it; the deploy that follows switches all three back on. The 12 Oct row can
+also be reversed on its own, which keeps the runner sleeping and leaves the
+proxy and image store on all day.
 
 ## What "one server" means
 
@@ -52,6 +87,10 @@ smaller machine was chosen to fit the AWS vCPU limit.
 | Runner servers allowed | minimum 0, **maximum 1**, in zone us-west-1c only | forced by `runner_persistent_data_volume = true` (since 2026-10-06); the `runner_asg_*` values in `terraform.tfvars` are ignored while it is on |
 | Sandbox disk | one 300 GB disk, `vol-0d303f55afa6efde2`, **kept** when the server goes away and attached to the next one | `runner_persistent_data_volume`, since 2026-10-06 |
 | Runner sleep when idle | **on**: off after 20 quiet minutes, on again at the next create or start | `runner_sleep_when_idle`, `runner_sleep_idle_minutes`, since 2026-10-06 |
+| Proxy and image store | **follow the runner**: 0 while it is off, 1 while it is on | `runner_sleep_companions`, since 2026-10-12 |
+| SSH load balancer | **removed** | `ssh_load_balancer_enabled = false`, since 2026-10-07 |
+| SSH gateway copies | 0 | set by hand 2026-10-07; `ssh_gateway_desired_count` is 0 in `terraform.tfvars` |
+| Budget alert | $350 a month for us-west-1, email only | `infra/aws-budgets/california-monthly-350.yaml`, since 2026-10-07 |
 | Runner copies | 1, fixed | `runner_desired_count` |
 | Runner auto-scaling rule | **none, never existed** | not in Terraform |
 | Capacity target | 100 (no standby server) | `runner_target_capacity`, changed 2026-10-05 |
@@ -66,7 +105,8 @@ smaller machine was chosen to fit the AWS vCPU limit.
 
 For comparison, the other services already scale on their own: api 1 to 12
 copies, proxy 1 to 10, dashboard 1 to 6, ssh-gateway 0 to 6, snapshot-manager
-1 to 4. Only the runner does not.
+1 to 4. Only the runner does not. (While the runner is off, the proxy and the
+snapshot manager sit at 0, below those minimums, on purpose.)
 
 ## What changed on 2026-10-05
 
@@ -192,6 +232,30 @@ Things to know while it is on:
 | To reverse | Set `ssh_load_balancer_enabled = true` and `terraform apply -target=module.nlb_ssh -target=module.ssh_gateway`. About 15 minutes. The name `ssh.sandbox.aadml.com` comes back the same; then set `northrays-ssh-gateway` back to 1 task (it is at 0 since 2026-10-07). |
 | When to reverse | When a customer needs SSH into a sandbox. Not needed for go-live otherwise. |
 
+## What changed on 2026-10-07, later the same day: two small cuts and a budget
+
+| | |
+|---|---|
+| SSH gateway to 0 | With the load balancer gone nothing could reach it. `aws ecs update-service --cluster northrays-production --service northrays-ssh-gateway --desired-count 0`. To reverse: the same command with 1, after the load balancer is back. |
+| Old database disk deleted | `vol-0842a5ceeacf3fa6b`, 50 GB, used for one hour on launch day before RDS existed. Cannot be reversed and nothing needs it. |
+| Budget | $350 a month for us-west-1, email to two addresses, no automatic action. |
+
+Details: `docs-daytona/2026-10-07-california-budget-and-small-cuts.md`.
+
+## What changed on 2026-10-12: the proxy and the image store sleep with the runner
+
+| | |
+|---|---|
+| What | When the api switches the runner off it also sets `northrays-proxy` and `northrays-snapshot-manager` to 0, and when it wakes the runner it sets them back to 1. It checks them every 30 seconds and puts right any that are out of step. The runner is not reported as up until both answer through their load balancers. |
+| Why | With the runner asleep about 90% of the time, both ran all day for nothing: the proxy only carries traffic into running sandboxes, and only the runner pulls from the image store. About $22 a month if always on; about $20 saved. |
+| What is different while asleep | Sandbox preview links and `proxy.sandbox.aadml.com` answer 503, and so does the image store. The api and the dashboard are unaffected. A cleanup the api does in the image store while it is off (deleting a destroyed sandbox's backup image) fails with a log line and is not retried, so a little storage can be left behind. |
+| Measured on 2026-10-12 | All three went to 0 together 20 minutes after the runner came up. Woken twice while the server was still there: the api reported the runner up 56 and 55 seconds after the request. A wake from a fully removed server was not timed that day; see `docs-daytona/2026-10-12-proxy-and-image-store-sleep-with-runner.md`. |
+| Safety rule | If the runner is up and the proxy or image store still cannot be confirmed 10 minutes after the wake, the api logs `RUNNER_WAKE_TIMEOUT` naming it and lets sandboxes through anyway. |
+| How | `runner_sleep_companions = true` in `terraform.tfvars`, which gives the api `RUNNER_POWER_COMPANION_SERVICES` and `RUNNER_POWER_COMPANION_HEALTH_URLS` and permission to change those two services' desired count. Code: `apps/api` `RunnerPowerCompanions`. Commit `d6283b55f`. |
+| To reverse | (1) `runner_sleep_companions = false` in `terraform.tfvars`. (2) `terraform apply -target=aws_iam_role_policy.api_runner_power -target=module.api.aws_ecs_task_definition.this -replace=module.api.aws_ecs_task_definition.this`. (3) Redeploy through the pipeline in a quiet window; the deploy switches both services on and the new api leaves them on. (4) Check both show 1: `aws ecs describe-services --cluster northrays-production --services northrays-proxy northrays-snapshot-manager --query 'services[].[serviceName,desiredCount]'`, and set any at 0 back to 1. |
+| Do not | Set the two services to 1 by hand while this is on and the runner is asleep: the api sets them back to 0 within 30 seconds. To get everything on for a demo, wake the runner (`--service northrays-runner --desired-count 1`); the api then switches the other two on. |
+| When to reverse | **Before go-live**, with runner sleep. With steady traffic the runner rarely sleeps and this saves nothing. |
+
 ## Before go-live
 
 These are in order. Step 0 blocks every other step.
@@ -273,10 +337,13 @@ every running sandbox. With two or more runners, change the runner service to a
 rolling deploy (minimum healthy 50% or more) so that one runner stays up while
 the other is replaced.
 
-### Step 5. Turn monitoring back on, run two snapshot managers again, and stop the runner sleeping
+### Step 5. Turn monitoring back on, run two snapshot managers again, and stop the sleeping
 
-Reverse changes 2 and 4 above and the 2026-10-06 runner sleep (or raise its idle
-time), and add alarms on runner CPU, memory, a failed wake and sandbox disk
+Reverse changes 2 and 4 above, the 2026-10-12 sleep of the proxy and image store,
+and the 2026-10-06 runner sleep (or raise its idle time), in that order; the
+table in [Every cost change, and how to reverse it](#every-cost-change-and-how-to-reverse-it)
+has them all. Put the SSH load balancer and gateway back only if SSH is wanted.
+Add alarms on runner CPU, memory, a failed wake and sandbox disk
 space. Running out of sandbox disk does not fail cleanly; see
 `data_volume_size` in `modules/service-ec2-runner/variables.tf`.
 
@@ -318,6 +385,18 @@ aws service-quotas get-service-quota --service-code ec2 --quota-code L-1216C47A 
 # Snapshot manager copies
 aws ecs describe-services --cluster northrays-production --services northrays-snapshot-manager --query 'services[0].[desiredCount,runningCount]'
 
+# Proxy, image store and SSH gateway: 0 while the runner sleeps is expected
+aws ecs describe-services --cluster northrays-production \
+  --services northrays-proxy northrays-snapshot-manager northrays-ssh-gateway \
+  --query 'services[].[serviceName,desiredCount,runningCount]'
+
+# Is the api set to switch them with the runner?
+aws ecs describe-task-definition --task-definition northrays-api \
+  --query 'taskDefinition.containerDefinitions[0].environment[?starts_with(name,`RUNNER_POWER`)]'
+
+# Load balancers (two since 2026-10-07)
+aws elbv2 describe-load-balancers --query 'LoadBalancers[].LoadBalancerName'
+
 # Is the deployment server on?
 aws ec2 describe-instances --instance-ids i-046084b62c91f310a --query 'Reservations[0].Instances[0].State.Name'
 ```
@@ -327,8 +406,12 @@ All of these use region `us-west-1`.
 ## Related
 
 - Jira: ADM-662 (outage), ADM-665 (capacity target), ADM-670 (Container Insights
-  and disk throughput), ADM-671 (September cost review), ADM-683 (Phase 2).
-- Commits: `15a6652f7`, `986337093`, `c3547bdc1`, `6b5318df3`, `b17a419cb`.
+  and disk throughput), ADM-671 (September cost review), ADM-683 (Phase 2),
+  ADM-844 (runner sleep), ADM-897 (SSH load balancer), ADM-898 (budget and small
+  cuts), ADM-899 (proxy and image store sleep).
+- Commits: `15a6652f7`, `986337093`, `c3547bdc1`, `6b5318df3`, `b17a419cb`,
+  `bbabf4116` (SSH load balancer), `fd187bf40` (budget, small cuts), `d6283b55f`
+  (proxy and image store sleep).
 - `docs-daytona/` holds the record of the 5 October work and the runner sleep
   plan. An older, larger design for many runners behind a queue
   (`docs-daytona/aadml-scale-to-zero-runner-architecture.md`) is a draft and has

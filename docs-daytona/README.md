@@ -10,7 +10,11 @@ Written for the Northrays team and management. Plain language first, exact comma
 | [runner-sleep-when-idle-plan.md](runner-sleep-when-idle-plan.md) | Switching the runner off when idle and back on when AADML needs it (Option B, disk kept): design, rollout record, test results, how to undo | **Live since 6 October 2026** |
 | [2026-10-07-ssh-load-balancer-removed.md](2026-10-07-ssh-load-balancer-removed.md) | The SSH load balancer was deleted: the evidence nobody used it, what was removed, the commands, how to bring it back | Done, about $26 a month |
 | [2026-10-07-california-budget-and-small-cuts.md](2026-10-07-california-budget-and-small-cuts.md) | The $350 a month budget for California, who gets the alerts, and two small cuts (SSH gateway to 0, old database disk deleted) | Done, about $15 a month |
+| [2026-10-12-proxy-and-image-store-sleep-with-runner.md](2026-10-12-proxy-and-image-store-sleep-with-runner.md) | The proxy and the image store now switch off and on with the runner: how it works, the tests, and how to reverse it | **Live since 12 October 2026**, about $20 a month |
 | [aadml-scale-to-zero-runner-architecture.md](aadml-scale-to-zero-runner-architecture.md) | Earlier, larger design (8 September): SQS queue and many runners | Draft, not approved or built |
+
+**Every cost change made so far, with how to reverse each one, is in one table** at the top of
+GO-LIVE-SCALING.md (linked below). Start there when traffic grows.
 
 Related, kept next to the Terraform code:
 [GO-LIVE-SCALING.md](../infra/terraform/environments/production/GO-LIVE-SCALING.md), what is set for

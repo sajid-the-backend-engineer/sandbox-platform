@@ -108,3 +108,5 @@ The name `ssh.sandbox.aadml.com` comes back the same. The addresses behind it ar
 
 A backup of the Terraform files and state from before the change is on `aadml-sandbox` in
 `~/backup-20261007-before-ssh-nlb-removal/`.
+
+Jira: ADM-897.
