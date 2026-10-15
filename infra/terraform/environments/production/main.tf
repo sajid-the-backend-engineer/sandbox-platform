@@ -15,6 +15,8 @@ locals {
     Project     = var.project
     Environment = var.environment
     ManagedBy   = "terraform"
+    # Cost allocation: this stack is the AADML sandbox platform (sandbox.aadml.com).
+    platform = "aadml"
   }
 
   name        = "${var.project}-${var.environment}"
