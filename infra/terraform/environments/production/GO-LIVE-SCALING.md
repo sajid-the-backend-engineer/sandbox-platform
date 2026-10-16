@@ -1,5 +1,12 @@
 # Runner capacity: what is set today, and what to change before go-live
 
+> **The platform was shut down on 15 October 2026.** Everything this document describes was deleted
+> from AWS. It is kept for a rebuild: see
+> `docs-daytona/2026-10-15-daytona-shut-down-and-how-to-rebuild.md`. Earlier that day the runner
+> image was updated to `ami-01b0b19c4bde4d90a` together with the `platform = "aadml"` cost tag
+> (Terraform apply: 0 added, 182 changed, 0 destroyed; launch template version 5); the wake test on
+> that image was not run before the shutdown.
+
 Written 2026-10-05. Read this before the platform takes real traffic.
 
 ## The short version

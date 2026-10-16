@@ -1,5 +1,8 @@
 # Daytona platform: operations documents
 
+> **Shut down on 15 October 2026.** Nothing of the platform runs on AWS any more. To bring it back,
+> start with [2026-10-15-daytona-shut-down-and-how-to-rebuild.md](2026-10-15-daytona-shut-down-and-how-to-rebuild.md).
+
 Written for the Northrays team and management. Plain language first, exact commands after.
 
 | Document | What it is | Status |
@@ -11,6 +14,7 @@ Written for the Northrays team and management. Plain language first, exact comma
 | [2026-10-07-ssh-load-balancer-removed.md](2026-10-07-ssh-load-balancer-removed.md) | The SSH load balancer was deleted: the evidence nobody used it, what was removed, the commands, how to bring it back | Done, about $26 a month |
 | [2026-10-07-california-budget-and-small-cuts.md](2026-10-07-california-budget-and-small-cuts.md) | The $350 a month budget for California, who gets the alerts, and two small cuts (SSH gateway to 0, old database disk deleted) | Done, about $15 a month |
 | [2026-10-12-proxy-and-image-store-sleep-with-runner.md](2026-10-12-proxy-and-image-store-sleep-with-runner.md) | The proxy and the image store now switch off and on with the runner: how it works, the tests, and how to reverse it | **Live since 12 October 2026**, about $20 a month |
+| [2026-10-15-daytona-shut-down-and-how-to-rebuild.md](2026-10-15-daytona-shut-down-and-how-to-rebuild.md) | **The whole platform was deleted from AWS on 15 October.** What was removed, what was kept, and step by step how to bring it back | Shut down |
 | [aadml-scale-to-zero-runner-architecture.md](aadml-scale-to-zero-runner-architecture.md) | Earlier, larger design (8 September): SQS queue and many runners | Draft, not approved or built |
 
 **Every cost change made so far, with how to reverse each one, is in one table** at the top of
